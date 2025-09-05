@@ -703,84 +703,66 @@ class RAGKnowledgeBase:
                 "top_k": top_k
             }
     
-    def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any], 
+    def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any],
                 actions: List[str], makespan: float):
-        """添加新案例到知识库"""
-        
+        """添加新案例到知识库（增强版，修复FAISS兼容性问题）"""
+
         case = {
             "workflow_info": workflow_info,
             "actions": actions,
             "makespan": makespan,
             "timestamp": str(np.datetime64('now'))
         }
-        
+
         self.cases.append(case)
-        
-        # 添加到FAISS索引
+
         if self.index is None:
             self._initialize_empty_kb()
-            
-        # 确保embedding是正确的numpy数组格式
+
         try:
-            # 多重转换策略确保FAISS兼容性
+            # 定义一个健壮的、多策略的函数来准备用于FAISS的数组
             def prepare_for_faiss(arr):
                 """准备数组用于FAISS - 多重fallback策略"""
-                # 策略1: 基础转换
+                # 策略1: 基础转换，确保是 float32 的 numpy 数组
                 if isinstance(arr, list):
                     arr = np.array(arr, dtype=np.float32)
                 else:
                     arr = np.asarray(arr, dtype=np.float32)
-                
-                # 确保2D
+
+                # 策略2: 确保是2D数组
                 if arr.ndim == 1:
                     arr = arr.reshape(1, -1)
-                
-                # 策略2: 强制创建全新的C连续数组
+
+                # 策略3: 强制创建一个全新的、内存连续的数组副本。这是最关键的一步。
+                # copy=True 确保我们得到的是一个新数组，而不是一个视图
+                # order='C' 确保是C语言风格的连续内存
                 arr = np.array(arr, dtype=np.float32, copy=True, order='C')
-                
+
                 return arr
-            
+
             embedding_vector = prepare_for_faiss(embedding)
-            
-            # 调试信息（仅前几个案例）
-            if len(self.cases) <= 3:
-                print(f"[DEBUG] Array prepared: shape={embedding_vector.shape}, dtype={embedding_vector.dtype}, contiguous={embedding_vector.flags.c_contiguous}")
-                print(f"[DEBUG] Array ptr: {embedding_vector.__array_interface__['data'][0]}")
-            
-            # 验证数组属性
+
+            # 验证数组属性，确保万无一失
             if not isinstance(embedding_vector, np.ndarray):
-                raise ValueError(f"Not a numpy array: {type(embedding_vector)}")
+                raise ValueError(f"转换后仍然不是Numpy数组: {type(embedding_vector)}")
             if embedding_vector.dtype != np.float32:
-                raise ValueError(f"Wrong dtype: {embedding_vector.dtype}")
+                raise ValueError(f"数据类型错误: {embedding_vector.dtype}")
             if not embedding_vector.flags.c_contiguous:
-                raise ValueError("Array is not C-contiguous")
+                raise ValueError("数组内存布局不是C-contiguous")
             if embedding_vector.shape[1] != self.embedding_dim:
-                raise ValueError(f"Wrong embedding dimension: {embedding_vector.shape[1]} vs {self.embedding_dim}")
-            
-            # 多重添加尝试
-            try:
-                self.index.add(embedding_vector)
-            except Exception as first_err:
-                print(f"[DEBUG] First attempt failed: {first_err}")
-                # Fallback 1: 使用np.require
-                fallback1 = np.require(embedding_vector, dtype=np.float32, requirements=['C', 'A', 'W'])
-                try:
-                    self.index.add(fallback1)
-                except Exception as second_err:
-                    print(f"[DEBUG] Second attempt failed: {second_err}")
-                    # Fallback 2: 手动复制到新数组
-                    fallback2 = np.empty((1, self.embedding_dim), dtype=np.float32, order='C')
-                    fallback2[0, :] = embedding_vector.flatten()[:self.embedding_dim]
-                    self.index.add(fallback2)
-            
+                raise ValueError(f"错误的 embedding 维度: {embedding_vector.shape[1]} vs {self.embedding_dim}")
+
+            # 直接添加，因为 prepare_for_faiss 已经处理了所有已知问题
+            self.index.add(embedding_vector)
+
         except Exception as e:
-            print(f"Error adding case to knowledge base: {e}")
-            print(f"  Original embedding type: {type(embedding)}")
-            print(f"  Original embedding shape: {getattr(embedding, 'shape', 'N/A')}")
-            if hasattr(embedding, '__len__'):
-                print(f"  Original embedding length: {len(embedding)}")
+            print(f"向知识库添加案例时发生严重错误: {e}")
+            print(f"  原始 embedding 类型: {type(embedding)}")
+            print(f"  原始 embedding 形状: {getattr(embedding, 'shape', 'N/A')}")
+            # 如果添加失败，将刚刚添加的 case 移除，保持数据一致性
+            self.cases.pop()
             raise
-    
+
     def load_knowledge_base(self, path: str):
         """加载知识库"""
         try:
