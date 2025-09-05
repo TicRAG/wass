@@ -4,8 +4,9 @@ from typing import Any
 import random
 
 class DummyGNN:
-    def __init__(self, hidden_dim: int = 64):
+    def __init__(self, hidden_dim: int = 64, num_layers: int = 2, **kwargs):
         self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
         self._fitted = False
 
     def train(self, graph, labels, **kwargs):

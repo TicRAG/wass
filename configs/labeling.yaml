@@ -1,0 +1,10 @@
+abstain: -1
+lfs:
+  - name: keyword_positive
+    type: keyword
+    keywords: ["good", "excellent", "amazing"]
+    label: 1
+  - name: keyword_negative
+    type: keyword
+    keywords: ["bad", "terrible", "awful"]
+    label: 0

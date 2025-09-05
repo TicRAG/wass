@@ -17,6 +17,24 @@ class SimpleLabelMatrixBuilder:
 
     @staticmethod
     def stats(L, abstain_val=ABSTAIN):
+        """计算标签矩阵统计信息."""
+        from ..utils import calculate_conflict_rate
+        
         cover = (L != abstain_val).mean()
         abstain_rate = 1 - cover
-        return {"coverage": cover, "abstain_rate": abstain_rate}
+        conflict_rate = calculate_conflict_rate(L)
+        
+        # 计算每个LF的覆盖率
+        lf_coverage = []
+        for j in range(L.shape[1]):
+            lf_cover = (L[:, j] != abstain_val).mean()
+            lf_coverage.append(lf_cover)
+        
+        return {
+            "coverage": cover, 
+            "abstain_rate": abstain_rate,
+            "conflict_rate": conflict_rate,
+            "lf_coverage": lf_coverage,
+            "n_samples": L.shape[0],
+            "n_lfs": L.shape[1]
+        }

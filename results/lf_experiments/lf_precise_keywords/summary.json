@@ -1,0 +1,90 @@
+{
+  "config_path": "temp_lf_precise_keywords.yaml",
+  "experiment_name": "lf_exp_lf_precise_keywords",
+  "stages": {
+    "data_loading": {
+      "name": "data_loading",
+      "start_time": 1757040804.3965626,
+      "end_time": 1757040804.3990252,
+      "elapsed_seconds": 0.002462625503540039
+    },
+    "labeling": {
+      "name": "labeling",
+      "start_time": 1757040804.399199,
+      "end_time": 1757040804.4003494,
+      "elapsed_seconds": 0.001150369644165039
+    },
+    "label_model": {
+      "name": "label_model",
+      "start_time": 1757040804.400704,
+      "end_time": 1757040804.4018278,
+      "elapsed_seconds": 0.0011239051818847656
+    },
+    "graph_gnn": {
+      "name": "graph_gnn",
+      "start_time": 1757040804.4019763,
+      "end_time": 1757040804.4031987,
+      "elapsed_seconds": 0.001222372055053711
+    },
+    "rag": {
+      "name": "rag",
+      "start_time": 1757040804.4033468,
+      "end_time": 1757040804.404535,
+      "elapsed_seconds": 0.0011882781982421875
+    },
+    "drl": {
+      "name": "drl",
+      "start_time": 1757040804.4048436,
+      "end_time": 1757040804.405297,
+      "elapsed_seconds": 0.0004534721374511719
+    },
+    "evaluation": {
+      "name": "evaluation",
+      "start_time": 1757040804.4054837,
+      "end_time": 1757040804.406084,
+      "elapsed_seconds": 0.0006003379821777344
+    }
+  },
+  "data_stats": {
+    "train_size": 200,
+    "valid_size": 50,
+    "test_size": 50
+  },
+  "labeling_stats": {
+    "coverage": 0.2225,
+    "abstain_rate": 0.7775,
+    "conflict_rate": 0.0,
+    "lf_coverage": [
+      0.225,
+      0.22
+    ],
+    "n_samples": 200,
+    "n_lfs": 2
+  },
+  "label_model_stats": {
+    "proba_shape": [
+      200,
+      2
+    ],
+    "model_type": "majority_vote"
+  },
+  "graph_stats": {
+    "graph_nodes": 17,
+    "gnn_model": "gcn"
+  },
+  "rag_stats": {
+    "retrieved_count": 5,
+    "has_context": true,
+    "retriever_type": "simple_bm25"
+  },
+  "drl_stats": {
+    "total_reward": 2.2869107566895317,
+    "episodes": 3,
+    "policy_type": "dqn"
+  },
+  "eval_stats": {
+    "accuracy": 1.0,
+    "f1": 1.0,
+    "n_predictions": 200
+  }
+}

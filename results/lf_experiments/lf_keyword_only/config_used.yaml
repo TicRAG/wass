@@ -1,0 +1,54 @@
+data:
+  adapter: simple_jsonl
+  test_file: test.jsonl
+  train_file: train.jsonl
+  valid_file: valid.jsonl
+drl:
+  env: active_learning_env
+  params:
+    epsilon_decay: 5000
+    epsilon_end: 0.05
+    epsilon_start: 1.0
+    gamma: 0.95
+  policy: dqn
+eval:
+  metrics:
+  - accuracy
+  - f1
+experiment_name: lf_exp_lf_keyword_only
+graph:
+  builder: cooccurrence
+  gnn_model: gcn
+  gnn_params:
+    hidden_dim: 64
+    num_layers: 2
+  params:
+    window_size: 5
+label_model:
+  params: {}
+  type: majority_vote
+labeling:
+  abstain: -1
+  lfs:
+  - keywords:
+    - good
+    - excellent
+    - amazing
+    label: 1
+    name: keyword_positive
+    type: keyword
+  - keywords:
+    - bad
+    - terrible
+    - awful
+    label: 0
+    name: keyword_negative
+    type: keyword
+paths:
+  data_dir: data/
+  results_dir: results/lf_experiments/lf_keyword_only/
+rag:
+  fusion: concat
+  retriever: simple_bm25
+  top_k: 5
+random_seed: 42

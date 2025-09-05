@@ -34,6 +34,44 @@ def lf_keyword_builder(keywords: List[str], label: int, field: str = "text", low
         return abstain
     return lf
 
+@register("regex")
+def lf_regex_builder(pattern: str, label: int, field: str = "text", abstain: int = ABSTAIN):
+    """正则表达式Label Function."""
+    import re
+    compiled_pattern = re.compile(pattern, re.IGNORECASE)
+    def lf(sample):
+        text = sample.get(field, '')
+        if compiled_pattern.search(text):
+            return label
+        return abstain
+    return lf
+
+@register("length")
+def lf_length_builder(min_length: int = None, max_length: int = None, label: int = 1, field: str = "text", abstain: int = ABSTAIN):
+    """基于文本长度的Label Function."""
+    def lf(sample):
+        text = sample.get(field, '')
+        length = len(text.split())
+        
+        if min_length is not None and length < min_length:
+            return abstain
+        if max_length is not None and length > max_length:
+            return abstain
+        return label
+    return lf
+
+@register("contains_url")
+def lf_contains_url_builder(label: int = 0, field: str = "text", abstain: int = ABSTAIN):
+    """检测是否包含URL的Label Function."""
+    import re
+    url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    def lf(sample):
+        text = sample.get(field, '')
+        if url_pattern.search(text):
+            return label
+        return abstain
+    return lf
+
 def build_lfs(config_list: List[dict]) -> List[LFWrapper]:
     lfs: List[LFWrapper] = []
     for cfg in config_list:

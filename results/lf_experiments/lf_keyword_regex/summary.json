@@ -1,0 +1,92 @@
+{
+  "config_path": "temp_lf_keyword_regex.yaml",
+  "experiment_name": "lf_exp_lf_keyword_regex",
+  "stages": {
+    "data_loading": {
+      "name": "data_loading",
+      "start_time": 1757040804.3323433,
+      "end_time": 1757040804.3350124,
+      "elapsed_seconds": 0.002669095993041992
+    },
+    "labeling": {
+      "name": "labeling",
+      "start_time": 1757040804.3351538,
+      "end_time": 1757040804.3373444,
+      "elapsed_seconds": 0.0021905899047851562
+    },
+    "label_model": {
+      "name": "label_model",
+      "start_time": 1757040804.3375235,
+      "end_time": 1757040804.3394766,
+      "elapsed_seconds": 0.001953125
+    },
+    "graph_gnn": {
+      "name": "graph_gnn",
+      "start_time": 1757040804.3396628,
+      "end_time": 1757040804.3406017,
+      "elapsed_seconds": 0.0009388923645019531
+    },
+    "rag": {
+      "name": "rag",
+      "start_time": 1757040804.3407545,
+      "end_time": 1757040804.3420444,
+      "elapsed_seconds": 0.0012898445129394531
+    },
+    "drl": {
+      "name": "drl",
+      "start_time": 1757040804.3421826,
+      "end_time": 1757040804.342503,
+      "elapsed_seconds": 0.0003204345703125
+    },
+    "evaluation": {
+      "name": "evaluation",
+      "start_time": 1757040804.3426046,
+      "end_time": 1757040804.343011,
+      "elapsed_seconds": 0.0004062652587890625
+    }
+  },
+  "data_stats": {
+    "train_size": 200,
+    "valid_size": 50,
+    "test_size": 50
+  },
+  "labeling_stats": {
+    "coverage": 0.2275,
+    "abstain_rate": 0.7725,
+    "conflict_rate": 0.0,
+    "lf_coverage": [
+      0.4,
+      0.51,
+      0.0,
+      0.0
+    ],
+    "n_samples": 200,
+    "n_lfs": 4
+  },
+  "label_model_stats": {
+    "proba_shape": [
+      200,
+      2
+    ],
+    "model_type": "majority_vote"
+  },
+  "graph_stats": {
+    "graph_nodes": 17,
+    "gnn_model": "gcn"
+  },
+  "rag_stats": {
+    "retrieved_count": 5,
+    "has_context": true,
+    "retriever_type": "simple_bm25"
+  },
+  "drl_stats": {
+    "total_reward": 1.9198228236523798,
+    "episodes": 3,
+    "policy_type": "dqn"
+  },
+  "eval_stats": {
+    "accuracy": 1.0,
+    "f1": 1.0,
+    "n_predictions": 200
+  }
+}

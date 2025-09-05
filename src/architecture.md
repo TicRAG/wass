@@ -47,3 +47,22 @@ configs/
 1. 创建接口文件与占位类
 2. 创建一个最小 end2end pipeline stub (`run_pipeline.py`) 仅打印阶段顺序
 3. 编写示例配置
+
+## 已实现的占位模块 (2025-09-05)
+- data/jsonl_adapter.py: JSONLAdapter 基础加载
+- labeling/lf_base.py: 注册 & 关键词LF 构造器
+- labeling/label_matrix.py: 简单标签矩阵生成 + 统计
+- label_model/majority_vote.py: MajorityVote 标签模型
+- graph/graph_builder.py: 共现窗口图构建
+- graph/gnn_model.py: DummyGNN 伪训练/预测
+- rag/retriever.py: SimpleBM25Retriever 占位实现
+- rag/fusion.py: ConcatFusion 融合示例
+- drl/env.py: ActiveLearningEnv 简单交互
+- drl/policy.py: RandomPolicy
+- eval/metrics.py: accuracy / f1 二分类指标
+
+## 下一步整合计划
+1. 工厂/注册：根据配置字符串创建上述组件 (factory 模块)
+2. 统一 Pipeline 组装：读取配置 -> 依次执行：数据加载 -> 构建 L -> 训练 LabelModel -> 软标签统计 -> 图构建 -> GNN 伪训练 -> DRL 回合 (若启用) -> RAG 检索示例 -> 评估
+3. 结果输出：将中间统计 (coverage/abstain_rate 等) 写入 JSON
+4. 预留 Wrench 包装：`label_model/wrench_wrapper.py` (延迟导入, 若 ImportError 则提示未安装)

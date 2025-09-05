@@ -1,0 +1,5 @@
+adapter: simple_jsonl
+data_dir: data/
+train_file: train.jsonl
+valid_file: valid.jsonl
+test_file: test.jsonl

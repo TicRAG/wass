@@ -1,0 +1,5 @@
+experiment,train_size,coverage,conflict_rate,accuracy,f1,n_lfs,total_time
+lf_full_featured,200,0.15166666666666667,0.0,1.0,1.0,6,0.008784770965576172
+lf_keyword_only,200,0.4125,0.0,1.0,1.0,2,0.011089563369750977
+lf_keyword_regex,200,0.2275,0.0,1.0,1.0,4,0.009768247604370117
+lf_precise_keywords,200,0.2225,0.0,1.0,1.0,2,0.008201360702514648
