@@ -671,8 +671,11 @@ class RAGKnowledgeBase:
             }
         
         try:
-            # 确保查询向量是正确的形状
-            query_vector = query_embedding.reshape(1, -1).astype('float32')
+            # 确保查询向量是正确的形状和连续内存布局
+            query_vector = np.ascontiguousarray(
+                query_embedding.reshape(1, -1), 
+                dtype=np.float32
+            )
             
             # 检索
             similarities, indices = self.index.search(query_vector, min(top_k, self.index.ntotal))
@@ -723,6 +726,9 @@ class RAGKnowledgeBase:
             embedding_vector = embedding_array.reshape(1, -1)
         else:
             embedding_vector = embedding_array
+        
+        # 确保数组是连续的，FAISS要求连续内存布局
+        embedding_vector = np.ascontiguousarray(embedding_vector, dtype=np.float32)
         
         self.index.add(embedding_vector)
     
