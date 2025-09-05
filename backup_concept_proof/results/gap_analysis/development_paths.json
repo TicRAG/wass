@@ -1,0 +1,41 @@
+{
+  "Academic Enhancement": {
+    "description": "Focus on research and simulation capabilities",
+    "components": [
+      "WRENCH Integration",
+      "GNN Implementation",
+      "DRL Training",
+      "Real Workflow Testing"
+    ],
+    "estimated_months": 8,
+    "team_size": "2-3 researchers",
+    "outcome": "High-fidelity research platform",
+    "calculated_effort": 30
+  },
+  "Production Prototype": {
+    "description": "Build minimal viable production system",
+    "components": [
+      "Slurm Plugin",
+      "Basic ML Implementation",
+      "Monitoring",
+      "Small Scale Testing"
+    ],
+    "estimated_months": 12,
+    "team_size": "3-4 engineers",
+    "outcome": "Deployable prototype",
+    "calculated_effort": 18
+  },
+  "Full Production": {
+    "description": "Complete enterprise-ready system",
+    "components": [
+      "All components at 90%+ completion",
+      "Security and compliance",
+      "Large scale testing",
+      "User studies and optimization"
+    ],
+    "estimated_months": 24,
+    "team_size": "6-8 engineers",
+    "outcome": "Commercial product",
+    "calculated_effort": 12
+  }
+}

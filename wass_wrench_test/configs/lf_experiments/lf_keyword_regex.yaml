@@ -1,0 +1,29 @@
+labeling:
+  abstain: -1
+  lfs:
+  - keywords:
+    - good
+    - excellent
+    - amazing
+    - great
+    - wonderful
+    label: 1
+    name: keyword_positive
+    type: keyword
+  - keywords:
+    - bad
+    - terrible
+    - awful
+    - poor
+    - horrible
+    label: 0
+    name: keyword_negative
+    type: keyword
+  - label: 1
+    name: regex_excitement
+    pattern: '!{2,}|wow|awesome|fantastic'
+    type: regex
+  - label: 0
+    name: regex_disappointment
+    pattern: disappointed|waste.*time|money.*wasted
+    type: regex

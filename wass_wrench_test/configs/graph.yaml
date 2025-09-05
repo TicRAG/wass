@@ -1,0 +1,7 @@
+builder: cooccurrence
+params:
+  window_size: 5
+gnn_model: gcn
+gnn_params:
+  hidden_dim: 64
+  num_layers: 2
