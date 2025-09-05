@@ -702,9 +702,10 @@ class RAGKnowledgeBase:
                 "query_embedding": query_embedding.tolist(),
                 "top_k": top_k
             }
+
     def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any],
                 actions: List[str], makespan: float):
-        """添加新案例到知识库（最终诊断版：使用二进制I/O进行内存净化）"""
+        """添加新案例到知识库（最终稳定版）"""
 
         case = {
             "workflow_info": workflow_info,
@@ -718,26 +719,17 @@ class RAGKnowledgeBase:
             self._initialize_empty_kb()
 
         try:
-            # 步骤 1: 确保输入是 2D float32 numpy 数组
-            source_array = np.asarray(embedding, dtype=np.float32)
-            if source_array.ndim == 1:
-                source_array = source_array.reshape(1, -1)
+            # 确保输入是 float32 的 numpy 数组
+            embedding_np = np.asarray(embedding, dtype=np.float32)
 
-            # 步骤 2: [诊断] 将 "clean" 数组写入临时二进制文件
-            # 这是一个强力净化内存的方法
-            temp_file = "faiss_temp_vector.bin"
-            source_array.tofile(temp_file)
+            # 确保是 2D 数组
+            if embedding_np.ndim == 1:
+                embedding_np = embedding_np.reshape(1, -1)
 
-            # 步骤 3: [诊断] 从二进制文件读回，创建一个全新的、无历史记录的数组
-            embedding_final = np.fromfile(temp_file, dtype=np.float32).reshape(1, -1)
+            # 关键：创建一个拥有自己数据的、C-连续的副本
+            embedding_final = np.copy(embedding_np)
 
-            # 步骤 4: 最终验证，检查新数组的属性
-            print("\n--- FAISS 向量诊断 (二进制净化后) ---")
-            print(f"向量形状: {embedding_final.shape}")
-            print(f"向量Dtype: {embedding_final.dtype}")
-            print(f"向量Flags: \n{embedding_final.flags}")
-            print("------------------------------------")
-
+            # 验证维度
             if embedding_final.shape[1] != self.embedding_dim:
                 raise ValueError(f"错误的 embedding 维度: {embedding_final.shape[1]} vs {self.embedding_dim}")
 
@@ -746,9 +738,7 @@ class RAGKnowledgeBase:
 
         except Exception as e:
             print(f"\n向知识库添加案例时发生严重错误: {e}")
-            print(f"  原始 embedding 类型: {type(embedding)}")
-            print(f"  原始 embedding 形状: {getattr(embedding, 'shape', 'N/A')}")
-            self.cases.pop() # 保持数据一致性
+            self.cases.pop() # 出错时移除案例，保持数据一致性
             raise
 
     def load_knowledge_base(self, path: str):
