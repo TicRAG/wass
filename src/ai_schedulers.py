@@ -717,7 +717,13 @@ class RAGKnowledgeBase:
         if self.index is None:
             self._initialize_empty_kb()
             
-        embedding_vector = embedding.reshape(1, -1).astype('float32')
+        # 确保embedding是正确的numpy数组格式
+        embedding_array = np.asarray(embedding, dtype=np.float32)
+        if len(embedding_array.shape) == 1:
+            embedding_vector = embedding_array.reshape(1, -1)
+        else:
+            embedding_vector = embedding_array
+        
         self.index.add(embedding_vector)
     
     def load_knowledge_base(self, path: str):
