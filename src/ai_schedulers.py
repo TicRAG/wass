@@ -722,20 +722,30 @@ class RAGKnowledgeBase:
             
         # 确保embedding是正确的numpy数组格式
         try:
-            # 强制转换为numpy数组
-            if isinstance(embedding, list):
-                embedding_array = np.array(embedding, dtype=np.float32)
-            else:
-                embedding_array = np.asarray(embedding, dtype=np.float32)
+            # 多重转换策略确保FAISS兼容性
+            def prepare_for_faiss(arr):
+                """准备数组用于FAISS - 多重fallback策略"""
+                # 策略1: 基础转换
+                if isinstance(arr, list):
+                    arr = np.array(arr, dtype=np.float32)
+                else:
+                    arr = np.asarray(arr, dtype=np.float32)
+                
+                # 确保2D
+                if arr.ndim == 1:
+                    arr = arr.reshape(1, -1)
+                
+                # 策略2: 强制创建全新的C连续数组
+                arr = np.array(arr, dtype=np.float32, copy=True, order='C')
+                
+                return arr
             
-            # 确保是2D数组
-            if len(embedding_array.shape) == 1:
-                embedding_vector = embedding_array.reshape(1, -1)
-            else:
-                embedding_vector = embedding_array
+            embedding_vector = prepare_for_faiss(embedding)
             
-            # 确保数组是连续的，FAISS要求连续内存布局
-            embedding_vector = np.ascontiguousarray(embedding_vector, dtype=np.float32)
+            # 调试信息（仅前几个案例）
+            if len(self.cases) <= 3:
+                print(f"[DEBUG] Array prepared: shape={embedding_vector.shape}, dtype={embedding_vector.dtype}, contiguous={embedding_vector.flags.c_contiguous}")
+                print(f"[DEBUG] Array ptr: {embedding_vector.__array_interface__['data'][0]}")
             
             # 验证数组属性
             if not isinstance(embedding_vector, np.ndarray):
@@ -747,7 +757,21 @@ class RAGKnowledgeBase:
             if embedding_vector.shape[1] != self.embedding_dim:
                 raise ValueError(f"Wrong embedding dimension: {embedding_vector.shape[1]} vs {self.embedding_dim}")
             
-            self.index.add(embedding_vector)
+            # 多重添加尝试
+            try:
+                self.index.add(embedding_vector)
+            except Exception as first_err:
+                print(f"[DEBUG] First attempt failed: {first_err}")
+                # Fallback 1: 使用np.require
+                fallback1 = np.require(embedding_vector, dtype=np.float32, requirements=['C', 'A', 'W'])
+                try:
+                    self.index.add(fallback1)
+                except Exception as second_err:
+                    print(f"[DEBUG] Second attempt failed: {second_err}")
+                    # Fallback 2: 手动复制到新数组
+                    fallback2 = np.empty((1, self.embedding_dim), dtype=np.float32, order='C')
+                    fallback2[0, :] = embedding_vector.flatten()[:self.embedding_dim]
+                    self.index.add(fallback2)
             
         except Exception as e:
             print(f"Error adding case to knowledge base: {e}")
