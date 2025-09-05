@@ -702,10 +702,10 @@ class RAGKnowledgeBase:
                 "query_embedding": query_embedding.tolist(),
                 "top_k": top_k
             }
-    
+
     def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any],
                 actions: List[str], makespan: float):
-        """添加新案例到知识库（带有超详细诊断日志的版本）"""
+        """添加新案例到知识库（最终修复版：强制数据所有权）"""
 
         case = {
             "workflow_info": workflow_info,
@@ -719,56 +719,32 @@ class RAGKnowledgeBase:
             self._initialize_empty_kb()
 
         try:
-            # --- 诊断日志开始 ---
-            print("\n--- FAISS 向量诊断开始 ---")
-            print(f"[1. 初始输入] 类型: {type(embedding)}, 形状: {getattr(embedding, 'shape', 'N/A')}")
-            
-            # 步骤 1: 确保是Numpy数组
+            # 步骤 1: 确保是Numpy数组且为float32
             if not isinstance(embedding, np.ndarray):
                 embedding_np = np.array(embedding, dtype=np.float32)
-                print(f"[2. 转为Numpy] 类型: {type(embedding_np)}, 形状: {embedding_np.shape}, Dtype: {embedding_np.dtype}")
             else:
-                embedding_np = embedding
-                print("[2. 输入已是Numpy] 跳过转换")
+                embedding_np = embedding.astype(np.float32) # 确保是float32
 
-            # 步骤 2: 确保Dtype是float32
-            if embedding_np.dtype != np.float32:
-                embedding_np = embedding_np.astype(np.float32)
-                print(f"[3. Dtype转换] Dtype: {embedding_np.dtype}")
-            else:
-                print("[3. Dtype正确] 跳过转换")
-
-            # 步骤 3: 确保是2D数组
+            # 步骤 2: 确保是2D数组
             if embedding_np.ndim == 1:
                 embedding_2d = embedding_np.reshape(1, -1)
-                print(f"[4. Reshape为2D] 形状: {embedding_2d.shape}")
             else:
                 embedding_2d = embedding_np
-                print("[4. 形状已是2D] 跳过转换")
 
-            # 步骤 4: 强制内存连续 (这是最关键的一步)
-            if not embedding_2d.flags.c_contiguous:
-                embedding_final = np.ascontiguousarray(embedding_2d)
-                print(f"[5. 强制内存连续] Flags: {embedding_final.flags}")
-            else:
-                embedding_final = embedding_2d
-                print("[5. 内存已连续] 跳过转换")
-            
-            # 步骤 5: 最终检查
-            print("--- 最终检查 ---")
-            print(f"最终向量类型: {type(embedding_final)}")
-            print(f"最终向量形状: {embedding_final.shape}")
-            print(f"最终向量Dtype: {embedding_final.dtype}")
-            print(f"最终向量Flags: \n{embedding_final.flags}")
-            print("------------------")
-            
-            # 验证维度
+            # 步骤 3: 强制创建一个拥有自己数据的、内存连续的副本
+            # .copy() 是解决 OWNDATA: False 问题的关键
+            embedding_final = embedding_2d.copy()
+
+            # 最终验证
+            if not embedding_final.flags['OWNDATA']:
+                 print("[警告] 向量仍然不拥有自己的数据，FAISS可能失败。")
+            if not embedding_final.flags['C_CONTIGUOUS']:
+                 raise ValueError("数组内存布局不是C-contiguous")
             if embedding_final.shape[1] != self.embedding_dim:
                 raise ValueError(f"错误的 embedding 维度: {embedding_final.shape[1]} vs {self.embedding_dim}")
 
             # 调用 FAISS
             self.index.add(embedding_final)
-            print("--- FAISS 调用成功 ---")
 
         except Exception as e:
             print(f"\n向知识库添加案例时发生严重错误: {e}")
