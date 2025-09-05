@@ -1,0 +1,4 @@
+Workflow Type,Traditional Slurm,HEFT,WASS (Heuristic),WASS-DRL (w/o RAG),WASS-RAG
+Linear Chain,253,214,184,182,161
+Fan-in,417,378,326,289,255
+Fan-out,374,338,290,250,234

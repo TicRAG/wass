@@ -1,0 +1,90 @@
+{
+  "scheduler_rankings": {
+    "Random": {
+      "avg_makespan": 375.5,
+      "avg_improvement_pct": -9.315866084425037,
+      "rank": 8
+    },
+    "FCFS": {
+      "avg_makespan": 371.5,
+      "avg_improvement_pct": -8.151382823871907,
+      "rank": 7
+    },
+    "Traditional Slurm": {
+      "avg_makespan": 343.5,
+      "avg_improvement_pct": 0.0,
+      "rank": 6
+    },
+    "HEFT": {
+      "avg_makespan": 300.5,
+      "avg_improvement_pct": 12.518195050946144,
+      "rank": 5
+    },
+    "Min-Min": {
+      "avg_makespan": 288.75,
+      "avg_improvement_pct": 15.938864628820962,
+      "rank": 4
+    },
+    "WASS (Heuristic)": {
+      "avg_makespan": 255.0,
+      "avg_improvement_pct": 25.76419213973799,
+      "rank": 3
+    },
+    "WASS-DRL (w/o RAG)": {
+      "avg_makespan": 227.25,
+      "avg_improvement_pct": 33.84279475982533,
+      "rank": 2
+    },
+    "WASS-RAG": {
+      "avg_makespan": 203.0,
+      "avg_improvement_pct": 40.90247452692867,
+      "rank": 1
+    }
+  },
+  "workflow_insights": {
+    "Linear Chain": {
+      "best_scheduler": "WASS-RAG",
+      "best_improvement_pct": 38.976377952755904,
+      "characteristics": "Sequential dependencies, high data locality impact"
+    },
+    "Fan-in": {
+      "best_scheduler": "WASS-RAG",
+      "best_improvement_pct": 42.7536231884058,
+      "characteristics": "Data aggregation, complex synchronization"
+    },
+    "Fan-out": {
+      "best_scheduler": "WASS-RAG",
+      "best_improvement_pct": 40.37940379403794,
+      "characteristics": "Data distribution, parallel execution"
+    },
+    "Mixed DAG": {
+      "best_scheduler": "WASS-RAG",
+      "best_improvement_pct": 40.652818991097924,
+      "characteristics": "Complex dependencies, varied patterns"
+    }
+  },
+  "improvement_progression": {
+    "Traditional Slurm -> HEFT": {
+      "incremental_improvement_pct": 12.518195050946144,
+      "cumulative_improvement_pct": 12.518195050946144
+    },
+    "HEFT -> WASS (Heuristic)": {
+      "incremental_improvement_pct": 15.141430948419302,
+      "cumulative_improvement_pct": 25.76419213973799
+    },
+    "WASS (Heuristic) -> WASS-DRL (w/o RAG)": {
+      "incremental_improvement_pct": 10.882352941176471,
+      "cumulative_improvement_pct": 33.84279475982533
+    },
+    "WASS-DRL (w/o RAG) -> WASS-RAG": {
+      "incremental_improvement_pct": 10.671067106710671,
+      "cumulative_improvement_pct": 40.90247452692867
+    }
+  },
+  "statistical_summary": {
+    "total_experiments": 4,
+    "avg_baseline_makespan": 343.5,
+    "max_improvement_achieved": 40.90247452692867,
+    "scheduler_count": 8
+  }
+}
