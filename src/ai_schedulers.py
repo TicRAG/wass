@@ -641,8 +641,9 @@ class PerformancePredictor(nn.Module):
 class RAGKnowledgeBase:
     """RAG知识库"""
     
-    def __init__(self, knowledge_base_path: Optional[str] = None):
+    def __init__(self, knowledge_base_path: Optional[str] = None, embedding_dim: int = 32):
         self.knowledge_base_path = knowledge_base_path
+        self.embedding_dim = embedding_dim  # 保存embedding维度
         self.index = None
         self.cases = []
         
@@ -654,8 +655,7 @@ class RAGKnowledgeBase:
     def _initialize_empty_kb(self):
         """初始化空的知识库"""
         # 创建一个简单的FAISS索引
-        embedding_dim = 32
-        self.index = faiss.IndexFlatIP(embedding_dim)  # 内积相似度
+        self.index = faiss.IndexFlatIP(self.embedding_dim)  # 内积相似度
         self.cases = []
         print("Initialized empty knowledge base")
     

@@ -138,7 +138,7 @@ def create_dummy_knowledge_base(training_data: List[Dict[str, Any]]) -> RAGKnowl
         print("Cannot create knowledge base: AI modules not available")
         return None
     
-    kb = RAGKnowledgeBase()
+    kb = RAGKnowledgeBase(embedding_dim=32)
     
     print(f"Adding {len(training_data)} cases to knowledge base...")
     
