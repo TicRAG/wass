@@ -721,16 +721,41 @@ class RAGKnowledgeBase:
             self._initialize_empty_kb()
             
         # 确保embedding是正确的numpy数组格式
-        embedding_array = np.asarray(embedding, dtype=np.float32)
-        if len(embedding_array.shape) == 1:
-            embedding_vector = embedding_array.reshape(1, -1)
-        else:
-            embedding_vector = embedding_array
-        
-        # 确保数组是连续的，FAISS要求连续内存布局
-        embedding_vector = np.ascontiguousarray(embedding_vector, dtype=np.float32)
-        
-        self.index.add(embedding_vector)
+        try:
+            # 强制转换为numpy数组
+            if isinstance(embedding, list):
+                embedding_array = np.array(embedding, dtype=np.float32)
+            else:
+                embedding_array = np.asarray(embedding, dtype=np.float32)
+            
+            # 确保是2D数组
+            if len(embedding_array.shape) == 1:
+                embedding_vector = embedding_array.reshape(1, -1)
+            else:
+                embedding_vector = embedding_array
+            
+            # 确保数组是连续的，FAISS要求连续内存布局
+            embedding_vector = np.ascontiguousarray(embedding_vector, dtype=np.float32)
+            
+            # 验证数组属性
+            if not isinstance(embedding_vector, np.ndarray):
+                raise ValueError(f"Not a numpy array: {type(embedding_vector)}")
+            if embedding_vector.dtype != np.float32:
+                raise ValueError(f"Wrong dtype: {embedding_vector.dtype}")
+            if not embedding_vector.flags.c_contiguous:
+                raise ValueError("Array is not C-contiguous")
+            if embedding_vector.shape[1] != self.embedding_dim:
+                raise ValueError(f"Wrong embedding dimension: {embedding_vector.shape[1]} vs {self.embedding_dim}")
+            
+            self.index.add(embedding_vector)
+            
+        except Exception as e:
+            print(f"Error adding case to knowledge base: {e}")
+            print(f"  Original embedding type: {type(embedding)}")
+            print(f"  Original embedding shape: {getattr(embedding, 'shape', 'N/A')}")
+            if hasattr(embedding, '__len__'):
+                print(f"  Original embedding length: {len(embedding)}")
+            raise
     
     def load_knowledge_base(self, path: str):
         """加载知识库"""
