@@ -1,4 +1,0 @@
-env: active_learning_env
-policy: random
-params:
-  gamma: 0.95

@@ -1,6 +1,0 @@
-{
-  "avg_improvement_heft": 11.464402065885073,
-  "avg_improvement_wass_heuristic": 23.85172076242749,
-  "avg_improvement_wass_drl": 30.637921655235683,
-  "avg_improvement_wass_rag": 37.54857076905321
-}

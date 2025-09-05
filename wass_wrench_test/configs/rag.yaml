@@ -1,3 +1,0 @@
-retriever: simple_bm25
-top_k: 5
-fusion: concat
