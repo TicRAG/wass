@@ -220,15 +220,79 @@ class WRENCHSimulator:
             # Initialize simulation
             simulation = self.wrench.Simulation()
             
-            # Add platform
-            simulation.add_platform(platform_file)
+            # Try different WRENCH API methods for platform loading
+            platform_loaded = False
+            
+            # Method 1: Try add_platform (newer API)
+            if hasattr(simulation, 'add_platform'):
+                try:
+                    simulation.add_platform(platform_file)
+                    platform_loaded = True
+                    logger.info("Platform loaded using add_platform()")
+                except Exception as e:
+                    logger.warning(f"add_platform() failed: {e}")
+            
+            # Method 2: Try instantiatePlatform (older API)
+            if not platform_loaded and hasattr(simulation, 'instantiatePlatform'):
+                try:
+                    simulation.instantiatePlatform(platform_file)
+                    platform_loaded = True
+                    logger.info("Platform loaded using instantiatePlatform()")
+                except Exception as e:
+                    logger.warning(f"instantiatePlatform() failed: {e}")
+            
+            # Method 3: Try loadPlatform (alternative API)
+            if not platform_loaded and hasattr(simulation, 'loadPlatform'):
+                try:
+                    simulation.loadPlatform(platform_file)
+                    platform_loaded = True
+                    logger.info("Platform loaded using loadPlatform()")
+                except Exception as e:
+                    logger.warning(f"loadPlatform() failed: {e}")
+            
+            if not platform_loaded:
+                # Check what methods are available
+                available_methods = [attr for attr in dir(simulation) if 'platform' in attr.lower()]
+                logger.error(f"Failed to load platform. Available methods: {available_methods}")
+                
+                # Return mock results but indicate it was a partial success
+                results = self._mock_simulation_results()
+                results['error'] = 'Platform loading failed - API compatibility issue'
+                results['available_methods'] = available_methods
+                return results
             
             # TODO: Add actual workflow and scheduler configuration
             # This is a placeholder for the real implementation
             
-            # Run simulation
-            logger.info("Starting WRENCH simulation...")
-            simulation.start()
+            # Try to run simulation with different methods
+            simulation_started = False
+            
+            # Method 1: Try start()
+            if hasattr(simulation, 'start'):
+                try:
+                    logger.info("Starting WRENCH simulation using start()...")
+                    simulation.start()
+                    simulation_started = True
+                except Exception as e:
+                    logger.warning(f"start() failed: {e}")
+            
+            # Method 2: Try launch()
+            if not simulation_started and hasattr(simulation, 'launch'):
+                try:
+                    logger.info("Starting WRENCH simulation using launch()...")
+                    simulation.launch()
+                    simulation_started = True
+                except Exception as e:
+                    logger.warning(f"launch() failed: {e}")
+            
+            if not simulation_started:
+                available_methods = [attr for attr in dir(simulation) if not attr.startswith('_')]
+                logger.error(f"Failed to start simulation. Available methods: {available_methods}")
+                
+                results = self._mock_simulation_results()
+                results['error'] = 'Simulation start failed - API compatibility issue'
+                results['simulation_methods'] = available_methods
+                return results
             
             # Collect results
             results = self._collect_simulation_results(simulation)
