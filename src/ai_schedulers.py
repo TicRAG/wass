@@ -708,7 +708,7 @@ class RAGKnowledgeBase:
             "workflow_info": workflow_info,
             "actions": actions,
             "makespan": makespan,
-            "timestamp": np.datetime64('now').isoformat()
+            "timestamp": str(np.datetime64('now'))
         }
         
         self.cases.append(case)
