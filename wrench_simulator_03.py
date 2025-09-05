@@ -84,9 +84,17 @@ class WRENCHSimulator03:
             self.simulation = self.wrench.Simulation()
             logger.info("WRENCH simulation object created")
             
-            # 启动仿真以获取平台信息
-            self.simulation.start()
-            logger.info("WRENCH simulation started")
+            # WRENCH 0.3需要platform_xml和controller_hostname参数
+            # 创建默认平台文件
+            platform_xml = self._create_default_platform()
+            platform_file = "/tmp/wass_default_platform.xml"
+            with open(platform_file, 'w') as f:
+                f.write(platform_xml)
+            
+            # 启动仿真
+            controller_hostname = "wass_controller"
+            self.simulation.start(platform_file, controller_hostname)
+            logger.info(f"WRENCH simulation started with platform: {platform_file}")
             
             # 获取可用主机
             hostnames = self.simulation.get_all_hostnames()
@@ -98,6 +106,40 @@ class WRENCHSimulator03:
         except Exception as e:
             logger.error(f"Failed to initialize simulation: {e}")
             return False
+    
+    def _create_default_platform(self) -> str:
+        """
+        Create default platform XML for WRENCH 0.3
+        
+        Returns:
+            Platform XML string
+        """
+        return '''<?xml version="1.0"?>
+<!DOCTYPE platform SYSTEM "https://simgrid.org/simgrid.dtd">
+<platform version="4.1">
+  <zone id="AS0" routing="Full">
+    <host id="wass_controller" speed="1Gf" core="1"/>
+    <host id="wass_compute_1" speed="2Gf" core="4"/>
+    <host id="wass_compute_2" speed="1.5Gf" core="2"/>
+    <host id="wass_storage" speed="1Gf" core="1"/>
+    <link id="ethernet" bandwidth="1GBps" latency="0.001s"/>
+    <route src="wass_controller" dst="wass_compute_1">
+      <link_ctn id="ethernet"/>
+    </route>
+    <route src="wass_controller" dst="wass_compute_2">
+      <link_ctn id="ethernet"/>
+    </route>
+    <route src="wass_controller" dst="wass_storage">
+      <link_ctn id="ethernet"/>
+    </route>
+    <route src="wass_compute_1" dst="wass_storage">
+      <link_ctn id="ethernet"/>
+    </route>
+    <route src="wass_compute_2" dst="wass_storage">
+      <link_ctn id="ethernet"/>
+    </route>
+  </zone>
+</platform>'''
     
     def create_services(self, platform_config: Dict) -> bool:
         """
@@ -156,22 +198,41 @@ class WRENCHSimulator03:
             return None
         
         try:
-            # 方法1: 尝试使用 create_workflow()
+            # WRENCH 0.3 的 create_workflow 需要9个参数
             try:
-                self.workflow = self.simulation.create_workflow()
-                logger.info("Workflow created using create_workflow()")
+                self.workflow = self.wrench.create_workflow(
+                    workflow_spec.get('name', 'wass_workflow'),  # name
+                    workflow_spec.get('description', ''),        # description  
+                    workflow_spec.get('submission_time', 0.0),   # submission_time
+                    workflow_spec.get('priority', ''),           # priority
+                    workflow_spec.get('batch_directives', {}),   # batch_directives
+                    workflow_spec.get('dependencies', []),       # dependencies
+                    workflow_spec.get('workflow_id', 0),         # workflow_id  
+                    workflow_spec.get('workflow_type', 'default'), # workflow_type
+                    workflow_spec.get('metadata', {})            # metadata
+                )
+                logger.info("Workflow created using create_workflow() with all parameters")
             except Exception as e:
-                logger.warning(f"create_workflow() failed: {e}")
+                logger.warning(f"create_workflow() with parameters failed: {e}")
                 
-                # 方法2: 尝试使用 create_workflow_from_json()
+                # 方法2: 尝试使用 create_workflow_from_json()，也需要9个额外参数
                 workflow_json = self._convert_to_wrench_json(workflow_spec)
                 self.workflow = self.simulation.create_workflow_from_json(
-                    json.dumps(workflow_json)
+                    json.dumps(workflow_json),
+                    workflow_spec.get('name', 'wass_workflow'),  # name
+                    workflow_spec.get('description', ''),        # description  
+                    workflow_spec.get('submission_time', 0.0),   # submission_time
+                    workflow_spec.get('priority', ''),           # priority
+                    workflow_spec.get('batch_directives', {}),   # batch_directives
+                    workflow_spec.get('dependencies', []),       # dependencies
+                    workflow_spec.get('workflow_id', 0),         # workflow_id  
+                    workflow_spec.get('workflow_type', 'default'), # workflow_type
+                    workflow_spec.get('metadata', {})            # metadata
                 )
-                logger.info("Workflow created using create_workflow_from_json()")
+                logger.info("Workflow created using create_workflow_from_json() with all parameters")
             
             workflow_id = workflow_spec.get('name', 'default_workflow')
-            logger.info(f"Workflow created: {workflow_id} with {len(workflow_spec['tasks'])} tasks")
+            logger.info(f"Workflow created: {workflow_id} with {len(workflow_spec.get('tasks', []))} tasks")
             
             return workflow_id
             
