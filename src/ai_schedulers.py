@@ -705,7 +705,7 @@ class RAGKnowledgeBase:
     
     def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any],
                 actions: List[str], makespan: float):
-        """添加新案例到知识库（增强版，修复FAISS兼容性问题）"""
+        """添加新案例到知识库（带有超详细诊断日志的版本）"""
 
         case = {
             "workflow_info": workflow_info,
@@ -713,54 +713,68 @@ class RAGKnowledgeBase:
             "makespan": makespan,
             "timestamp": str(np.datetime64('now'))
         }
-
         self.cases.append(case)
 
         if self.index is None:
             self._initialize_empty_kb()
 
         try:
-            # 定义一个健壮的、多策略的函数来准备用于FAISS的数组
-            def prepare_for_faiss(arr):
-                """准备数组用于FAISS - 多重fallback策略"""
-                # 策略1: 基础转换，确保是 float32 的 numpy 数组
-                if isinstance(arr, list):
-                    arr = np.array(arr, dtype=np.float32)
-                else:
-                    arr = np.asarray(arr, dtype=np.float32)
+            # --- 诊断日志开始 ---
+            print("\n--- FAISS 向量诊断开始 ---")
+            print(f"[1. 初始输入] 类型: {type(embedding)}, 形状: {getattr(embedding, 'shape', 'N/A')}")
+            
+            # 步骤 1: 确保是Numpy数组
+            if not isinstance(embedding, np.ndarray):
+                embedding_np = np.array(embedding, dtype=np.float32)
+                print(f"[2. 转为Numpy] 类型: {type(embedding_np)}, 形状: {embedding_np.shape}, Dtype: {embedding_np.dtype}")
+            else:
+                embedding_np = embedding
+                print("[2. 输入已是Numpy] 跳过转换")
 
-                # 策略2: 确保是2D数组
-                if arr.ndim == 1:
-                    arr = arr.reshape(1, -1)
+            # 步骤 2: 确保Dtype是float32
+            if embedding_np.dtype != np.float32:
+                embedding_np = embedding_np.astype(np.float32)
+                print(f"[3. Dtype转换] Dtype: {embedding_np.dtype}")
+            else:
+                print("[3. Dtype正确] 跳过转换")
 
-                # 策略3: 强制创建一个全新的、内存连续的数组副本。这是最关键的一步。
-                # copy=True 确保我们得到的是一个新数组，而不是一个视图
-                # order='C' 确保是C语言风格的连续内存
-                arr = np.array(arr, dtype=np.float32, copy=True, order='C')
+            # 步骤 3: 确保是2D数组
+            if embedding_np.ndim == 1:
+                embedding_2d = embedding_np.reshape(1, -1)
+                print(f"[4. Reshape为2D] 形状: {embedding_2d.shape}")
+            else:
+                embedding_2d = embedding_np
+                print("[4. 形状已是2D] 跳过转换")
 
-                return arr
+            # 步骤 4: 强制内存连续 (这是最关键的一步)
+            if not embedding_2d.flags.c_contiguous:
+                embedding_final = np.ascontiguousarray(embedding_2d)
+                print(f"[5. 强制内存连续] Flags: {embedding_final.flags}")
+            else:
+                embedding_final = embedding_2d
+                print("[5. 内存已连续] 跳过转换")
+            
+            # 步骤 5: 最终检查
+            print("--- 最终检查 ---")
+            print(f"最终向量类型: {type(embedding_final)}")
+            print(f"最终向量形状: {embedding_final.shape}")
+            print(f"最终向量Dtype: {embedding_final.dtype}")
+            print(f"最终向量Flags: \n{embedding_final.flags}")
+            print("------------------")
+            
+            # 验证维度
+            if embedding_final.shape[1] != self.embedding_dim:
+                raise ValueError(f"错误的 embedding 维度: {embedding_final.shape[1]} vs {self.embedding_dim}")
 
-            embedding_vector = prepare_for_faiss(embedding)
-
-            # 验证数组属性，确保万无一失
-            if not isinstance(embedding_vector, np.ndarray):
-                raise ValueError(f"转换后仍然不是Numpy数组: {type(embedding_vector)}")
-            if embedding_vector.dtype != np.float32:
-                raise ValueError(f"数据类型错误: {embedding_vector.dtype}")
-            if not embedding_vector.flags.c_contiguous:
-                raise ValueError("数组内存布局不是C-contiguous")
-            if embedding_vector.shape[1] != self.embedding_dim:
-                raise ValueError(f"错误的 embedding 维度: {embedding_vector.shape[1]} vs {self.embedding_dim}")
-
-            # 直接添加，因为 prepare_for_faiss 已经处理了所有已知问题
-            self.index.add(embedding_vector)
+            # 调用 FAISS
+            self.index.add(embedding_final)
+            print("--- FAISS 调用成功 ---")
 
         except Exception as e:
-            print(f"向知识库添加案例时发生严重错误: {e}")
+            print(f"\n向知识库添加案例时发生严重错误: {e}")
             print(f"  原始 embedding 类型: {type(embedding)}")
             print(f"  原始 embedding 形状: {getattr(embedding, 'shape', 'N/A')}")
-            # 如果添加失败，将刚刚添加的 case 移除，保持数据一致性
-            self.cases.pop()
+            self.cases.pop() # 保持数据一致性
             raise
 
     def load_knowledge_base(self, path: str):
