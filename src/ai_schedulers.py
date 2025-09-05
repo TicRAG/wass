@@ -705,7 +705,7 @@ class RAGKnowledgeBase:
 
     def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any],
                 actions: List[str], makespan: float):
-        """添加新案例到知识库（最终修复版：强制数据所有权）"""
+        """添加新案例到知识库（最终修复版：手动重建数组以确保内存兼容性）"""
 
         case = {
             "workflow_info": workflow_info,
@@ -719,27 +719,20 @@ class RAGKnowledgeBase:
             self._initialize_empty_kb()
 
         try:
-            # 步骤 1: 确保是Numpy数组且为float32
-            if not isinstance(embedding, np.ndarray):
-                embedding_np = np.array(embedding, dtype=np.float32)
-            else:
-                embedding_np = embedding.astype(np.float32) # 确保是float32
+            # 步骤 1: 确保输入是 numpy 数组
+            source_array = np.asarray(embedding, dtype=np.float32)
 
-            # 步骤 2: 确保是2D数组
-            if embedding_np.ndim == 1:
-                embedding_2d = embedding_np.reshape(1, -1)
-            else:
-                embedding_2d = embedding_np
+            # 步骤 2: 创建一个全新的、空的、内存布局绝对干净的目标数组
+            # 这是解决顽固FAISS问题的最可靠方法
+            embedding_final = np.empty((1, self.embedding_dim), dtype=np.float32, order='C')
 
-            # 步骤 3: 强制创建一个拥有自己数据的、内存连续的副本
-            # .copy() 是解决 OWNDATA: False 问题的关键
-            embedding_final = embedding_2d.copy()
+            # 步骤 3: 将数据从源数组复制到新数组中
+            # flatten() 可以处理1D或2D的源数组
+            embedding_final[0, :] = source_array.flatten()
 
             # 最终验证
-            if not embedding_final.flags['OWNDATA']:
-                 print("[警告] 向量仍然不拥有自己的数据，FAISS可能失败。")
             if not embedding_final.flags['C_CONTIGUOUS']:
-                 raise ValueError("数组内存布局不是C-contiguous")
+                 raise ValueError("创建的新数组内存布局不是C-contiguous")
             if embedding_final.shape[1] != self.embedding_dim:
                 raise ValueError(f"错误的 embedding 维度: {embedding_final.shape[1]} vs {self.embedding_dim}")
 
