@@ -702,10 +702,9 @@ class RAGKnowledgeBase:
                 "query_embedding": query_embedding.tolist(),
                 "top_k": top_k
             }
-
     def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any],
                 actions: List[str], makespan: float):
-        """添加新案例到知识库（最终修复版：手动重建数组以确保内存兼容性）"""
+        """添加新案例到知识库（最终诊断版：使用二进制I/O进行内存净化）"""
 
         case = {
             "workflow_info": workflow_info,
@@ -719,20 +718,26 @@ class RAGKnowledgeBase:
             self._initialize_empty_kb()
 
         try:
-            # 步骤 1: 确保输入是 numpy 数组
+            # 步骤 1: 确保输入是 2D float32 numpy 数组
             source_array = np.asarray(embedding, dtype=np.float32)
+            if source_array.ndim == 1:
+                source_array = source_array.reshape(1, -1)
 
-            # 步骤 2: 创建一个全新的、空的、内存布局绝对干净的目标数组
-            # 这是解决顽固FAISS问题的最可靠方法
-            embedding_final = np.empty((1, self.embedding_dim), dtype=np.float32, order='C')
+            # 步骤 2: [诊断] 将 "clean" 数组写入临时二进制文件
+            # 这是一个强力净化内存的方法
+            temp_file = "faiss_temp_vector.bin"
+            source_array.tofile(temp_file)
 
-            # 步骤 3: 将数据从源数组复制到新数组中
-            # flatten() 可以处理1D或2D的源数组
-            embedding_final[0, :] = source_array.flatten()
+            # 步骤 3: [诊断] 从二进制文件读回，创建一个全新的、无历史记录的数组
+            embedding_final = np.fromfile(temp_file, dtype=np.float32).reshape(1, -1)
 
-            # 最终验证
-            if not embedding_final.flags['C_CONTIGUOUS']:
-                 raise ValueError("创建的新数组内存布局不是C-contiguous")
+            # 步骤 4: 最终验证，检查新数组的属性
+            print("\n--- FAISS 向量诊断 (二进制净化后) ---")
+            print(f"向量形状: {embedding_final.shape}")
+            print(f"向量Dtype: {embedding_final.dtype}")
+            print(f"向量Flags: \n{embedding_final.flags}")
+            print("------------------------------------")
+
             if embedding_final.shape[1] != self.embedding_dim:
                 raise ValueError(f"错误的 embedding 维度: {embedding_final.shape[1]} vs {self.embedding_dim}")
 
