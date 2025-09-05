@@ -1,0 +1,55 @@
+# 示例配置 (后续可拆分多个yaml)
+experiment_name: demo_wass_pipeline
+random_seed: 42
+
+paths:
+  data_dir: data/
+  results_dir: results/demo_wass_pipeline/
+
+data:
+  adapter: simple_jsonl
+  train_file: train.jsonl
+  valid_file: valid.jsonl
+  test_file: test.jsonl
+
+labeling:
+  abstain: -1
+  lfs:
+    - name: keyword_positive
+      type: keyword
+      keywords: ["good", "excellent", "amazing"]
+      label: 1
+    - name: keyword_negative
+      type: keyword
+      keywords: ["bad", "terrible", "awful"]
+      label: 0
+
+label_model:
+  type: majority_vote
+  params: {}
+
+graph:
+  builder: cooccurrence
+  params:
+    window_size: 5
+  gnn_model: gcn
+  gnn_params:
+    hidden_dim: 64
+    num_layers: 2
+
+rag:
+  retriever: simple_bm25
+  top_k: 5
+  fusion: concat
+
+drl:
+  env: active_learning_env
+  policy: dqn
+  params:
+    gamma: 0.95
+    epsilon_start: 1.0
+    epsilon_end: 0.05
+    epsilon_decay: 5000
+
+eval:
+  metrics: [accuracy, f1]
