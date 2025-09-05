@@ -15,8 +15,9 @@ omegaconf>=2.1.0
 
 # Machine Learning
 torch>=1.12.0
+torch-geometric>=2.1.0
 dgl>=0.9.0
-# torch-geometric>=2.1.0  # Alternative to DGL
+stable-baselines3>=1.6.0
 
 # Knowledge Base
 faiss-cpu>=1.7.0

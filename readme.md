@@ -1,32 +1,41 @@
-# WASS: Workflow-Aware Simulation System
+# WASS-RAG: Workflow-Aware Scheduling System with Retrieval-Augmented Generation
 
 WASS-RAG is a production-ready academic research platform that integrates **real WRENCH 0.3-dev** simulation with **Deep Reinforcement Learning (DRL)** and **Retrieval-Augmented Generation (RAG)** for intelligent workflow scheduling.
 
-## � Key Achievements
+## 🔬 Key Features
 
+- ✅ **Complete AI Pipeline**: Heuristic → DRL → RAG-enhanced scheduling
 - ✅ **Real WRENCH Integration**: True WRENCH 0.3-dev + SimGrid integration (`mock_data: false`)
-- ✅ **Academic Platform**: Complete 8-stage research workflow management  
-- ✅ **High Performance**: 76.5% system efficiency, 85% CPU utilization
-- ✅ **Research Ready**: Production-grade platform for academic papers
+- ✅ **Knowledge-Driven Decisions**: RAG knowledge base with historical workflow experience
+- ✅ **Explainable AI**: Transparent scheduling decisions with historical justification
+- ✅ **Academic Ready**: All baselines for rigorous paper evaluation
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- **WRENCH 0.3-dev** (required for real simulation)
+### Option 1: Demo Mode (No Dependencies)
+```bash
+# Quick demonstration without full AI dependencies
+python experiments/demo_experiment.py
+```
+
+### Option 2: Full AI Pipeline
+```bash
+# Install all dependencies
+pip install -r requirements.txt
+
+# Initialize AI models and knowledge base
+python scripts/initialize_ai_models.py
+
+# Run complete experiments
+python experiments/real_experiment_framework.py
+```
+
+### Prerequisites for Full Mode
+- **PyTorch** with **torch-geometric**
+- **FAISS** for vector similarity search
+- **WRENCH 0.3-dev** (for real simulation)
 - **SimGrid 4.0+**
 - **Python 3.12+**
-
-### Basic Usage
-```bash
-# Test WRENCH integration
-python wass_wrench_simulator.py
-
-# Run academic platform
-python wass_academic_platform.py
-
-# Collect paper data
-cd experiments && python real_experiment_framework.py
-```
 
 ## 📊 For Paper Experiments
 

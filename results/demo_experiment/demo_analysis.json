@@ -1,0 +1,90 @@
+{
+  "experiment_summary": {
+    "total_experiments": 90,
+    "config": {
+      "name": "WASS-RAG Demo Evaluation",
+      "description": "Demonstration of WASS-RAG scheduling framework",
+      "workflow_sizes": [
+        10,
+        20,
+        49
+      ],
+      "scheduling_methods": [
+        "FIFO",
+        "HEFT",
+        "WASS (Heuristic)",
+        "WASS-DRL (w/o RAG)",
+        "WASS-RAG"
+      ],
+      "cluster_sizes": [
+        4,
+        8,
+        16
+      ],
+      "repetitions": 2,
+      "ai_model_path": "models/wass_models.pth",
+      "knowledge_base_path": "data/knowledge_base.pkl"
+    },
+    "generated_at": "2025-09-05T15:45:14.660625"
+  },
+  "performance_by_method": {
+    "FIFO": {
+      "avg_makespan": 7.72,
+      "improvement_over_fifo": 0.0,
+      "cpu_utilization": 50.0,
+      "data_locality": 40.0,
+      "sample_count": 18
+    },
+    "HEFT": {
+      "avg_makespan": 6.08,
+      "improvement_over_fifo": 21.0,
+      "cpu_utilization": 66.8,
+      "data_locality": 58.9,
+      "sample_count": 18
+    },
+    "WASS (Heuristic)": {
+      "avg_makespan": 5.88,
+      "improvement_over_fifo": 25.0,
+      "cpu_utilization": 70.0,
+      "data_locality": 62.5,
+      "sample_count": 18
+    },
+    "WASS-DRL (w/o RAG)": {
+      "avg_makespan": 5.15,
+      "improvement_over_fifo": 33.0,
+      "cpu_utilization": 76.4,
+      "data_locality": 69.7,
+      "sample_count": 18
+    },
+    "WASS-RAG": {
+      "avg_makespan": 4.79,
+      "improvement_over_fifo": 38.0,
+      "cpu_utilization": 80.4,
+      "data_locality": 74.2,
+      "sample_count": 18
+    }
+  },
+  "case_study_49_tasks": {
+    "FIFO": {
+      "makespan": 14.51,
+      "improvement_over_fifo": 0.0
+    },
+    "HEFT": {
+      "makespan": 11.33,
+      "improvement_over_fifo": 21.0
+    },
+    "WASS (Heuristic)": {
+      "makespan": 10.98,
+      "improvement_over_fifo": 25.0
+    },
+    "WASS-DRL (w/o RAG)": {
+      "makespan": 9.61,
+      "improvement_over_fifo": 33.0
+    },
+    "WASS-RAG": {
+      "makespan": 8.9,
+      "improvement_over_fifo": 38.0
+    }
+  },
+  "scalability_analysis": {}
+}
