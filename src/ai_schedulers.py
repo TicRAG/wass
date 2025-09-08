@@ -174,7 +174,7 @@ class WASSHeuristicScheduler(BaseScheduler):
         
         for node in available_nodes:
             node_info = cluster_state.get("nodes", {}).get(node, {})
-            node_cpu_capacity = node_info.get("cpu_capacity", 10.0)
+            node_cpu_capacity = node_info.get("cpu_capacity", 2.0)  # 与训练数据一致
             node_memory_capacity = node_info.get("memory_capacity", 16.0)
             
             # 计算资源利用率匹配度
@@ -345,10 +345,10 @@ class WASSSmartScheduler(BaseScheduler):
             task_memory = task_info.get("memory", 4.0)
             task_duration = task_info.get("duration", task_info.get("runtime", 5.0))
             
-            # 归一化这些值
-            cpu_norm = min(1.0, float(task_cpu) / 10.0)
-            mem_norm = min(1.0, float(task_memory) / 16.0) 
-            dur_norm = min(1.0, float(task_duration) / 20.0)
+            # 归一化这些值（与训练数据一致）
+            cpu_norm = min(1.0, float(task_cpu) / 15e9)  # 训练时最大是15e9 GFlops
+            mem_norm = min(1.0, float(task_memory) / 8.0)  # 训练时最大是8.0 GB
+            dur_norm = min(1.0, float(task_duration) / 180.0)  # 训练时最大是180秒
             
             features.extend([cpu_norm, mem_norm, dur_norm])
         else:
@@ -621,10 +621,10 @@ class WASSRAGScheduler(BaseScheduler):
         # 简化的动作编码
         node_info = state.cluster_state.get("nodes", {}).get(node, {}) if state and state.cluster_state else {}
         current_load = float(node_info.get("current_load", 0.5))
-        cpu_cap = float(node_info.get("cpu_capacity", 10.0))
+        cpu_cap = float(node_info.get("cpu_capacity", 2.0))  # 与训练数据一致
         mem_cap = float(node_info.get("memory_capacity", 16.0))
-        # 归一化容量（简单缩放）
-        cpu_norm = min(1.0, cpu_cap / 32.0)
+        # 归一化容量（使用与训练数据一致的范围）
+        cpu_norm = min(1.0, cpu_cap / 5.0)  # 训练时最大是5.0 GFlops
         mem_norm = min(1.0, mem_cap / 64.0)
         action_features = [
             hash(node) % 100 / 100.0,            # 节点ID哈希

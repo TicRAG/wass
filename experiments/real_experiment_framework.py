@@ -328,12 +328,12 @@ class WassExperimentRunner:
     def _create_scheduling_state(self, workflow: Dict[str, Any], cluster_size: int) -> 'SchedulingState':
         """创建调度状态对象"""
         
-        # 模拟集群状态
+        # 模拟集群状态（与训练数据一致）
         cluster_state = {
             "nodes": {
                 f"node_{i}": {
-                    "cpu_capacity": 10.0,  # 10 GFlops
-                    "memory_capacity": 16.0,  # 16 GB
+                    "cpu_capacity": 1.0 + 4.0 * (hash(f"node_{i}") % 100 / 100),  # 1-5 GFlops，与训练数据一致
+                    "memory_capacity": 8.0 + 56.0 * (hash(f"node_{i}_mem") % 100 / 100),  # 8-64 GB，与训练数据一致
                     "current_load": max(0.1, min(0.9, 0.3 + 0.4 * hash(f"node_{i}") % 100 / 100)),
                     "available": True
                 }
