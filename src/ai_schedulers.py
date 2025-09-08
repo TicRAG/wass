@@ -678,11 +678,8 @@ class WASSRAGScheduler(BaseScheduler):
                 # 直接反归一化，不进行过度约束
                 predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
                 
-                # 调试信息
-                else:
-                # 模型输出正常，在调试模式下添加调试信息
+                # 调试信息（生产环境可注释掉）
                 # print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
-                pass
                 
                 # 只有在预测值明显不合理时才进行约束
                 if predicted_makespan < 0.1:
