@@ -670,6 +670,10 @@ class WASSRAGScheduler(BaseScheduler):
         with torch.no_grad():
             predicted_makespan_normalized = self.performance_predictor(combined_features).item()
             
+            # 约束归一化预测值到合理范围，避免极端值导致负数
+            # 基于标准正态分布，99.7%的值在±3σ内，我们使用±2.5σ作为安全边界
+            predicted_makespan_normalized = max(-2.5, min(2.5, predicted_makespan_normalized))
+            
             # 反归一化预测结果（如果有训练元数据）
             if hasattr(self, '_y_mean') and hasattr(self, '_y_std'):
                 predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
@@ -691,12 +695,12 @@ class WASSRAGScheduler(BaseScheduler):
                 # 模型输出正常，添加调试信息
                 print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
             
-        # 如果反归一化结果为负，说明模型预测异常，使用绝对值或启发式方法
-        if predicted_makespan < 0:
-            print(f"⚠️ [WARNING] Negative prediction {predicted_makespan:.2f}, using absolute value")
-            predicted_makespan = abs(predicted_makespan)
+        # 最终安全检查：确保makespan为正值
+        if predicted_makespan <= 0:
+            print(f"⚠️ [WARNING] Non-positive prediction {predicted_makespan:.2f}, using minimum value 0.1")
+            predicted_makespan = 0.1
             
-        return max(predicted_makespan, 0.1)  # 确保最小值为0.1
+        return predicted_makespan
     
     def _encode_context(self, context: Dict[str, Any]) -> torch.Tensor:
         """编码检索到的历史上下文"""
