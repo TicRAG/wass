@@ -378,17 +378,34 @@ class WASSSmartScheduler(BaseScheduler):
             
             # 从工作流图中提取任务和依赖信息
             tasks = state.workflow_graph.get("tasks", [])
+            task_requirements = state.workflow_graph.get("task_requirements", {})
+            dependencies = state.workflow_graph.get("dependencies", {})
             
             # 构建节点特征
             node_features = []
             for task in tasks:
+                # 处理task可能是字符串或字典的情况
+                if isinstance(task, str):
+                    task_id = task
+                    task_info = task_requirements.get(task_id, {})
+                    task_deps = dependencies.get(task_id, [])
+                else:
+                    task_id = task.get("id", str(task))
+                    task_info = task
+                    task_deps = task.get("dependencies", [])
+                
+                # 提取任务特征
+                cpu_req = task_info.get("cpu", task_info.get("flops", 2.0))
+                mem_req = task_info.get("memory", 4.0)
+                duration = task_info.get("duration", task_info.get("runtime", 5.0))
+                
                 task_features = [
-                    task.get("flops", 1e9) / 1e10,  # 归一化FLOPS
-                    task.get("memory", 1e9) / 1e10,  # 归一化内存
-                    1.0 if task["id"] == state.current_task else 0.0,  # 当前任务标记
-                    1.0 if task["id"] in state.pending_tasks else 0.0,  # 待调度标记
-                    len(task.get("dependencies", [])),  # 依赖数量
-                    0.0,  # 保留字段
+                    min(1.0, float(cpu_req) / 10.0),  # 归一化CPU需求
+                    min(1.0, float(mem_req) / 16.0),  # 归一化内存需求
+                    min(1.0, float(duration) / 20.0), # 归一化执行时间
+                    1.0 if task_id == state.current_task else 0.0,  # 当前任务标记
+                    1.0 if task_id in state.pending_tasks else 0.0,  # 待调度标记
+                    min(1.0, len(task_deps) / 5.0),  # 归一化依赖数量
                     0.0,  # 保留字段
                     0.0   # 保留字段
                 ]
@@ -396,13 +413,27 @@ class WASSSmartScheduler(BaseScheduler):
             
             # 构建边索引（依赖关系）
             edge_index = []
+            task_to_index = {}
+            
+            # 建立任务ID到索引的映射
             for i, task in enumerate(tasks):
-                for dep in task.get("dependencies", []):
-                    # 找到依赖任务的索引
-                    for j, dep_task in enumerate(tasks):
-                        if dep_task["id"] == dep:
-                            edge_index.append([j, i])  # 从依赖任务到当前任务
-                            break
+                task_id = task if isinstance(task, str) else task.get("id", str(task))
+                task_to_index[task_id] = i
+            
+            # 构建依赖边
+            for i, task in enumerate(tasks):
+                task_id = task if isinstance(task, str) else task.get("id", str(task))
+                
+                # 获取依赖关系
+                if isinstance(task, str):
+                    task_deps = dependencies.get(task_id, [])
+                else:
+                    task_deps = task.get("dependencies", [])
+                
+                for dep in task_deps:
+                    if dep in task_to_index:
+                        dep_index = task_to_index[dep]
+                        edge_index.append([dep_index, i])  # 从依赖任务到当前任务
             
             # 转换为张量
             x = torch.tensor(node_features, dtype=torch.float32, device=self.device)
