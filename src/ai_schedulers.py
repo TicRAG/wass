@@ -670,19 +670,31 @@ class WASSRAGScheduler(BaseScheduler):
         with torch.no_grad():
             predicted_makespan_normalized = self.performance_predictor(combined_features).item()
             
-            # 约束归一化预测值到合理范围，避免极端值导致负数
-            # 基于标准正态分布，99.7%的值在±3σ内，我们使用±2.5σ作为安全边界
-            predicted_makespan_normalized = max(-2.5, min(2.5, predicted_makespan_normalized))
-            
-            # 反归一化预测结果（如果有训练元数据）
+            # 约束归一化预测值到合理范围，但保持相对差异
+            # 计算安全边界：确保反归一化后结果为正
             if hasattr(self, '_y_mean') and hasattr(self, '_y_std'):
+                # 计算导致makespan=1.0的归一化值作为下界
+                min_safe_normalized = (1.0 - self._y_mean) / self._y_std
+                # 使用更宽松的上界
+                max_safe_normalized = (200.0 - self._y_mean) / self._y_std
+                
+                # 约束预测值，但保持原始的相对顺序
+                original_normalized = predicted_makespan_normalized
+                predicted_makespan_normalized = max(min_safe_normalized, min(max_safe_normalized, predicted_makespan_normalized))
+                
+                # 反归一化预测结果
                 predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
+                
+                # 调试信息
+                if original_normalized != predicted_makespan_normalized:
+                    print(f"🔧 [CONSTRAINT] Adjusted normalized prediction from {original_normalized:.3f} to {predicted_makespan_normalized:.3f}")
+                print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
             else:
                 # 没有归一化参数，可能是未训练模型
                 predicted_makespan = predicted_makespan_normalized
+                print(f"🔍 [DEBUG] PerformancePredictor: raw={predicted_makespan:.2f}")
             
             # 检查是否为未训练模型（输出异常值）
-            # 注意：现在模型已经训练好，这个检查应该更保守
             if abs(predicted_makespan_normalized) < 0.01:  # 只有接近零的输出才认为是未训练
                 # 使用启发式替代，增加一些随机性
                 node_index = int(action_embedding[0].item()) if len(action_embedding) > 0 else 0
@@ -691,14 +703,11 @@ class WASSRAGScheduler(BaseScheduler):
                 feature_variance = torch.std(combined_features).item() * 10
                 predicted_makespan = base_prediction + feature_variance
                 print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan_normalized:.6f}), using heuristic fallback")
-            else:
-                # 模型输出正常，添加调试信息
-                print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
             
-        # 最终安全检查：确保makespan为正值
+        # 最终安全检查：确保makespan为正值（这应该很少触发）
         if predicted_makespan <= 0:
-            print(f"⚠️ [WARNING] Non-positive prediction {predicted_makespan:.2f}, using minimum value 0.1")
-            predicted_makespan = 0.1
+            print(f"⚠️ [WARNING] Non-positive prediction {predicted_makespan:.2f}, using minimum value 1.0")
+            predicted_makespan = 1.0
             
         return predicted_makespan
     

@@ -261,15 +261,24 @@ def create_synthetic_training_data(num_samples: int = 1000) -> List[Dict[str, An
                 np.random.uniform(0.5, 1.0),  # 置信度
             ] + [np.random.randn() * 0.05 for _ in range(28)])  # 填充到32维
             
-            # 计算真实makespan（基于启发式 + 节点特性）
-            base_makespan = (workflow_features["task_count"] * workflow_features["avg_flops"] / 1e9) / cluster_size
-            load_factor = 1.0 + current_load * 0.5  # 负载影响
-            capacity_factor = cpu_capacity / 10.0  # 容量影响
-            dependency_factor = 1.0 + workflow_features["dependency_ratio"] * 0.3
+            # 计算真实makespan（改进的物理意义合理的公式）
+            # 基础计算时间：任务数量 * 平均任务时间 / 并行度
+            avg_task_compute_time = workflow_features["avg_flops"] / (cpu_capacity * 1e9)  # 秒
+            sequential_time = task_count * avg_task_compute_time
+            parallel_efficiency = 0.7 + np.random.uniform(-0.1, 0.1)  # 70%±10% 并行效率
+            base_makespan = sequential_time / (cluster_size * parallel_efficiency)
             
-            # 添加一些随机变化，但保持合理性
-            noise_factor = np.random.uniform(0.9, 1.1)
-            makespan = base_makespan * load_factor / capacity_factor * dependency_factor * noise_factor
+            # 影响因子
+            load_factor = 1.0 + current_load * 0.8  # 负载影响更显著
+            dependency_factor = 1.0 + workflow_features["dependency_ratio"] * 0.5  # 依赖影响
+            data_factor = 1.0 + workflow_features["data_intensity"] * 0.3  # 数据传输影响
+            
+            # 添加合理的随机变化
+            noise_factor = np.random.uniform(0.8, 1.2)
+            makespan = base_makespan * load_factor * dependency_factor * data_factor * noise_factor
+            
+            # 确保makespan在合理范围内 (1秒到300秒)
+            makespan = max(1.0, min(300.0, makespan))
             
             # 拼接所有特征（96维：32+32+32）
             combined_features = np.concatenate([state_embedding, action_embedding, context_embedding])
