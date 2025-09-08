@@ -299,7 +299,7 @@ def create_synthetic_training_data(num_samples: int = 1000) -> List[Dict[str, An
 def train_performance_predictor(training_data: List[Dict[str, Any]], 
                                epochs: int = 100, 
                                batch_size: int = 32,
-                               learning_rate: float = 0.001) -> Dict[str, Any]:
+                               learning_rate: float = 0.0001) -> Dict[str, Any]:  # 降低学习率
     """训练性能预测器模型"""
     
     if not HAS_AI_MODULES:
@@ -317,12 +317,27 @@ def train_performance_predictor(training_data: List[Dict[str, Any]],
     X = np.array([data["combined_features"] for data in training_data], dtype=np.float32)
     y = np.array([data["makespan"] for data in training_data], dtype=np.float32)
     
+    # 检查数据质量
+    print(f"Feature stats: mean={np.mean(X):.6f}, std={np.std(X):.6f}")
+    print(f"Target stats: mean={np.mean(y):.2f}, std={np.std(y):.2f}")
+    
+    # 检查数据多样性
+    unique_features = len(np.unique(X.round(6), axis=0))
+    unique_targets = len(np.unique(y.round(3)))
+    print(f"Unique features: {unique_features}/{len(X)} ({unique_features/len(X)*100:.1f}%)")
+    print(f"Unique targets: {unique_targets}/{len(y)} ({unique_targets/len(y)*100:.1f}%)")
+    
+    if unique_features < len(X) * 0.5:
+        print("⚠️  Warning: Low feature diversity detected!")
+    if unique_targets < len(y) * 0.1:
+        print("⚠️  Warning: Low target diversity detected!")
+    
     # 数据归一化
     y_mean, y_std = np.mean(y), np.std(y)
-    y_normalized = (y - y_mean) / y_std
+    y_normalized = (y - y_mean) / (y_std + 1e-8)  # 添加小值避免除零
     
-    print(f"Target statistics: mean={y_mean:.2f}, std={y_std:.2f}")
-    print(f"Feature shape: {X.shape}, Target shape: {y.shape}")
+    print(f"Normalized target stats: mean={np.mean(y_normalized):.6f}, std={np.std(y_normalized):.6f}")
+    print(f"Target range: [{np.min(y_normalized):.3f}, {np.max(y_normalized):.3f}]")
     
     # 转换为PyTorch张量
     X_tensor = torch.FloatTensor(X).to(device)
@@ -435,7 +450,12 @@ def create_trained_models(training_data: List[Dict[str, Any]]) -> Dict[str, Any]
     
     # 1. 训练性能预测器（核心）
     print(f"\n1. Training PerformancePredictor...")
-    perf_predictor_result = train_performance_predictor(training_data, epochs=150)
+    perf_predictor_result = train_performance_predictor(
+        training_data, 
+        epochs=200,  # 增加训练轮数
+        batch_size=64,  # 增加批次大小
+        learning_rate=0.0001  # 降低学习率
+    )
     
     if perf_predictor_result:
         models["performance_predictor"] = perf_predictor_result["model_state_dict"]

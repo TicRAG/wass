@@ -1,7 +1,7 @@
 === WASS-RAG AI Model and Knowledge Base Initialization ===
 
 1. Generating synthetic training data...
-Generated 13075 training samples from 2000 scenarios
+Generated 13166 training samples from 2000 scenarios
    Saved training data to: data/synthetic_training_data.json
 
 2. Creating and training models...
@@ -11,36 +11,36 @@ Generated 13075 training samples from 2000 scenarios
 1. Training PerformancePredictor...
 
 === Training PerformancePredictor ===
-Training samples: 13075
+Training samples: 13166
 Epochs: 150, Batch size: 32, Learning rate: 0.001
 Using device: cuda
-Target statistics: mean=26.94, std=30.93
-Feature shape: (13075, 96), Target shape: (13075,)
+Target statistics: mean=27.11, std=31.13
+Feature shape: (13166, 96), Target shape: (13166,)
 
 Starting training...
-Epoch  10/150: Loss = 0.211829
-Epoch  20/150: Loss = 0.202188
-Epoch  30/150: Loss = 0.199566
-Epoch  40/150: Loss = 0.199378
-Epoch  50/150: Loss = 0.194540
-Epoch  60/150: Loss = 0.194797
-Epoch  70/150: Loss = 0.194193
-Epoch  80/150: Loss = 0.193986
-Epoch  90/150: Loss = 0.193441
-Epoch 100/150: Loss = 0.193183
-Epoch 110/150: Loss = 0.192941
-Epoch 120/150: Loss = 0.195543
-Epoch 130/150: Loss = 0.193332
-Epoch 140/150: Loss = 0.192443
-Epoch 150/150: Loss = 0.192414
+Epoch  10/150: Loss = 0.206362
+Epoch  20/150: Loss = 0.194896
+Epoch  30/150: Loss = 0.195804
+Epoch  40/150: Loss = 0.193231
+Epoch  50/150: Loss = 0.192624
+Epoch  60/150: Loss = 0.193368
+Epoch  70/150: Loss = 0.190798
+Epoch  80/150: Loss = 0.194916
+Epoch  90/150: Loss = 0.192388
+Epoch 100/150: Loss = 0.192548
+Epoch 110/150: Loss = 0.189262
+Epoch 120/150: Loss = 0.188707
+Epoch 130/150: Loss = 0.188346
+Epoch 140/150: Loss = 0.189553
+Epoch 150/150: Loss = 0.190392
 
 === Training Results ===
-Final Loss: 0.190496
-MSE: 179.41
-MAE: 10.57
-R²: 0.8125
-Prediction std: 26.91
-Prediction range: 436.52
+Final Loss: 0.188096
+MSE: 179.71
+MAE: 10.56
+R²: 0.8145
+Prediction std: 26.29
+Prediction range: 435.09
 ✓ Good prediction diversity achieved
 
 2. Creating PolicyNetwork...
@@ -48,28 +48,28 @@ Prediction range: 436.52
 3. Creating GraphEncoder...
    ✓ GraphEncoder created successfully
    Saved trained models to: models/wass_models.pth
-   PerformancePredictor R²: 0.8125
-   Training samples: 13075
-   Prediction diversity: 26.91
+   PerformancePredictor R²: 0.8145
+   Training samples: 13166
+   Prediction diversity: 26.29
 
 3. Validating trained model...
 
 === Validating Trained Model ===
 ✓ Model loaded from models/wass_models.pth
-MSE: 1410.07
-MAE: 27.03
-Prediction diversity (std): 0.66
-Prediction range: 3.72
-Unique predictions: 36/100
-⚠️  WARNING: Low prediction diversity
-   RAG scheduler may have limited differentiation capability.
+MSE: 207.93
+MAE: 12.27
+Prediction diversity (std): 22.05
+Prediction range: 130.60
+Unique predictions: 30/100
+✅ GOOD: Model shows healthy prediction diversity
+   RAG scheduler should be able to differentiate between nodes.
    Updated model file with validation results
 
 3. Creating knowledge base...
 Initialized empty knowledge base
-Adding 13075 cases to knowledge base...
-Knowledge base created with 13075 cases
-Saved knowledge base with 13075 cases to data/knowledge_base.pkl
+Adding 13166 cases to knowledge base...
+Knowledge base created with 13166 cases
+Saved knowledge base with 13166 cases to data/knowledge_base.pkl
    Saved knowledge base to: data/knowledge_base.pkl
 
 4. Testing scheduler initialization...
@@ -77,8 +77,9 @@ Saved knowledge base with 13075 cases to data/knowledge_base.pkl
 Successfully loaded model from models/wass_models.pth
    ✓ WASS-DRL (w/o RAG) initialized successfully
 Successfully loaded model from models/wass_models.pth
-Loaded knowledge base with 13075 cases
+Loaded knowledge base with 13166 cases
 Successfully loaded performance predictor
+Loaded normalization params: mean=27.11, std=31.13
    ✓ WASS-RAG initialized successfully
 
 === Initialization Complete ===

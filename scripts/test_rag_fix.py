@@ -16,7 +16,7 @@ sys.path.insert(0, parent_dir)
 sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 try:
-    from src.ai_schedulers import create_scheduler, SchedulingState, Task, Node
+    from src.ai_schedulers import create_scheduler, SchedulingState, SchedulingAction
     print("✓ Successfully imported AI schedulers")
 except ImportError as e:
     print(f"✗ Import failed: {e}")
@@ -25,26 +25,35 @@ except ImportError as e:
 def create_test_state():
     """创建测试调度状态"""
     
-    # 创建节点
-    nodes = [
-        Node(f"node_{i}", cpu_capacity=10.0, memory_capacity=16.0, current_load=np.random.uniform(0.1, 0.8))
-        for i in range(4)
-    ]
+    # 创建工作流图
+    workflow_graph = {
+        "tasks": ["task_0", "task_1", "task_2"],
+        "dependencies": {},
+        "task_requirements": {
+            "task_0": {"cpu": 2.0, "memory": 4.0, "duration": 5.0},
+            "task_1": {"cpu": 1.5, "memory": 3.0, "duration": 3.0},
+            "task_2": {"cpu": 3.0, "memory": 6.0, "duration": 7.0}
+        }
+    }
     
-    # 创建任务
-    task = Task(
-        task_id="test_task",
-        cpu_requirement=2.0,
-        memory_requirement=4.0,
-        duration=5.0
-    )
+    # 创建集群状态
+    cluster_state = {
+        "nodes": {
+            "node_0": {"cpu_capacity": 10.0, "memory_capacity": 16.0, "current_load": 0.2},
+            "node_1": {"cpu_capacity": 10.0, "memory_capacity": 16.0, "current_load": 0.4},
+            "node_2": {"cpu_capacity": 10.0, "memory_capacity": 16.0, "current_load": 0.6},
+            "node_3": {"cpu_capacity": 10.0, "memory_capacity": 16.0, "current_load": 0.3}
+        }
+    }
     
     # 创建调度状态
     state = SchedulingState(
-        available_nodes=nodes,
-        current_task=task,
-        pending_tasks=[],
-        node_loads={node.node_id: node.current_load for node in nodes}
+        workflow_graph=workflow_graph,
+        cluster_state=cluster_state,
+        pending_tasks=["task_1", "task_2"],
+        current_task="task_0",
+        available_nodes=["node_0", "node_1", "node_2", "node_3"],
+        timestamp=1725782400.0  # 2025-09-08
     )
     
     return state

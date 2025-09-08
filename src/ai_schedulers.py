@@ -805,8 +805,8 @@ class PerformancePredictor(nn.Module):
             nn.Dropout(0.1),
             nn.Linear(hidden_dim, hidden_dim // 2),
             nn.ReLU(),
-            nn.Linear(hidden_dim // 2, 1),
-            nn.ReLU()  # 确保输出非负（makespan）
+            nn.Linear(hidden_dim // 2, 1)
+            # 移除最后的ReLU - 归一化数据可能包含负值
         )
         
     def forward(self, features: torch.Tensor) -> torch.Tensor:
