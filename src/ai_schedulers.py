@@ -646,13 +646,28 @@ class WASSRAGScheduler(BaseScheduler):
         available_cpu = node_cpu_cap * (1.0 - current_load)
         available_mem = node_mem_cap * (1.0 - current_load * 0.5)  # 内存负载影响较小
         
-        cpu_fit = max(0.0, (available_cpu - task_cpu_req) / max(node_cpu_cap, 1.0))
-        mem_fit = max(0.0, (available_mem - task_mem_req) / max(node_mem_cap, 1.0))
+        # 修改CPU匹配度计算，避免全为0的情况
+        if task_cpu_req <= available_cpu:
+            # 如果节点能满足任务需求，计算剩余容量比例
+            cpu_fit = (available_cpu - task_cpu_req) / max(node_cpu_cap, 1.0)
+        else:
+            # 如果节点不能满足需求，计算能满足的比例（负值，表示不足）
+            cpu_fit = (available_cpu - task_cpu_req) / max(task_cpu_req, 1.0)
+        
+        # 内存匹配度计算
+        if task_mem_req <= available_mem:
+            mem_fit = (available_mem - task_mem_req) / max(node_mem_cap, 1.0)
+        else:
+            mem_fit = (available_mem - task_mem_req) / max(task_mem_req, 1.0)
 
-        # 2. 性能匹配度 - 任务计算密度 vs 节点处理能力
-        task_compute_intensity = task_cpu_req / max(task_mem_req, 1.0)  # 计算/内存比
-        node_compute_capacity = node_cpu_cap / max(node_mem_cap, 1.0)   # 节点计算/内存比
-        performance_match = 1.0 - abs(task_compute_intensity - node_compute_capacity) / max(task_compute_intensity + node_compute_capacity, 1.0)
+        # 2. 性能匹配度 - 考虑任务执行效率
+        # 基础执行时间估算：任务量/节点处理能力
+        base_exec_time_node = task_cpu_req / max(available_cpu, 0.1)
+        
+        # 性能匹配度：执行时间越短，匹配度越高
+        # 使用倒数形式，并归一化到0-1范围
+        max_reasonable_time = 10.0  # 假设最大合理执行时间
+        performance_match = max(0.0, 1.0 - base_exec_time_node / max_reasonable_time)
 
         # 3. 数据局部性特征 (模拟)
         # 假设：如果任务有依赖，我们模拟一个分数代表数据在节点上的可能性
@@ -694,7 +709,7 @@ class WASSRAGScheduler(BaseScheduler):
             # --- 任务特征（在不同节点上保持一致，但提供上下文） ---
             task_cpu_req / 5.0,         # 归一化任务CPU需求
             task_mem_req / 16.0,        # 归一化任务内存需求
-            task_compute_intensity / 2.0, # 归一化计算密度
+            task_cpu_req / max(task_mem_req, 1.0) / 2.0, # 归一化计算密度
             len(state.available_nodes) / 20.0,  # 可用节点数归一化
         ]
         
