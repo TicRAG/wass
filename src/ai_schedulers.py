@@ -680,6 +680,17 @@ class WASSRAGScheduler(BaseScheduler):
             pad_to_32(context_flat)
         ])
         
+        # 验证特征质量
+        if torch.isnan(combined_features).any() or torch.isinf(combined_features).any():
+            print("⚠️ [FEATURE] Invalid features detected, using fallback prediction")
+            # 使用简单的基于节点容量的预测
+            node_capacity = action_flat[5].item() if len(action_flat) > 5 else 0.4  # CPU归一化容量
+            fallback_prediction = 2.0 + (1.0 - node_capacity) * 3.0  # 2-5秒范围
+            return fallback_prediction
+        
+        # 软约束特征范围
+        combined_features = torch.clamp(combined_features, -3.0, 3.0)
+        
         # 预测性能
         with torch.no_grad():
             predicted_makespan_normalized = self.performance_predictor(combined_features).item()
@@ -692,14 +703,21 @@ class WASSRAGScheduler(BaseScheduler):
                 # 调试信息（生产环境可注释掉）
                 # print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
                 
-                # 只有在预测值明显不合理时才进行约束
-                # 单任务执行时间应该在 0.5-300 秒之间
-                if predicted_makespan < 0.5:
-                    print(f"🔧 [CONSTRAINT] Too small prediction {predicted_makespan:.2f}, adjusting to 0.5")
-                    predicted_makespan = 0.5
-                elif predicted_makespan > 300.0:
-                    print(f"🔧 [CONSTRAINT] Excessive prediction {predicted_makespan:.2f}, adjusting to 300.0")
-                    predicted_makespan = 300.0
+                # 智能约束：基于输入特征判断合理范围
+                # 单任务执行时间的合理范围应该与任务规模相关
+                task_complexity = combined_features[:32].mean().item()  # 状态特征的平均值作为复杂度指标
+                node_capacity = combined_features[32:64].mean().item()   # 动作特征的平均值作为节点能力指标
+                
+                # 动态计算合理的最小值（考虑任务复杂度和节点能力）
+                min_reasonable_time = max(0.1, task_complexity * 0.5)
+                max_reasonable_time = min(300.0, task_complexity * 200.0)
+                
+                if predicted_makespan < min_reasonable_time:
+                    print(f"🔧 [CONSTRAINT] Low prediction {predicted_makespan:.2f}s, adjusting to {min_reasonable_time:.2f}s (complexity={task_complexity:.3f})")
+                    predicted_makespan = min_reasonable_time
+                elif predicted_makespan > max_reasonable_time:
+                    print(f"🔧 [CONSTRAINT] High prediction {predicted_makespan:.2f}s, adjusting to {max_reasonable_time:.2f}s")
+                    predicted_makespan = max_reasonable_time
             else:
                 # 没有归一化参数，可能是未训练模型
                 predicted_makespan = abs(predicted_makespan_normalized) if predicted_makespan_normalized != 0 else 1.0
