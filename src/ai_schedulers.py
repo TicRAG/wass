@@ -472,9 +472,15 @@ class WASSRAGScheduler(BaseScheduler):
                 # 存储用于比较
                 node_scores[node] = -predicted_makespan  # 负值，因为我们要最小化makespan
                 
+                # 调试信息：显示每个节点的预测
+                print(f"🔍 [DEBUG] Node {node}: predicted_makespan={predicted_makespan:.2f}, score={-predicted_makespan:.3f}")
+                
                 # 记录历史最优
                 if historical_optimal is None or predicted_makespan < historical_optimal:
                     historical_optimal = predicted_makespan
+            
+            # 调试信息：显示所有节点分数
+            print(f"🔍 [DEBUG] All node scores: {node_scores}")
             
             # 4. 选择预测性能最好的节点
             # 检查是否所有节点得分相同（未训练模型的标志）
@@ -602,14 +608,18 @@ class WASSRAGScheduler(BaseScheduler):
                 predicted_makespan = predicted_makespan_normalized
             
             # 检查是否为未训练模型（输出异常值）
-            if abs(predicted_makespan_normalized) < 0.2 and abs(predicted_makespan_normalized + 0.1) < 0.05:
+            # 注意：现在模型已经训练好，这个检查应该更保守
+            if abs(predicted_makespan_normalized) < 0.01:  # 只有接近零的输出才认为是未训练
                 # 使用启发式替代，增加一些随机性
                 node_index = int(action_embedding[0].item()) if len(action_embedding) > 0 else 0
                 base_prediction = 80.0 + node_index * 5.0  # 基于节点的不同预测
                 # 添加基于特征的变化
                 feature_variance = torch.std(combined_features).item() * 10
                 predicted_makespan = base_prediction + feature_variance
-                print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan_normalized:.3f}), using heuristic fallback")
+                print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan_normalized:.6f}), using heuristic fallback")
+            else:
+                # 模型输出正常，添加调试信息
+                print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
             
         return max(predicted_makespan, 0.1)  # 确保非负
     

@@ -1,0 +1,138 @@
+WASS-RAG Training Fix Test
+This script tests the fixes for model training issues
+
+=== Testing Training Fix ===
+This will retrain the model with fixed architecture and parameters
+
+1. Running model training...
+Training output:
+=== WASS-RAG AI Model and Knowledge Base Initialization ===
+
+1. Generating synthetic training data...
+Generated 13335 training samples from 2000 scenarios
+   Saved training data to: data/synthetic_training_data.json
+
+2. Creating and training models...
+
+=== Creating Trained Models ===
+
+1. Training PerformancePredictor...
+
+=== Training PerformancePredictor ===
+Training samples: 13335
+Epochs: 200, Batch size: 64, Learning rate: 0.0001
+Using device: cuda
+Feature stats: mean=0.092871, std=0.230852
+Target stats: mean=26.70, std=28.50
+Unique features: 13335/13335 (100.0%)
+Unique targets: 11735/13335 (88.0%)
+Normalized target stats: mean=-0.000000, std=1.000000
+Target range: [-0.912, 12.413]
+
+Starting training...
+Epoch  10/200: Loss = 0.088875
+Epoch  20/200: Loss = 0.050581
+Epoch  30/200: Loss = 0.034954
+Epoch  40/200: Loss = 0.028618
+Epoch  50/200: Loss = 0.023280
+Epoch  60/200: Loss = 0.020588
+Epoch  70/200: Loss = 0.017784
+Epoch  80/200: Loss = 0.015548
+Epoch  90/200: Loss = 0.014620
+Epoch 100/200: Loss = 0.014396
+Epoch 110/200: Loss = 0.012208
+Epoch 120/200: Loss = 0.010960
+Epoch 130/200: Loss = 0.011473
+Epoch 140/200: Loss = 0.010650
+Epoch 150/200: Loss = 0.010370
+Epoch 160/200: Loss = 0.009911
+Epoch 170/200: Loss = 0.009536
+Epoch 180/200: Loss = 0.009468
+Epoch 190/200: Loss = 0.008557
+Epoch 200/200: Loss = 0.008681
+
+=== Training Results ===
+Final Loss: 0.008438
+MSE: 2.30
+MAE: 1.12
+R²: 0.9972
+Prediction std: 28.69
+Prediction range: 382.62
+✓ Good prediction diversity achieved
+
+2. Creating PolicyNetwork...
+
+3. Creating GraphEncoder...
+   ✓ GraphEncoder created successfully
+   Saved trained models to: models/wass_models.pth
+   PerformancePredictor R²: 0.9972
+   Training samples: 13335
+   Prediction diversity: 28.69
+
+3. Validating trained model...
+
+=== Validating Trained Model ===
+✓ Model loaded from models/wass_models.pth
+MSE: 3.16
+MAE: 1.33
+Prediction diversity (std): 31.58
+Prediction range: 132.54
+Unique predictions: 100/100
+✅ GOOD: Model shows healthy prediction diversity
+   RAG scheduler should be able to differentiate between nodes.
+   Updated model file with validation results
+
+3. Creating knowledge base...
+Initialized empty knowledge base
+Adding 13335 cases to knowledge base...
+Knowledge base created with 13335 cases
+Saved knowledge base with 13335 cases to data/knowledge_base.pkl
+   Saved knowledge base to: data/knowledge_base.pkl
+
+4. Testing scheduler initialization...
+   ✓ WASS (Heuristic) initialized successfully
+Successfully loaded model from models/wass_models.pth
+   ✓ WASS-DRL (w/o RAG) initialized successfully
+Successfully loaded model from models/wass_models.pth
+Loaded knowledge base with 13335 cases
+Successfully loaded performance predictor
+Loaded normalization params: mean=26.70, std=28.50
+   ✓ WASS-RAG initialized successfully
+
+=== Initialization Complete ===
+Your AI models and knowledge base are ready for experiments!
+
+Generated files:
+  - models/wass_models.pth: Pre-trained neural network models
+  - data/synthetic_training_data.json: Synthetic training data
+  - data/knowledge_base.pkl: RAG knowledge base
+
+You can now run the experiment framework:
+  python experiments/real_experiment_framework.py
+
+
+2. Analyzing training results...
+
+=== Training Analysis ===
+R² Score: 0.9972
+✅ Excellent model fit
+Prediction Diversity: 28.69
+✅ Good prediction diversity
+✅ No critical errors detected
+
+=== Testing RAG Scheduler ===
+Successfully loaded model from models/wass_models.pth
+Loaded knowledge base with 13335 cases
+Successfully loaded performance predictor
+Loaded normalization params: mean=26.70, std=28.50
+✅ RAG scheduler loaded successfully
+✅ Normalization parameters loaded: mean=26.70, std=28.50
+
+============================================================
+🎉 SUCCESS: Training fix appears to work!
+   Model now shows good R² and prediction diversity
+   RAG scheduler loaded with normalization parameters
+
+   Next step: Run full experiments to confirm fix
+   Command: python experiments/real_experiment_framework.py
+============================================================
