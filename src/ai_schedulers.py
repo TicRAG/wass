@@ -473,7 +473,29 @@ class WASSRAGScheduler(BaseScheduler):
                     historical_optimal = predicted_makespan
             
             # 4. 选择预测性能最好的节点
-            best_node = max(node_scores.keys(), key=lambda k: node_scores[k])
+            # 检查是否所有节点得分相同（未训练模型的标志）
+            score_values = list(node_scores.values())
+            unique_scores = set(score_values)
+            
+            if len(unique_scores) == 1:
+                # 所有得分相同，使用多样化的选择策略
+                print(f"⚠️ [DEGRADATION] All node scores identical ({score_values[0]:.3f}), using diversified selection")
+                
+                # 基于任务ID和可用节点计算确定性但多样化的选择
+                task_hash = hash(state.current_task) if state.current_task else 0
+                node_list = sorted(node_scores.keys())  # 确保顺序一致
+                selected_index = task_hash % len(node_list)
+                best_node = node_list[selected_index]
+                
+                # 降低置信度以反映决策质量
+                base_confidence = 0.3
+            else:
+                # 正常选择最佳节点
+                best_node = max(node_scores.keys(), key=lambda k: node_scores[k])
+                
+                # 基于得分差异计算置信度
+                score_range = max(score_values) - min(score_values)
+                base_confidence = 0.5 + min(0.4, score_range * 2)  # 0.5-0.9范围
             
             # 5. 计算RAG奖励信号（实际用于训练时）
             rag_reward = self._calculate_rag_reward(node_scores, best_node, retrieved_context)
@@ -481,7 +503,8 @@ class WASSRAGScheduler(BaseScheduler):
             # 6. 生成可解释的决策理由
             reasoning = self._generate_explanation(best_node, retrieved_context, node_scores)
             
-            confidence = torch.sigmoid(torch.tensor(node_scores[best_node])).item()
+            # 使用改进的置信度计算
+            confidence = base_confidence
             
             return SchedulingAction(
                 task_id=state.current_task,
@@ -549,6 +572,16 @@ class WASSRAGScheduler(BaseScheduler):
         # 预测性能
         with torch.no_grad():
             predicted_makespan = self.performance_predictor(combined_features).item()
+            
+            # 检查是否为未训练模型（输出过于接近）
+            if abs(predicted_makespan - 0.1) < 0.001:
+                # 使用启发式替代，增加一些随机性
+                node_index = int(action_embedding[0].item()) if len(action_embedding) > 0 else 0
+                base_prediction = 80.0 + node_index * 5.0  # 基于节点的不同预测
+                # 添加基于特征的变化
+                feature_variance = torch.std(combined_features).item() * 10
+                predicted_makespan = base_prediction + feature_variance
+                print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan:.3f}), using heuristic fallback")
             
         return max(predicted_makespan, 0.1)  # 确保非负
     
