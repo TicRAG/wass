@@ -639,7 +639,7 @@ class WASSRAGScheduler(BaseScheduler):
         mem_norm = min(1.0, mem_cap / 64.0)
         action_features = [
             hash(node) % 100 / 100.0,            # 节点ID哈希
-            len(state.available_nodes),          # 可用节点数
+            len(state.available_nodes) / 20.0,   # 可用节点数归一化
             1.0 if node == state.available_nodes[0] else 0.0,  # 是否列表首节点
             current_load,                        # 当前负载
             1.0 - current_load,                  # 空闲度
