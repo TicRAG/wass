@@ -741,9 +741,20 @@ class WASSRAGScheduler(BaseScheduler):
         # 案例数量
         features.append(len(similar_cases) / 10.0)
         
-        # 平均相似度
+        # 平均相似度（需要归一化，因为FAISS内积可能>1）
         similarities = [case.get("similarity", 0.5) for case in similar_cases]
-        avg_similarity = np.mean(similarities) if similarities else 0.5
+        if similarities:
+            # 将相似度归一化到0-1范围
+            max_sim = max(similarities)
+            min_sim = min(similarities)
+            if max_sim > min_sim:
+                avg_similarity = (np.mean(similarities) - min_sim) / (max_sim - min_sim)
+            else:
+                avg_similarity = 0.5
+            # 进一步确保在合理范围内
+            avg_similarity = min(1.0, max(0.0, avg_similarity))
+        else:
+            avg_similarity = 0.5
         features.append(avg_similarity)
         
         # 填充到32维
