@@ -26,18 +26,92 @@ except ImportError as e:
     sys.exit(1)
 
 def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any]]:
-    """创建改进的训练数据，确保makespan分布合理"""
-    
-    print(f"🔧 Generating {num_samples} improved training samples...")
+    """
+    生成高质量的合成训练数据（V4 - 最终修复版）
+    确保特征生成逻辑与 ai_schedulers.py 中的逻辑完全一致。
+    """
+    print(f"🔧 Generating {num_samples} scenarios for training data...")
+
+    # 导入调度器以复用其内部逻辑
+    # 注意：这里我们是在训练脚本中导入调度器模块
+    from src.ai_schedulers import WASSRAGScheduler, SchedulingState
+
+    # 创建一个临时的调度器实例来调用其编码函数
+    # 我们不需要加载它的模型，只需要它的特征编码方法
+    temp_scheduler = WASSRAGScheduler()
     training_data = []
-    
-    # 统计生成的makespan分布
     makespan_values = []
-    
+
     for i in range(num_samples):
-        # 生成随机工作流（更多样化）
-        task_count = np.random.randint(3, 101)  # 3-100个任务
-        cluster_size = np.random.randint(2, 21)  # 2-20个节点
+        # 1. 创建一个随机的、多样化的调度场景 (State)
+        num_nodes = np.random.randint(2, 21)
+        
+        nodes = {f"node_{j}": {
+            "cpu_capacity": round(np.random.uniform(2.0, 8.0), 2),
+            "memory_capacity": round(np.random.uniform(8.0, 64.0), 2),
+            "current_load": round(np.random.uniform(0.1, 0.9), 2),
+        } for j in range(num_nodes)}
+
+        # 确保任务的flops值与ai_schedulers.py中的单位一致 (GFlops)
+        task_info = {
+            "id": f"task_{i}",
+            "flops": float(np.random.uniform(0.5e9, 15e9)),
+            "memory": round(np.random.uniform(1.0, 16.0), 2),
+            "dependencies": [f"task_{k}" for k in range(np.random.randint(0, 4))]
+        }
+
+        state = SchedulingState(
+            workflow_graph={"tasks": [task_info], "task_requirements": {f"task_{i}": task_info}},
+            cluster_state={"nodes": nodes},
+            pending_tasks=[f"task_{i}"],
+            current_task=f"task_{i}",
+            available_nodes=list(nodes.keys()),
+            timestamp=0.0
+        )
+
+        # 2. 编码通用的 State 和 Context 部分
+        # 调用调度器自己的方法来确保逻辑一致
+        state_embedding = temp_scheduler._extract_simple_features_fallback(state)
+        context_embedding = torch.randn(32, device=temp_scheduler.device) # 模拟随机上下文
+
+        # 3. 为该场景中的每个节点生成一个独立的训练样本
+        for node_name, node_details in nodes.items():
+            # 关键修复：调用与预测时完全相同的 _encode_action 函数
+            action_embedding = temp_scheduler._encode_action(node_name, state)
+
+            # 拼接成96维特征向量，确保100%一致性
+            combined_features = torch.cat([
+                state_embedding,
+                action_embedding,
+                context_embedding
+            ]).cpu().numpy()
+            
+            # 4. 根据特征估算一个真实的执行时间 (y)，这个逻辑需要尽可能模拟真实世界
+            task_cpu_gflops = task_info["flops"] / 1e9
+            node_cpu_cap = node_details["cpu_capacity"]
+            node_load = node_details["current_load"]
+            
+            available_cpu = node_cpu_cap * (1.0 - node_load)
+            
+            # 基础时间 = 任务计算量 / 节点可用算力
+            base_time = task_cpu_gflops / max(available_cpu, 0.1)
+            
+            # 增加一些噪声和惩罚项
+            mem_penalty = max(0, task_info["memory"] - node_details["memory_capacity"]) * 0.5
+            load_penalty = node_load * 2.0
+            random_noise = np.random.uniform(-0.5, 0.5)
+            
+            # 最终执行时间
+            execution_time = base_time + mem_penalty + load_penalty + random_noise
+            execution_time = max(1.0, min(180.0, execution_time)) # 约束在合理范围
+
+            makespan_values.append(execution_time)
+            
+            training_data.append({
+                "features": combined_features.tolist(),
+                "makespan": execution_time
+                # 其他元数据可以按需保留
+            })
         
             # 为每个节点生成不同的容量
         for node_idx in range(min(cluster_size, 10)):  # 限制节点数以避免过多数据
@@ -64,16 +138,52 @@ def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any
                 current_load,  # 当前负载
             ] + [np.random.randn() * 0.05 for _ in range(25)])  # 填充到32维
             
-            # 生成动作嵌入（32维）- 节点选择
+            # 生成动作嵌入（32维）- 使用与实际运行时相同的特征逻辑
+            # 模拟任务特征
+            task_cpu_demand = workflow_features["avg_task_flops"] / 1e9  # GFlops
+            task_memory_demand = workflow_features["avg_memory"]  # GB
+            
+            # 1. CPU匹配度 (与实际_encode_action一致)
+            cpu_fit = min(1.0, task_cpu_demand / cpu_capacity) - current_load
+            
+            # 2. 内存匹配度
+            mem_fit = min(1.0, task_memory_demand / memory_capacity) * (1.0 - current_load)
+            
+            # 3. 性能匹配度 (基于历史数据模拟)
+            ideal_performance = task_cpu_demand / cpu_capacity
+            current_performance = ideal_performance * (1.0 + current_load)
+            performance_match = max(0.0, 1.0 - (current_performance - ideal_performance) / ideal_performance)
+            
+            # 4. 数据局部性 (随机模拟)
+            data_locality = np.random.uniform(0.3, 0.9)
+            
+            # 5. 负载均衡
+            avg_load = np.random.uniform(0.3, 0.7)  # 模拟集群平均负载
+            load_balance = 1.0 - abs(current_load - avg_load)
+            
+            # 6. 额外的交互特征 (模拟实际_encode_action的14维特征)
+            cpu_util = task_cpu_demand / (cpu_capacity * (1.0 - current_load) + 1e-6)
+            mem_util = task_memory_demand / (memory_capacity * (1.0 - current_load) + 1e-6)
+            resource_efficiency = (cpu_fit + mem_fit) / 2.0
+            workload_suitability = performance_match * data_locality
+            
+            # 构建14维核心特征 + 18维填充特征
             action_embedding = np.array([
-                node_idx / 10.0,  # 节点索引归一化
-                cpu_capacity / 32.0,  # CPU容量归一化
-                memory_capacity / 64.0,  # 内存容量归一化
-                current_load,  # 当前负载
-                1.0 - current_load,  # 空闲度
-                (cpu_capacity / 32.0) * (1.0 - current_load),  # 有效计算能力
-                (memory_capacity / 64.0) * (1.0 - current_load),  # 有效内存
-            ] + [np.random.randn() * 0.05 for _ in range(25)])  # 填充到32维
+                cpu_fit,           # 可能为负值
+                mem_fit,           # 通常正值 
+                performance_match, # 0-1
+                data_locality,     # 0.3-0.9
+                load_balance,      # 0-1
+                cpu_util,          # 可能>1
+                mem_util,          # 可能>1
+                resource_efficiency, # 0-1
+                workload_suitability, # 0-1
+                current_load,      # 0-1
+                1.0 - current_load, # 空闲度
+                cpu_capacity / 5.0, # 归一化CPU容量
+                memory_capacity / 64.0, # 归一化内存容量
+                task_cpu_demand / 15.0,  # 归一化任务CPU需求
+            ] + [np.random.randn() * 0.05 for _ in range(18)])  # 填充到32维
             
             # 生成上下文嵌入（32维）- 历史信息
             historical_makespan = np.random.uniform(10.0, 200.0)
