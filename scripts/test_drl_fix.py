@@ -46,13 +46,14 @@ def create_mock_state(task_count: int, node_count: int, current_task: str):
         }
         
         # 创建调度状态
-        state = SchedulingState()
-        state.workflow_graph = workflow_graph
-        state.cluster_state = cluster_state
-        state.pending_tasks = [f"task_{i}" for i in range(task_count) if f"task_{i}" != current_task]
-        state.current_task = current_task
-        state.available_nodes = [f"node_{i}" for i in range(node_count)]
-        state.timestamp = 1234567890.0
+        state = SchedulingState(
+            workflow_graph=workflow_graph,
+            cluster_state=cluster_state,
+            pending_tasks=[f"task_{i}" for i in range(task_count) if f"task_{i}" != current_task],
+            current_task=current_task,
+            available_nodes=[f"node_{i}" for i in range(node_count)],
+            timestamp=1234567890.0
+        )
         
         return state
         

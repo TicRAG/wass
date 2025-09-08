@@ -26,6 +26,7 @@ except ImportError:
     print("Warning: torch_geometric not installed. GNN functionality will be limited.")
 
 @dataclass
+@dataclass
 class SchedulingState:
     """调度状态表示"""
     workflow_graph: Dict[str, Any]

@@ -62,13 +62,14 @@ def test_basic_import():
         # 4. 测试SchedulingState创建
         print("\n4. 测试SchedulingState创建...")
         try:
-            state = SchedulingState()
-            state.workflow_graph = {"tasks": [], "name": "test"}
-            state.cluster_state = {"nodes": {}}
-            state.pending_tasks = []
-            state.current_task = "task_0"
-            state.available_nodes = ["node_0", "node_1"]
-            state.timestamp = 1234567890.0
+            state = SchedulingState(
+                workflow_graph={"tasks": [], "name": "test"},
+                cluster_state={"nodes": {}},
+                pending_tasks=[],
+                current_task="task_0",
+                available_nodes=["node_0", "node_1"],
+                timestamp=1234567890.0
+            )
             print("   ✓ 成功创建SchedulingState")
         except Exception as e:
             print(f"   ❌ SchedulingState创建失败: {e}")
