@@ -20,8 +20,7 @@ sys.path.insert(0, project_root)  # 添加项目根目录
 sys.path.insert(0, os.path.join(project_root, 'src'))  # 添加src目录
 
 try:
-    from ai_schedulers import WASSRAGScheduler, SchedulingState
-    from interfaces import PerformancePredictor
+    from ai_schedulers import WASSRAGScheduler, SchedulingState, PerformancePredictor
     print("✅ Successfully imported all required modules")
 except ImportError as e:
     print(f"❌ Import error: {e}")
