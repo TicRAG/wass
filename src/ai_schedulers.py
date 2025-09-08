@@ -628,23 +628,74 @@ class WASSRAGScheduler(BaseScheduler):
             return fallback_action
     
     def _encode_action(self, node: str, state: SchedulingState) -> torch.Tensor:
-        """编码调度动作"""
-        # 简化的动作编码
-        node_info = state.cluster_state.get("nodes", {}).get(node, {}) if state and state.cluster_state else {}
+        """编码调度动作（增强版 - 提供任务与节点的交互特征）"""
+        
+        node_info = state.cluster_state.get("nodes", {}).get(node, {})
+        task_info = self.heuristic_scheduler._get_task_info(state.workflow_graph, state.current_task)
+
+        # === 新增：任务与节点的交互特征 ===
+        # 1. 资源匹配度
+        task_cpu_req = float(task_info.get("flops", 2e9)) / 1e9  # 转换为GFlops
+        task_mem_req = float(task_info.get("memory", 4.0))
+        
+        node_cpu_cap = float(node_info.get("cpu_capacity", 2.0))
+        node_mem_cap = float(node_info.get("memory_capacity", 16.0))
         current_load = float(node_info.get("current_load", 0.5))
-        cpu_cap = float(node_info.get("cpu_capacity", 2.0))  # 与训练数据一致
-        mem_cap = float(node_info.get("memory_capacity", 16.0))
-        # 归一化容量（使用与训练数据一致的范围）
-        cpu_norm = min(1.0, cpu_cap / 5.0)  # 训练时最大是5.0 GFlops
-        mem_norm = min(1.0, mem_cap / 64.0)
+
+        # 计算资源余量（考虑当前负载），并进行归一化
+        available_cpu = node_cpu_cap * (1.0 - current_load)
+        available_mem = node_mem_cap * (1.0 - current_load * 0.5)  # 内存负载影响较小
+        
+        cpu_fit = max(0.0, (available_cpu - task_cpu_req) / max(node_cpu_cap, 1.0))
+        mem_fit = max(0.0, (available_mem - task_mem_req) / max(node_mem_cap, 1.0))
+
+        # 2. 性能匹配度 - 任务计算密度 vs 节点处理能力
+        task_compute_intensity = task_cpu_req / max(task_mem_req, 1.0)  # 计算/内存比
+        node_compute_capacity = node_cpu_cap / max(node_mem_cap, 1.0)   # 节点计算/内存比
+        performance_match = 1.0 - abs(task_compute_intensity - node_compute_capacity) / max(task_compute_intensity + node_compute_capacity, 1.0)
+
+        # 3. 数据局部性特征 (模拟)
+        # 假设：如果任务有依赖，我们模拟一个分数代表数据在节点上的可能性
+        dependencies = task_info.get("dependencies", [])
+        data_locality_score = 0.5  # 默认中等局部性
+        if dependencies:
+            # 使用节点和任务的确定性哈希来创建局部性分数
+            locality_hash = (hash(node) + hash(state.current_task) + len(dependencies)) % 100
+            data_locality_score = locality_hash / 100.0
+
+        # 4. 负载均衡特征
+        # 计算该节点相对于其他节点的负载情况
+        all_loads = [n.get("current_load", 0.5) for n in state.cluster_state.get("nodes", {}).values()]
+        avg_load = sum(all_loads) / max(len(all_loads), 1)
+        load_balance_score = 1.0 - abs(current_load - avg_load)  # 负载越接近平均值得分越高
+
+        # === 改进的节点标识特征 ===
+        # 改进节点ID编码，使其更具区分度
+        try:
+            node_id_numeric = float(''.join(filter(str.isdigit, node))) / 20.0  # 假设最多20个节点
+        except (ValueError, ZeroDivisionError):
+            node_id_numeric = hash(node) % 100 / 100.0
+
         action_features = [
-            hash(node) % 100 / 100.0,            # 节点ID哈希
-            len(state.available_nodes) / 20.0,   # 可用节点数归一化
-            1.0 if node == state.available_nodes[0] else 0.0,  # 是否列表首节点
-            current_load,                        # 当前负载
-            1.0 - current_load,                  # 空闲度
-            cpu_norm,                            # CPU容量归一化
-            mem_norm,                            # 内存容量归一化
+            # --- 新的交互特征 ---
+            cpu_fit,                    # CPU匹配度/余量
+            mem_fit,                    # 内存匹配度/余量  
+            performance_match,          # 性能匹配度
+            data_locality_score,        # 数据局部性得分
+            load_balance_score,         # 负载均衡得分
+            
+            # --- 改进/保留的特征 ---
+            node_id_numeric,            # 更有意义的节点ID
+            current_load,               # 当前负载
+            1.0 - current_load,         # 空闲度
+            node_cpu_cap / 5.0,         # 归一化CPU总容量
+            node_mem_cap / 64.0,        # 归一化内存总容量
+            
+            # --- 任务特征（在不同节点上保持一致，但提供上下文） ---
+            task_cpu_req / 5.0,         # 归一化任务CPU需求
+            task_mem_req / 16.0,        # 归一化任务内存需求
+            task_compute_intensity / 2.0, # 归一化计算密度
+            len(state.available_nodes) / 20.0,  # 可用节点数归一化
         ]
         
         # 填充到固定长度
