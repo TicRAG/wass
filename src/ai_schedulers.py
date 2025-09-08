@@ -477,7 +477,7 @@ class WASSSmartScheduler(BaseScheduler):
     def load_model(self, model_path: str):
         """加载预训练模型"""
         try:
-            checkpoint = torch.load(model_path, map_location=self.device)
+            checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
             if self.gnn_encoder is not None:
                 self.gnn_encoder.load_state_dict(checkpoint.get("gnn_encoder", {}))
             self.policy_network.load_state_dict(checkpoint.get("policy_network", {}))
@@ -670,44 +670,35 @@ class WASSRAGScheduler(BaseScheduler):
         with torch.no_grad():
             predicted_makespan_normalized = self.performance_predictor(combined_features).item()
             
-            # 约束归一化预测值到合理范围，但保持相对差异
-            # 计算安全边界：确保反归一化后结果为正
+            # 反归一化预测结果（如果有训练元数据）
             if hasattr(self, '_y_mean') and hasattr(self, '_y_std'):
-                # 计算导致makespan=1.0的归一化值作为下界
-                min_safe_normalized = (1.0 - self._y_mean) / self._y_std
-                # 使用更宽松的上界
-                max_safe_normalized = (200.0 - self._y_mean) / self._y_std
-                
-                # 约束预测值，但保持原始的相对顺序
-                original_normalized = predicted_makespan_normalized
-                predicted_makespan_normalized = max(min_safe_normalized, min(max_safe_normalized, predicted_makespan_normalized))
-                
-                # 反归一化预测结果
+                # 直接反归一化，不进行过度约束
                 predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
                 
                 # 调试信息
-                if original_normalized != predicted_makespan_normalized:
-                    print(f"🔧 [CONSTRAINT] Adjusted normalized prediction from {original_normalized:.3f} to {predicted_makespan_normalized:.3f}")
                 print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
+                
+                # 只有在预测值明显不合理时才进行约束
+                if predicted_makespan < 0.1:
+                    print(f"🔧 [CONSTRAINT] Negative prediction {predicted_makespan:.2f}, adjusting to 0.1")
+                    predicted_makespan = 0.1
+                elif predicted_makespan > 1000.0:
+                    print(f"🔧 [CONSTRAINT] Excessive prediction {predicted_makespan:.2f}, adjusting to 1000.0")
+                    predicted_makespan = 1000.0
             else:
                 # 没有归一化参数，可能是未训练模型
-                predicted_makespan = predicted_makespan_normalized
+                predicted_makespan = abs(predicted_makespan_normalized) if predicted_makespan_normalized != 0 else 1.0
                 print(f"🔍 [DEBUG] PerformancePredictor: raw={predicted_makespan:.2f}")
             
             # 检查是否为未训练模型（输出异常值）
             if abs(predicted_makespan_normalized) < 0.01:  # 只有接近零的输出才认为是未训练
                 # 使用启发式替代，增加一些随机性
                 node_index = int(action_embedding[0].item()) if len(action_embedding) > 0 else 0
-                base_prediction = 80.0 + node_index * 5.0  # 基于节点的不同预测
+                base_prediction = 10.0 + node_index * 2.0  # 基于节点的不同预测
                 # 添加基于特征的变化
-                feature_variance = torch.std(combined_features).item() * 10
+                feature_variance = torch.std(combined_features).item() * 5
                 predicted_makespan = base_prediction + feature_variance
                 print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan_normalized:.6f}), using heuristic fallback")
-            
-        # 最终安全检查：确保makespan为正值（这应该很少触发）
-        if predicted_makespan <= 0:
-            print(f"⚠️ [WARNING] Non-positive prediction {predicted_makespan:.2f}, using minimum value 1.0")
-            predicted_makespan = 1.0
             
         return predicted_makespan
     
@@ -800,7 +791,8 @@ class WASSRAGScheduler(BaseScheduler):
     def _load_performance_predictor(self, model_path: str):
         """加载性能预测器模型"""
         try:
-            checkpoint = torch.load(model_path, map_location=self.device)
+            # 修复PyTorch 2.6兼容性问题
+            checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
             if "performance_predictor" in checkpoint:
                 self.performance_predictor.load_state_dict(checkpoint["performance_predictor"])
                 print("Successfully loaded performance predictor")
