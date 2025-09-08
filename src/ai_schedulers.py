@@ -334,6 +334,10 @@ class WASSSmartScheduler(BaseScheduler):
         # 将节点特征与状态嵌入连接
         node_tensor = torch.tensor(node_features, dtype=torch.float32, device=self.device)
         
+        # 确保state_embedding是1D张量
+        if state_embedding.dim() > 1:
+            state_embedding = state_embedding.flatten()
+        
         # 截断或填充状态嵌入到合适的大小
         if len(state_embedding) > 29:
             state_embedding = state_embedding[:29]
@@ -524,10 +528,22 @@ class WASSRAGScheduler(BaseScheduler):
         context_embedding = self._encode_context(context)
         
         # 连接所有特征
+        # 确保所有嵌入都是1D张量
+        state_flat = state_embedding.flatten()[:32]
+        action_flat = action_embedding.flatten()[:32]
+        context_flat = context_embedding.flatten()[:32]
+        
+        # 填充到32维
+        def pad_to_32(tensor):
+            if len(tensor) < 32:
+                padding = torch.zeros(32 - len(tensor), device=tensor.device)
+                return torch.cat([tensor, padding])
+            return tensor[:32]
+        
         combined_features = torch.cat([
-            state_embedding[:32],
-            action_embedding[:32], 
-            context_embedding[:32]
+            pad_to_32(state_flat),
+            pad_to_32(action_flat),
+            pad_to_32(context_flat)
         ])
         
         # 预测性能
