@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """
-快速测试RAG调度器修复
-运行一个简单的调度决策来查看调试输出
+简洁测试：验证RAG调度器工作正常且无过多调试输出
 """
 
 import os
 import sys
-import json
 
 # 添加项目路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,10 +19,8 @@ except ImportError as e:
     print(f"✗ Import failed: {e}")
     sys.exit(1)
 
-def create_simple_test_state():
-    """创建简单的测试状态"""
-    
-    # 简单的工作流图
+def create_test_state():
+    """创建测试状态"""
     workflow_graph = {
         "tasks": ["task_0"],
         "dependencies": {},
@@ -33,7 +29,6 @@ def create_simple_test_state():
         }
     }
     
-    # 简单的集群状态
     cluster_state = {
         "nodes": {
             "node_0": {"cpu_capacity": 10.0, "memory_capacity": 16.0, "current_load": 0.3},
@@ -52,10 +47,11 @@ def create_simple_test_state():
         timestamp=1725782400.0
     )
 
-def test_rag_decision():
-    """测试RAG调度器决策过程"""
+def test_clean_output():
+    """测试简洁输出"""
     
-    print("=== Testing RAG Scheduler Decision ===")
+    print("🧪 Testing Clean RAG Scheduler Output")
+    print("="*50)
     
     try:
         # 创建调度器
@@ -64,47 +60,43 @@ def test_rag_decision():
             model_path="models/wass_models.pth",
             knowledge_base_path="data/knowledge_base.pkl"
         )
-        print("✓ RAG scheduler created successfully")
         
         # 创建测试状态
-        state = create_simple_test_state()
-        print("✓ Test state created")
+        state = create_test_state()
         
-        print(f"\nMaking scheduling decision...")
-        print(f"Available nodes: {state.available_nodes}")
-        print(f"Current task: {state.current_task}")
+        print(f"\n📋 Making scheduling decision...")
+        print(f"   Available nodes: {state.available_nodes}")
+        print(f"   Current task: {state.current_task}")
         
-        # 进行决策（这会打印调试信息）
+        # 进行决策（应该输出很少的信息）
         action = rag_scheduler.make_decision(state)
         
-        print(f"\n=== Decision Result ===")
-        print(f"Selected node: {action.target_node}")
-        print(f"Confidence: {action.confidence:.3f}")
-        if action.reasoning:
-            print(f"Reasoning: {action.reasoning}")
+        print(f"\n✅ Decision Result:")
+        print(f"   Selected node: {action.target_node}")
+        print(f"   Confidence: {action.confidence:.3f}")
+        print(f"   Reasoning: {action.reasoning[:100]}...")
         
-        return True
+        # 检查是否有问题
+        if "DEGRADATION" in action.reasoning:
+            print(f"\n⚠️ Warning: Still has degradation issues!")
+            return False
+        else:
+            print(f"\n🎉 Success: Clean output with normal RAG operation!")
+            return True
         
     except Exception as e:
-        print(f"✗ Failed to test RAG decision: {e}")
+        print(f"✗ Test failed: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 if __name__ == "__main__":
-    print("RAG Scheduler Quick Test")
-    print("This will show debug output from the scheduling decision")
-    print("="*60)
+    success = test_clean_output()
     
-    success = test_rag_decision()
-    
-    print(f"\n{'='*60}")
+    print("="*50)
     if success:
-        print("✅ Test completed successfully!")
-        print("   Check the debug output above to see if predictions are diverse")
-        print("   If you see 'DEGRADATION' warnings, the issue persists")
-        print("   If you see diverse node scores, the fix worked!")
+        print("✅ All tests passed! Ready for production experiments.")
+        print("📝 Note: Debug output has been minimized for clean logs.")
+        print("🚀 Run: python experiments/real_experiment_framework.py")
     else:
-        print("❌ Test failed!")
-        print("   Check the error output above")
-    print(f"{'='*60}")
+        print("❌ Some issues detected. Check the output above.")

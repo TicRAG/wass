@@ -527,7 +527,8 @@ class WASSRAGScheduler(BaseScheduler):
             )
             
             # 3. 为每个可用节点计算RAG增强的得分
-            node_scores = {}
+            node_makespans = {}  # 存储预测的makespan
+            node_scores = {}     # 存储评分（越高越好）
             historical_optimal = None
             
             for node in state.available_nodes:
@@ -539,20 +540,22 @@ class WASSRAGScheduler(BaseScheduler):
                     state_embedding, action_embedding, retrieved_context
                 )
                 
-                # 存储用于比较
-                node_scores[node] = -predicted_makespan  # 负值，因为我们要最小化makespan
+                # 存储makespan和计算评分
+                node_makespans[node] = predicted_makespan
+                # 评分 = 1/makespan，makespan越小评分越高
+                node_scores[node] = 1.0 / max(predicted_makespan, 0.01)  # 避免除零
                 
-                # 调试信息：显示每个节点的预测
-                print(f"🔍 [DEBUG] Node {node}: predicted_makespan={predicted_makespan:.2f}, score={-predicted_makespan:.3f}")
+                # 调试信息：显示每个节点的预测（生产环境可注释掉）
+                # print(f"🔍 [DEBUG] Node {node}: makespan={predicted_makespan:.2f}s, score={node_scores[node]:.3f}")
                 
                 # 记录历史最优
                 if historical_optimal is None or predicted_makespan < historical_optimal:
                     historical_optimal = predicted_makespan
             
-            # 调试信息：显示所有节点分数
-            print(f"🔍 [DEBUG] All node scores: {node_scores}")
+            # 调试信息：显示所有节点分数（生产环境可注释掉）
+            # print(f"🔍 [DEBUG] All node scores: {node_scores}")
             
-            # 4. 选择预测性能最好的节点
+            # 4. 选择预测性能最好的节点（评分最高的）
             # 检查是否所有节点得分相同（未训练模型的标志）
             score_values = list(node_scores.values())
             unique_scores = set(score_values)
@@ -587,7 +590,7 @@ class WASSRAGScheduler(BaseScheduler):
             rag_reward = self._calculate_rag_reward(node_scores, best_node, retrieved_context)
             
             # 6. 生成可解释的决策理由
-            reasoning = self._generate_explanation(best_node, retrieved_context, node_scores)
+            reasoning = self._generate_explanation(best_node, retrieved_context, node_scores, node_makespans)
             
             # 使用改进的置信度计算
             confidence = base_confidence
@@ -676,7 +679,10 @@ class WASSRAGScheduler(BaseScheduler):
                 predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
                 
                 # 调试信息
-                print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
+                else:
+                # 模型输出正常，在调试模式下添加调试信息
+                # print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
+                pass
                 
                 # 只有在预测值明显不合理时才进行约束
                 if predicted_makespan < 0.1:
@@ -760,7 +766,7 @@ class WASSRAGScheduler(BaseScheduler):
         return rag_reward
     
     def _generate_explanation(self, chosen_node: str, context: Dict[str, Any], 
-                            node_scores: Dict[str, float]) -> str:
+                            node_scores: Dict[str, float], node_makespans: Dict[str, float]) -> str:
         """生成可解释的决策说明"""
         
         explanation_parts = []
@@ -769,7 +775,7 @@ class WASSRAGScheduler(BaseScheduler):
         explanation_parts.append(f"RAG-enhanced decision: chose node {chosen_node}")
         
         # 性能预测信息
-        predicted_makespan = -node_scores[chosen_node]
+        predicted_makespan = node_makespans[chosen_node]
         explanation_parts.append(f"predicted makespan: {predicted_makespan:.2f}s")
         
         # 历史案例信息
@@ -780,11 +786,11 @@ class WASSRAGScheduler(BaseScheduler):
                 explanation_parts.append(f"based on {len(similar_cases)} similar historical cases")
                 explanation_parts.append(f"historical avg makespan: {avg_historical_makespan:.2f}s")
         
-        # 所有节点的得分
-        sorted_scores = sorted(node_scores.items(), key=lambda x: x[1], reverse=True)
-        top_3 = sorted_scores[:3]
-        scores_str = ", ".join([f"{node}:{score:.2f}" for node, score in top_3])
-        explanation_parts.append(f"top scores: {scores_str}")
+        # 显示所有节点的makespan（更直观）
+        sorted_by_makespan = sorted(node_makespans.items(), key=lambda x: x[1])
+        top_3 = sorted_by_makespan[:3]
+        makespan_str = ", ".join([f"{node}:{makespan:.2f}s" for node, makespan in top_3])
+        explanation_parts.append(f"top choices: {makespan_str}")
         
         return "; ".join(explanation_parts)
     

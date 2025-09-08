@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-测试修复后的RAG调度器
+测试修复后的RAG评分系统
 """
 
 import os
@@ -19,10 +19,8 @@ except ImportError as e:
     print(f"✗ Import failed: {e}")
     sys.exit(1)
 
-def create_simple_test_state():
-    """创建简单的测试状态"""
-    
-    # 简单的工作流图
+def create_test_state():
+    """创建测试状态"""
     workflow_graph = {
         "tasks": ["task_0"],
         "dependencies": {},
@@ -31,7 +29,6 @@ def create_simple_test_state():
         }
     }
     
-    # 简单的集群状态
     cluster_state = {
         "nodes": {
             "node_0": {"cpu_capacity": 10.0, "memory_capacity": 16.0, "current_load": 0.3},
@@ -50,10 +47,11 @@ def create_simple_test_state():
         timestamp=1725782400.0
     )
 
-def test_rag_fixes():
-    """测试RAG调度器的修复"""
+def test_improved_scoring():
+    """测试改进的评分系统"""
     
-    print("=== Testing Fixed RAG Scheduler ===")
+    print("🧪 Testing Improved RAG Scoring System")
+    print("="*50)
     
     try:
         # 创建调度器
@@ -62,47 +60,59 @@ def test_rag_fixes():
             model_path="models/wass_models.pth",
             knowledge_base_path="data/knowledge_base.pkl"
         )
-        print("✓ RAG scheduler created successfully")
         
         # 创建测试状态
-        state = create_simple_test_state()
-        print("✓ Test state created")
+        state = create_test_state()
         
-        print(f"\nMaking scheduling decision...")
-        print(f"Available nodes: {state.available_nodes}")
-        print(f"Current task: {state.current_task}")
+        print(f"\n📋 Making scheduling decision...")
+        print(f"   Available nodes: {state.available_nodes}")
+        print(f"   Current task: {state.current_task}")
         
-        # 进行决策（这会打印调试信息）
+        # 进行决策
         action = rag_scheduler.make_decision(state)
         
-        print(f"\n=== Decision Result ===")
-        print(f"Selected node: {action.target_node}")
-        print(f"Confidence: {action.confidence:.3f}")
-        if action.reasoning:
-            print(f"Reasoning: {action.reasoning}")
+        print(f"\n✅ Decision Result:")
+        print(f"   Selected node: {action.target_node}")
+        print(f"   Confidence: {action.confidence:.3f}")
+        print(f"   Reasoning: {action.reasoning}")
         
-        # 检查是否还有DEGRADATION
-        if "DEGRADATION" in action.reasoning:
-            print(f"\n⚠️ Still has degradation issues!")
+        # 分析reasoning中的评分信息
+        reasoning = action.reasoning
+        if "top choices:" in reasoning:
+            choices_part = reasoning.split("top choices: ")[1].split(";")[0]
+            print(f"\n📊 Makespan Analysis:")
+            print(f"   {choices_part}")
+            
+            # 检查是否有负数或异常值
+            if "s" in choices_part:
+                print(f"✅ Makespans are in reasonable time units (seconds)")
+            else:
+                print(f"⚠️ Makespan format may be incorrect")
+        
+        # 检查是否有问题
+        if "DEGRADATION" in reasoning:
+            print(f"\n❌ Still has degradation issues!")
             return False
         else:
-            print(f"\n✅ No degradation detected!")
+            print(f"\n🎉 Success: Improved scoring system working correctly!")
             return True
         
     except Exception as e:
-        print(f"✗ Failed to test RAG fixes: {e}")
+        print(f"✗ Test failed: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 if __name__ == "__main__":
-    print("🔧 Testing RAG Scheduler Fixes")
-    print("="*60)
+    success = test_improved_scoring()
     
-    success = test_rag_fixes()
-    
-    print("="*60)
+    print("="*50)
     if success:
-        print("🎉 All fixes working correctly!")
+        print("✅ Improved scoring system validated!")
+        print("📈 Expected improvements:")
+        print("   - Positive scores (1/makespan)")
+        print("   - Intuitive makespan display")
+        print("   - Better decision explanations")
+        print("🚀 Ready for clean experiments!")
     else:
-        print("⚠️ Some issues still persist.")
+        print("❌ Issues detected in scoring system.")

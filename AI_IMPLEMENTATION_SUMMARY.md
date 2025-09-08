@@ -181,7 +181,10 @@ python experiments/demo_experiment.py
 pip install -r requirements.txt
 
 # 2. 初始化AI模型
+# 先完整初始化
 python scripts/initialize_ai_models.py
+# 再重新训练性能预测器（覆盖问题模型）
+python scripts/retrain_performance_predictor.py
 
 # 3. 运行完整实验
 python experiments/real_experiment_framework.py

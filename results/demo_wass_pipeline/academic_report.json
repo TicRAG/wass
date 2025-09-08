@@ -1,0 +1,46 @@
+{
+  "title": "WASS学术研究平台仿真报告",
+  "timestamp": "2025-09-08T14:37:20.129594",
+  "simulation_platform": {
+    "type": "Fallback Simulation",
+    "method": "unknown",
+    "wrench_version": "fallback",
+    "real_wrench_integration": false
+  },
+  "workflow_summary": {
+    "workflow_name": "wass_academic_research_workflow",
+    "total_tasks": 8,
+    "workflow_depth": 0,
+    "critical_path": []
+  },
+  "performance_results": {
+    "execution_time_seconds": 42.0,
+    "computational_throughput_flops": 0,
+    "system_efficiency_percent": 0,
+    "cpu_utilization_percent": 0
+  },
+  "infrastructure_details": {
+    "compute_hosts": [
+      "compute_node_1",
+      "compute_node_2"
+    ],
+    "host_count": 2,
+    "memory_utilization_percent": 0
+  },
+  "academic_insights": {
+    "scalability_assessment": "Low CPU utilization suggests under-utilized resources",
+    "bottleneck_analysis": [
+      "training阶段计算负载较高"
+    ],
+    "optimization_recommendations": [
+      "增加任务并行度以提高资源利用率",
+      "优化任务调度以提高CPU利用率",
+      "考虑增加计算节点以提升并行处理能力"
+    ]
+  },
+  "validation": {
+    "simulation_validity": false,
+    "data_source": "Simulated",
+    "reproducibility": "Medium"
+  }
+}
