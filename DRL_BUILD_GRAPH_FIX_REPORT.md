@@ -88,12 +88,17 @@ def _build_graph_data(self, state: SchedulingState):
 
 ## 验证步骤
 
-1. **单元测试**:
+1. **基本测试**:
+   ```bash
+   python scripts/test_basic_drl_fix.py
+   ```
+
+2. **完整测试**:
    ```bash
    python scripts/test_drl_fix.py
    ```
 
-2. **完整实验**:
+3. **完整实验**:
    ```bash
    python experiments/real_experiment_framework.py
    ```

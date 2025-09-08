@@ -11,12 +11,69 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+def create_mock_state(task_count: int, node_count: int, current_task: str):
+    """创建模拟的调度状态"""
+    try:
+        from src.ai_schedulers import SchedulingState
+        
+        # 创建模拟工作流图
+        tasks = []
+        for i in range(task_count):
+            task = {
+                "id": f"task_{i}",
+                "flops": 1e9 + i * 1e8,  # 1-2 GFlops
+                "memory": 1e9 + i * 1e8,  # 1-2 GB
+                "dependencies": [f"task_{j}" for j in range(max(0, i-2), i)] if i > 0 else []
+            }
+            tasks.append(task)
+        
+        workflow_graph = {
+            "tasks": tasks,
+            "name": "test_workflow"
+        }
+        
+        # 创建模拟集群状态
+        cluster_state = {
+            "nodes": {
+                f"node_{i}": {
+                    "cpu_capacity": 10.0,
+                    "memory_capacity": 16.0,
+                    "current_load": 0.3 + (i * 0.1),
+                    "available": True
+                }
+                for i in range(node_count)
+            }
+        }
+        
+        # 创建调度状态
+        state = SchedulingState()
+        state.workflow_graph = workflow_graph
+        state.cluster_state = cluster_state
+        state.pending_tasks = [f"task_{i}" for i in range(task_count) if f"task_{i}" != current_task]
+        state.current_task = current_task
+        state.available_nodes = [f"node_{i}" for i in range(node_count)]
+        state.timestamp = 1234567890.0
+        
+        return state
+        
+    except ImportError:
+        # 如果没有AI模块，返回简单的mock对象
+        class MockState:
+            def __init__(self):
+                self.workflow_graph = {"tasks": [], "name": "mock"}
+                self.cluster_state = {"nodes": {}}
+                self.pending_tasks = []
+                self.current_task = current_task
+                self.available_nodes = [f"node_{i}" for i in range(node_count)]
+                self.timestamp = 1234567890.0
+        
+        return MockState()
+
 def test_drl_schedulers():
     """测试DRL调度器的修复"""
     
     try:
         from src.ai_schedulers import WASSSmartScheduler, WASSRAGScheduler
-        from experiments.real_experiment_framework import create_mock_state
         
         print("=== DRL调度器修复测试 ===")
         
