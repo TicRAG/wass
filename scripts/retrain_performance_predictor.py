@@ -25,12 +25,15 @@ except ImportError as e:
     print(f"Error: Required AI modules not available: {e}")
     sys.exit(1)
 
-def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any]]:
+# 位于 scripts/retrain_performance_predictor.py 文件中
+# 用下面的全部代码替换掉现有的 create_improved_training_data 函数
+
+def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, Any]]:
     """
     生成高质量的合成训练数据（V4 - 最终修复版）
     确保特征生成逻辑与 ai_schedulers.py 中的逻辑完全一致。
     """
-    print(f"🔧 Generating {num_samples} scenarios for training data...")
+    print(f"🔧 Generating {num_scenarios} scenarios for training data...")
 
     # 导入调度器以复用其内部逻辑
     # 注意：这里我们是在训练脚本中导入调度器模块
@@ -42,7 +45,7 @@ def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any
     training_data = []
     makespan_values = []
 
-    for i in range(num_samples):
+    for i in range(num_scenarios):
         # 1. 创建一个随机的、多样化的调度场景 (State)
         num_nodes = np.random.randint(2, 21)
         
@@ -112,130 +115,7 @@ def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any
                 "makespan": execution_time
                 # 其他元数据可以按需保留
             })
-        
-            # 为每个节点生成不同的容量
-        for node_idx in range(min(cluster_size, 10)):  # 限制节点数以避免过多数据
-            # 节点特性（基于真实WRENCH平台）
-            cpu_capacity = np.random.uniform(1.0, 5.0)  # 1-5 GFlops (真实范围)
-            memory_capacity = np.random.uniform(8.0, 64.0)  # 8-64 GB
-            current_load = np.random.uniform(0.1, 0.9)
             
-            # 工作流特征（更真实的范围）
-            workflow_features = {
-                "task_count": task_count,
-                "avg_task_flops": np.random.uniform(1e9, 15e9),  # 1-15 GFlops (真实任务大小)
-                "avg_memory": np.random.uniform(0.5, 8.0),  # 0.5-8 GB
-                "dependency_ratio": np.random.uniform(0.1, 0.7),
-                "data_intensity": np.random.uniform(0.05, 0.4)
-            }            # 生成状态嵌入（32维）
-            state_embedding = np.array([
-                task_count / 100.0,  # 归一化任务数
-                workflow_features["avg_task_flops"] / 5e9,  # 归一化计算量
-                workflow_features["avg_memory"] / 8.0,  # 归一化内存
-                workflow_features["dependency_ratio"],
-                workflow_features["data_intensity"],
-                cluster_size / 20.0,  # 归一化集群大小
-                current_load,  # 当前负载
-            ] + [np.random.randn() * 0.05 for _ in range(25)])  # 填充到32维
-            
-            # 生成动作嵌入（32维）- 使用与实际运行时相同的特征逻辑
-            # 模拟任务特征
-            task_cpu_demand = workflow_features["avg_task_flops"] / 1e9  # GFlops
-            task_memory_demand = workflow_features["avg_memory"]  # GB
-            
-            # 1. CPU匹配度 (与实际_encode_action一致)
-            cpu_fit = min(1.0, task_cpu_demand / cpu_capacity) - current_load
-            
-            # 2. 内存匹配度
-            mem_fit = min(1.0, task_memory_demand / memory_capacity) * (1.0 - current_load)
-            
-            # 3. 性能匹配度 (基于历史数据模拟)
-            ideal_performance = task_cpu_demand / cpu_capacity
-            current_performance = ideal_performance * (1.0 + current_load)
-            performance_match = max(0.0, 1.0 - (current_performance - ideal_performance) / ideal_performance)
-            
-            # 4. 数据局部性 (随机模拟)
-            data_locality = np.random.uniform(0.3, 0.9)
-            
-            # 5. 负载均衡
-            avg_load = np.random.uniform(0.3, 0.7)  # 模拟集群平均负载
-            load_balance = 1.0 - abs(current_load - avg_load)
-            
-            # 6. 额外的交互特征 (模拟实际_encode_action的14维特征)
-            cpu_util = task_cpu_demand / (cpu_capacity * (1.0 - current_load) + 1e-6)
-            mem_util = task_memory_demand / (memory_capacity * (1.0 - current_load) + 1e-6)
-            resource_efficiency = (cpu_fit + mem_fit) / 2.0
-            workload_suitability = performance_match * data_locality
-            
-            # 构建14维核心特征 + 18维填充特征
-            action_embedding = np.array([
-                cpu_fit,           # 可能为负值
-                mem_fit,           # 通常正值 
-                performance_match, # 0-1
-                data_locality,     # 0.3-0.9
-                load_balance,      # 0-1
-                cpu_util,          # 可能>1
-                mem_util,          # 可能>1
-                resource_efficiency, # 0-1
-                workload_suitability, # 0-1
-                current_load,      # 0-1
-                1.0 - current_load, # 空闲度
-                cpu_capacity / 5.0, # 归一化CPU容量
-                memory_capacity / 64.0, # 归一化内存容量
-                task_cpu_demand / 15.0,  # 归一化任务CPU需求
-            ] + [np.random.randn() * 0.05 for _ in range(18)])  # 填充到32维
-            
-            # 生成上下文嵌入（32维）- 历史信息
-            historical_makespan = np.random.uniform(10.0, 200.0)
-            similarity_score = np.random.uniform(0.4, 0.95)
-            case_count = np.random.randint(3, 10)
-            
-            context_embedding = np.array([
-                historical_makespan / 200.0,  # 历史makespan归一化
-                similarity_score,  # 相似度得分
-                case_count / 10.0,  # 案例数量归一化
-                np.random.uniform(0.6, 1.0),  # 置信度
-            ] + [np.random.randn() * 0.05 for _ in range(28)])  # 填充到32维
-            
-            # 改进的单任务执行时间计算（确保物理合理性）
-            # 注意：这里预测的是单个任务在该节点上的执行时间，不是整个工作流makespan
-            
-            # 单任务执行时间 = 任务计算量 / 节点计算能力
-            base_task_time = workflow_features["avg_task_flops"] / (cpu_capacity * 1e9)  # 基础执行时间
-            
-            # 各种开销因子
-            load_overhead = 1.0 + current_load * 0.5  # 负载开销: 50%影响
-            memory_overhead = 1.0 + max(0, (workflow_features["avg_memory"] - memory_capacity * 0.7) / memory_capacity * 0.3)  # 内存压力
-            communication_overhead = 1.0 + workflow_features["data_intensity"] * 0.2  # 数据传输开销
-            
-            # 系统噪声和变化
-            noise_factor = np.random.uniform(0.8, 1.3)  # 更大的变化范围
-            
-            # 最终的单任务执行时间
-            task_execution_time = base_task_time * load_overhead * memory_overhead * communication_overhead * noise_factor
-            
-            # 确保任务执行时间在合理范围内（单任务：1-180秒）
-            task_execution_time = max(1.0, min(180.0, task_execution_time))
-            makespan_values.append(task_execution_time)
-            
-            # 拼接所有特征（96维：32+32+32）
-            combined_features = np.concatenate([state_embedding, action_embedding, context_embedding])
-            
-            training_data.append({
-                "id": f"improved_{i}_{node_idx}",
-                "state_embedding": state_embedding.tolist(),
-                "action_embedding": action_embedding.tolist(),
-                "context_embedding": context_embedding.tolist(),
-                "features": combined_features.tolist(),
-                "makespan": task_execution_time,  # 单任务执行时间
-                "workflow_features": workflow_features,
-                "node_features": {
-                    "cpu_capacity": cpu_capacity,
-                    "memory_capacity": memory_capacity,
-                    "current_load": current_load
-                }
-            })
-    
     # 打印任务执行时间分布统计
     makespan_array = np.array(makespan_values)
     print(f"📊 Single task execution time distribution:")
