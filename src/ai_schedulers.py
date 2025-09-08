@@ -118,10 +118,29 @@ class WASSHeuristicScheduler(BaseScheduler):
     
     def _get_task_info(self, workflow_graph: Dict[str, Any], task_id: str) -> Dict[str, Any]:
         """获取任务信息"""
-        for task in workflow_graph.get("tasks", []):
-            if task["id"] == task_id:
-                return task
-        raise ValueError(f"Task {task_id} not found in workflow")
+        # 处理两种格式：字符串列表或字典列表
+        tasks = workflow_graph.get("tasks", [])
+        task_requirements = workflow_graph.get("task_requirements", {})
+        
+        for task in tasks:
+            if isinstance(task, str):
+                # 任务是字符串格式
+                if task == task_id:
+                    # 从task_requirements获取任务信息
+                    return task_requirements.get(task_id, {
+                        "cpu": 2.0, "memory": 4.0, "duration": 5.0,
+                        "dependencies": workflow_graph.get("dependencies", {}).get(task_id, [])
+                    })
+            elif isinstance(task, dict):
+                # 任务是字典格式
+                if task.get("id") == task_id:
+                    return task
+                    
+        # 如果没找到，返回默认信息
+        return {
+            "cpu": 2.0, "memory": 4.0, "duration": 5.0,
+            "dependencies": workflow_graph.get("dependencies", {}).get(task_id, [])
+        }
     
     def _calculate_data_locality_scores(self, task_info: Dict[str, Any], 
                                       available_nodes: List[str], 
@@ -149,17 +168,18 @@ class WASSHeuristicScheduler(BaseScheduler):
         """计算资源匹配得分"""
         scores = {}
         
-        task_cpu_req = task_info.get("flops", 1e9) / 1e9  # 转换为GFlops
-        task_memory_req = task_info.get("memory", 1e9) / 1e9  # 转换为GB
+        # 兼容不同的字段名
+        task_cpu_req = task_info.get("cpu", task_info.get("flops", 2.0))
+        task_memory_req = task_info.get("memory", 4.0)
         
         for node in available_nodes:
             node_info = cluster_state.get("nodes", {}).get(node, {})
-            node_cpu_capacity = node_info.get("cpu_capacity", 10.0)  # GFlops
-            node_memory_capacity = node_info.get("memory_capacity", 8.0)  # GB
+            node_cpu_capacity = node_info.get("cpu_capacity", 10.0)
+            node_memory_capacity = node_info.get("memory_capacity", 16.0)
             
             # 计算资源利用率匹配度
-            cpu_utilization = task_cpu_req / node_cpu_capacity
-            memory_utilization = task_memory_req / node_memory_capacity
+            cpu_utilization = float(task_cpu_req) / float(node_cpu_capacity)
+            memory_utilization = float(task_memory_req) / float(node_memory_capacity)
             
             # 理想利用率在60-80%之间
             cpu_score = 1.0 - abs(cpu_utilization - 0.7)
@@ -671,7 +691,12 @@ class WASSRAGScheduler(BaseScheduler):
                 # 模型输出正常，添加调试信息
                 print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
             
-        return max(predicted_makespan, 0.1)  # 确保非负
+        # 如果反归一化结果为负，说明模型预测异常，使用绝对值或启发式方法
+        if predicted_makespan < 0:
+            print(f"⚠️ [WARNING] Negative prediction {predicted_makespan:.2f}, using absolute value")
+            predicted_makespan = abs(predicted_makespan)
+            
+        return max(predicted_makespan, 0.1)  # 确保最小值为0.1
     
     def _encode_context(self, context: Dict[str, Any]) -> torch.Tensor:
         """编码检索到的历史上下文"""
