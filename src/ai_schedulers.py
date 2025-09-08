@@ -722,85 +722,57 @@ class WASSRAGScheduler(BaseScheduler):
     def _predict_performance(self, state_embedding: torch.Tensor, 
                            action_embedding: torch.Tensor,
                            context: Dict[str, Any]) -> float:
-        """使用性能预测器预测makespan"""
-        
-        # 编码检索到的上下文
-        context_embedding = self._encode_context(context)
-        
-        # 连接所有特征
-        # 确保所有嵌入都是1D张量
-        state_flat = state_embedding.flatten()[:32]
-        action_flat = action_embedding.flatten()[:32]
-        context_flat = context_embedding.flatten()[:32]
-        
-        # 填充到32维
-        def pad_to_32(tensor):
-            if len(tensor) < 32:
-                padding = torch.zeros(32 - len(tensor), device=tensor.device)
-                return torch.cat([tensor, padding])
-            return tensor[:32]
-        
-        combined_features = torch.cat([
-            pad_to_32(state_flat),
-            pad_to_32(action_flat),
-            pad_to_32(context_flat)
-        ])
-        
-        # 验证特征质量
-        if torch.isnan(combined_features).any() or torch.isinf(combined_features).any():
-            print("⚠️ [FEATURE] Invalid features detected, using fallback prediction")
-            # 使用简单的基于节点容量的预测
-            node_capacity = action_flat[5].item() if len(action_flat) > 5 else 0.4  # CPU归一化容量
-            fallback_prediction = 2.0 + (1.0 - node_capacity) * 3.0  # 2-5秒范围
-            return fallback_prediction
-        
-        # 软约束特征范围
-        combined_features = torch.clamp(combined_features, -3.0, 3.0)
-        
-        # 预测性能
-        with torch.no_grad():
-            predicted_makespan_normalized = self.performance_predictor(combined_features).item()
-            
-            # 反归一化预测结果（如果有训练元数据）
-            if hasattr(self, '_y_mean') and hasattr(self, '_y_std'):
-                # 直接反归一化，不进行过度约束
-                predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
-                
-                # 调试信息（生产环境可注释掉）
-                # print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
-                
-                # 智能约束：基于输入特征判断合理范围
-                # 单任务执行时间的合理范围应该与任务规模相关
-                task_complexity = combined_features[:32].mean().item()  # 状态特征的平均值作为复杂度指标
-                node_capacity = combined_features[32:64].mean().item()   # 动作特征的平均值作为节点能力指标
-                
-                # 动态计算合理的最小值（考虑任务复杂度和节点能力）
-                min_reasonable_time = max(0.1, task_complexity * 0.5)
-                max_reasonable_time = min(300.0, task_complexity * 200.0)
-                
-                if predicted_makespan < min_reasonable_time:
-                    print(f"🔧 [CONSTRAINT] Low prediction {predicted_makespan:.2f}s, adjusting to {min_reasonable_time:.2f}s (complexity={task_complexity:.3f})")
-                    predicted_makespan = min_reasonable_time
-                elif predicted_makespan > max_reasonable_time:
-                    print(f"🔧 [CONSTRAINT] High prediction {predicted_makespan:.2f}s, adjusting to {max_reasonable_time:.2f}s")
-                    predicted_makespan = max_reasonable_time
-            else:
-                # 没有归一化参数，可能是未训练模型
-                predicted_makespan = abs(predicted_makespan_normalized) if predicted_makespan_normalized != 0 else 1.0
-                print(f"🔍 [DEBUG] PerformancePredictor: raw={predicted_makespan:.2f}")
-            
-            # 检查是否为未训练模型（输出异常值）
-            if abs(predicted_makespan_normalized) < 0.01:  # 只有接近零的输出才认为是未训练
-                # 使用启发式替代，增加一些随机性
-                node_index = int(action_embedding[0].item()) if len(action_embedding) > 0 else 0
-                base_prediction = 10.0 + node_index * 2.0  # 基于节点的不同预测
-                # 添加基于特征的变化
-                feature_variance = torch.std(combined_features).item() * 5
-                predicted_makespan = base_prediction + feature_variance
-                print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan_normalized:.6f}), using heuristic fallback")
-            
-        return predicted_makespan
+    """使用性能预测器预测makespan（V2 - 修复约束逻辑）"""
     
+    context_embedding = self._encode_context(context)
+    
+    def pad_to_32(tensor):
+        if len(tensor) < 32:
+            padding = torch.zeros(32 - len(tensor), device=tensor.device)
+            return torch.cat([tensor, padding])
+        return tensor[:32]
+
+    combined_features = torch.cat([
+        pad_to_32(state_embedding.flatten()),
+        pad_to_32(action_embedding.flatten()),
+        pad_to_32(context_embedding.flatten())
+    ])
+
+    if torch.isnan(combined_features).any() or torch.isinf(combined_features).any():
+        print("⚠️ [FEATURE] Invalid features detected, using fallback prediction")
+        node_capacity = action_embedding[5].item() if len(action_embedding) > 5 else 0.4
+        return 2.0 + (1.0 - node_capacity) * 3.0
+
+    combined_features = torch.clamp(combined_features, -3.0, 3.0)
+    
+    with torch.no_grad():
+        predicted_makespan_normalized = self.performance_predictor(combined_features).item()
+        
+        if hasattr(self, '_y_mean') and hasattr(self, '_y_std'):
+            predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
+            
+            task_complexity = combined_features[:32].mean().item()
+            
+            min_reasonable_time = max(0.1, task_complexity * 0.5)
+            
+            # --- 关键修复：确保 max_reasonable_time 不会小于 min_reasonable_time ---
+            # 首先计算一个临时的上限
+            temp_max_time = task_complexity * 200.0
+            # 最终的上限必须大于等于下限，并且不超过300
+            max_reasonable_time = min(300.0, max(min_reasonable_time, temp_max_time))
+
+            if predicted_makespan < min_reasonable_time:
+                # 注释掉调试信息，或者在需要时打开
+                # print(f"🔧 [CONSTRAINT] Low prediction {predicted_makespan:.2f}s, adjusting to {min_reasonable_time:.2f}s")
+                predicted_makespan = min_reasonable_time
+            elif predicted_makespan > max_reasonable_time:
+                # print(f"🔧 [CONSTRAINT] High prediction {predicted_makespan:.2f}s, adjusting to {max_reasonable_time:.2f}s")
+                predicted_makespan = max_reasonable_time
+        else:
+            predicted_makespan = abs(predicted_makespan_normalized) or 1.0
+            
+    return predicted_makespan
+
     def _encode_context(self, context: Dict[str, Any]) -> torch.Tensor:
         """编码检索到的历史上下文"""
         if not context or "similar_cases" not in context:
