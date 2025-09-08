@@ -263,6 +263,44 @@ class WassExperimentRunner:
                 
                 total_scheduling_time += decision_time
                 decisions.append(decision)
+
+                # --- 动态更新集群负载以促进负载均衡 ---
+                try:
+                    if state and hasattr(state, 'cluster_state'):
+                        node_state = state.cluster_state.get("nodes", {})
+                        if decision.target_node in node_state:
+                            # 基于任务FLOPS的简易负载增量（归一化）
+                            flops = float(task.get("flops", 1e9))
+                            inc = min(0.25, max(0.02, flops / 1e10))  # 0.02 - 0.25 范围
+                            node_state[decision.target_node]["current_load"] = min(0.98, node_state[decision.target_node].get("current_load", 0.4) + inc)
+                            # 其他节点轻微衰减，模拟任务执行推进
+                            for n, info in node_state.items():
+                                if n != decision.target_node:
+                                    info["current_load"] = max(0.05, info.get("current_load", 0.4) * 0.97)
+                except Exception as upd_e:
+                    print(f"⚠️  [DEGRADATION] Failed to update dynamic load: {upd_e}")
+
+            # 工作流结束后把案例写入RAG知识库（若可用）
+            if method == "WASS-RAG":
+                try:
+                    if hasattr(scheduler, 'knowledge_base') and hasattr(scheduler, '_last_state_embedding'):
+                        embedding = getattr(scheduler, '_last_state_embedding', None)
+                        if embedding is not None and embedding.numel() > 0:
+                            actions = [d.target_node for d in decisions]
+                            makespan_estimate = adjusted_result.get("makespan", base_result.get("execution_time", 100.0)) if 'adjusted_result' in locals() else base_result.get("execution_time", 100.0)
+                            workflow_info = {
+                                "task_count": len(workflow.get("tasks", [])),
+                                "cluster_size": cluster_size,
+                                "method": method
+                            }
+                            # 转成 numpy (32维期望) 截断/填充
+                            emb_np = embedding.detach().cpu().numpy().flatten()
+                            if emb_np.shape[0] < 32:
+                                emb_np = np.concatenate([emb_np, np.zeros(32 - emb_np.shape[0], dtype=emb_np.dtype)])
+                            emb_np = emb_np[:32]
+                            scheduler.knowledge_base.add_case(emb_np, workflow_info, actions, float(makespan_estimate))
+                except Exception as kb_e:
+                    print(f"⚠️  [DEGRADATION] Failed to add case to knowledge base: {kb_e}")
                 
                 # 记录决策信息
                 print(f"  {method}: {task_id} -> {decision.target_node} "

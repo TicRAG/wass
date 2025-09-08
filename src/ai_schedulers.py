@@ -26,7 +26,6 @@ except ImportError:
     print("Warning: torch_geometric not installed. GNN functionality will be limited.")
 
 @dataclass
-@dataclass
 class SchedulingState:
     """调度状态表示"""
     workflow_graph: Dict[str, Any]
@@ -425,6 +424,9 @@ class WASSRAGScheduler(BaseScheduler):
         
         # 继承智能调度器的能力
         self.base_scheduler = WASSSmartScheduler(model_path)
+    # 内置一个启发式调度器用于降级与打破平局
+    self.heuristic_scheduler = WASSHeuristicScheduler()
+    self._last_state_embedding: Optional[torch.Tensor] = None  # 记录最近一次状态嵌入用于知识库增量
         
         # RAG组件
         self.knowledge_base = RAGKnowledgeBase(knowledge_base_path)
@@ -446,6 +448,8 @@ class WASSRAGScheduler(BaseScheduler):
                 state_embedding = self.base_scheduler._encode_state_graph(state)
             else:
                 state_embedding = self.base_scheduler._extract_simple_features(state)
+            # 记录最近的状态嵌入
+            self._last_state_embedding = state_embedding.detach().clone() if torch.is_tensor(state_embedding) else None
             
             # 2. 从知识库检索相似历史案例
             retrieved_context = self.knowledge_base.retrieve_similar_cases(
@@ -478,17 +482,23 @@ class WASSRAGScheduler(BaseScheduler):
             unique_scores = set(score_values)
             
             if len(unique_scores) == 1:
-                # 所有得分相同，使用多样化的选择策略
-                print(f"⚠️ [DEGRADATION] All node scores identical ({score_values[0]:.3f}), using diversified selection")
-                
-                # 基于任务ID和可用节点计算确定性但多样化的选择
-                task_hash = hash(state.current_task) if state.current_task else 0
-                node_list = sorted(node_scores.keys())  # 确保顺序一致
-                selected_index = task_hash % len(node_list)
-                best_node = node_list[selected_index]
-                
-                # 降低置信度以反映决策质量
-                base_confidence = 0.3
+                # 所有得分相同 -> 模型未区分，尝试启发式再次打分
+                print(f"⚠️ [DEGRADATION] All node scores identical ({score_values[0]:.3f}). Applying heuristic tie-break.")
+                try:
+                    heuristic_action = self.heuristic_scheduler.make_decision(state)
+                    best_node = heuristic_action.target_node
+                    base_confidence = min(0.55, 0.35 + heuristic_action.confidence * 0.3)
+                    # 将启发式得分注入用于解释（不改变原node_scores结构，仅附加）
+                    node_scores = {k: v for k, v in node_scores.items()}  # 拷贝
+                    node_scores[f"heuristic:{best_node}"] = node_scores.get(best_node, score_values[0]) + 1e-4
+                except Exception as tie_e:
+                    # 启发式失败，再采用确定性多样化策略
+                    print(f"⚠️ [DEGRADATION] Heuristic tie-break failed: {tie_e}. Fallback to deterministic diversification")
+                    task_hash = hash(state.current_task) if state.current_task else 0
+                    node_list = sorted(node_scores.keys())
+                    selected_index = task_hash % len(node_list)
+                    best_node = node_list[selected_index]
+                    base_confidence = 0.3
             else:
                 # 正常选择最佳节点
                 best_node = max(node_scores.keys(), key=lambda k: node_scores[k])
@@ -530,10 +540,21 @@ class WASSRAGScheduler(BaseScheduler):
     def _encode_action(self, node: str, state: SchedulingState) -> torch.Tensor:
         """编码调度动作"""
         # 简化的动作编码
+        node_info = state.cluster_state.get("nodes", {}).get(node, {}) if state and state.cluster_state else {}
+        current_load = float(node_info.get("current_load", 0.5))
+        cpu_cap = float(node_info.get("cpu_capacity", 10.0))
+        mem_cap = float(node_info.get("memory_capacity", 16.0))
+        # 归一化容量（简单缩放）
+        cpu_norm = min(1.0, cpu_cap / 32.0)
+        mem_norm = min(1.0, mem_cap / 64.0)
         action_features = [
-            hash(node) % 100 / 100.0,  # 节点ID
-            len(state.available_nodes),  # 可用节点数
-            1.0 if node == state.available_nodes[0] else 0.0,  # 是否是第一个选择
+            hash(node) % 100 / 100.0,            # 节点ID哈希
+            len(state.available_nodes),          # 可用节点数
+            1.0 if node == state.available_nodes[0] else 0.0,  # 是否列表首节点
+            current_load,                        # 当前负载
+            1.0 - current_load,                  # 空闲度
+            cpu_norm,                            # CPU容量归一化
+            mem_norm,                            # 内存容量归一化
         ]
         
         # 填充到固定长度
