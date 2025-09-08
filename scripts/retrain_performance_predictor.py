@@ -25,105 +25,71 @@ except ImportError as e:
     print(f"Error: Required AI modules not available: {e}")
     sys.exit(1)
 
-# 位于 scripts/retrain_performance_predictor.py 文件中
-# 用下面的全部代码替换掉现有的 create_improved_training_data 函数
-
 def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, Any]]:
     """
-    生成高质量的合成训练数据（V4 - 最终修复版）
-    确保特征生成逻辑与 ai_schedulers.py 中的逻辑完全一致。
+    生成高质量的合成训练数据（V5 - 最终修复版）
+    确保特征生成逻辑一致，并为知识库保留必要字段。
     """
     print(f"🔧 Generating {num_scenarios} scenarios for training data...")
-
-    # 导入调度器以复用其内部逻辑
-    # 注意：这里我们是在训练脚本中导入调度器模块
     from src.ai_schedulers import WASSRAGScheduler, SchedulingState
-
-    # 创建一个临时的调度器实例来调用其编码函数
-    # 我们不需要加载它的模型，只需要它的特征编码方法
     temp_scheduler = WASSRAGScheduler()
     training_data = []
     makespan_values = []
 
     for i in range(num_scenarios):
-        # 1. 创建一个随机的、多样化的调度场景 (State)
         num_nodes = np.random.randint(2, 21)
-        
         nodes = {f"node_{j}": {
             "cpu_capacity": round(np.random.uniform(2.0, 8.0), 2),
             "memory_capacity": round(np.random.uniform(8.0, 64.0), 2),
             "current_load": round(np.random.uniform(0.1, 0.9), 2),
         } for j in range(num_nodes)}
 
-        # 确保任务的flops值与ai_schedulers.py中的单位一致 (GFlops)
         task_info = {
-            "id": f"task_{i}",
-            "flops": float(np.random.uniform(0.5e9, 15e9)),
+            "id": f"task_{i}", "flops": float(np.random.uniform(0.5e9, 15e9)),
             "memory": round(np.random.uniform(1.0, 16.0), 2),
             "dependencies": [f"task_{k}" for k in range(np.random.randint(0, 4))]
         }
 
         state = SchedulingState(
             workflow_graph={"tasks": [task_info], "task_requirements": {f"task_{i}": task_info}},
-            cluster_state={"nodes": nodes},
-            pending_tasks=[f"task_{i}"],
-            current_task=f"task_{i}",
-            available_nodes=list(nodes.keys()),
-            timestamp=0.0
+            cluster_state={"nodes": nodes}, pending_tasks=[f"task_{i}"], current_task=f"task_{i}",
+            available_nodes=list(nodes.keys()), timestamp=0.0
         )
 
-        # 2. 编码通用的 State 和 Context 部分
-        # 调用调度器自己的方法来确保逻辑一致
         state_embedding = temp_scheduler._extract_simple_features_fallback(state)
-        context_embedding = torch.randn(32, device=temp_scheduler.device) # 模拟随机上下文
+        context_embedding = torch.randn(32, device=temp_scheduler.device)
 
-        # 3. 为该场景中的每个节点生成一个独立的训练样本
         for node_name, node_details in nodes.items():
-            # 关键修复：调用与预测时完全相同的 _encode_action 函数
             action_embedding = temp_scheduler._encode_action(node_name, state)
-
-            # 拼接成96维特征向量，确保100%一致性
             combined_features = torch.cat([
-                state_embedding,
-                action_embedding,
-                context_embedding
+                state_embedding, action_embedding, context_embedding
             ]).cpu().numpy()
             
-            # 4. 根据特征估算一个真实的执行时间 (y)，这个逻辑需要尽可能模拟真实世界
             task_cpu_gflops = task_info["flops"] / 1e9
-            node_cpu_cap = node_details["cpu_capacity"]
-            node_load = node_details["current_load"]
-            
-            available_cpu = node_cpu_cap * (1.0 - node_load)
-            
-            # 基础时间 = 任务计算量 / 节点可用算力
+            available_cpu = node_details["cpu_capacity"] * (1.0 - node_details["current_load"])
             base_time = task_cpu_gflops / max(available_cpu, 0.1)
-            
-            # 增加一些噪声和惩罚项
             mem_penalty = max(0, task_info["memory"] - node_details["memory_capacity"]) * 0.5
-            load_penalty = node_load * 2.0
+            load_penalty = node_details["current_load"] * 2.0
             random_noise = np.random.uniform(-0.5, 0.5)
-            
-            # 最终执行时间
-            execution_time = base_time + mem_penalty + load_penalty + random_noise
-            execution_time = max(1.0, min(180.0, execution_time)) # 约束在合理范围
-
+            execution_time = max(1.0, min(180.0, base_time + mem_penalty + load_penalty + random_noise))
             makespan_values.append(execution_time)
             
+            # --- 关键修改：将 state_embedding 和其他元数据也存起来 ---
             training_data.append({
                 "features": combined_features.tolist(),
-                "makespan": execution_time
-                # 其他元数据可以按需保留
+                "makespan": execution_time,
+                "state_embedding": state_embedding.cpu().numpy().tolist(), # 添加 state_embedding
+                "workflow_features": { # 添加知识库需要的元数据
+                    "task_count": 1,
+                    "avg_task_flops": task_info["flops"],
+                    "avg_memory": task_info["memory"]
+                }
             })
             
-    # 打印任务执行时间分布统计
     makespan_array = np.array(makespan_values)
     print(f"📊 Single task execution time distribution:")
-    print(f"   Mean: {np.mean(makespan_array):.2f}s")
-    print(f"   Std:  {np.std(makespan_array):.2f}s")
-    print(f"   Min:  {np.min(makespan_array):.2f}s")
-    print(f"   Max:  {np.max(makespan_array):.2f}s")
-    print(f"   Median: {np.median(makespan_array):.2f}s")
+    print(f"   Mean: {np.mean(makespan_array):.2f}s, Std: {np.std(makespan_array):.2f}s, "
+          f"Min: {np.min(makespan_array):.2f}s, Max: {np.max(makespan_array):.2f}s")
     
     return training_data
 
@@ -225,37 +191,23 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
     }
 
 def regenerate_knowledge_base(training_data: List[Dict[str, Any]]) -> RAGKnowledgeBase:
-    """根据新的训练数据重新生成知识库"""
-    
+    """根据新的训练数据重新生成知识库（V2 - 修复版）"""
     print(f"\n🔄 Regenerating knowledge base with {len(training_data)} cases...")
     
-    # 创建新的知识库
     kb = RAGKnowledgeBase(embedding_dim=32)
     
     for data in training_data:
-        # 使用状态嵌入作为主要特征
+        # --- 关键修改：现在可以安全地读取 "state_embedding" ---
         embedding = np.array(data["state_embedding"], dtype=np.float32)
         
-        # 构建工作流信息
-        workflow_info = {
-            "task_count": data["workflow_features"]["task_count"],
-            "avg_task_flops": data["workflow_features"]["avg_task_flops"],
-            "avg_memory": data["workflow_features"]["avg_memory"],
-            "dependency_ratio": data["workflow_features"]["dependency_ratio"],
-            "data_intensity": data["workflow_features"]["data_intensity"],
-            "complexity": "medium",
-            "type": "retrained_synthetic"
-        }
-        
-        # 生成虚拟动作序列（节点分配）
-        cluster_size = int(data["workflow_features"]["task_count"] * 0.1) + 2  # 估算集群大小
-        actions = [f"node_{i % cluster_size}" for i in range(data["workflow_features"]["task_count"])]
+        # 构建一个简化的 workflow_info
+        workflow_info = data.get("workflow_features", {"type": "retrained_synthetic"})
         
         # 使用实际的makespan
         makespan = data["makespan"]
         
         # 添加到知识库
-        kb.add_case(embedding, workflow_info, actions, makespan)
+        kb.add_case(embedding, workflow_info, actions=[], makespan=makespan)
     
     print(f"✅ Knowledge base regenerated with {len(kb.cases)} cases")
     return kb
