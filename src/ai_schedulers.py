@@ -763,10 +763,10 @@ class WASSRAGScheduler(BaseScheduler):
 
             if predicted_makespan < min_reasonable_time:
                 # 注释掉调试信息，或者在需要时打开
-                # print(f"🔧 [CONSTRAINT] Low prediction {predicted_makespan:.2f}s, adjusting to {min_reasonable_time:.2f}s")
+                print(f"🔧 [CONSTRAINT] Low prediction {predicted_makespan:.2f}s, adjusting to {min_reasonable_time:.2f}s")
                 predicted_makespan = min_reasonable_time
             elif predicted_makespan > max_reasonable_time:
-                # print(f"🔧 [CONSTRAINT] High prediction {predicted_makespan:.2f}s, adjusting to {max_reasonable_time:.2f}s")
+                print(f"🔧 [CONSTRAINT] High prediction {predicted_makespan:.2f}s, adjusting to {max_reasonable_time:.2f}s")
                 predicted_makespan = max_reasonable_time
         else:
             predicted_makespan = abs(predicted_makespan_normalized) or 1.0
