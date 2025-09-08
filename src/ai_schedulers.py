@@ -251,22 +251,34 @@ class WASSSmartScheduler(BaseScheduler):
             )
             
         except Exception as e:
-            print(f"Error in DRL decision making: {e}")
+            print(f"⚠️  [DEGRADATION] DRL decision making failed: {e}")
+            print(f"⚠️  [DEGRADATION] WASSSmartScheduler falling back to RANDOM selection")
+            print(f"⚠️  [DEGRADATION] Task: {state.current_task}, Available nodes: {state.available_nodes}")
+            
             # 降级到随机选择
+            fallback_node = np.random.choice(state.available_nodes)
+            print(f"⚠️  [DEGRADATION] Random fallback selected: {fallback_node}")
+            
             return SchedulingAction(
                 task_id=state.current_task,
-                target_node=np.random.choice(state.available_nodes),
+                target_node=fallback_node,
                 confidence=0.1,
-                reasoning=f"Fallback to random due to error: {e}"
+                reasoning=f"🔴 DEGRADED: Random fallback due to DRL error: {e}"
             )
     
     def _encode_state_graph(self, state: SchedulingState) -> torch.Tensor:
         """使用GNN编码状态图"""
         if self.gnn_encoder is None:
+            print(f"⚠️  [DEGRADATION] GNN encoder not available, using simple features for {state.current_task}")
             return self._extract_simple_features(state)
             
         # 构建PyTorch Geometric图数据
         graph_data = self._build_graph_data(state)
+        
+        # 检查图数据是否可用
+        if graph_data is None:
+            print(f"⚠️  [DEGRADATION] Graph data is None, falling back to simple features for {state.current_task}")
+            return self._extract_simple_features(state)
         
         # GNN前向传播
         with torch.no_grad():
@@ -330,6 +342,63 @@ class WASSSmartScheduler(BaseScheduler):
             
         combined = torch.cat([state_embedding, node_tensor])
         return combined
+    
+    def _build_graph_data(self, state: SchedulingState):
+        """构建PyTorch Geometric图数据"""
+        if not HAS_TORCH_GEOMETRIC:
+            # 如果没有torch_geometric，返回None，会降级到简单特征提取
+            print(f"⚠️  [DEGRADATION] torch_geometric not available, graph data will be None for {state.current_task}")
+            return None
+            
+        try:
+            from torch_geometric.data import Data
+            
+            # 从工作流图中提取任务和依赖信息
+            tasks = state.workflow_graph.get("tasks", [])
+            
+            # 构建节点特征
+            node_features = []
+            for task in tasks:
+                task_features = [
+                    task.get("flops", 1e9) / 1e10,  # 归一化FLOPS
+                    task.get("memory", 1e9) / 1e10,  # 归一化内存
+                    1.0 if task["id"] == state.current_task else 0.0,  # 当前任务标记
+                    1.0 if task["id"] in state.pending_tasks else 0.0,  # 待调度标记
+                    len(task.get("dependencies", [])),  # 依赖数量
+                    0.0,  # 保留字段
+                    0.0,  # 保留字段
+                    0.0   # 保留字段
+                ]
+                node_features.append(task_features)
+            
+            # 构建边索引（依赖关系）
+            edge_index = []
+            for i, task in enumerate(tasks):
+                for dep in task.get("dependencies", []):
+                    # 找到依赖任务的索引
+                    for j, dep_task in enumerate(tasks):
+                        if dep_task["id"] == dep:
+                            edge_index.append([j, i])  # 从依赖任务到当前任务
+                            break
+            
+            # 转换为张量
+            x = torch.tensor(node_features, dtype=torch.float32, device=self.device)
+            
+            if edge_index:
+                edge_index = torch.tensor(edge_index, dtype=torch.long, device=self.device).t().contiguous()
+            else:
+                # 如果没有边，创建空的边索引
+                edge_index = torch.empty((2, 0), dtype=torch.long, device=self.device)
+            
+            # 创建图数据
+            graph_data = Data(x=x, edge_index=edge_index)
+            
+            return graph_data
+            
+        except Exception as e:
+            print(f"⚠️  [DEGRADATION] Graph data construction failed: {e}")
+            print(f"⚠️  [DEGRADATION] Falling back to None (will use simple features)")
+            return None
     
     def load_model(self, model_path: str):
         """加载预训练模型"""
@@ -417,9 +486,18 @@ class WASSRAGScheduler(BaseScheduler):
             )
             
         except Exception as e:
-            print(f"Error in RAG decision making: {e}")
+            print(f"⚠️  [DEGRADATION] RAG decision making failed: {e}")
+            print(f"⚠️  [DEGRADATION] WASSRAGScheduler falling back to base DRL method")
+            print(f"⚠️  [DEGRADATION] Task: {state.current_task}, Attempting base scheduler...")
+            
             # 降级到基础DRL方法
-            return self.base_scheduler.make_decision(state)
+            fallback_action = self.base_scheduler.make_decision(state)
+            print(f"⚠️  [DEGRADATION] Base DRL fallback result: {fallback_action.target_node}")
+            
+            # 修改reasoning以标明这是降级决策
+            fallback_action.reasoning = f"🔴 DEGRADED: RAG->DRL fallback due to error: {e}"
+            
+            return fallback_action
     
     def _encode_action(self, node: str, state: SchedulingState) -> torch.Tensor:
         """编码调度动作"""
