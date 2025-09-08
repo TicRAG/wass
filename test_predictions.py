@@ -42,7 +42,7 @@ try:
     
     # 测试调度决策
     print("\n🧪 Testing WASS-RAG predictions:")
-    action = scheduler.schedule(state)
+    action = scheduler.make_decision(state)
     print(f"✅ Scheduling decision: {action.task_id} -> {action.target_node}")
     print(f"   Confidence: {action.confidence:.3f}")
     if action.reasoning:

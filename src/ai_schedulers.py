@@ -492,8 +492,14 @@ class WASSRAGScheduler(BaseScheduler):
         super().__init__("WASS-RAG")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
-        # 继承智能调度器的能力
-        self.base_scheduler = WASSSmartScheduler(model_path)
+        # 尝试继承智能调度器的能力，如果失败则使用空的基础调度器
+        try:
+            self.base_scheduler = WASSSmartScheduler(model_path)
+        except Exception as e:
+            print(f"Warning: Failed to load WASSSmartScheduler: {e}")
+            print("Will use simple feature extraction only")
+            self.base_scheduler = None
+            
         # 内置一个启发式调度器用于降级与打破平局
         self.heuristic_scheduler = WASSHeuristicScheduler()
         self._last_state_embedding: Optional[torch.Tensor] = None  # 记录最近一次状态嵌入用于知识库增量
@@ -514,10 +520,15 @@ class WASSRAGScheduler(BaseScheduler):
         
         try:
             # 1. 编码当前状态
-            if self.base_scheduler.gnn_encoder is not None:
+            if self.base_scheduler and self.base_scheduler.gnn_encoder is not None:
                 state_embedding = self.base_scheduler._encode_state_graph(state)
             else:
-                state_embedding = self.base_scheduler._extract_simple_features(state)
+                # 使用简单特征提取
+                if self.base_scheduler:
+                    state_embedding = self.base_scheduler._extract_simple_features(state)
+                else:
+                    # 如果base_scheduler也没有，使用我们自己的简单特征提取
+                    state_embedding = self._extract_simple_features_fallback(state)
             # 记录最近的状态嵌入
             self._last_state_embedding = state_embedding.detach().clone() if torch.is_tensor(state_embedding) else None
             
@@ -734,6 +745,47 @@ class WASSRAGScheduler(BaseScheduler):
         similarities = [case.get("similarity", 0.5) for case in similar_cases]
         avg_similarity = np.mean(similarities) if similarities else 0.5
         features.append(avg_similarity)
+        
+        # 填充到32维
+        while len(features) < 32:
+            features.append(0.0)
+            
+        return torch.tensor(features[:32], dtype=torch.float32, device=self.device)
+    
+    def _extract_simple_features_fallback(self, state: SchedulingState) -> torch.Tensor:
+        """备用的简单特征提取方法"""
+        features = []
+        
+        # 工作流特征
+        tasks = state.workflow_graph.get('tasks', [])
+        task_count = len(tasks)
+        total_flops = sum(task.get('flops', 1e9) for task in tasks)
+        avg_flops = total_flops / max(task_count, 1)
+        total_memory = sum(task.get('memory', 1.0) for task in tasks)
+        avg_memory = total_memory / max(task_count, 1)
+        
+        features.extend([
+            task_count / 100.0,  # 归一化任务数
+            avg_flops / 5e9,     # 归一化平均计算量
+            avg_memory / 8.0,    # 归一化平均内存
+            len(state.pending_tasks) / max(task_count, 1),  # 待处理任务比例
+        ])
+        
+        # 集群特征
+        nodes = state.cluster_state.get('nodes', {})
+        if nodes:
+            cpu_capacities = [node.get('cpu_capacity', 2.0) for node in nodes.values()]
+            memory_capacities = [node.get('memory_capacity', 16.0) for node in nodes.values()]
+            current_loads = [node.get('current_load', 0.5) for node in nodes.values()]
+            
+            features.extend([
+                len(nodes) / 20.0,  # 归一化节点数
+                np.mean(cpu_capacities) / 5.0,  # 平均CPU容量
+                np.mean(memory_capacities) / 64.0,  # 平均内存容量
+                np.mean(current_loads),  # 平均负载
+            ])
+        else:
+            features.extend([0.1, 0.4, 0.25, 0.5])  # 默认值
         
         # 填充到32维
         while len(features) < 32:
