@@ -143,10 +143,17 @@ def validate_trained_model(model_path: str, training_data: List[Dict[str, Any]])
     X_test = np.array([data["combined_features"] for data in test_samples], dtype=np.float32)
     y_test = np.array([data["makespan"] for data in test_samples], dtype=np.float32)
     
+    # 获取训练时的归一化参数
+    y_mean = models["metadata"]["performance_predictor"]["y_mean"]
+    y_std = models["metadata"]["performance_predictor"]["y_std"]
+    
     # 进行预测
     with torch.no_grad():
         X_tensor = torch.FloatTensor(X_test)
-        predictions = model(X_tensor).squeeze().cpu().numpy()
+        predictions_normalized = model(X_tensor).squeeze().cpu().numpy()
+        
+        # 反归一化预测结果
+        predictions = predictions_normalized * y_std + y_mean
     
     # 计算评估指标
     mse = float(np.mean((predictions - y_test) ** 2))

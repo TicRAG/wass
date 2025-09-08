@@ -592,17 +592,24 @@ class WASSRAGScheduler(BaseScheduler):
         
         # 预测性能
         with torch.no_grad():
-            predicted_makespan = self.performance_predictor(combined_features).item()
+            predicted_makespan_normalized = self.performance_predictor(combined_features).item()
             
-            # 检查是否为未训练模型（输出过于接近）
-            if abs(predicted_makespan - 0.1) < 0.001:
+            # 反归一化预测结果（如果有训练元数据）
+            if hasattr(self, '_y_mean') and hasattr(self, '_y_std'):
+                predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
+            else:
+                # 没有归一化参数，可能是未训练模型
+                predicted_makespan = predicted_makespan_normalized
+            
+            # 检查是否为未训练模型（输出异常值）
+            if abs(predicted_makespan_normalized) < 0.2 and abs(predicted_makespan_normalized + 0.1) < 0.05:
                 # 使用启发式替代，增加一些随机性
                 node_index = int(action_embedding[0].item()) if len(action_embedding) > 0 else 0
                 base_prediction = 80.0 + node_index * 5.0  # 基于节点的不同预测
                 # 添加基于特征的变化
                 feature_variance = torch.std(combined_features).item() * 10
                 predicted_makespan = base_prediction + feature_variance
-                print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan:.3f}), using heuristic fallback")
+                print(f"⚠️ [DEGRADATION] Performance predictor appears untrained (output={predicted_makespan_normalized:.3f}), using heuristic fallback")
             
         return max(predicted_makespan, 0.1)  # 确保非负
     
@@ -699,8 +706,26 @@ class WASSRAGScheduler(BaseScheduler):
             if "performance_predictor" in checkpoint:
                 self.performance_predictor.load_state_dict(checkpoint["performance_predictor"])
                 print("Successfully loaded performance predictor")
+                
+                # 加载归一化参数
+                if "metadata" in checkpoint and "performance_predictor" in checkpoint["metadata"]:
+                    metadata = checkpoint["metadata"]["performance_predictor"]
+                    if isinstance(metadata, dict):
+                        self._y_mean = metadata.get("y_mean", 0.0)
+                        self._y_std = metadata.get("y_std", 1.0)
+                        print(f"Loaded normalization params: mean={self._y_mean:.2f}, std={self._y_std:.2f}")
+                    else:
+                        self._y_mean = 0.0
+                        self._y_std = 1.0
+                        print("No normalization metadata found, using default values")
+                else:
+                    self._y_mean = 0.0
+                    self._y_std = 1.0
+                    print("No normalization metadata found, using default values")
         except Exception as e:
             print(f"Failed to load performance predictor: {e}")
+            self._y_mean = 0.0
+            self._y_std = 1.0
 
 # 神经网络组件
 class GraphEncoder(nn.Module):
