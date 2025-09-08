@@ -302,18 +302,37 @@ class WASSSmartScheduler(BaseScheduler):
         
         # 当前任务特征
         task_info = None
-        for task in state.workflow_graph.get("tasks", []):
-            if task["id"] == state.current_task:
-                task_info = task
-                break
+        tasks = state.workflow_graph.get("tasks", [])
+        
+        # 处理tasks可能是字符串列表或字典列表的情况
+        for task in tasks:
+            if isinstance(task, str):
+                # 任务是字符串格式
+                if task == state.current_task:
+                    # 从task_requirements获取任务信息
+                    task_reqs = state.workflow_graph.get("task_requirements", {})
+                    task_info = task_reqs.get(task, {})
+                    break
+            elif isinstance(task, dict):
+                # 任务是字典格式
+                if task.get("id") == state.current_task:
+                    task_info = task
+                    break
                 
         if task_info:
-            task_flops = task_info.get("flops", 1e9) / 1e10  # 归一化
-            task_memory = task_info.get("memory", 1e9) / 1e10  # 归一化
-            task_deps = len(task_info.get("dependencies", []))
-            features.extend([task_flops, task_memory, task_deps])
+            # 使用不同字段名尝试获取任务属性
+            task_cpu = task_info.get("cpu", task_info.get("flops", 2.0))
+            task_memory = task_info.get("memory", 4.0)
+            task_duration = task_info.get("duration", task_info.get("runtime", 5.0))
+            
+            # 归一化这些值
+            cpu_norm = min(1.0, float(task_cpu) / 10.0)
+            mem_norm = min(1.0, float(task_memory) / 16.0) 
+            dur_norm = min(1.0, float(task_duration) / 20.0)
+            
+            features.extend([cpu_norm, mem_norm, dur_norm])
         else:
-            features.extend([0.1, 0.1, 0])
+            features.extend([0.2, 0.25, 0.25])  # 默认中等需求
         
         # 填充到固定长度
         while len(features) < 32:
