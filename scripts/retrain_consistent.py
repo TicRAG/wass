@@ -16,10 +16,11 @@ import pickle
 # 添加项目路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
-sys.path.insert(0, os.path.join(project_root, 'src'))
+sys.path.insert(0, project_root)  # 添加项目根目录
+sys.path.insert(0, os.path.join(project_root, 'src'))  # 添加src目录
 
 try:
-    from src.ai_schedulers import WASSRAGScheduler, SchedulingState
+    from ai_schedulers import WASSRAGScheduler, SchedulingState
     from interfaces import PerformancePredictor
     print("✅ Successfully imported all required modules")
 except ImportError as e:
