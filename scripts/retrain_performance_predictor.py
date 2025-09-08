@@ -261,12 +261,13 @@ def regenerate_knowledge_base(training_data: List[Dict[str, Any]]) -> RAGKnowled
     return kb
 
 def main():
-    """主函数"""
     print("🔧 Retraining Performance Predictor with Improved Data")
     print("=" * 60)
     
     # 生成改进的训练数据
-    training_data = create_improved_training_data(num_samples=5000)
+    # --- 请修改下面这一行 ---
+    # 将 num_samples 修改为 num_scenarios
+    training_data = create_improved_training_data(num_scenarios=5000)
     
     # 训练模型
     model, y_mean, y_std, metrics = train_improved_performance_predictor(training_data)
