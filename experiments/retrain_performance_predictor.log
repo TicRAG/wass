@@ -1,44 +1,52 @@
 🔧 Retraining Performance Predictor with Improved Data
 ============================================================
 🔧 Generating 5000 improved training samples...
-📊 Makespan distribution:
-   Mean: 1.84s
-   Std:  2.45s
-   Min:  0.50s
-   Max:  71.94s
-   Median: 1.04s
+📊 Single task execution time distribution:
+   Mean: 4.47s
+   Std:  3.38s
+   Min:  1.00s
+   Max:  27.71s
+   Median: 3.58s
 🚀 Training improved performance predictor...
-   Training samples: 40633
+   Training samples: 40542
    Epochs: 200
    Batch size: 64
    Device: cuda
 📈 Training data statistics:
-   Original y: mean=1.84, std=2.45
+   Original y: mean=4.47, std=3.38
    Normalized y: mean=-0.000000, std=1.000000
-   Normalized range: [-0.546, 28.651]
-   Epoch   0: Loss = 0.278709
-   Epoch  20: Loss = 0.044596
-   Epoch  40: Loss = 0.038852
-   Epoch  60: Loss = 0.031809
-   Epoch  80: Loss = 0.026517
-   Epoch 100: Loss = 0.022643
-   Epoch 120: Loss = 0.024798
-   Epoch 140: Loss = 0.020236
-   Epoch 160: Loss = 0.022379
-   Epoch 180: Loss = 0.017880
+   Normalized range: [-1.026, 6.884]
+   Epoch   0: Loss = 0.288951
+   Epoch  20: Loss = 0.053051
+   Epoch  40: Loss = 0.043825
+   Epoch  60: Loss = 0.038323
+   Epoch  80: Loss = 0.035616
+   Epoch 100: Loss = 0.033759
+   Epoch 120: Loss = 0.032132
+   Epoch 140: Loss = 0.032539
+   Epoch 160: Loss = 0.031189
+   Epoch 180: Loss = 0.030398
 
 ✅ Training completed!
-   Final Loss: 0.016345
-   MSE: 0.10
-   MAE: 0.23
-   R²: 0.9834
-   Prediction std: 2.42
-   Prediction range: 75.90
+   Final Loss: 0.029462
+   MSE: 0.25
+   MAE: 0.40
+   R²: 0.9780
+   Prediction std: 3.39
+   Prediction range: 26.46
+
+🔄 Regenerating knowledge base with 40542 cases...
+Initialized empty knowledge base
+✅ Knowledge base regenerated with 40542 cases
 
 💾 Saving retrained model to models/wass_models.pth...
-   Loaded existing checkpoint
-✅ Model retrained and saved successfully!
-   New normalization: mean=1.84, std=2.45
-   Performance metrics: R²=0.9834, MSE=0.10
+   Creating new checkpoint
 
-🎉 Ready for testing! Run: python scripts/test_rag_final.py
+💾 Saving regenerated knowledge base to data/knowledge_base.pkl...
+Saved knowledge base with 40542 cases to data/knowledge_base.pkl
+✅ Model and knowledge base retrained and saved successfully!
+   New normalization: mean=4.47, std=3.38
+   Performance metrics: R²=0.9780, MSE=0.25
+   Knowledge base cases: 40542
+
+🎉 Ready for testing! Run: python experiments/real_experiment_framework.py

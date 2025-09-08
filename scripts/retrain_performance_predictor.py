@@ -296,8 +296,27 @@ def main():
         checkpoint = {}
         print("   Creating new checkpoint")
     
-    # 更新性能预测器
+    # 更新性能预测器（保留其他组件）
     checkpoint["performance_predictor"] = model.state_dict()
+    
+    # 确保其他必要组件存在，如果不存在则创建默认值
+    if "policy_network" not in checkpoint:
+        from src.ai_schedulers import PolicyNetwork
+        checkpoint["policy_network"] = PolicyNetwork(
+            state_dim=32, action_dim=1, hidden_dim=128
+        ).state_dict()
+        print("   Added default PolicyNetwork")
+    
+    if "gnn_encoder" not in checkpoint:
+        try:
+            from src.ai_schedulers import GraphEncoder
+            checkpoint["gnn_encoder"] = GraphEncoder(
+                node_feature_dim=8, edge_feature_dim=4, 
+                hidden_dim=64, output_dim=32
+            ).state_dict()
+            print("   Added default GraphEncoder")
+        except Exception as e:
+            print(f"   Skipping GraphEncoder: {e}")
     
     # 更新元数据
     if "metadata" not in checkpoint:
