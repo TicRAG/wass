@@ -218,8 +218,8 @@ def save_test_results(results: Dict[str, Any]):
         # 将numpy类型转换为Python原生类型
         serializable_results = {}
         for key, value in results.items():
-            if isinstance(value, (np.integer, np.floating)):
-                serializable_results[key] = float(value)
+            if isinstance(value, (np.integer, np.floating, np.bool_)):
+                serializable_results[key] = float(value) if not isinstance(value, np.bool_) else bool(value)
             else:
                 serializable_results[key] = value
         
