@@ -8,6 +8,7 @@ import sys
 import torch
 import torch.nn as nn
 import numpy as np
+import pickle
 from typing import List, Dict, Any
 
 # 添加项目路径
@@ -18,7 +19,7 @@ sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 try:
     from torch.utils.data import TensorDataset, DataLoader
-    from src.ai_schedulers import PerformancePredictor
+    from src.ai_schedulers import PerformancePredictor, RAGKnowledgeBase
     HAS_AI_MODULES = True
 except ImportError as e:
     print(f"Error: Required AI modules not available: {e}")
@@ -238,6 +239,42 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
         "pred_std": pred_std, "pred_range": pred_range
     }
 
+def regenerate_knowledge_base(training_data: List[Dict[str, Any]]) -> RAGKnowledgeBase:
+    """根据新的训练数据重新生成知识库"""
+    
+    print(f"\n🔄 Regenerating knowledge base with {len(training_data)} cases...")
+    
+    # 创建新的知识库
+    kb = RAGKnowledgeBase(embedding_dim=32)
+    
+    for data in training_data:
+        # 使用状态嵌入作为主要特征
+        embedding = np.array(data["state_embedding"], dtype=np.float32)
+        
+        # 构建工作流信息
+        workflow_info = {
+            "task_count": data["workflow_features"]["task_count"],
+            "avg_task_flops": data["workflow_features"]["avg_task_flops"],
+            "avg_memory": data["workflow_features"]["avg_memory"],
+            "dependency_ratio": data["workflow_features"]["dependency_ratio"],
+            "data_intensity": data["workflow_features"]["data_intensity"],
+            "complexity": "medium",
+            "type": "retrained_synthetic"
+        }
+        
+        # 生成虚拟动作序列（节点分配）
+        cluster_size = int(data["workflow_features"]["task_count"] * 0.1) + 2  # 估算集群大小
+        actions = [f"node_{i % cluster_size}" for i in range(data["workflow_features"]["task_count"])]
+        
+        # 使用实际的makespan
+        makespan = data["makespan"]
+        
+        # 添加到知识库
+        kb.add_case(embedding, workflow_info, actions, makespan)
+    
+    print(f"✅ Knowledge base regenerated with {len(kb.cases)} cases")
+    return kb
+
 def main():
     """主函数"""
     print("🔧 Retraining Performance Predictor with Improved Data")
@@ -248,6 +285,9 @@ def main():
     
     # 训练模型
     model, y_mean, y_std, metrics = train_improved_performance_predictor(training_data)
+    
+    # 重新生成知识库（使用相同的训练数据）
+    kb = regenerate_knowledge_base(training_data)
     
     # 保存模型
     model_path = "models/wass_models.pth"
@@ -276,14 +316,21 @@ def main():
         "validation_results": metrics
     }
     
-    # 保存
+    # 保存模型
     os.makedirs("models", exist_ok=True)
     torch.save(checkpoint, model_path)
     
-    print(f"✅ Model retrained and saved successfully!")
+    # 保存知识库
+    kb_path = "data/knowledge_base.pkl"
+    print(f"\n💾 Saving regenerated knowledge base to {kb_path}...")
+    os.makedirs("data", exist_ok=True)
+    kb.save_knowledge_base(kb_path)
+    
+    print(f"✅ Model and knowledge base retrained and saved successfully!")
     print(f"   New normalization: mean={y_mean:.2f}, std={y_std:.2f}")
     print(f"   Performance metrics: R²={metrics['r2']:.4f}, MSE={metrics['mse']:.2f}")
-    print(f"\n🎉 Ready for testing! Run: python scripts/test_rag_final.py")
+    print(f"   Knowledge base cases: {len(kb.cases)}")
+    print(f"\n🎉 Ready for testing! Run: python experiments/real_experiment_framework.py")
 
 if __name__ == "__main__":
     main()
