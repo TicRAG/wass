@@ -682,12 +682,13 @@ class WASSRAGScheduler(BaseScheduler):
                 # print(f"🔍 [DEBUG] PerformancePredictor: normalized={predicted_makespan_normalized:.3f}, denormalized={predicted_makespan:.2f}")
                 
                 # 只有在预测值明显不合理时才进行约束
-                if predicted_makespan < 0.1:
-                    print(f"🔧 [CONSTRAINT] Negative prediction {predicted_makespan:.2f}, adjusting to 0.1")
-                    predicted_makespan = 0.1
-                elif predicted_makespan > 1000.0:
-                    print(f"🔧 [CONSTRAINT] Excessive prediction {predicted_makespan:.2f}, adjusting to 1000.0")
-                    predicted_makespan = 1000.0
+                # 单任务执行时间应该在 0.5-300 秒之间
+                if predicted_makespan < 0.5:
+                    print(f"🔧 [CONSTRAINT] Too small prediction {predicted_makespan:.2f}, adjusting to 0.5")
+                    predicted_makespan = 0.5
+                elif predicted_makespan > 300.0:
+                    print(f"🔧 [CONSTRAINT] Excessive prediction {predicted_makespan:.2f}, adjusting to 300.0")
+                    predicted_makespan = 300.0
             else:
                 # 没有归一化参数，可能是未训练模型
                 predicted_makespan = abs(predicted_makespan_normalized) if predicted_makespan_normalized != 0 else 1.0

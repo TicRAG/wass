@@ -39,23 +39,21 @@ def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any
         task_count = np.random.randint(3, 101)  # 3-100个任务
         cluster_size = np.random.randint(2, 21)  # 2-20个节点
         
-        # 为每个节点生成不同的容量
+            # 为每个节点生成不同的容量
         for node_idx in range(min(cluster_size, 10)):  # 限制节点数以避免过多数据
-            # 节点特性
-            cpu_capacity = np.random.uniform(8.0, 32.0)  # 8-32 GFlops
+            # 节点特性（基于真实WRENCH平台）
+            cpu_capacity = np.random.uniform(1.0, 5.0)  # 1-5 GFlops (真实范围)
             memory_capacity = np.random.uniform(8.0, 64.0)  # 8-64 GB
             current_load = np.random.uniform(0.1, 0.9)
             
             # 工作流特征（更真实的范围）
             workflow_features = {
                 "task_count": task_count,
-                "avg_task_flops": np.random.uniform(0.5e9, 5e9),  # 每个任务0.5-5 GFlops
+                "avg_task_flops": np.random.uniform(1e9, 15e9),  # 1-15 GFlops (真实任务大小)
                 "avg_memory": np.random.uniform(0.5, 8.0),  # 0.5-8 GB
                 "dependency_ratio": np.random.uniform(0.1, 0.7),
                 "data_intensity": np.random.uniform(0.05, 0.4)
-            }
-            
-            # 生成状态嵌入（32维）
+            }            # 生成状态嵌入（32维）
             state_embedding = np.array([
                 task_count / 100.0,  # 归一化任务数
                 workflow_features["avg_task_flops"] / 5e9,  # 归一化计算量
@@ -89,29 +87,26 @@ def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any
                 np.random.uniform(0.6, 1.0),  # 置信度
             ] + [np.random.randn() * 0.05 for _ in range(28)])  # 填充到32维
             
-            # 改进的makespan计算（确保物理合理性）
-            # 单任务平均执行时间
-            avg_task_time = workflow_features["avg_task_flops"] / (cpu_capacity * 1e9)
+            # 改进的单任务执行时间计算（确保物理合理性）
+            # 注意：这里预测的是单个任务在该节点上的执行时间，不是整个工作流makespan
             
-            # 考虑并行性的总执行时间
-            total_compute_time = task_count * avg_task_time
-            parallel_efficiency = 0.6 + np.random.uniform(0.0, 0.3)  # 60-90%并行效率
-            ideal_parallel_time = total_compute_time / (cluster_size * parallel_efficiency)
+            # 单任务执行时间 = 任务计算量 / 节点计算能力
+            base_task_time = workflow_features["avg_task_flops"] / (cpu_capacity * 1e9)  # 基础执行时间
             
             # 各种开销因子
-            load_overhead = 1.0 + current_load * 0.6  # 负载开销
-            dependency_overhead = 1.0 + workflow_features["dependency_ratio"] * 0.4  # 依赖开销
-            communication_overhead = 1.0 + workflow_features["data_intensity"] * 0.3  # 通信开销
+            load_overhead = 1.0 + current_load * 0.5  # 负载开销: 50%影响
+            memory_overhead = 1.0 + max(0, (workflow_features["avg_memory"] - memory_capacity * 0.7) / memory_capacity * 0.3)  # 内存压力
+            communication_overhead = 1.0 + workflow_features["data_intensity"] * 0.2  # 数据传输开销
             
-            # 随机变化（模拟系统噪声）
-            noise_factor = np.random.uniform(0.85, 1.15)
+            # 系统噪声和变化
+            noise_factor = np.random.uniform(0.8, 1.3)  # 更大的变化范围
             
-            # 最终makespan
-            makespan = ideal_parallel_time * load_overhead * dependency_overhead * communication_overhead * noise_factor
+            # 最终的单任务执行时间
+            task_execution_time = base_task_time * load_overhead * memory_overhead * communication_overhead * noise_factor
             
-            # 确保makespan在合理范围内
-            makespan = max(0.5, min(500.0, makespan))
-            makespan_values.append(makespan)
+            # 确保任务执行时间在合理范围内（单任务：1-180秒）
+            task_execution_time = max(1.0, min(180.0, task_execution_time))
+            makespan_values.append(task_execution_time)
             
             # 拼接所有特征（96维：32+32+32）
             combined_features = np.concatenate([state_embedding, action_embedding, context_embedding])
@@ -122,7 +117,7 @@ def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any
                 "action_embedding": action_embedding.tolist(),
                 "context_embedding": context_embedding.tolist(),
                 "features": combined_features.tolist(),
-                "makespan": makespan,
+                "makespan": task_execution_time,  # 单任务执行时间
                 "workflow_features": workflow_features,
                 "node_features": {
                     "cpu_capacity": cpu_capacity,
@@ -131,9 +126,9 @@ def create_improved_training_data(num_samples: int = 5000) -> List[Dict[str, Any
                 }
             })
     
-    # 打印makespan分布统计
+    # 打印任务执行时间分布统计
     makespan_array = np.array(makespan_values)
-    print(f"📊 Makespan distribution:")
+    print(f"📊 Single task execution time distribution:")
     print(f"   Mean: {np.mean(makespan_array):.2f}s")
     print(f"   Std:  {np.std(makespan_array):.2f}s")
     print(f"   Min:  {np.min(makespan_array):.2f}s")
