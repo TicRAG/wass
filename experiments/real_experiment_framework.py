@@ -280,28 +280,6 @@ class WassExperimentRunner:
                 except Exception as upd_e:
                     print(f"⚠️  [DEGRADATION] Failed to update dynamic load: {upd_e}")
 
-            # 工作流结束后把案例写入RAG知识库（若可用）
-            if method == "WASS-RAG":
-                try:
-                    if hasattr(scheduler, 'knowledge_base') and hasattr(scheduler, '_last_state_embedding'):
-                        embedding = getattr(scheduler, '_last_state_embedding', None)
-                        if embedding is not None and embedding.numel() > 0:
-                            actions = [d.target_node for d in decisions]
-                            makespan_estimate = adjusted_result.get("makespan", base_result.get("execution_time", 100.0)) if 'adjusted_result' in locals() else base_result.get("execution_time", 100.0)
-                            workflow_info = {
-                                "task_count": len(workflow.get("tasks", [])),
-                                "cluster_size": cluster_size,
-                                "method": method
-                            }
-                            # 转成 numpy (32维期望) 截断/填充
-                            emb_np = embedding.detach().cpu().numpy().flatten()
-                            if emb_np.shape[0] < 32:
-                                emb_np = np.concatenate([emb_np, np.zeros(32 - emb_np.shape[0], dtype=emb_np.dtype)])
-                            emb_np = emb_np[:32]
-                            scheduler.knowledge_base.add_case(emb_np, workflow_info, actions, float(makespan_estimate))
-                except Exception as kb_e:
-                    print(f"⚠️  [DEGRADATION] Failed to add case to knowledge base: {kb_e}")
-                
                 # 记录决策信息
                 print(f"  {method}: {task_id} -> {decision.target_node} "
                       f"(confidence: {decision.confidence:.2f}, time: {decision_time*1000:.1f}ms)")
@@ -313,6 +291,27 @@ class WassExperimentRunner:
             adjusted_result = self._adjust_result_by_ai_decisions(
                 base_result, decisions, method, cluster_size
             )
+
+            # 工作流结束后把案例写入RAG知识库（若可用, 需在adjusted_result生成后）
+            if method == "WASS-RAG":
+                try:
+                    if hasattr(scheduler, 'knowledge_base') and hasattr(scheduler, '_last_state_embedding'):
+                        embedding = getattr(scheduler, '_last_state_embedding', None)
+                        if embedding is not None and embedding.numel() > 0:
+                            actions = [d.target_node for d in decisions]
+                            makespan_estimate = adjusted_result.get("makespan", base_result.get("execution_time", 100.0))
+                            workflow_info = {
+                                "task_count": len(workflow.get("tasks", [])),
+                                "cluster_size": cluster_size,
+                                "method": method
+                            }
+                            emb_np = embedding.detach().cpu().numpy().flatten()
+                            if emb_np.shape[0] < 32:
+                                emb_np = np.concatenate([emb_np, np.zeros(32 - emb_np.shape[0], dtype=emb_np.dtype)])
+                            emb_np = emb_np[:32]
+                            scheduler.knowledge_base.add_case(emb_np, workflow_info, actions, float(makespan_estimate))
+                except Exception as kb_e:
+                    print(f"⚠️  [DEGRADATION] Failed to add case to knowledge base: {kb_e}")
             
             # 添加AI特定的指标
             adjusted_result["scheduling_time"] = total_scheduling_time

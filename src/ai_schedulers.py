@@ -424,9 +424,9 @@ class WASSRAGScheduler(BaseScheduler):
         
         # 继承智能调度器的能力
         self.base_scheduler = WASSSmartScheduler(model_path)
-    # 内置一个启发式调度器用于降级与打破平局
-    self.heuristic_scheduler = WASSHeuristicScheduler()
-    self._last_state_embedding: Optional[torch.Tensor] = None  # 记录最近一次状态嵌入用于知识库增量
+        # 内置一个启发式调度器用于降级与打破平局
+        self.heuristic_scheduler = WASSHeuristicScheduler()
+        self._last_state_embedding: Optional[torch.Tensor] = None  # 记录最近一次状态嵌入用于知识库增量
         
         # RAG组件
         self.knowledge_base = RAGKnowledgeBase(knowledge_base_path)
@@ -434,7 +434,7 @@ class WASSRAGScheduler(BaseScheduler):
             input_dim=96,  # state + action + context
             hidden_dim=128
         ).to(self.device)
-        
+
         # 加载性能预测器
         if model_path:
             self._load_performance_predictor(model_path)
