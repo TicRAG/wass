@@ -79,10 +79,16 @@ class PaperChartGenerator:
         
         # 尝试从不同位置加载真实实验结果
         possible_files = [
+            # 优先搜索 results 目录
             os.path.join(self.results_dir, "real_experiments", "experiment_results.json"),
             os.path.join(self.results_dir, "experiment_results.json"),
             os.path.join(self.results_dir, "wass_academic_results.json"),
-            os.path.join(self.results_dir, "demo_wass_pipeline", "wass_academic_results.json")
+            os.path.join(self.results_dir, "demo_wass_pipeline", "wass_academic_results.json"),
+            # 搜索 experiments 目录（实际文件位置）
+            os.path.join("experiments", "results", "real_experiments", "experiment_results.json"),
+            os.path.join("..", "experiments", "results", "real_experiments", "experiment_results.json"),
+            # 相对于当前目录的其他路径
+            os.path.join(".", "experiments", "results", "real_experiments", "experiment_results.json")
         ]
         
         loaded_files = []
