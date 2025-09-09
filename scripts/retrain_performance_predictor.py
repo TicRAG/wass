@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/-bin/env python3
 """
 [最终修复版] 重新训练性能预测器模型，修复负值预测和类型错误问题
 """
@@ -10,6 +10,7 @@ import torch.nn as nn
 import numpy as np
 import pickle
 from typing import List, Dict, Any
+from datetime import datetime
 
 # 添加项目路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +20,7 @@ sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 try:
     from torch.utils.data import TensorDataset, DataLoader
-    from src.ai_schedulers import PerformancePredictor, RAGKnowledgeBase, WASSRAGScheduler, SchedulingState
+    from src.ai_schedulers import PerformancePredictor, RAGKnowledgeBase, WASSRAGScheduler, SchedulingState, PolicyNetwork, GraphEncoder
     HAS_AI_MODULES = True
 except ImportError as e:
     print(f"Error: Required AI modules not available: {e}")
@@ -84,12 +85,11 @@ def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, A
             new_case = {
                 "features": combined_features.tolist(),
                 "makespan": execution_time,
-                "state_embedding": state_embedding.cpu().numpy().tolist(), # 存储为list
+                "state_embedding": state_embedding.cpu().numpy().tolist(),
                 "workflow_features": {"task_count": 1}
             }
             training_data.append(new_case)
             
-            # --- 最终修正：在调用 add_case 前，将 list 转换回 numpy array ---
             if i % 10 == 0:
                 embedding_array = np.array(new_case["state_embedding"], dtype=np.float32)
                 temp_kb.add_case(embedding_array, new_case["workflow_features"], [], new_case["makespan"])
@@ -122,7 +122,7 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
     print(f"   Original y: mean={y_mean:.2f}, std={y_std:.2f}")
     
     X_tensor = torch.FloatTensor(X).to(device)
-    y_tensor = torch.FloatTensor(y_normalized).view(-1, 1).to(device) # 修正形状以匹配模型输出
+    y_tensor = torch.FloatTensor(y_normalized).view(-1, 1).to(device)
     
     dataset = TensorDataset(X_tensor, y_tensor)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -130,7 +130,9 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
     model = PerformancePredictor(input_dim=96, hidden_dim=128).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=15, factor=0.5, verbose=True)
+    
+    # --- 最终修正：移除不被支持的 'verbose=True' 参数 ---
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=15, factor=0.5)
     
     best_loss = float('inf')
     patience_counter = 0
