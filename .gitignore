@@ -2,3 +2,15 @@ experiments/results/real_experiments/experiment_analysis.json
 experiments/results/real_experiments/experiment_results.json
 experiments/results/real_experiments/paper_tables.json
 charts/__pycache__/paper_charts.cpython-312.pyc
+charts/charts/output/chart_index.html
+charts/charts/output/boxplots/stability_analysis.png
+charts/charts/output/combined/performance_summary.png
+charts/charts/output/data/performance_improvement_data.json
+charts/charts/output/data/performance_summary_data.json
+charts/charts/output/data/scheduler_radar_data.json
+charts/charts/output/data/scheduling_comparison_data.json
+charts/charts/output/data/stability_analysis_data.json
+charts/charts/output/gantt/scheduling_comparison.png
+charts/charts/output/heatmaps/performance_improvement_heatmap.pdf
+charts/charts/output/heatmaps/performance_improvement_heatmap.png
+charts/charts/output/radar/scheduler_radar_chart.png
