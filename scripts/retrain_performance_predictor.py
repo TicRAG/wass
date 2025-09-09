@@ -27,12 +27,18 @@ except ImportError as e:
 
 def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, Any]]:
     """
-    生成高质量的合成训练数据（V5 - 最终修复版）
-    确保特征生成逻辑一致，并为知识库保留必要字段。
+    [FIXED] Generates high-quality synthetic training data that matches the inference path.
     """
     print(f"🔧 Generating {num_scenarios} scenarios for training data...")
-    from src.ai_schedulers import WASSRAGScheduler, SchedulingState
+    from src.ai_schedulers import WASSRAGScheduler, SchedulingState, RAGKnowledgeBase
+    
+    # Use the actual scheduler for consistent feature generation
     temp_scheduler = WASSRAGScheduler()
+    
+    # --- FIX START: Create a temporary knowledge base for realistic context generation ---
+    temp_kb = RAGKnowledgeBase() 
+    # --- FIX END ---
+
     training_data = []
     makespan_values = []
 
@@ -57,8 +63,13 @@ def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, A
         )
 
         state_embedding = temp_scheduler._extract_simple_features_fallback(state)
-        context_embedding = torch.randn(32, device=temp_scheduler.device)
-
+        
+        # --- FIX START: Generate realistic context instead of random noise ---
+        # Retrieve similar cases from the temporary knowledge base we are building
+        retrieved_context = temp_kb.retrieve_similar_cases(state_embedding.cpu().numpy())
+        context_embedding = temp_scheduler._encode_context(retrieved_context)
+        # --- FIX END ---
+        
         for node_name, node_details in nodes.items():
             action_embedding = temp_scheduler._encode_action(node_name, state)
             combined_features = torch.cat([
@@ -74,17 +85,23 @@ def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, A
             execution_time = max(1.0, min(180.0, base_time + mem_penalty + load_penalty + random_noise))
             makespan_values.append(execution_time)
             
-            # --- 关键修改：将 state_embedding 和其他元数据也存起来 ---
-            training_data.append({
+            new_case = {
                 "features": combined_features.tolist(),
                 "makespan": execution_time,
-                "state_embedding": state_embedding.cpu().numpy().tolist(), # 添加 state_embedding
-                "workflow_features": { # 添加知识库需要的元数据
+                "state_embedding": state_embedding.cpu().numpy().tolist(),
+                "workflow_features": {
                     "task_count": 1,
                     "avg_task_flops": task_info["flops"],
                     "avg_memory": task_info["memory"]
                 }
-            })
+            }
+            training_data.append(new_case)
+            
+            # --- FIX START: Add the newly generated case to our temporary knowledge base ---
+            # This makes the context retrieval more realistic as we generate more data
+            if i % 10 == 0: # Add every 10th case to keep the KB size manageable during generation
+                 temp_kb.add_case(new_case["state_embedding"], new_case["workflow_features"], [], new_case["makespan"])
+            # --- FIX END ---
             
     makespan_array = np.array(makespan_values)
     print(f"📊 Single task execution time distribution:")
