@@ -1,6 +1,6 @@
-#!/usr/-bin/env python3
+#!/usr/bin/env python3
 """
-[最终修复版] 重新训练性能预测器模型，修复负值预测和类型错误问题
+[最终修复版] 重新训练性能预测器模型，修复所有已知问题
 """
 
 import os
@@ -20,7 +20,10 @@ sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 try:
     from torch.utils.data import TensorDataset, DataLoader
-    from src.ai_schedulers import PerformancePredictor, RAGKnowledgeBase, WASSRAGScheduler, SchedulingState, PolicyNetwork, GraphEncoder
+    from src.ai_schedulers import (
+        PerformancePredictor, RAGKnowledgeBase, WASSRAGScheduler, 
+        SchedulingState, PolicyNetwork, GraphEncoder
+    )
     HAS_AI_MODULES = True
 except ImportError as e:
     print(f"Error: Required AI modules not available: {e}")
@@ -28,7 +31,7 @@ except ImportError as e:
 
 def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, Any]]:
     """
-    [最终修复版] 生成高质量的、与推理路径完全一致的合成训练数据。
+    [最终版] 生成高质量的、与推理路径完全一致的合成训练数据。
     """
     print(f"🔧 Generating {num_scenarios} scenarios for training data...")
     
@@ -131,7 +134,7 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     
-    # --- 最终修正：移除不被支持的 'verbose=True' 参数 ---
+    # --- 最终修正：移除了不被支持的 'verbose' 参数 ---
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=15, factor=0.5)
     
     best_loss = float('inf')
@@ -150,8 +153,15 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
             total_loss += loss.item()
         
         avg_loss = total_loss / len(dataloader)
-        scheduler.step(avg_loss)
         
+        # 手动打印学习率调度器的信息
+        if isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+            old_lr = optimizer.param_groups[0]['lr']
+            scheduler.step(avg_loss)
+            new_lr = optimizer.param_groups[0]['lr']
+            if new_lr < old_lr and epoch % 10 == 0:
+                print(f"   Epoch {epoch:3d}: Reducing learning rate to {new_lr:.6f}")
+
         if avg_loss < best_loss:
             best_loss = avg_loss
             patience_counter = 0
@@ -207,7 +217,7 @@ def main():
     print(f"\n💾 Saving retrained model to {model_path}...")
     
     try:
-        checkpoint = torch.load(model_path, map_location="cpu")
+        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
     except FileNotFoundError:
         checkpoint = {}
     
