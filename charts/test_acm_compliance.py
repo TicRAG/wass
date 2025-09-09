@@ -25,8 +25,21 @@ def test_acm_compliance():
     # 初始化图表生成器
     generator = PaperChartGenerator()
     
-    # 生成测试数据
-    test_data = generator._generate_synthetic_data()
+    # 测试需要真实数据，如果没有则跳过
+    try:
+        # 尝试运行图表生成器（会自动检查真实数据）
+        generator = PaperChartGenerator()
+        print("✅ Successfully created generator instance")
+        
+        # 尝试加载真实数据
+        test_data = generator.load_experimental_results()
+        print("✅ Successfully loaded real experimental data")
+        
+    except (FileNotFoundError, ValueError) as e:
+        print(f"❌ Cannot run ACM compliance test: {e}")
+        print("\n💡 请先运行实验获取真实数据：")
+        print("   cd experiments && python real_experiment_framework.py")
+        return
     
     # 1. 测试热力图
     print("\n📊 Testing Heatmap...")

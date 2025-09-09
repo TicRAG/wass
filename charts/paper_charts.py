@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Optional
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -74,126 +74,170 @@ class PaperChartGenerator:
             os.makedirs(os.path.join(output_dir, subdir), exist_ok=True)
     
     def load_experimental_results(self) -> Dict[str, Any]:
-        """加载实验结果数据"""
+        """加载真实实验结果数据"""
         results = {}
         
-        # 尝试从不同位置加载结果
+        # 尝试从不同位置加载真实实验结果
         possible_files = [
+            os.path.join(self.results_dir, "real_experiments", "experiment_results.json"),
+            os.path.join(self.results_dir, "experiment_results.json"),
             os.path.join(self.results_dir, "wass_academic_results.json"),
-            os.path.join(self.results_dir, "demo_wass_pipeline", "wass_academic_results.json"),
-            os.path.join(self.results_dir, "experiment_results.json")
+            os.path.join(self.results_dir, "demo_wass_pipeline", "wass_academic_results.json")
         ]
         
+        loaded_files = []
         for file_path in possible_files:
             if os.path.exists(file_path):
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                         results.update(data)
-                    print(f"✅ Loaded results from {file_path}")
+                    loaded_files.append(file_path)
+                    print(f"✅ Loaded real experimental data from: {file_path}")
                 except Exception as e:
                     print(f"⚠️ Failed to load {file_path}: {e}")
         
-        # 如果没有找到真实数据，生成模拟数据用于演示
+        # 如果没有找到任何真实实验数据，报错并提供指导
         if not results:
-            print("📊 Generating synthetic data for demonstration...")
-            results = self._generate_synthetic_data()
+            self._raise_no_data_error(possible_files)
+        
+        # 验证数据格式
+        self._validate_experimental_data(results)
         
         return results
     
-    def _generate_synthetic_data(self) -> Dict[str, Any]:
-        """生成用于演示的合成实验数据"""
-        schedulers = ['WASS-RAG', 'WASS-DRL', 'HEFT', 'FIFO', 'SJF']
-        cluster_sizes = [4, 8, 16]
-        workflow_sizes = [10, 20, 49, 100]
+    def _raise_no_data_error(self, searched_files: List[str]):
+        """当没有找到真实实验数据时报错"""
+        error_msg = """
+❌ 错误：未找到真实实验数据！
+
+📊 图表生成器需要真实的实验结果才能生成学术图表。
+
+🔍 搜索了以下位置但未找到数据：
+"""
+        for file_path in searched_files:
+            error_msg += f"   • {file_path}\n"
         
-        results = {
-            'experiments': [],
-            'summary': {},
-            'metadata': {
-                'schedulers': schedulers,
-                'cluster_sizes': cluster_sizes,
-                'workflow_sizes': workflow_sizes,
-                'repetitions': 3
-            }
-        }
+        error_msg += """
+🚀 请先运行实验获取真实数据：
+
+方法1: 运行完整实验框架
+   cd experiments
+   python real_experiment_framework.py
+
+方法2: 运行简化实验
+   cd experiments  
+   python run_pipeline.py
+
+方法3: 如果已有结果，请确保文件路径正确：
+   • 结果文件应保存为 JSON 格式
+   • 包含 'experiments' 字段，其中包含实验结果列表
+   • 每个实验结果包含：scheduler, makespan, cpu_utilization 等字段
+
+📋 期望的数据格式示例：
+{
+  "experiments": [
+    {
+      "experiment_id": "exp_001", 
+      "scheduling_method": "WASS-RAG",
+      "workflow_spec": {"task_count": 49},
+      "cluster_size": 8,
+      "makespan": 125.3,
+      "cpu_utilization": 0.85,
+      "data_locality_score": 0.78,
+      "timestamp": "2025-09-09T10:30:00"
+    }
+  ]
+}
+
+💡 运行实验后，图表将基于真实数据生成，确保学术严谨性。
+"""
         
-        # 生成每个实验配置的结果
-        experiment_id = 0
-        for cluster_size in cluster_sizes:
-            for workflow_size in workflow_sizes:
-                for rep in range(3):  # 3次重复
-                    for scheduler in schedulers:
-                        # 模拟真实的性能趋势
-                        base_makespan = workflow_size * (20 / cluster_size)  # 基础完工时间
-                        
-                        # 不同调度器的性能特性
-                        if scheduler == 'WASS-RAG':
-                            # 我们的方法：在复杂场景下优势明显
-                            complexity_factor = (workflow_size / 100) * (16 / cluster_size)
-                            improvement = 0.15 + 0.25 * complexity_factor
-                            makespan = base_makespan * (1 - improvement)
-                            cpu_util = 0.85 + 0.1 * complexity_factor
-                            data_locality = 0.8 + 0.15 * complexity_factor
-                            decision_time = 0.05 + 0.02 * (workflow_size / 100)
-                            
-                        elif scheduler == 'WASS-DRL':
-                            # DRL基线：中等性能
-                            improvement = 0.08 + 0.12 * (workflow_size / 100)
-                            makespan = base_makespan * (1 - improvement)
-                            cpu_util = 0.75 + 0.05 * (workflow_size / 100)
-                            data_locality = 0.65 + 0.1 * (workflow_size / 100)
-                            decision_time = 0.08 + 0.03 * (workflow_size / 100)
-                            
-                        elif scheduler == 'HEFT':
-                            # HEFT：传统方法，稳定但有限
-                            improvement = 0.05 + 0.03 * (workflow_size / 100)
-                            makespan = base_makespan * (1 - improvement)
-                            cpu_util = 0.7 + 0.02 * (workflow_size / 100)
-                            data_locality = 0.6
-                            decision_time = 0.01
-                            
-                        elif scheduler == 'FIFO':
-                            # FIFO：最简单，性能最差
-                            makespan = base_makespan * 1.1
-                            cpu_util = 0.6
-                            data_locality = 0.4
-                            decision_time = 0.001
-                            
-                        else:  # SJF
-                            # SJF：比FIFO好一点
-                            makespan = base_makespan * 1.05
-                            cpu_util = 0.65
-                            data_locality = 0.45
-                            decision_time = 0.002
-                        
-                        # 添加随机噪声
-                        noise = np.random.normal(0, 0.05)
-                        makespan *= (1 + noise)
-                        cpu_util = max(0.3, min(0.95, cpu_util * (1 + noise * 0.2)))
-                        data_locality = max(0.2, min(0.95, data_locality * (1 + noise * 0.15)))
-                        decision_time = max(0.001, decision_time * (1 + abs(noise) * 0.3))
-                        
-                        results['experiments'].append({
-                            'id': experiment_id,
-                            'scheduler': scheduler,
-                            'cluster_size': cluster_size,
-                            'workflow_size': workflow_size,
-                            'repetition': rep + 1,
-                            'makespan': round(makespan, 2),
-                            'cpu_utilization': round(cpu_util, 3),
-                            'data_locality': round(data_locality, 3),
-                            'decision_time': round(decision_time, 4),
-                            'energy_consumption': round(makespan * cluster_size * 100, 2),
-                            'memory_utilization': round(cpu_util * 0.8, 3)
-                        })
-                        experiment_id += 1
+        raise FileNotFoundError(error_msg)
+    
+    def _validate_experimental_data(self, results: Dict[str, Any]):
+        """验证实验数据格式"""
+        if 'experiments' not in results:
+            raise ValueError(
+                "❌ 数据格式错误：缺少 'experiments' 字段\n"
+                "💡 实验数据应包含 'experiments' 列表，其中包含所有实验结果"
+            )
         
-        return results
+        experiments = results['experiments']
+        if not experiments:
+            raise ValueError(
+                "❌ 数据格式错误：'experiments' 列表为空\n"
+                "💡 请确保实验已正确运行并保存了结果"
+            )
+        
+        # 验证第一个实验结果的必要字段
+        first_exp = experiments[0]
+        required_fields = ['scheduling_method', 'makespan', 'cluster_size']
+        missing_fields = [field for field in required_fields if field not in first_exp]
+        
+        if missing_fields:
+            raise ValueError(
+                f"❌ 数据格式错误：缺少必要字段 {missing_fields}\n"
+                f"💡 每个实验结果应包含：{required_fields}"
+            )
+        
+        print(f"✅ 数据验证通过：发现 {len(experiments)} 个实验结果")
+        
+        # 显示实验概况
+        schedulers = set(exp.get('scheduling_method', 'unknown') for exp in experiments)
+        cluster_sizes = set(exp.get('cluster_size', 0) for exp in experiments)
+        
+        print(f"📊 实验数据概况：")
+        print(f"   • 调度方法：{sorted(schedulers)}")
+        print(f"   • 集群规模：{sorted(cluster_sizes)}")
+        print(f"   • 实验总数：{len(experiments)}")
+        
+        return True
     
     def generate_performance_heatmap(self, results: Dict[str, Any]) -> str:
         """生成性能提升热力图"""
         print("🔥 Generating performance improvement heatmap...")
+        
+        # 数据处理：从真实实验结果创建DataFrame
+        experiments = results['experiments']
+        
+        # 转换数据格式适配真实实验结果
+        processed_data = []
+        for exp in experiments:
+            # 适配不同的字段命名
+            scheduler = exp.get('scheduling_method', exp.get('scheduler', 'unknown'))
+            cluster_size = exp.get('cluster_size', 0)
+            
+            # 尝试获取工作流规模
+            workflow_size = None
+            if 'workflow_spec' in exp and isinstance(exp['workflow_spec'], dict):
+                workflow_size = exp['workflow_spec'].get('task_count', 0)
+            else:
+                workflow_size = exp.get('workflow_size', exp.get('task_count', 0))
+            
+            makespan = exp.get('makespan', 0)
+            
+            processed_data.append({
+                'scheduler': scheduler,
+                'cluster_size': cluster_size,
+                'workflow_size': workflow_size,
+                'makespan': makespan
+            })
+        
+        df = pd.DataFrame(processed_data)
+        
+        # 检查数据完整性
+        if df.empty:
+            raise ValueError("❌ 无法处理实验数据：数据为空")
+        
+        if 'HEFT' not in df['scheduler'].values:
+            print("⚠️ 警告：未找到HEFT基线数据，将使用可用调度器中的最差性能作为基线")
+            baseline_scheduler = df.groupby('scheduler')['makespan'].mean().idxmax()
+        else:
+            baseline_scheduler = 'HEFT'
+        
+        if 'WASS-RAG' not in df['scheduler'].values:
+            raise ValueError("❌ 错误：未找到WASS-RAG实验数据，无法生成性能对比图")
         
         # 准备数据
         df = pd.DataFrame(results['experiments'])

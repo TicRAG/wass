@@ -38,9 +38,10 @@ def test_single_chart():
         generator = PaperChartGenerator()
         print("✅ Successfully created generator instance")
         
-        # 生成合成数据
-        test_data = generator._generate_synthetic_data()
-        print("✅ Successfully generated synthetic data")
+        # 尝试加载真实实验数据
+        print("\n📊 Loading real experimental data...")
+        test_data = generator.load_experimental_results()
+        print("✅ Successfully loaded real experimental data")
         
         # 只测试热力图生成（最简单的）
         print("\n📊 Testing heatmap generation...")
