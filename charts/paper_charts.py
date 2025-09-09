@@ -419,7 +419,7 @@ class PaperChartGenerator:
         
         # 计算每个调度器的平均指标
         metrics = {}
-        schedulers = ['HEFT', 'WASS-DRL', 'WASS-RAG']
+        schedulers = ['FIFO', 'HEFT', 'WASS-RAG']  # 修正：使用实际存在的调度器
         
         for scheduler in schedulers:
             scheduler_data = df[df['scheduler'] == scheduler]
