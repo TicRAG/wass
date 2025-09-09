@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-WASS-RAG 真实实验框架 (V2 - 修复版)
+WASS-RAG 真实实验框架 (V3 - 最终修复版)
 核心逻辑修正：采用决策驱动的模拟循环，而非估算因子，以确保实验结果的科学有效性。
 """
 
@@ -23,7 +23,8 @@ sys.path.insert(0, parent_dir)
 sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 try:
-    from ai_schedulers import create_scheduler, SchedulingState
+    # --- 关键修复：添加 SchedulingAction 到导入列表 ---
+    from ai_schedulers import create_scheduler, SchedulingState, SchedulingAction
     HAS_AI_SCHEDULERS = True
 except ImportError as e:
     print(f"Warning: AI schedulers not available: {e}")
@@ -54,7 +55,7 @@ class ExperimentResult:
 
 class WassExperimentRunner:
     """WASS实验运行器 (修复版)"""
-
+    
     def __init__(self, config: ExperimentConfig):
         self.config = config
         self.results: List[ExperimentResult] = []
@@ -82,7 +83,7 @@ class WassExperimentRunner:
         total_experiments = len(self.config.workflow_sizes) * len(self.config.scheduling_methods) * \
                             len(self.config.cluster_sizes) * self.config.repetitions
         print(f"\nStarting experiments... Total experiments to run: {total_experiments}")
-
+        
         exp_count = 0
         start_time = time.time()
 
@@ -91,12 +92,12 @@ class WassExperimentRunner:
                 for rep in range(self.config.repetitions):
                     # 为每个重复实验生成一个固定的工作流和集群，确保所有算法面对相同的问题
                     workflow, cluster = self._generate_scenario(task_count, cluster_size, rep)
-
+                    
                     for method in self.config.scheduling_methods:
                         exp_count += 1
                         progress = (exp_count / total_experiments) * 100
                         eta = ((time.time() - start_time) / exp_count) * (total_experiments - exp_count) if exp_count > 0 else 0
-
+                        
                         print(f"\nRunning ({exp_count}/{total_experiments}): {method}, {task_count} tasks, {cluster_size} nodes, rep {rep}")
                         print(f"Progress: {progress:.1f}%, ETA: {eta:.1f}s")
 
@@ -109,30 +110,24 @@ class WassExperimentRunner:
     def _generate_scenario(self, task_count: int, cluster_size: int, seed: int):
         """生成一个固定的工作流和集群场景"""
         np.random.seed(seed * 1000 + task_count + cluster_size) # 确保可复现
-
-        # 生成集群
+        
         cluster = {f"node_{j}": {
             "cpu_capacity": round(np.random.uniform(2.0, 8.0), 2),
             "memory_capacity": round(np.random.uniform(8.0, 64.0), 2),
         } for j in range(cluster_size)}
 
-        # 生成工作流
         tasks = []
         for i in range(task_count):
             task = {"id": f"task_{i}", "flops": float(np.random.uniform(1e9, 20e9)), "memory": round(np.random.uniform(1.0, 8.0), 2), "dependencies": []}
             tasks.append(task)
-
-        # 生成依赖 (DAG)
-        for i in range(task_count):
-            # 确保每个任务至少有一个前驱（除了入口任务）
-            if i > 0:
-                dep_candidate = np.random.randint(0, i)
-                if f"task_{dep_candidate}" not in tasks[i]["dependencies"]:
-                    tasks[i]["dependencies"].append(f"task_{dep_candidate}")
-            # 随机添加更多依赖
+        
+        for i in range(1, task_count):
+            dep_candidate = np.random.randint(0, i)
+            if f"task_{dep_candidate}" not in tasks[i]["dependencies"]:
+                tasks[i]["dependencies"].append(f"task_{dep_candidate}")
             for j in range(i):
                 if np.random.rand() < 0.2 and f"task_{j}" not in tasks[i]["dependencies"]:
-                    tasks[i]["dependencies"].append(f"task_{j}")
+                     tasks[i]["dependencies"].append(f"task_{j}")
 
         workflow = {"tasks": tasks}
         return workflow, cluster
@@ -140,13 +135,11 @@ class WassExperimentRunner:
     def _run_single_simulation(self, workflow: Dict, cluster: Dict, method: str, repetition: int) -> ExperimentResult:
         """运行一次完整的、决策驱动的仿真"""
         
-        # --- 仿真状态初始化 ---
         node_available_time = {node: 0.0 for node in cluster}
         task_finish_time = {}
         task_placements = {}
         total_cpu_work_done = 0
 
-        # --- 获取调度器 ---
         if method == "FIFO":
             scheduler = self._get_fifo_scheduler()
         elif method == "HEFT":
@@ -183,11 +176,10 @@ class WassExperimentRunner:
                     data_ready_time = 0
                     for dep_id in task['dependencies']:
                         dep_finish_time = task_finish_time[dep_id]
-                        transfer_time = 0.1 if task_placements[dep_id] != node else 0
+                        transfer_time = 0.1 if task_placements.get(dep_id) != node else 0
                         data_ready_time = max(data_ready_time, dep_finish_time + transfer_time)
                     earliest_start_times[node] = max(node_available_time[node], data_ready_time)
 
-                # --- 关键修复：修正 cluster_state 的结构 ---
                 state = SchedulingState(
                     workflow_graph=workflow,
                     cluster_state={
@@ -272,16 +264,15 @@ class WassExperimentRunner:
                     return ranks[task_id]
                 for task_id in tasks: get_rank(task_id)
                 return ranks
-
+            
             def get_next_task(self, ready_tasks):
-                # 从预设计算好的顺序中，选择当前可执行的、rank最高的那个
                 for task_id in self.task_order:
                     if task_id not in self.scheduled_tasks:
                         for ready_task in ready_tasks:
                             if ready_task['id'] == task_id:
                                 self.scheduled_tasks.add(task_id)
                                 return ready_task
-                return None # Should not happen
+                return None
 
             def make_decision(self, state):
                 earliest_finish_time, best_node = float('inf'), None
@@ -292,7 +283,7 @@ class WassExperimentRunner:
                         earliest_finish_time, best_node = est + exec_time, node
                 return SchedulingAction(state.current_task, best_node or state.available_nodes[0], 1.0)
         return HeftScheduler(workflow, cluster)
-
+        
     def _save_and_analyze_results(self):
         results_file = self.output_dir / "experiment_results.json"
         with open(results_file, 'w') as f:
@@ -306,17 +297,17 @@ class WassExperimentRunner:
         for method in self.config.scheduling_methods:
             method_results = [r for r in self.results if r.method == method]
             if not method_results: continue
-
+            
             avg_makespan = np.mean([r.makespan for r in method_results])
             improvement = ((baseline_makespan - avg_makespan) / baseline_makespan) * 100 if baseline_makespan > 0 else 0
-
+            
             table_data[method] = {
                 "makespan": f"{avg_makespan:.2f}",
                 "improvement": f"{improvement:.1f}%",
                 "cpu_util": f"{np.mean([r.avg_cpu_util for r in method_results]) * 100:.1f}%",
                 "data_locality": f"{np.mean([r.data_locality for r in method_results]) * 100:.1f}%"
             }
-
+        
         print("\n--- Final Performance Comparison ---")
         print(f"{'Method':<18} {'Makespan (s)':<15} {'Improvement':<15} {'CPU Util':<12} {'Data Locality':<15}")
         print("-" * 75)
@@ -329,7 +320,7 @@ def main():
         name="WASS-RAG Performance Evaluation (Corrected)",
         workflow_sizes=[10, 20, 49, 100],
         scheduling_methods=[
-            "FIFO",
+            "FIFO", 
             "HEFT",
             "WASS (Heuristic)",
             "WASS-DRL (w/o RAG)",
@@ -339,7 +330,7 @@ def main():
         repetitions=3,
         output_dir="results/final_experiments"
     )
-
+    
     runner = WassExperimentRunner(config)
     runner.run_all_experiments()
 
