@@ -216,6 +216,32 @@ class PaperChartGenerator:
         
         return True
     
+    def validate_data_format(self, results: Dict[str, Any]) -> bool:
+        """验证数据格式（独立方法，用于测试）"""
+        
+        if not results or 'experiments' not in results:
+            return False
+        
+        experiments = results['experiments']
+        
+        if not experiments or len(experiments) == 0:
+            return False
+        
+        # 检查必要字段
+        required_fields = ['scheduling_method', 'cluster_size', 'makespan', 'cpu_utilization']
+        first_exp = experiments[0]
+        
+        missing_fields = []
+        for field in required_fields:
+            if field not in first_exp:
+                # 尝试别名
+                if field == 'scheduling_method' and 'scheduler' not in first_exp:
+                    missing_fields.append(field)
+                elif field != 'scheduling_method':
+                    missing_fields.append(field)
+        
+        return len(missing_fields) == 0
+    
     def generate_performance_heatmap(self, results: Dict[str, Any]) -> str:
         """生成性能提升热力图"""
         print("🔥 Generating performance improvement heatmap...")
