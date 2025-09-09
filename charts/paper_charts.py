@@ -668,13 +668,13 @@ class PaperChartGenerator:
         
         # 子图3: 资源利用率对比
         ax3 = fig.add_subplot(gs[0, 2])
-        util_data = df.groupby('scheduler')[['cpu_utilization', 'data_locality']].mean()
+        util_data = df.groupby('scheduler')[['cpu_utilization', 'data_locality_score']].mean()
         x = np.arange(len(util_data))
         width = 0.35
         
         bars1 = ax3.bar(x - width/2, util_data['cpu_utilization'], width, 
                        label='CPU Utilization', alpha=0.8)
-        bars2 = ax3.bar(x + width/2, util_data['data_locality'], width,
+        bars2 = ax3.bar(x + width/2, util_data['data_locality_score'], width,
                        label='Data Locality', alpha=0.8)
         
         ax3.set_xlabel('Scheduler')
