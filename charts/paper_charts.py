@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 import warnings
 warnings.filterwarnings('ignore')
@@ -70,7 +71,7 @@ class PaperChartGenerator:
         os.makedirs(output_dir, exist_ok=True)
         
         # 创建子目录
-        for subdir in ['heatmaps', 'radar', 'boxplots', 'gantt', 'combined']:
+        for subdir in ['heatmaps', 'radar', 'boxplots', 'gantt', 'combined', 'data']:
             os.makedirs(os.path.join(output_dir, subdir), exist_ok=True)
     
     def load_experimental_results(self) -> Dict[str, Any]:
@@ -248,6 +249,31 @@ class PaperChartGenerator:
         
         return len(missing_fields) == 0
     
+    def _save_chart_data(self, data: Dict[str, Any], chart_type: str, filename: str):
+        """保存图表数据为JSON文件"""
+        
+        data_dir = os.path.join(self.output_dir, 'data')
+        data_file = os.path.join(data_dir, f"{filename}.json")
+        
+        # 添加元数据
+        output_data = {
+            'chart_type': chart_type,
+            'generated_at': datetime.now().isoformat(),
+            'description': f"Data for {chart_type} chart",
+            'data': data
+        }
+        
+        try:
+            with open(data_file, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, indent=2, ensure_ascii=False, default=str)
+            
+            print(f"📄 Chart data saved: {data_file}")
+            return data_file
+            
+        except Exception as e:
+            print(f"⚠️ Failed to save chart data: {e}")
+            return None
+    
     def _preprocess_experiment_data(self, results: Dict[str, Any]) -> pd.DataFrame:
         """预处理实验数据，统一字段格式"""
         
@@ -361,6 +387,20 @@ class PaperChartGenerator:
         # 使用constrained_layout而不是tight_layout来避免colorbar冲突
         plt.subplots_adjust()
         
+        # 保存图表数据
+        heatmap_data = {
+            'improvement_matrix': improvement_matrix.tolist(),
+            'cluster_sizes': cluster_sizes,
+            'workflow_sizes': workflow_sizes,
+            'description': 'Performance improvement percentage of WASS-RAG over HEFT baseline',
+            'metrics': {
+                'max_improvement': float(np.max(improvement_matrix)),
+                'min_improvement': float(np.min(improvement_matrix)),
+                'avg_improvement': float(np.mean(improvement_matrix))
+            }
+        }
+        self._save_chart_data(heatmap_data, 'heatmap', 'performance_improvement_data')
+        
         # 保存多种格式
         base_path = os.path.join(self.output_dir, 'heatmaps', 'performance_improvement_heatmap')
         plt.savefig(f"{base_path}.pdf", bbox_inches='tight')  # ACM首选
@@ -435,6 +475,16 @@ class PaperChartGenerator:
         # 图例
         plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.0), fontsize=12)
         
+        # 保存雷达图数据
+        radar_data = {
+            'metrics': metrics,
+            'categories': categories,
+            'schedulers': schedulers,
+            'angles': angles[:-1],  # 不包含重复的第一个角度
+            'description': 'Multi-dimensional performance comparison of scheduling algorithms'
+        }
+        self._save_chart_data(radar_data, 'radar', 'scheduler_radar_data')
+        
         # 使用constrained_layout避免布局冲突
         plt.subplots_adjust()
         output_path = os.path.join(self.output_dir, 'radar', 'scheduler_radar_chart.png')
@@ -486,6 +536,35 @@ class PaperChartGenerator:
         ax2.set_xlabel('Scheduling Algorithm', fontsize=11, fontweight='bold')
         ax2.set_ylabel('CPU Utilization', fontsize=11, fontweight='bold')
         ax2.tick_params(axis='x', rotation=45)
+        
+        # 保存箱形图数据
+        boxplot_data = {
+            'complex_scenario_data': complex_scenario.to_dict('records'),
+            'scenario_description': {
+                'cluster_size': int(max(df['cluster_size'])),
+                'workflow_size': int(max(df['workflow_size'])),
+                'description': 'Most complex scenario analysis'
+            },
+            'statistics': {}
+        }
+        
+        # 计算统计信息
+        for scheduler in complex_scenario['scheduler'].unique():
+            scheduler_data = complex_scenario[complex_scenario['scheduler'] == scheduler]
+            boxplot_data['statistics'][scheduler] = {
+                'makespan': {
+                    'mean': float(scheduler_data['makespan'].mean()),
+                    'std': float(scheduler_data['makespan'].std()),
+                    'min': float(scheduler_data['makespan'].min()),
+                    'max': float(scheduler_data['makespan'].max())
+                },
+                'cpu_utilization': {
+                    'mean': float(scheduler_data['cpu_utilization'].mean()),
+                    'std': float(scheduler_data['cpu_utilization'].std())
+                }
+            }
+        
+        self._save_chart_data(boxplot_data, 'boxplot', 'stability_analysis_data')
         
         # 使用constrained_layout避免布局冲突
         plt.subplots_adjust()
@@ -622,6 +701,31 @@ class PaperChartGenerator:
         fig.legend(legend_elements, type_colors.keys(), 
                   loc='upper center', bbox_to_anchor=(0.5, 0.95), ncol=3, fontsize=10)
         
+        # 保存甘特图数据
+        gantt_data = {
+            'tasks': tasks,
+            'schedules': schedules,
+            'type_colors': type_colors,
+            'scenario': {
+                'num_tasks': num_tasks,
+                'num_nodes': num_nodes,
+                'algorithms': ['HEFT', 'WASS-RAG']
+            },
+            'performance_summary': {}
+        }
+        
+        # 计算性能摘要
+        for algorithm in ['HEFT', 'WASS-RAG']:
+            schedule = schedules[algorithm]
+            makespan = max([t['end'] for t in schedule])
+            gantt_data['performance_summary'][algorithm] = {
+                'makespan': makespan,
+                'total_tasks': len(schedule),
+                'avg_task_duration': sum([t['duration'] for t in schedule]) / len(schedule)
+            }
+        
+        self._save_chart_data(gantt_data, 'gantt', 'scheduling_comparison_data')
+        
         # 避免布局冲突，直接调整边距
         plt.subplots_adjust(top=0.9)
         
@@ -713,6 +817,30 @@ class PaperChartGenerator:
         
         plt.suptitle('WASS-RAG Performance Summary Report', 
                     fontsize=16, fontweight='bold', y=0.98)
+        
+        # 保存综合摘要数据
+        summary_data = {
+            'performance_comparison': perf_summary.to_dict(),
+            'scalability_analysis': {
+                scheduler: df[df['scheduler'] == scheduler].groupby('workflow_size')['makespan'].mean().to_dict()
+                for scheduler in ['WASS-RAG', 'HEFT'] if scheduler in df['scheduler'].unique()
+            },
+            'resource_utilization': util_data.to_dict(),
+            'execution_time_analysis': execution_data.to_dict(),
+            'summary_metrics': {
+                'total_schedulers': len(df['scheduler'].unique()),
+                'total_experiments': len(df),
+                'workflow_size_range': {
+                    'min': int(df['workflow_size'].min()),
+                    'max': int(df['workflow_size'].max())
+                },
+                'cluster_size_range': {
+                    'min': int(df['cluster_size'].min()),
+                    'max': int(df['cluster_size'].max())
+                }
+            }
+        }
+        self._save_chart_data(summary_data, 'combined_summary', 'performance_summary_data')
         
         output_path = os.path.join(self.output_dir, 'combined', 'performance_summary.png')
         plt.savefig(output_path, dpi=300, bbox_inches='tight')

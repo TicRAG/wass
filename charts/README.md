@@ -81,12 +81,39 @@ charts/output/
 │   └── scheduling_comparison.png
 ├── combined/
 │   └── performance_summary.png
+├── data/  # 📊 新增：图表数据JSON文件
+│   ├── performance_improvement_data.json
+│   ├── scheduler_radar_data.json
+│   ├── stability_analysis_data.json
+│   ├── scheduling_comparison_data.json
+│   └── performance_summary_data.json
 └── chart_index.html  # 图表总览页面
 ```
 
-## 🎯 图表说明
+## 🎯 快速开始
 
-### 1. 热力图 (Heatmap)
+### 运行方式
+```bash
+cd charts
+python paper_charts.py
+```
+
+### 输出结果
+运行完成后会生成：
+- **📈 图表文件**：5种ACM标准的学术图表（PNG/PDF格式）
+- **📊 数据文件**：每个图表对应的JSON数据文件
+- **🌐 索引页面**：HTML总览页面，方便查看所有图表
+
+### 数据透明度 🔍
+每个图表都会生成对应的JSON数据文件，包含：
+- 原始实验数据和预处理后的数据
+- 数据处理过程信息
+- 图表元数据（生成时间、ACM标准配置等）  
+- 统计信息摘要（均值、标准差等）
+
+这确保了研究结果的**完全可重现性**和**数据透明度**。
+
+## 📊 图表说明
 - **用途**: 展示WASS-RAG在不同场景下的性能优势
 - **解读**: 颜色越深，性能提升越大
 - **论文价值**: 直观回答"什么情况下WASS-RAG最有效"
