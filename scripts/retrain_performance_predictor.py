@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-重新训练性能预测器模型，修复负值预测问题
+[最终修复版] 重新训练性能预测器模型，修复负值预测和类型错误问题
 """
 
 import os
@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 try:
     from torch.utils.data import TensorDataset, DataLoader
-    from src.ai_schedulers import PerformancePredictor, RAGKnowledgeBase
+    from src.ai_schedulers import PerformancePredictor, RAGKnowledgeBase, WASSRAGScheduler, SchedulingState
     HAS_AI_MODULES = True
 except ImportError as e:
     print(f"Error: Required AI modules not available: {e}")
@@ -27,18 +27,12 @@ except ImportError as e:
 
 def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, Any]]:
     """
-    [FIXED] Generates high-quality synthetic training data that matches the inference path.
+    [最终修复版] 生成高质量的、与推理路径完全一致的合成训练数据。
     """
     print(f"🔧 Generating {num_scenarios} scenarios for training data...")
-    from src.ai_schedulers import WASSRAGScheduler, SchedulingState, RAGKnowledgeBase
     
-    # Use the actual scheduler for consistent feature generation
     temp_scheduler = WASSRAGScheduler()
-    
-    # --- FIX START: Create a temporary knowledge base for realistic context generation ---
-    temp_kb = RAGKnowledgeBase() 
-    # --- FIX END ---
-
+    temp_kb = RAGKnowledgeBase()
     training_data = []
     makespan_values = []
 
@@ -51,25 +45,21 @@ def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, A
         } for j in range(num_nodes)}
 
         task_info = {
-            "id": f"task_{i}", "flops": float(np.random.uniform(0.5e9, 15e9)),
+            "id": f"task_{i}", "flops": float(np.random.uniform(0.5e9, 20e9)),
             "memory": round(np.random.uniform(1.0, 16.0), 2),
             "dependencies": [f"task_{k}" for k in range(np.random.randint(0, 4))]
         }
 
         state = SchedulingState(
-            workflow_graph={"tasks": [task_info], "task_requirements": {f"task_{i}": task_info}},
+            workflow_graph={"tasks": [task_info]},
             cluster_state={"nodes": nodes}, pending_tasks=[f"task_{i}"], current_task=f"task_{i}",
             available_nodes=list(nodes.keys()), timestamp=0.0
         )
 
         state_embedding = temp_scheduler._extract_simple_features_fallback(state)
-        
-        # --- FIX START: Generate realistic context instead of random noise ---
-        # Retrieve similar cases from the temporary knowledge base we are building
         retrieved_context = temp_kb.retrieve_similar_cases(state_embedding.cpu().numpy())
         context_embedding = temp_scheduler._encode_context(retrieved_context)
-        # --- FIX END ---
-        
+
         for node_name, node_details in nodes.items():
             action_embedding = temp_scheduler._encode_action(node_name, state)
             combined_features = torch.cat([
@@ -78,30 +68,31 @@ def create_improved_training_data(num_scenarios: int = 5000) -> List[Dict[str, A
             
             task_cpu_gflops = task_info["flops"] / 1e9
             available_cpu = node_details["cpu_capacity"] * (1.0 - node_details["current_load"])
+            
             base_time = task_cpu_gflops / max(available_cpu, 0.1)
-            mem_penalty = max(0, task_info["memory"] - node_details["memory_capacity"]) * 0.5
-            load_penalty = node_details["current_load"] * 2.0
-            random_noise = np.random.uniform(-0.5, 0.5)
-            execution_time = max(1.0, min(180.0, base_time + mem_penalty + load_penalty + random_noise))
+            mem_penalty = max(0, task_info["memory"] - node_details["memory_capacity"]) * 2.0
+            
+            task_ratio = task_cpu_gflops / max(1.0, task_info["memory"])
+            node_ratio = available_cpu / max(1.0, node_details["memory_capacity"])
+            mismatch_penalty = abs(task_ratio - node_ratio) * 0.5
+
+            random_noise = np.random.uniform(0.95, 1.05)
+            execution_time = (base_time + mem_penalty + mismatch_penalty) * random_noise
+            execution_time = max(0.1, min(200.0, execution_time))
             makespan_values.append(execution_time)
             
             new_case = {
                 "features": combined_features.tolist(),
                 "makespan": execution_time,
-                "state_embedding": state_embedding.cpu().numpy().tolist(),
-                "workflow_features": {
-                    "task_count": 1,
-                    "avg_task_flops": task_info["flops"],
-                    "avg_memory": task_info["memory"]
-                }
+                "state_embedding": state_embedding.cpu().numpy().tolist(), # 存储为list
+                "workflow_features": {"task_count": 1}
             }
             training_data.append(new_case)
             
-            # --- FIX START: Add the newly generated case to our temporary knowledge base ---
-            # This makes the context retrieval more realistic as we generate more data
-            if i % 10 == 0: # Add every 10th case to keep the KB size manageable during generation
-                 temp_kb.add_case(new_case["state_embedding"], new_case["workflow_features"], [], new_case["makespan"])
-            # --- FIX END ---
+            # --- 最终修正：在调用 add_case 前，将 list 转换回 numpy array ---
+            if i % 10 == 0:
+                embedding_array = np.array(new_case["state_embedding"], dtype=np.float32)
+                temp_kb.add_case(embedding_array, new_case["workflow_features"], [], new_case["makespan"])
             
     makespan_array = np.array(makespan_values)
     print(f"📊 Single task execution time distribution:")
@@ -121,34 +112,26 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"   Device: {device}")
     
-    # 准备训练数据
     X = np.array([sample["features"] for sample in training_data])
     y = np.array([sample["makespan"] for sample in training_data])
     
-    # 数据归一化（重要！）
     y_mean, y_std = np.mean(y), np.std(y)
     y_normalized = (y - y_mean) / (y_std + 1e-8)
     
     print(f"📈 Training data statistics:")
     print(f"   Original y: mean={y_mean:.2f}, std={y_std:.2f}")
-    print(f"   Normalized y: mean={np.mean(y_normalized):.6f}, std={np.std(y_normalized):.6f}")
-    print(f"   Normalized range: [{np.min(y_normalized):.3f}, {np.max(y_normalized):.3f}]")
     
-    # 转换为PyTorch张量
     X_tensor = torch.FloatTensor(X).to(device)
-    y_tensor = torch.FloatTensor(y_normalized).to(device)
+    y_tensor = torch.FloatTensor(y_normalized).view(-1, 1).to(device) # 修正形状以匹配模型输出
     
-    # 创建数据加载器
     dataset = TensorDataset(X_tensor, y_tensor)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
-    # 创建模型
     model = PerformancePredictor(input_dim=96, hidden_dim=128).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=20, factor=0.5)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=15, factor=0.5, verbose=True)
     
-    # 训练循环
     best_loss = float('inf')
     patience_counter = 0
     
@@ -158,7 +141,7 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
         
         for batch_X, batch_y in dataloader:
             optimizer.zero_grad()
-            predictions = model(batch_X).squeeze()
+            predictions = model(batch_X)
             loss = criterion(predictions, batch_y)
             loss.backward()
             optimizer.step()
@@ -167,7 +150,6 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
         avg_loss = total_loss / len(dataloader)
         scheduler.step(avg_loss)
         
-        # 早停检查
         if avg_loss < best_loss:
             best_loss = avg_loss
             patience_counter = 0
@@ -177,11 +159,10 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
         if epoch % 20 == 0:
             print(f"   Epoch {epoch:3d}: Loss = {avg_loss:.6f}")
         
-        if patience_counter >= 50:
+        if patience_counter >= 40:
             print(f"   Early stopping at epoch {epoch}")
             break
     
-    # 评估模型
     model.eval()
     with torch.no_grad():
         all_predictions = model(X_tensor).squeeze().cpu().numpy()
@@ -189,122 +170,74 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
         
         mse = np.mean((all_predictions_denorm - y) ** 2)
         mae = np.mean(np.abs(all_predictions_denorm - y))
-        r2 = 1 - np.sum((y - all_predictions_denorm) ** 2) / np.sum((y - np.mean(y)) ** 2)
-        
-        pred_std = np.std(all_predictions_denorm)
-        pred_range = np.max(all_predictions_denorm) - np.min(all_predictions_denorm)
+        r2 = 1 - (np.sum((y - all_predictions_denorm) ** 2) / np.sum((y - y_mean) ** 2))
         
         print(f"\n✅ Training completed!")
         print(f"   Final Loss: {best_loss:.6f}")
-        print(f"   MSE: {mse:.2f}")
-        print(f"   MAE: {mae:.2f}")
-        print(f"   R²: {r2:.4f}")
-        print(f"   Prediction std: {pred_std:.2f}")
-        print(f"   Prediction range: {pred_range:.2f}")
+        print(f"   MSE: {mse:.2f}, MAE: {mae:.2f}, R²: {r2:.4f}")
     
-    return model, y_mean, y_std, {
-        "mse": mse, "mae": mae, "r2": r2,
-        "pred_std": pred_std, "pred_range": pred_range
-    }
+    return model, y_mean, y_std, {"mse": mse, "mae": mae, "r2": r2}
 
 def regenerate_knowledge_base(training_data: List[Dict[str, Any]]) -> RAGKnowledgeBase:
-    """根据新的训练数据重新生成知识库（V2 - 修复版）"""
+    """根据新的训练数据重新生成知识库"""
     print(f"\n🔄 Regenerating knowledge base with {len(training_data)} cases...")
     
     kb = RAGKnowledgeBase(embedding_dim=32)
     
     for data in training_data:
-        # --- 关键修改：现在可以安全地读取 "state_embedding" ---
         embedding = np.array(data["state_embedding"], dtype=np.float32)
-        
-        # 构建一个简化的 workflow_info
         workflow_info = data.get("workflow_features", {"type": "retrained_synthetic"})
-        
-        # 使用实际的makespan
         makespan = data["makespan"]
-        
-        # 添加到知识库
         kb.add_case(embedding, workflow_info, actions=[], makespan=makespan)
     
     print(f"✅ Knowledge base regenerated with {len(kb.cases)} cases")
     return kb
 
 def main():
-    print("🔧 Retraining Performance Predictor with Improved Data")
+    print("🔧 Retraining Performance Predictor with Improved Data (Final Version)")
     print("=" * 60)
     
-    # 生成改进的训练数据
-    # --- 请修改下面这一行 ---
-    # 将 num_samples 修改为 num_scenarios
     training_data = create_improved_training_data(num_scenarios=5000)
-    
-    # 训练模型
     model, y_mean, y_std, metrics = train_improved_performance_predictor(training_data)
-    
-    # 重新生成知识库（使用相同的训练数据）
     kb = regenerate_knowledge_base(training_data)
     
-    # 保存模型
     model_path = "models/wass_models.pth"
     print(f"\n💾 Saving retrained model to {model_path}...")
     
-    # 加载现有checkpoint（如果存在）
     try:
         checkpoint = torch.load(model_path, map_location="cpu")
-        print("   Loaded existing checkpoint")
-    except:
+    except FileNotFoundError:
         checkpoint = {}
-        print("   Creating new checkpoint")
     
-    # 更新性能预测器（保留其他组件）
     checkpoint["performance_predictor"] = model.state_dict()
     
-    # 确保其他必要组件存在，如果不存在则创建默认值
     if "policy_network" not in checkpoint:
-        from src.ai_schedulers import PolicyNetwork
-        checkpoint["policy_network"] = PolicyNetwork(
-            state_dim=32, action_dim=1, hidden_dim=128
-        ).state_dict()
-        print("   Added default PolicyNetwork")
+        policy_net = PolicyNetwork(state_dim=64, hidden_dim=128)
+        checkpoint["policy_network"] = policy_net.state_dict()
     
-    if "gnn_encoder" not in checkpoint:
-        try:
-            from src.ai_schedulers import GraphEncoder
-            checkpoint["gnn_encoder"] = GraphEncoder(
-                node_feature_dim=8, edge_feature_dim=4, 
-                hidden_dim=64, output_dim=32
-            ).state_dict()
-            print("   Added default GraphEncoder")
-        except Exception as e:
-            print(f"   Skipping GraphEncoder: {e}")
+    if "gnn_encoder" not in checkpoint and HAS_AI_MODULES:
+        gnn_encoder = GraphEncoder(node_feature_dim=8, edge_feature_dim=4, hidden_dim=64, output_dim=32)
+        checkpoint["gnn_encoder"] = gnn_encoder.state_dict()
     
-    # 更新元数据
-    if "metadata" not in checkpoint:
-        checkpoint["metadata"] = {}
-    
-    checkpoint["metadata"]["performance_predictor"] = {
-        "y_mean": float(y_mean),
-        "y_std": float(y_std),
-        "training_samples": len(training_data),
-        "retrained_at": "2025-09-08",
-        "validation_results": metrics
+    checkpoint["metadata"] = {
+        "performance_predictor": {
+            "y_mean": float(y_mean), "y_std": float(y_std),
+            "training_samples": len(training_data), "retrained_at": datetime.now().isoformat(),
+            "validation_results": metrics
+        }
     }
     
-    # 保存模型
     os.makedirs("models", exist_ok=True)
     torch.save(checkpoint, model_path)
     
-    # 保存知识库
     kb_path = "data/knowledge_base.pkl"
     print(f"\n💾 Saving regenerated knowledge base to {kb_path}...")
     os.makedirs("data", exist_ok=True)
     kb.save_knowledge_base(kb_path)
     
-    print(f"✅ Model and knowledge base retrained and saved successfully!")
+    print(f"\n✅ Model and knowledge base retrained and saved successfully!")
     print(f"   New normalization: mean={y_mean:.2f}, std={y_std:.2f}")
     print(f"   Performance metrics: R²={metrics['r2']:.4f}, MSE={metrics['mse']:.2f}")
-    print(f"   Knowledge base cases: {len(kb.cases)}")
-    print(f"\n🎉 Ready for testing! Run: python experiments/real_experiment_framework.py")
 
 if __name__ == "__main__":
     main()
