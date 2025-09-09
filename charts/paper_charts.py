@@ -690,19 +690,23 @@ class PaperChartGenerator:
         ax3.set_xticklabels(util_data.index, rotation=45)
         ax3.legend()
         
-        # 子图4: 决策开销分析
+        # 子图4: 执行时间分析  
         ax4 = fig.add_subplot(gs[1, :])
-        decision_data = df.groupby(['scheduler', 'workflow_size'])['decision_time'].mean().unstack()
         
-        for scheduler in decision_data.columns:
-            if scheduler in ['WASS-RAG', 'WASS-DRL', 'HEFT']:
-                ax4.plot(decision_data.index, decision_data[scheduler], 
-                        marker='s', linewidth=2, label=scheduler,
+        # 计算每个调度器在不同工作流规模下的平均执行时间
+        execution_data = df.groupby(['scheduler', 'workflow_size'])['execution_time'].mean().unstack()
+        
+        # 只显示主要的调度器
+        main_schedulers = ['WASS-RAG', 'HEFT', 'FIFO']
+        for scheduler in main_schedulers:
+            if scheduler in execution_data.columns:
+                ax4.plot(execution_data.index, execution_data[scheduler], 
+                        marker='o', linewidth=2, label=scheduler,
                         color=COLORS.get(scheduler, '#666666'))
         
         ax4.set_xlabel('Workflow Size (tasks)')
-        ax4.set_ylabel('Decision Time (seconds)')
-        ax4.set_title('Scheduling Decision Overhead Analysis', fontweight='bold')
+        ax4.set_ylabel('Execution Time (seconds)')
+        ax4.set_title('Execution Time Analysis Across Workflow Sizes', fontweight='bold')
         ax4.legend()
         ax4.grid(True, alpha=0.3)
         ax4.set_yscale('log')  # 对数刻度更好地显示时间差异
