@@ -42,7 +42,7 @@ def test_acm_compliance():
     
     # 2. 测试雷达图
     print("\n🎯 Testing Radar Chart...")
-    fig_radar = generator.create_algorithm_radar_chart(
+    fig_radar = generator.create_radar_chart(
         test_data['algorithm_capabilities'],
         save_path=f"{output_dir}/test_radar"
     )

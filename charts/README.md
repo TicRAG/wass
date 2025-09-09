@@ -18,6 +18,18 @@ cd charts
 python paper_charts.py
 ```
 
+### 方法2: 简化测试 (推荐)
+```bash
+cd charts
+python simple_test.py  # 测试所有图表生成
+```
+
+### 方法3: ACM合规性测试
+```bash
+cd charts
+python test_acm_compliance.py  # 验证ACM标准
+```
+
 ### 方法2: 实验后自动生成
 在实验脚本中添加：
 ```python
@@ -137,6 +149,13 @@ plt.savefig(output_path, dpi=300, format='svg')  # SVG格式
 pip install matplotlib seaborn pandas numpy
 ```
 
+**Colorbar布局冲突错误**:
+```python
+# 已修复：使用constrained_layout而非tight_layout
+# 如果仍有问题，尝试：
+matplotlib.use('Agg')  # 非交互式后端
+```
+
 **字体显示问题**:
 ```python
 # 在代码开头添加
@@ -147,6 +166,15 @@ plt.rcParams['font.sans-serif'] = ['SimHei']  # 中文字体
 ```python
 # 减小图片分辨率
 plt.savefig(output_path, dpi=150)  # 从300降到150
+```
+
+**方法名错误 (AttributeError)**:
+```python
+# 正确的方法名：
+generator.generate_performance_heatmap(data)  # ✅
+generator.generate_radar_chart(data)          # ✅  
+generator.generate_stability_boxplot(data)    # ✅
+generator.generate_gantt_chart(data)          # ✅
 ```
 
 ## 💡 论文使用建议
