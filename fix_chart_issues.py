@@ -31,6 +31,9 @@ def analyze_performance_variations():
     
     df = pd.DataFrame(experiments)
     
+    # 展开workflow_spec字段
+    df['workflow_size'] = df['workflow_spec'].apply(lambda x: x['task_count'])
+    
     print("\n=== 性能变化分析 ===")
     
     # 按配置分组检查
