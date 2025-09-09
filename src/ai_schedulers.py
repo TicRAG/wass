@@ -468,10 +468,10 @@ class WASSRAGScheduler(BaseScheduler):
             action_features.append(0.0)
         return torch.tensor(action_features[:32], dtype=torch.float32, device=self.device)
     
-    def _predict_performance(self, state_embedding: torch.Tensor, 
+    def _predict_performance(self, state_embedding: torch.Tensor,
                            action_embedding: torch.Tensor,
                            context: Dict[str, Any]) -> float:
-        """使用性能预测器预测makespan（V2 - 修复约束逻辑）"""
+        """[FINAL FIX] Predicts makespan with a robust, simplified logic."""
         
         context_embedding = self._encode_context(context)
         
@@ -487,34 +487,26 @@ class WASSRAGScheduler(BaseScheduler):
             pad_to_32(context_embedding.flatten())
         ])
 
+        # Handle any potential lingering NaN/inf values gracefully
         if torch.isnan(combined_features).any() or torch.isinf(combined_features).any():
             print("⚠️ [FEATURE] Invalid features detected, using fallback prediction")
-            node_capacity = action_embedding[5].item() if len(action_embedding) > 5 else 0.4
-            return 2.0 + (1.0 - node_capacity) * 3.0
+            return 10.0 # Return a neutral, stable fallback value
 
-        combined_features = torch.clamp(combined_features, -3.0, 3.0)
-        
         with torch.no_grad():
+            # The model now outputs a non-negative, normalized value directly
             predicted_makespan_normalized = self.performance_predictor(combined_features).item()
             
-            if hasattr(self, '_y_mean') and hasattr(self, '_y_std'):
-                predicted_makespan = predicted_makespan_normalized * self._y_std + self._y_mean
-                
-                task_complexity = combined_features[:32].mean().item()
-                min_reasonable_time = max(0.1, task_complexity * 0.5)
-                
-                temp_max_time = task_complexity * 200.0
-                max_reasonable_time = min(300.0, max(min_reasonable_time, temp_max_time))
-
-                if predicted_makespan < min_reasonable_time:
-                    predicted_makespan = min_reasonable_time
-                elif predicted_makespan > max_reasonable_time:
-                    predicted_makespan = max_reasonable_time
+            # Use saved training stats to de-normalize the prediction
+            if hasattr(self, '_y_mean') and hasattr(self, '_y_std') and self._y_std > 1e-6:
+                predicted_makespan = (predicted_makespan_normalized * self._y_std) + self._y_mean
             else:
-                predicted_makespan = abs(predicted_makespan_normalized) or 1.0
-                
-        return predicted_makespan
+                # Fallback if normalization stats are missing
+                predicted_makespan = predicted_makespan_normalized * 5.0 + 5.0
 
+            # --- FINAL FIX: Add a stable minimum floor ---
+            # Ensure the final prediction is always a sensible, non-zero value.
+            return max(0.1, predicted_makespan)
+    
     def _encode_context(self, context: Dict[str, Any]) -> torch.Tensor:
         if not context or "similar_cases" not in context or not context["similar_cases"]:
             return torch.zeros(32, device=self.device)
@@ -644,7 +636,8 @@ class PerformancePredictor(nn.Module):
             nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Dropout(0.1),
             nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Dropout(0.1),
             nn.Linear(hidden_dim, hidden_dim // 2), nn.ReLU(),
-            nn.Linear(hidden_dim // 2, 1)
+            nn.Linear(hidden_dim // 2, 1),
+            nn.ReLU()  # --- FINAL FIX: Ensure output is always non-negative ---
         )
     def forward(self, features: torch.Tensor) -> torch.Tensor:
         return self.network(features)
