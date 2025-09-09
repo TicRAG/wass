@@ -139,12 +139,14 @@ class WassExperimentRunner:
 
     def _run_single_simulation(self, workflow: Dict, cluster: Dict, method: str, repetition: int) -> ExperimentResult:
         """运行一次完整的、决策驱动的仿真"""
-
+        
+        # --- 仿真状态初始化 ---
         node_available_time = {node: 0.0 for node in cluster}
         task_finish_time = {}
         task_placements = {}
         total_cpu_work_done = 0
 
+        # --- 获取调度器 ---
         if method == "FIFO":
             scheduler = self._get_fifo_scheduler()
         elif method == "HEFT":
@@ -153,23 +155,25 @@ class WassExperimentRunner:
             scheduler = self.ai_schedulers.get(method)
             if scheduler is None:
                 raise ValueError(f"Scheduler for method '{method}' not initialized.")
-
+        
         pending_tasks = {task['id'] for task in workflow['tasks']}
-
+        
         while pending_tasks:
             ready_tasks = []
             for task_id in sorted(list(pending_tasks)):
                 task = next(t for t in workflow['tasks'] if t['id'] == task_id)
                 if all(dep in task_finish_time for dep in task['dependencies']):
                     ready_tasks.append(task)
-
+            
             if not ready_tasks:
                 if not pending_tasks: break
                 raise RuntimeError("Simulation stuck: No ready tasks but pending tasks exist.")
 
-            # 对于HEFT等有固定顺序的算法，一次只调度一个
             if method == "HEFT":
-                ready_tasks = [scheduler.get_next_task(ready_tasks)]
+                next_task_obj = scheduler.get_next_task(ready_tasks)
+                ready_tasks = [next_task_obj] if next_task_obj else []
+
+            if not ready_tasks: continue
 
             for task in ready_tasks:
                 current_task_id = task['id']
@@ -183,30 +187,34 @@ class WassExperimentRunner:
                         data_ready_time = max(data_ready_time, dep_finish_time + transfer_time)
                     earliest_start_times[node] = max(node_available_time[node], data_ready_time)
 
+                # --- 关键修复：修正 cluster_state 的结构 ---
                 state = SchedulingState(
                     workflow_graph=workflow,
-                    cluster_state={"nodes": {**cluster, "earliest_start_times": earliest_start_times}},
+                    cluster_state={
+                        "nodes": cluster, 
+                        "earliest_start_times": earliest_start_times
+                    },
                     pending_tasks=list(pending_tasks),
                     current_task=current_task_id,
                     available_nodes=list(cluster.keys()),
                     timestamp=min(node_available_time.values())
                 )
-
+                
                 decision = scheduler.make_decision(state)
                 chosen_node = decision.target_node
-
+                
                 task_flops = task['flops'] / 1e9
                 node_cpu = cluster[chosen_node]['cpu_capacity']
                 exec_time = task_flops / node_cpu
-
+                
                 start_time = earliest_start_times[chosen_node]
                 finish_time = start_time + exec_time
-
+                
                 task_finish_time[current_task_id] = finish_time
                 task_placements[current_task_id] = chosen_node
                 node_available_time[chosen_node] = finish_time
                 total_cpu_work_done += task_flops
-
+                
                 if current_task_id in pending_tasks:
                     pending_tasks.remove(current_task_id)
 
