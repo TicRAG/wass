@@ -242,15 +242,12 @@ class PaperChartGenerator:
         
         return len(missing_fields) == 0
     
-    def generate_performance_heatmap(self, results: Dict[str, Any]) -> str:
-        """生成性能提升热力图"""
-        print("🔥 Generating performance improvement heatmap...")
+    def _preprocess_experiment_data(self, results: Dict[str, Any]) -> pd.DataFrame:
+        """预处理实验数据，统一字段格式"""
         
-        # 数据处理：从真实实验结果创建DataFrame
         experiments = results['experiments']
-        
-        # 转换数据格式适配真实实验结果
         processed_data = []
+        
         for exp in experiments:
             # 适配不同的字段命名
             scheduler = exp.get('scheduling_method', exp.get('scheduler', 'unknown'))
@@ -264,15 +261,30 @@ class PaperChartGenerator:
                 workflow_size = exp.get('workflow_size', exp.get('task_count', 0))
             
             makespan = exp.get('makespan', 0)
+            cpu_utilization = exp.get('cpu_utilization', 0)
+            data_locality_score = exp.get('data_locality_score', 0)
             
             processed_data.append({
                 'scheduler': scheduler,
                 'cluster_size': cluster_size,
                 'workflow_size': workflow_size,
-                'makespan': makespan
+                'makespan': makespan,
+                'cpu_utilization': cpu_utilization,
+                'data_locality_score': data_locality_score,
+                'execution_time': exp.get('execution_time', makespan),
+                'throughput': exp.get('throughput', 0),
+                'memory_utilization': exp.get('memory_utilization', 0),
+                'energy_consumption': exp.get('energy_consumption', 0)
             })
         
-        df = pd.DataFrame(processed_data)
+        return pd.DataFrame(processed_data)
+    
+    def generate_performance_heatmap(self, results: Dict[str, Any]) -> str:
+        """生成性能提升热力图"""
+        print("🔥 Generating performance improvement heatmap...")
+        
+        # 预处理数据
+        df = self._preprocess_experiment_data(results)
         
         # 检查数据完整性
         if df.empty:
@@ -288,7 +300,6 @@ class PaperChartGenerator:
             raise ValueError("❌ 错误：未找到WASS-RAG实验数据，无法生成性能对比图")
         
         # 准备数据
-        df = pd.DataFrame(results['experiments'])
         cluster_sizes = sorted(df['cluster_size'].unique())
         workflow_sizes = sorted(df['workflow_size'].unique())
         
@@ -357,7 +368,8 @@ class PaperChartGenerator:
         """生成调度器能力雷达图"""
         print("📡 Generating scheduler capability radar chart...")
         
-        df = pd.DataFrame(results['experiments'])
+        # 预处理数据
+        df = self._preprocess_experiment_data(results)
         
         # 计算每个调度器的平均指标
         metrics = {}
@@ -382,8 +394,8 @@ class PaperChartGenerator:
             metrics[scheduler] = {
                 'Performance Improvement (%)': max(0, avg_improvement),
                 'CPU Utilization (%)': scheduler_data['cpu_utilization'].mean() * 100,
-                'Data Locality (%)': scheduler_data['data_locality'].mean() * 100,
-                'Decision Efficiency': (1 / scheduler_data['decision_time'].mean()) * 100  # 倒数，越大越好
+                'Data Locality (%)': scheduler_data['data_locality_score'].mean() * 100,
+                'Energy Efficiency': 100 - (scheduler_data['energy_consumption'].mean() / scheduler_data['energy_consumption'].max()) * 100 if scheduler_data['energy_consumption'].max() > 0 else 50
             }
         
         # 创建雷达图
@@ -430,7 +442,8 @@ class PaperChartGenerator:
         """生成结果稳定性箱形图"""
         print("📦 Generating stability box plot...")
         
-        df = pd.DataFrame(results['experiments'])
+        # 预处理数据
+        df = self._preprocess_experiment_data(results)
         
         # 选择最复杂的场景进行分析
         complex_scenario = df[
@@ -617,7 +630,8 @@ class PaperChartGenerator:
         """生成综合摘要图表"""
         print("📈 Generating combined summary chart...")
         
-        df = pd.DataFrame(results['experiments'])
+        # 预处理数据
+        df = self._preprocess_experiment_data(results)
         
         fig = plt.figure(figsize=(20, 12))
         
