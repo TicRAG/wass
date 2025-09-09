@@ -91,7 +91,23 @@ class PaperChartGenerator:
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
-                        results.update(data)
+                        
+                        # 处理不同的数据格式
+                        if isinstance(data, list):
+                            # 直接是实验结果列表（real_experiment_framework.py的输出）
+                            if 'experiments' not in results:
+                                results['experiments'] = []
+                            results['experiments'].extend(data)
+                        elif isinstance(data, dict):
+                            # 包装在字典中的数据
+                            if 'experiments' in data:
+                                if 'experiments' not in results:
+                                    results['experiments'] = []
+                                results['experiments'].extend(data['experiments'])
+                            else:
+                                # 其他格式，直接合并
+                                results.update(data)
+                        
                     loaded_files.append(file_path)
                     print(f"✅ Loaded real experimental data from: {file_path}")
                 except Exception as e:
@@ -135,19 +151,25 @@ class PaperChartGenerator:
    • 每个实验结果包含：scheduler, makespan, cpu_utilization 等字段
 
 📋 期望的数据格式示例：
+
+格式1: 实验结果列表 (real_experiment_framework.py 输出)
+[
+  {
+    "experiment_id": "exp_001",
+    "scheduling_method": "WASS-RAG", 
+    "workflow_spec": {"task_count": 49},
+    "cluster_size": 8,
+    "makespan": 125.3,
+    "cpu_utilization": 0.85,
+    "data_locality_score": 0.78,
+    "timestamp": "2025-09-09T10:30:00"
+  }
+]
+
+格式2: 包装格式
 {
-  "experiments": [
-    {
-      "experiment_id": "exp_001", 
-      "scheduling_method": "WASS-RAG",
-      "workflow_spec": {"task_count": 49},
-      "cluster_size": 8,
-      "makespan": 125.3,
-      "cpu_utilization": 0.85,
-      "data_locality_score": 0.78,
-      "timestamp": "2025-09-09T10:30:00"
-    }
-  ]
+  "experiments": [实验结果列表]
+}
 }
 
 💡 运行实验后，图表将基于真实数据生成，确保学术严谨性。

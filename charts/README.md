@@ -36,11 +36,14 @@ cd charts
 # 方法1: 完整图表生成
 python paper_charts.py
 
-# 方法2: 简化测试 (推荐)
-python simple_test.py
+# 方法2: 完整系统测试 (推荐)
+python test_complete_system.py
 
 # 方法3: 验证数据要求
 python verify_real_data.py
+
+# 方法4: 测试真实数据处理
+python test_real_charts.py
 ```
 
 ### 如果没有实验数据
