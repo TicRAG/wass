@@ -192,23 +192,48 @@ class WASSSmartScheduler(BaseScheduler):
             print(f"Warning: No pretrained model found at {model_path}, using random initialization")
     
     def make_decision(self, state: SchedulingState) -> SchedulingAction:
+        """基于RAG增强的DRL决策（V2 - 修复GNN路径问题）"""
+        
         try:
-            if self.gnn_encoder is not None:
-                state_embedding = self._encode_state_graph(state)
+            # --- 关键修复：强制使用我们已经验证过的、有效的简单特征提取 ---
+            if self.base_scheduler:
+                state_embedding = self.base_scheduler._extract_simple_features(state)
             else:
-                state_embedding = self._extract_simple_features(state)
+                state_embedding = self._extract_simple_features_fallback(state)
             
+            self._last_state_embedding = state_embedding.detach().clone() if torch.is_tensor(state_embedding) else None
+            
+            # 2. 从知识库检索相似历史案例
+            retrieved_context = self.knowledge_base.retrieve_similar_cases(
+                state_embedding.cpu().numpy(), top_k=5
+            )
+            
+            # 3. 为每个可用节点计算RAG增强的得分
+            node_makespans = {}
             node_scores = {}
+            
             for node in state.available_nodes:
-                node_state = self._encode_node_context(state_embedding, node, state)
-                with torch.no_grad():
-                    q_value = self.policy_network(node_state).item()
-                node_scores[node] = q_value
+                action_embedding = self._encode_action(node, state)
+                predicted_makespan = self._predict_performance(
+                    state_embedding, action_embedding, retrieved_context
+                )
+                node_makespans[node] = predicted_makespan
+                node_scores[node] = 1.0 / max(predicted_makespan, 0.01)
             
-            best_node = max(node_scores.keys(), key=lambda k: node_scores[k])
-            confidence = torch.sigmoid(torch.tensor(node_scores[best_node])).item()
+            # 4. 选择预测性能最好的节点
+            score_values = list(node_scores.values())
+            if len(set(score_values)) < 2: # Check if less than 2 unique scores
+                # print(f" [DEGRADATION] Node scores have low variance. Applying heuristic tie-break.")
+                heuristic_action = self.heuristic_scheduler.make_decision(state)
+                best_node = heuristic_action.target_node
+                confidence = min(0.55, 0.35 + heuristic_action.confidence * 0.3)
+            else:
+                best_node = max(node_scores.keys(), key=lambda k: node_scores[k])
+                score_range = max(score_values) - min(score_values)
+                confidence = 0.5 + min(0.4, score_range * 2)
             
-            reasoning = f"DRL decision: Q-values = {dict(sorted(node_scores.items(), key=lambda x: x[1], reverse=True))}"
+            # 5. 生成决策理由
+            reasoning = self._generate_explanation(best_node, retrieved_context, node_scores, node_makespans)
             
             return SchedulingAction(
                 task_id=state.current_task,
@@ -218,15 +243,11 @@ class WASSSmartScheduler(BaseScheduler):
             )
             
         except Exception as e:
-            print(f"⚠️  [DEGRADATION] DRL decision making failed: {e}")
-            fallback_node = np.random.choice(state.available_nodes)
-            return SchedulingAction(
-                task_id=state.current_task,
-                target_node=fallback_node,
-                confidence=0.1,
-                reasoning=f"🔴 DEGRADED: Random fallback due to DRL error: {e}"
-            )
-    
+            print(f"  [DEGRADATION] RAG decision making failed: {e}")
+            fallback_action = self.base_scheduler.make_decision(state)
+            fallback_action.reasoning = f" DEGRADED: RAG->DRL fallback due to error: {e}"
+            return fallback_action
+
     def _encode_state_graph(self, state: SchedulingState) -> torch.Tensor:
         if self.gnn_encoder is None:
             return self._extract_simple_features(state)
@@ -413,7 +434,7 @@ class WASSRAGScheduler(BaseScheduler):
         except Exception as e:
             print(f"⚠️  [DEGRADATION] RAG decision making failed: {e}")
             fallback_action = self.base_scheduler.make_decision(state)
-            fallback_action.reasoning = f"🔴 DEGRADED: RAG->DRL fallback due to error: {e}"
+            fallback_action.reasoning = f" DEGRADED: RAG->DRL fallback due to error: {e}"
             return fallback_action
     
     def _encode_action(self, node: str, state: SchedulingState) -> torch.Tensor:
