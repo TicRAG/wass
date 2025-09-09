@@ -249,8 +249,8 @@ class PaperChartGenerator:
         ax.set_xlabel('Cluster Size (nodes)', fontweight='bold')
         ax.set_ylabel('Workflow Size (tasks)', fontweight='bold')
         
-        # 优化布局
-        plt.tight_layout()
+        # 使用constrained_layout而不是tight_layout来避免colorbar冲突
+        plt.subplots_adjust()
         
         # 保存多种格式
         base_path = os.path.join(self.output_dir, 'heatmaps', 'performance_improvement_heatmap')
@@ -325,7 +325,8 @@ class PaperChartGenerator:
         # 图例
         plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.0), fontsize=12)
         
-        plt.tight_layout()
+        # 使用constrained_layout避免布局冲突
+        plt.subplots_adjust()
         output_path = os.path.join(self.output_dir, 'radar', 'scheduler_radar_chart.png')
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
@@ -375,7 +376,8 @@ class PaperChartGenerator:
         ax2.set_ylabel('CPU Utilization', fontsize=11, fontweight='bold')
         ax2.tick_params(axis='x', rotation=45)
         
-        plt.tight_layout()
+        # 使用constrained_layout避免布局冲突
+        plt.subplots_adjust()
         output_path = os.path.join(self.output_dir, 'boxplots', 'stability_analysis.png')
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
@@ -509,7 +511,7 @@ class PaperChartGenerator:
         fig.legend(legend_elements, type_colors.keys(), 
                   loc='upper center', bbox_to_anchor=(0.5, 0.95), ncol=3, fontsize=10)
         
-        plt.tight_layout()
+        # 避免布局冲突，直接调整边距
         plt.subplots_adjust(top=0.9)
         
         output_path = os.path.join(self.output_dir, 'gantt', 'scheduling_comparison.png')

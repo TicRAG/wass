@@ -26,7 +26,7 @@ def test_acm_compliance():
     generator = PaperChartGenerator()
     
     # 生成测试数据
-    test_data = generator.generate_synthetic_data()
+    test_data = generator._generate_synthetic_data()
     
     # 1. 测试热力图
     print("\n📊 Testing Heatmap...")
