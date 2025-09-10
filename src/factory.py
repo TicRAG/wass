@@ -1,106 +1,115 @@
-"""组件工厂：根据配置字符串创建对象 (占位).
+# src/factory.py
 
-依赖配置字段 (参见 configs_example.yaml)。
-"""
-from __future__ import annotations
-from typing import Dict, Any, List
+import logging
+from typing import Dict, List
 
-# 数据
-from .data.jsonl_adapter import JSONLAdapter
-# Labeling
-from .labeling.lf_base import build_lfs
-from .labeling.label_matrix import SimpleLabelMatrixBuilder
-# Label Model
-from .label_model.majority_vote import MajorityVote
-# Graph
-from .graph.graph_builder import CooccurrenceGraphBuilder
-from .graph.gnn_model import DummyGNN
-# RAG
-from .rag.retriever import SimpleBM25Retriever
-from .rag.fusion import ConcatFusion
-# DRL
-from .drl.env import ActiveLearningEnv
-from .drl.policy import RandomPolicy
+import torch
+import wrench.schedulers as schedulers  # <--- UPDATED IMPORT
+import wrench.workflows as w
+from wrench.platforms import Platform
 
-# 可选 Wrench wrapper (延迟导入)
-try:
-    from .label_model.wrench_wrapper import WrenchLabelModelWrapper  # type: ignore
-except Exception:  # noqa
-    WrenchLabelModelWrapper = None  # type: ignore
+from src.ai_schedulers import (WASSScheduler, WASSDRLScheduler,
+                               WASSRAGScheduler)
+from src.drl_agent import DQNAgent
+from src.performance_predictor import PerformancePredictor
+from src.utils import get_logger
 
+logger = get_logger(__name__, logging.INFO)
 
-def build_dataset(cfg: Dict[str, Any]):
-    a = cfg.get('adapter')
-    if a == 'simple_jsonl':
-        return JSONLAdapter(
-            data_dir=cfg.get('data_dir', 'data'),
-            train_file=cfg.get('train_file', 'train.jsonl'),
-            valid_file=cfg.get('valid_file', 'valid.jsonl'),
-            test_file=cfg.get('test_file', 'test.jsonl'),
-        )
-    raise ValueError(f"Unknown dataset adapter: {a}")
+class PlatformFactory:
+    """Factory to create simulation platforms."""
+    def __init__(self, config: Dict):
+        self.config = config
 
+    def get_platform(self) -> Platform:
+        """Builds and returns a WRENCH platform."""
+        platform = Platform(self.config['platform_file'])
+        return platform
 
-def build_label_functions(cfg: Dict[str, Any]):
-    lfs_cfg: List[Dict[str, Any]] = cfg.get('lfs', [])
-    return build_lfs(lfs_cfg)
+class WorkflowFactory:
+    """Factory to create workflows."""
+    def __init__(self, config: Dict):
+        self.config = config
 
+    def get_workflow(self) -> w.Workflow:
+        """Builds and returns a WRENCH workflow."""
+        workflow = w.Workflow(self.config['workflow_file'], self.config['input_size'])
+        return workflow
 
-def build_label_matrix_builder(_: Dict[str, Any]):
-    return SimpleLabelMatrixBuilder()
+class SchedulerFactory:
+    """Factory to create various schedulers."""
+    def __init__(self, config: Dict, node_names: List[str]):
+        self.config = config
+        self.node_names = node_names
+        self.platform = PlatformFactory(config['platform']).get_platform()
+        self.drl_agent = None
+        self.predictor = None
 
+    def _get_drl_agent(self) -> DQNAgent:
+        """Lazily loads and returns the DRL agent."""
+        if self.drl_agent is None:
+            drl_config = self.config['drl']
+            agent_config = drl_config['agent']
+            state_size = 3 + 3 * len(self.node_names)
+            action_size = len(self.node_names)
+            
+            self.drl_agent = DQNAgent(state_size, action_size, seed=agent_config.get('seed', 0))
+            self.drl_agent.load(drl_config['model_path'])
+            logger.info("Loaded trained DRL agent from %s", drl_config['model_path'])
+        return self.drl_agent
 
-def build_label_model(cfg: Dict[str, Any]):
-    t = cfg.get('type')
-    if t == 'majority_vote':
-        return MajorityVote()
-    if t == 'wrench':
-        if WrenchLabelModelWrapper is None:
-            raise ImportError('Wrench not available in this environment.')
-        model_name = cfg.get('model_name', 'MajorityVoting')
-        return WrenchLabelModelWrapper(model_name=model_name, params=cfg.get('params', {}))
-    raise ValueError(f"Unknown label model: {t}")
+    def _get_predictor(self) -> PerformancePredictor:
+        """Lazily loads and returns the performance predictor."""
+        if self.predictor is None:
+            predictor_config = self.config['predictor']
+            self.predictor = PerformancePredictor(
+                model_type=predictor_config.get('model_type', 'RandomForest'),
+                model_path=predictor_config['model_path']
+            )
+            logger.info("Loaded trained performance predictor from %s", predictor_config['model_path'])
+        return self.predictor
 
-
-def build_graph_builder(cfg: Dict[str, Any]):
-    t = cfg.get('builder')
-    if t == 'cooccurrence':
-        return CooccurrenceGraphBuilder(**cfg.get('params', {}))
-    raise ValueError(f"Unknown graph builder: {t}")
-
-
-def build_gnn(cfg: Dict[str, Any]):
-    model_type = cfg.get('gnn_model')
-    if model_type == 'gcn':  # 占位所有映射到 Dummy
-        return DummyGNN(**cfg.get('gnn_params', {}))
-    raise ValueError(f"Unknown gnn model: {model_type}")
-
-
-def build_retriever(cfg: Dict[str, Any]):
-    t = cfg.get('retriever')
-    if t == 'simple_bm25':
-        return SimpleBM25Retriever()
-    raise ValueError(f"Unknown retriever: {t}")
-
-
-def build_fusion(cfg: Dict[str, Any]):
-    t = cfg.get('fusion')
-    if t == 'concat':
-        return ConcatFusion()
-    raise ValueError(f"Unknown fusion: {t}")
-
-
-def build_drl_env(cfg: Dict[str, Any], unlabeled_pool):
-    env_name = cfg.get('env')
-    if env_name in ['active_learning_env', 'active_learning']:
-        return ActiveLearningEnv(unlabeled_pool)
-    raise ValueError(f"Unknown env: {env_name}")
+    def get_scheduler(self, name: str) -> WASSScheduler:
+        """Returns a scheduler instance based on its name."""
+        if name == "HEFT":
+            # The standard Wrench schedulers have a different API
+            # We wrap it for compatibility with our simulator
+            return HeuristicWrapper(schedulers.HeftScheduler(self.platform))
+        elif name == "FIFO":
+            return HeuristicWrapper(schedulers.FifoScheduler(self.platform))
+        elif name == "WASS (Heuristic)":
+            # Assuming FIFO is the heuristic for WASS
+            return HeuristicWrapper(schedulers.FifoScheduler(self.platform))
+        elif name == "WASS-DRL (w/o RAG)":
+            return WASSDRLScheduler(self._get_drl_agent(), self.node_names)
+        elif name == "WASS-RAG":
+            rag_scheduler = WASSRAGScheduler(self._get_drl_agent(), self.node_names, self._get_predictor())
+            # Here you would fit the scaler/vectorizer with data
+            # This part is simplified for now.
+            logger.info("Created WASS-RAG scheduler.")
+            return rag_scheduler
+        else:
+            raise ValueError(f"Unknown scheduler name: {name}")
 
 
-def build_drl_policy(cfg: Dict[str, Any]):
-    policy_name = cfg.get('policy')
-    if policy_name == 'dqn':  # 占位仍返回随机策略
-        return RandomPolicy()
-    if policy_name == 'random':
-        return RandomPolicy()
-    raise ValueError(f"Unknown policy: {policy_name}")
+class HeuristicWrapper(WASSScheduler):
+    """A wrapper to make standard Wrench schedulers compatible with our simulator."""
+    def __init__(self, heuristic_scheduler):
+        self.scheduler = heuristic_scheduler
+
+    def schedule(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> Dict:
+        # Standard schedulers decide for all ready tasks at once.
+        # Our simulator calls for one task at a time.
+        if not ready_tasks:
+            return {}
+        task_to_schedule = ready_tasks[0]
+        
+        # The standard scheduler returns a map of {node: [tasks]}
+        wrench_decision = self.scheduler.schedule([task_to_schedule])
+        
+        for node, tasks in wrench_decision.items():
+            if tasks and tasks[0] == task_to_schedule:
+                return {node.name: task_to_schedule}
+        
+        # Fallback if something goes wrong
+        return {}

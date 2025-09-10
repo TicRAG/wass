@@ -1,9 +1,11 @@
+# scripts/generate_kb_dataset.py
+
 import json
 import logging
 import sys
 from typing import Dict, List, Any
 
-import wrench.standard_schedulers as schedulers
+import wrench.schedulers as schedulers  # <--- UPDATED IMPORT
 import yaml
 
 # Add the project root to the Python path
@@ -11,10 +13,10 @@ sys.path.append('.')
 
 from src.factory import PlatformFactory, WorkflowFactory
 from src.utils import get_logger, extract_features_for_kb
-from wass_wrench_simulator import WassWrenchSimulator
+# Note: We use the standard Wrench Simulation for this script, not our custom one
+# because the standard schedulers are designed to work with it.
 
 logger = get_logger(__name__, logging.INFO)
-
 
 def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
     """
@@ -27,10 +29,9 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
     workflow_factory = WorkflowFactory(config['workflow'])
     workflow = workflow_factory.get_workflow()
 
-    # Schedulers to generate data from
     scheduler_classes = {
-        "HEFT": schedulers.HEFTScheduler,
-        "FIFO": schedulers.FIFOScheduler,
+        "HEFT": schedulers.HeftScheduler,
+        "FIFO": schedulers.FifoScheduler,
     }
 
     kb_entries = []
@@ -38,22 +39,17 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
     for name, scheduler_class in scheduler_classes.items():
         logger.info(f"Running simulation with {name} scheduler...")
 
-        # We need a special version of the scheduler that records decisions
         class RecordingScheduler(scheduler_class):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.decisions = []
 
             def schedule(self, ready_tasks, simulation_platform=None):
-                # The standard schedulers have a different signature
-                # We adapt it here. The WassWrenchSimulator is not passed to them.
                 original_decision = super().schedule(ready_tasks, platform)
                 
-                # We need to map the Wrench decision format to our simplified format
                 simple_decision = {}
                 for node, task_list in original_decision.items():
                     if task_list:
-                        # Assuming one task per decision for simplicity in KB
                         simple_decision[node.name] = task_list[0] 
                 
                 if simple_decision:
@@ -61,19 +57,14 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
                 
                 return original_decision
 
-        scheduler_instance = RecordingScheduler(platform=platform, execution_time_estimator=None)
+        scheduler_instance = RecordingScheduler(platform=platform)
         
-        # Standard Wrench simulation for standard schedulers
-        simulation = schedulers.WrenchSimulation(scheduler_instance, platform, workflow)
+        simulation = schedulers.Simulation(scheduler_instance, platform, workflow)
         simulation.run()
         final_makespan = simulation.time
 
         logger.info(f"Finished simulation with {name}. Makespan: {final_makespan:.2f}")
 
-        # Post-process decisions to create KB entries
-        # This part is tricky because we need to reconstruct the state at each decision point.
-        # For simplicity, we'll extract features based on the final state, which is an approximation.
-        # A more accurate implementation would snapshot the state at each schedule() call.
         for decision in scheduler_instance.decisions:
             node_id = list(decision.keys())[0]
             task = list(decision.values())[0]
@@ -87,7 +78,6 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
 
     logger.info(f"Generated {len(kb_entries)} entries for the knowledge base.")
     return kb_entries
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

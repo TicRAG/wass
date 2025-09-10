@@ -1,27 +1,26 @@
+# scripts/train_drl_agent.py
+
 import heapq
 import logging
 import sys
 from typing import Dict, Tuple, Optional
 
-import gymnasium as gym  # <--- UPDATED IMPORT
+import gymnasium as gym
 import numpy as np
-import wrench.standard_schedulers as schedulers
+import wrench.schedulers as schedulers  # <--- UPDATED IMPORT
 import yaml
-from gymnasium import spaces  # <--- UPDATED IMPORT
+from gymnasium import spaces
 from wrench.events import EventType
 
-# Add the project root to the Python path
 sys.path.append('.')
 
-# This will now work because we created the file in Step 1
 from src.ai_schedulers import WASSDRLScheduler
 from src.drl_agent import DQNAgent, SchedulingState, SchedulingAction
-from src.factory import PlatformFactory, WorkflowFactory, SchedulerFactory
+from src.factory import PlatformFactory, WorkflowFactory
 from src.utils import get_logger
 from wass_wrench_simulator import WassWrenchSimulator
 
 logger = get_logger(__name__, logging.INFO)
-
 
 class WassEnv(gym.Env):
     """A Gym environment for training a WASS DRL agent."""
@@ -30,22 +29,19 @@ class WassEnv(gym.Env):
         super().__init__()
         self.config = config
         
-        # Factories
         self.platform_factory = PlatformFactory(config['platform'])
         self.platform = self.platform_factory.get_platform()
         self.node_names = list(self.platform.get_nodes().keys())
         
         self.workflow_factory = WorkflowFactory(config['workflow'])
         
-        # Action and observation space
         self.num_nodes = len(self.node_names)
         self.action_space = spaces.Discrete(self.num_nodes)
         
         state_size = 3 + 3 * self.num_nodes
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(state_size,), dtype=np.float32)
 
-        # Baseline scheduler for reward calculation
-        self.baseline_scheduler = schedulers.HEFTScheduler(platform=self.platform, execution_time_estimator=None)
+        self.baseline_scheduler = schedulers.HeftScheduler(platform=self.platform)
         self.baseline_makespan = self._get_baseline_makespan()
         
         self.simulator: Optional[WassWrenchSimulator] = None
@@ -54,23 +50,21 @@ class WassEnv(gym.Env):
     def _get_baseline_makespan(self) -> float:
         """Run a simulation with HEFT to get a reference makespan."""
         logger.info("Calculating baseline makespan with HEFT...")
-        workflow = self.workflow_factory.get_workflow() # Get a fresh workflow
-        heft_sim = schedulers.WrenchSimulation(self.baseline_scheduler, self.platform, workflow)
+        workflow = self.workflow_factory.get_workflow()
+        heft_sim = schedulers.Simulation(self.baseline_scheduler, self.platform, workflow)
         heft_sim.run()
         logger.info(f"Baseline HEFT makespan: {heft_sim.time:.2f}")
         return heft_sim.time
 
     def reset(self, *, seed=None, options=None) -> Tuple[np.ndarray, dict]:
-        """Resets the environment to an initial state."""
         super().reset(seed=seed)
         
-        workflow = self.workflow_factory.get_workflow() # Get a fresh workflow for the new episode
+        workflow = self.workflow_factory.get_workflow()
         self.drl_scheduler_in_training = DRLSchedulerForEnv(self.node_names)
         self.simulator = WassWrenchSimulator(self.drl_scheduler_in_training, self.platform, workflow)
         self.simulator._initialize_simulation()
         
         if not self.simulator.event_queue:
-            # Handle case where workflow has no tasks
             return np.zeros(self.observation_space.shape, dtype=np.float32), {}
 
         first_event = self.simulator.event_queue[0]
@@ -82,28 +76,24 @@ class WassEnv(gym.Env):
         return state.vector, {}
 
     def step(self, action: SchedulingAction) -> Tuple[np.ndarray, float, bool, bool, Dict]:
-        """Execute one time step within the environment."""
         chosen_node_name = self.node_names[action]
         self.drl_scheduler_in_training.set_next_action(chosen_node_name)
         
-        # Process the TASK_READY event that we are waiting for
         ready_event = heapq.heappop(self.simulator.event_queue)
         self.simulator._handle_task_ready(ready_event.time, ready_event.event_data)
 
-        # Run the simulation until the next scheduling decision is needed or it ends
         next_state_vec = np.zeros(self.observation_space.shape, dtype=np.float32)
         done = False
         
         while self.simulator.event_queue:
-            event = self.simulator.event_queue[0] # Peek at the next event
+            event = self.simulator.event_queue[0]
             if event.event_type == EventType.TASK_READY:
-                # This is the next decision point
                 next_task = event.event_data
                 self.drl_scheduler_in_training.set_next_task(next_task)
                 next_state = self.drl_scheduler_in_training._extract_features(next_task, self.simulator)
                 next_state_vec = next_state.vector
-                break # Exit the loop to wait for the next action
-            else: # It must be a TASK_FINISH event
+                break
+            else:
                 event = heapq.heappop(self.simulator.event_queue)
                 self.simulator._handle_task_finish(event.time, event.event_data)
         
@@ -116,7 +106,6 @@ class WassEnv(gym.Env):
         return next_state_vec, reward, done, False, {}
 
 class DRLSchedulerForEnv(WASSDRLScheduler):
-    """A special scheduler for the Gym env that pauses to get actions."""
     def __init__(self, node_names: List[str]):
         super().__init__(drl_agent=None, node_names=node_names)
         self.current_task: Optional[w.Task] = None
