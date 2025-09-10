@@ -110,21 +110,24 @@ class WassExperimentRunner:
     def _generate_scenario(self, task_count: int, cluster_size: int, seed: int):
         """生成一个固定的工作流和集群场景"""
         np.random.seed(seed * 1000 + task_count + cluster_size) # 确保可复现
-        
+
+        # --- FIX: Added 'current_load' to match the data structure used in training ---
         cluster = {f"node_{j}": {
             "cpu_capacity": round(np.random.uniform(2.0, 8.0), 2),
             "memory_capacity": round(np.random.uniform(8.0, 64.0), 2),
+            "current_load": round(np.random.uniform(0.1, 0.9), 2) # This was the missing piece
         } for j in range(cluster_size)}
 
         tasks = []
         for i in range(task_count):
             task = {"id": f"task_{i}", "flops": float(np.random.uniform(1e9, 20e9)), "memory": round(np.random.uniform(1.0, 8.0), 2), "dependencies": []}
             tasks.append(task)
-        
+
         for i in range(1, task_count):
             dep_candidate = np.random.randint(0, i)
             if f"task_{dep_candidate}" not in tasks[i]["dependencies"]:
                 tasks[i]["dependencies"].append(f"task_{dep_candidate}")
+            # Increase dependency density slightly for more complex graphs
             for j in range(i):
                 if np.random.rand() < 0.2 and f"task_{j}" not in tasks[i]["dependencies"]:
                      tasks[i]["dependencies"].append(f"task_{j}")
