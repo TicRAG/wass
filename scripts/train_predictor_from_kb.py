@@ -1,6 +1,6 @@
-#!/usr/-bin/env python3
+#!/usr/bin/env python3
 """
-WASS-RAG 阶段二：性能预测器训练脚本 (API修正版)
+WASS-RAG 阶段二：性能预测器训练脚本 (最终API修正版)
 
 该脚本加载由 `generate_kb_dataset.py` 生成的高质量数据集，
 并使用这些数据来训练 Performance Predictor 模型。
@@ -75,11 +75,7 @@ def train_predictor(training_data: List[Dict[str, Any]], epochs: int = 100, batc
     model = PerformancePredictor(input_dim=X.shape[1], hidden_dim=128).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
-    
-    # --- API 修正处 ---
-    # 移除了在新版 PyTorch 中不再支持的 `verbose` 参数
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, factor=0.5)
-    # --- 修正结束 ---
     
     # 3. 训练循环
     best_loss = float('inf')
@@ -129,11 +125,14 @@ def save_model(model: PerformancePredictor, y_mean: float, y_std: float, metrics
     print(f"\n💾 Saving trained model and metadata to {model_path}...")
     
     try:
-        checkpoint = torch.load(model_path, map_location="cpu")
+        # --- API 修正处 ---
+        # 添加 weights_only=False 以允许加载包含元数据的完整 checkpoint 文件
+        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+        # --- 修正结束 ---
         print("   Found existing model file. Updating Performance Predictor weights.")
-    except FileNotFoundError:
+    except (FileNotFoundError, EOFError): # Also handle empty/corrupt files
         checkpoint = {}
-        print("   No existing model file found. Creating a new checkpoint.")
+        print("   No existing model file found or file is invalid. Creating a new checkpoint.")
 
     checkpoint["performance_predictor"] = model.state_dict()
     
