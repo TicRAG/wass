@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WASS-RAG 阶段一：知识库播种脚本
+WASS-RAG 阶段一：知识库播种脚本 (最终修正版)
 
 该脚本利用修复后的离散事件仿真器，运行大量高质量的基准调度算法（如 HEFT），
 并将详细的仿真过程数据记录下来，为后续的 Performance Predictor 和 DRL Agent 训练
@@ -21,7 +21,10 @@ import copy
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, str(parent_dir))
-sys.path.insert(0, str(parent_dir / 'src'))
+# --- 语法修正处 ---
+# 使用 os.path.join() 来正确拼接路径字符串，避免 TypeError
+sys.path.insert(0, os.path.join(parent_dir, 'src'))
+# --- 修正结束 ---
 
 # 导入仿真器和调度器
 from experiments.real_experiment_framework import WassExperimentRunner, ExperimentConfig
@@ -87,10 +90,11 @@ class KnowledgeSeedingFramework(WassExperimentRunner):
         pending_tasks_set = {task['id'] for task in workflow['tasks']}
         
         while pending_tasks_set:
-            ready_tasks = [
-                task for task_id in sorted(list(pending_tasks_set))
-                if all(dep in task_finish_time for dep in (task := next(t for t in workflow['tasks'] if t['id'] == task_id))['dependencies'])
-            ]
+            ready_tasks = []
+            for task_id in sorted(list(pending_tasks_set)):
+                task = next(t for t in workflow['tasks'] if t['id'] == task_id)
+                if all(dep in task_finish_time for dep in task.get('dependencies', [])):
+                    ready_tasks.append(task)
 
             if not ready_tasks:
                 if not pending_tasks_set: break
@@ -104,7 +108,7 @@ class KnowledgeSeedingFramework(WassExperimentRunner):
 
             earliest_start_times = {}
             for node in cluster:
-                data_ready_time = max([task_finish_time.get(dep, 0) + (0.1 if task_placements.get(dep) != node else 0) for dep in task_to_schedule['dependencies']], default=0)
+                data_ready_time = max([task_finish_time.get(dep, 0) + (0.1 if task_placements.get(dep) != node else 0) for dep in task_to_schedule.get('dependencies', [])], default=0)
                 earliest_start_times[node] = max(node_available_time[node], data_ready_time)
 
             state = SchedulingState(
@@ -116,17 +120,13 @@ class KnowledgeSeedingFramework(WassExperimentRunner):
                 timestamp=current_sim_time
             )
             
-            # HEFT 做出决策
             decision = scheduler.make_decision(state)
             chosen_node = decision.target_node
             
-            # --- 关键：捕获决策瞬间的状态和动作特征 ---
             state_features = self.feature_encoder._extract_simple_features_fallback(state).cpu().numpy().tolist()
             action_features = self.feature_encoder._encode_action(chosen_node, state).cpu().numpy().tolist()
-            # 在这个阶段，我们还没有RAG上下文
             context_features = np.zeros(32).tolist()
 
-            # 更新仿真状态
             task_flops = task_to_schedule['flops']
             node_cpu_gflops = cluster[chosen_node]['cpu_capacity']
             exec_time = task_flops / (node_cpu_gflops * 1e9)
@@ -138,7 +138,6 @@ class KnowledgeSeedingFramework(WassExperimentRunner):
             node_available_time[chosen_node] = finish_time
             pending_tasks_set.remove(current_task_id)
 
-            # 记录这次决策
             decision_records.append({
                 "state_features": state_features,
                 "action_features": action_features,
@@ -146,11 +145,9 @@ class KnowledgeSeedingFramework(WassExperimentRunner):
                 "achieved_finish_time": finish_time
             })
 
-        # 整个工作流完成后，计算最终 makespan
         final_makespan = max(task_finish_time.values()) if task_finish_time else 0
         print(f"  Simulation complete. Final Makespan: {final_makespan:.2f}s")
 
-        # 将最终 makespan 回填到每一条记录中，并存入主数据集
         for record in decision_records:
             self.training_dataset.append(TrainingSample(
                 state_features=record['state_features'],
@@ -175,14 +172,15 @@ class KnowledgeSeedingFramework(WassExperimentRunner):
 
 def main():
     """主函数"""
-    # 配置生成的数据量
     config = ExperimentConfig(
         name="Knowledge Base Seeding",
-        workflow_sizes=[50, 100, 150], # 使用更大、更复杂的工作流
-        scheduling_methods=["HEFT"],  # 只使用HEFT
+        workflow_sizes=[50, 100, 150],
+        scheduling_methods=["HEFT"],
         cluster_sizes=[8, 16, 32],
-        repetitions=10, # 更多的重复次数以产生丰富的数据
-        output_dir="temp_kb_seeding_results" # 临时目录，我们不关心这里的最终性能
+        repetitions=10,
+        output_dir="temp_kb_seeding_results",
+        ai_model_path="",
+        knowledge_base_path=""
     )
     
     seeder = KnowledgeSeedingFramework(config)
