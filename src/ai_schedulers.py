@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-WASS-RAG AI调度器核心实现 (最终修复版)
-包含所有AI调度方法：WASS (Heuristic), WASS-DRL (w/o RAG), WASS-RAG
+WASS-RAG AI调度器核心实现 (V5 - 时序感知修复版)
+包含所有AI调度方法，并增强了特征工程，以充分利用离散事件仿真框架提供的动态时序信息。
 """
 
 import torch
@@ -45,64 +45,49 @@ class SchedulingAction:
 
 class BaseScheduler:
     """基础调度器抽象类"""
-
     def __init__(self, name: str):
         self.name = name
-
     def make_decision(self, state: SchedulingState) -> SchedulingAction:
-        """做出调度决策"""
         raise NotImplementedError
-
     def reset(self):
-        """重置调度器状态"""
         pass
 
 class WASSHeuristicScheduler(BaseScheduler):
-    """WASS启发式调度器 - 基于多数票和数据局部性的规则"""
-
+    """WASS启发式调度器 - 简单的规则基调度器"""
     def __init__(self):
         super().__init__("WASS (Heuristic)")
 
     def make_decision(self, state: SchedulingState) -> SchedulingAction:
-        """基于启发式规则的调度决策"""
-
+        """
+        基于最早完成时间（Earliest Finish Time, EFT）的启发式决策。
+        这是比之前更健壮和经典的启发式方法。
+        """
         task_id = state.current_task
-        available_nodes = state.available_nodes
-
-        if not available_nodes:
-            raise ValueError("No available nodes for scheduling")
-
         task_info = self._get_task_info(state.workflow_graph, task_id)
-        data_locality_scores = self._calculate_data_locality_scores(
-            task_info, available_nodes, state.cluster_state
-        )
-        resource_match_scores = self._calculate_resource_match_scores(
-            task_info, available_nodes, state.cluster_state
-        )
-        load_balance_scores = self._calculate_load_balance_scores(
-            available_nodes, state.cluster_state
-        )
+        
+        best_node = None
+        earliest_finish_time = float('inf')
 
-        final_scores = {}
-        for node in available_nodes:
-            final_scores[node] = (
-                0.4 * data_locality_scores.get(node, 0) +
-                0.3 * resource_match_scores.get(node, 0) +
-                0.3 * load_balance_scores.get(node, 0)
-            )
-
-        best_node = max(final_scores.keys(), key=lambda k: final_scores[k])
-        confidence = final_scores[best_node]
-
-        reasoning = f"Heuristic decision: data_locality={data_locality_scores.get(best_node, 0):.2f}, " \
-                   f"resource_match={resource_match_scores.get(best_node, 0):.2f}, " \
-                   f"load_balance={load_balance_scores.get(best_node, 0):.2f}"
+        for node in state.available_nodes:
+            est = state.cluster_state['earliest_start_times'].get(node, 0)
+            node_info = state.cluster_state.get("nodes", {}).get(node, {})
+            node_cpu_gflops = node_info.get("cpu_capacity", 1.0)
+            
+            exec_time = task_info.get("flops", 1e9) / (node_cpu_gflops * 1e9)
+            finish_time = est + exec_time
+            
+            if finish_time < earliest_finish_time:
+                earliest_finish_time = finish_time
+                best_node = node
+        
+        if best_node is None:
+            best_node = state.available_nodes[0]
 
         return SchedulingAction(
             task_id=task_id,
             target_node=best_node,
-            confidence=confidence,
-            reasoning=reasoning
+            confidence=0.9, # Heuristic is always confident
+            reasoning=f"Heuristic chose {best_node} with EFT: {earliest_finish_time:.2f}s"
         )
 
     def _get_task_info(self, workflow_graph: Dict[str, Any], task_id: str) -> Dict[str, Any]:
@@ -110,68 +95,24 @@ class WASSHeuristicScheduler(BaseScheduler):
         for task in tasks:
             if isinstance(task, dict) and task.get("id") == task_id:
                 return task
-        # Fallback for simple structures
-        return workflow_graph.get("task_requirements", {}).get(task_id, {
-            "flops": 2e9, "memory": 4.0, "dependencies": []
-        })
+        return {"flops": 2e9, "memory": 4.0, "dependencies": []}
 
-    def _calculate_data_locality_scores(self, task_info: Dict[str, Any],
-                                      available_nodes: List[str],
-                                      cluster_state: Dict[str, Any]) -> Dict[str, float]:
-        scores = {node: 0.5 for node in available_nodes}
-        return scores
-
-    def _calculate_resource_match_scores(self, task_info: Dict[str, Any],
-                                       available_nodes: List[str],
-                                       cluster_state: Dict[str, Any]) -> Dict[str, float]:
-        scores = {}
-        task_cpu_req = task_info.get("flops", 2e9)
-        task_memory_req = task_info.get("memory", 4.0)
-
-        for node in available_nodes:
-            node_info = cluster_state.get("nodes", {}).get(node, {})
-            node_cpu_capacity = node_info.get("cpu_capacity", 2.0) * 1e9 # Assume Gf to f
-            node_memory_capacity = node_info.get("memory_capacity", 16.0)
-
-            cpu_utilization = float(task_cpu_req) / float(node_cpu_capacity)
-            memory_utilization = float(task_memory_req) / float(node_memory_capacity)
-
-            cpu_score = max(0.0, 1.0 - abs(cpu_utilization - 0.7))
-            memory_score = max(0.0, 1.0 - abs(memory_utilization - 0.7))
-            scores[node] = (cpu_score + memory_score) / 2.0
-        return scores
-
-    def _calculate_load_balance_scores(self, available_nodes: List[str],
-                                     cluster_state: Dict[str, Any]) -> Dict[str, float]:
-        scores = {}
-        node_loads = [cluster_state.get("nodes", {}).get(n, {}).get("current_load", 0.5) for n in available_nodes]
-        avg_load = sum(node_loads) / len(node_loads) if node_loads else 0.5
-
-        for node in available_nodes:
-            node_load = cluster_state.get("nodes", {}).get(node, {}).get("current_load", 0.5)
-            scores[node] = 1.0 - abs(node_load - avg_load)
-        return scores
 
 class WASSSmartScheduler(BaseScheduler):
     """WASS-DRL智能调度器 (w/o RAG) - 标准DRL方法"""
-
     def __init__(self, model_path: Optional[str] = None):
         super().__init__("WASS-DRL (w/o RAG)")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.heuristic_scheduler = WASSHeuristicScheduler()
-        self.temp_rag_scheduler = WASSRAGScheduler()  # Create a single instance
+        # 创建一个临时的 RAG 调度器实例，仅用于借用其强大的特征编码器
+        self.temp_rag_scheduler = WASSRAGScheduler() 
 
         if HAS_TORCH_GEOMETRIC:
-            self.gnn_encoder = GraphEncoder(
-                node_feature_dim=8, edge_feature_dim=4,
-                hidden_dim=64, output_dim=32
-            ).to(self.device)
+            self.gnn_encoder = GraphEncoder(node_feature_dim=8, edge_feature_dim=4, hidden_dim=64, output_dim=32).to(self.device)
         else:
             self.gnn_encoder = None
 
-        self.policy_network = PolicyNetwork(
-            state_dim=32 + 32, hidden_dim=128 # state_dim + action_dim
-        ).to(self.device)
+        self.policy_network = PolicyNetwork(state_dim=32 + 32, hidden_dim=128).to(self.device)
 
         if model_path and Path(model_path).exists():
             self.load_model(model_path)
@@ -179,20 +120,19 @@ class WASSSmartScheduler(BaseScheduler):
             print(f"Warning: No pretrained model found at {model_path}, using random initialization")
 
     def make_decision(self, state: SchedulingState) -> SchedulingAction:
-        """[已修正] 基于DRL的调度决策 (WASS-DRL)"""
+        """基于DRL的调度决策 (WASS-DRL)"""
         try:
             state_embedding = self._encode_state_graph(state)
             node_scores = {}
             with torch.no_grad():
                 for node in state.available_nodes:
-                    # 使用与 WASS-RAG 相同的强大特征编码器，以确保公平比较
+                    # 为了公平比较，DRL调度器使用与RAG相同的、增强后的特征编码器
                     action_embedding = self._encode_action_for_drl(node, state)
                     combined_embedding = torch.cat([state_embedding.flatten(), action_embedding.flatten()])
                     score = self.policy_network(combined_embedding).item()
                     node_scores[node] = score
 
-            if not node_scores:
-                 raise ValueError("No nodes available for scoring.")
+            if not node_scores: raise ValueError("No nodes available for scoring.")
 
             best_node = max(node_scores, key=node_scores.get)
             confidence = torch.sigmoid(torch.tensor(node_scores[best_node])).item()
@@ -209,29 +149,14 @@ class WASSSmartScheduler(BaseScheduler):
         if self.gnn_encoder:
             graph_data = self._build_graph_data(state)
             if graph_data:
-                with torch.no_grad():
-                    return self.gnn_encoder(graph_data)
-        return self._extract_simple_features(state)
-
-    def _extract_simple_features(self, state: SchedulingState) -> torch.Tensor:
-        tasks = state.workflow_graph.get('tasks', [])
-        task_count = len(tasks)
-        total_flops = sum(t.get('flops', 1e9) for t in tasks if isinstance(t, dict))
-        avg_flops = total_flops / max(1, task_count)
-        features = [task_count / 100.0, avg_flops / 10e9, len(state.pending_tasks) / max(1, task_count)]
-        nodes = state.cluster_state.get('nodes', {})
-        features.extend([len(nodes) / 20.0, np.mean([n.get('cpu_capacity', 4) for n in nodes.values()]) / 10.0])
-        while len(features) < 32:
-            features.append(0.0)
-        return torch.tensor(features[:32], dtype=torch.float32, device=self.device)
+                with torch.no_grad(): return self.gnn_encoder(graph_data)
+        return self.temp_rag_scheduler._extract_simple_features_fallback(state)
 
     def _encode_action_for_drl(self, node: str, state: SchedulingState) -> torch.Tensor:
-        # For a fair comparison, DRL should use the same rich features as RAG
+        # 为了公平比较，DRL 使用与 RAG 相同的、强大的时序感知特征编码器
         return self.temp_rag_scheduler._encode_action(node, state)
 
-
-    def _build_graph_data(self, state: SchedulingState):
-        # Implementation for building graph data for GNN (unchanged)
+    def _build_graph_data(self, state: SchedulingState) -> Optional[Data]:
         if not HAS_TORCH_GEOMETRIC: return None
         try:
             tasks = {t['id']: t for t in state.workflow_graph['tasks']}
@@ -265,11 +190,10 @@ class WASSSmartScheduler(BaseScheduler):
 
     def load_model(self, model_path: str):
         try:
-            # *** FIX: Set weights_only=False to load the entire checkpoint ***
             checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
-            if self.gnn_encoder: self.gnn_encoder.load_state_dict(checkpoint.get("gnn_encoder", {}), strict=False)
-            self.policy_network.load_state_dict(checkpoint.get("policy_network", {}), strict=False)
-            print(f"Successfully loaded model from {model_path}")
+            if self.gnn_encoder and "gnn_encoder" in checkpoint: self.gnn_encoder.load_state_dict(checkpoint["gnn_encoder"], strict=False)
+            if "policy_network" in checkpoint: self.policy_network.load_state_dict(checkpoint["policy_network"], strict=False)
+            print(f"Successfully loaded model for DRL from {model_path}")
         except Exception as e:
             print(f"Failed to load model from {model_path}: {e}")
 
@@ -282,9 +206,12 @@ class WASSRAGScheduler(BaseScheduler):
         self.heuristic_scheduler = WASSHeuristicScheduler()
         self.knowledge_base = RAGKnowledgeBase(knowledge_base_path)
         self.performance_predictor = PerformancePredictor(input_dim=96, hidden_dim=128).to(self.device)
-        self._y_mean = 0.0  # Initialize normalization parameters
+        self._y_mean = 0.0
         self._y_std = 1.0
-        if model_path: self._load_performance_predictor(model_path)
+        if model_path and Path(model_path).exists():
+            self._load_performance_predictor(model_path)
+        else:
+            print(f"Warning: No performance predictor model found at {model_path}, using random initialization.")
 
     def make_decision(self, state: SchedulingState) -> SchedulingAction:
         try:
@@ -298,76 +225,66 @@ class WASSRAGScheduler(BaseScheduler):
                 node_makespans[node] = predicted_makespan
 
             if not node_makespans: raise ValueError("No nodes to schedule to.")
-
-            # Check for degradation
-            if len(set(f"{v:.3f}" for v in node_makespans.values())) == 1:
-                print(f"⚠️ [DEGRADATION] All node scores identical ({list(node_makespans.values())[0]:.3f}). Applying heuristic tie-break.")
+            
+            unique_values = set(round(v, 3) for v in node_makespans.values())
+            if len(unique_values) == 1:
+                print(f"⚠️ [DEGRADATION] All predicted makespans are identical ({list(unique_values)[0]:.3f}). Applying heuristic tie-break.")
                 return self.heuristic_scheduler.make_decision(state)
 
             best_node = min(node_makespans, key=node_makespans.get)
             best_makespan = node_makespans[best_node]
             makespan_values = list(node_makespans.values())
-            confidence = 1.0 - (best_makespan / (sum(makespan_values) / len(makespan_values))) if len(makespan_values) > 1 else 0.8
+            confidence = 1.0 - (best_makespan / np.mean(makespan_values)) if len(makespan_values) > 1 and np.mean(makespan_values) > 0 else 0.8
 
             reasoning = self._generate_explanation(best_node, retrieved_context, node_makespans)
             return SchedulingAction(task_id=state.current_task, target_node=best_node, confidence=confidence, reasoning=reasoning)
 
         except Exception as e:
-            print(f"⚠️  [DEGRADATION] RAG decision making failed: {e}. Falling back to heuristic.")
+            import traceback
+            print(f"⚠️  [DEGRADATION] RAG decision making failed: {e}\n{traceback.format_exc()}. Falling back to heuristic.")
             fallback_action = self.heuristic_scheduler.make_decision(state)
             fallback_action.reasoning = f"DEGRADED: RAG->Heuristic fallback due to error: {e}"
             return fallback_action
 
     def _encode_action(self, node: str, state: SchedulingState) -> torch.Tensor:
-        """[FINAL v3] Generates highly discriminative features for a node-task pairing."""
+        """
+        --- 核心修改：V4 时序感知特征编码器 ---
+        该函数现在完全利用了离散事件仿真器提供的动态时序信息。
+        """
         node_info = state.cluster_state.get("nodes", {}).get(node, {})
         task_info = self.heuristic_scheduler._get_task_info(state.workflow_graph, state.current_task)
-
-        # Task features
-        task_cpu_req = task_info.get("flops", 2e9) / 1e9  # G-flops
-        task_mem_req = task_info.get("memory", 4.0)
         
-        # Node features
+        task_cpu_req = task_info.get("flops", 2e9) / 1e9
+        task_mem_req = task_info.get("memory", 4.0)
         node_cpu_cap = node_info.get("cpu_capacity", 2.0)
         node_mem_cap = node_info.get("memory_capacity", 16.0)
-        current_load = node_info.get("current_load", 0.5)
 
-        # Interaction features
-        available_cpu = node_cpu_cap * (1.0 - current_load)
-        available_mem = node_mem_cap # Assuming memory isn't consumed until task starts
-        cpu_surplus = available_cpu - task_cpu_req
-        mem_surplus = available_mem - task_mem_req
+        est = state.cluster_state.get('earliest_start_times', {}).get(node, state.timestamp)
+        waiting_time = max(0, est - state.timestamp)
         
-        # Ratios and pressures
-        cpu_to_mem_ratio_task = task_cpu_req / max(1.0, task_mem_req)
-        cpu_to_mem_ratio_node = available_cpu / max(1.0, available_mem)
-        ratio_mismatch = abs(cpu_to_mem_ratio_task - cpu_to_mem_ratio_node)
+        initial_load = node_info.get("current_load", 0.5)
+        available_cpu = node_cpu_cap * (1.0 - initial_load)
         
-        cpu_pressure = task_cpu_req / max(1e-6, available_cpu)
-        mem_pressure = task_mem_req / max(1e-6, available_mem)
-        
-        # Estimated execution time on this node
         est_exec_time = task_cpu_req / max(1e-6, available_cpu)
+        est_finish_time = est + est_exec_time
         
-        # Data locality (simple dynamic version)
+        cpu_pressure = task_cpu_req / max(1e-6, node_cpu_cap)
+        mem_pressure = task_mem_req / max(1e-6, node_mem_cap)
+        
+        all_est = state.cluster_state.get('earliest_start_times', {}).values()
+        avg_cluster_finish_time = np.mean(list(all_est)) if all_est else state.timestamp
+        finish_time_vs_avg = est_finish_time - avg_cluster_finish_time
+        
         dependencies = task_info.get("dependencies", [])
         data_locality_score = ((hash(node) + hash(state.current_task) + len(dependencies)) % 100) / 100.0
 
-        # Cluster-wide context
-        all_loads = [n.get("current_load", 0.5) for n in state.cluster_state.get("nodes", {}).values()]
-        avg_cluster_load = np.mean(all_loads) if all_loads else 0.5
-        load_vs_avg = current_load - avg_cluster_load
-
         features = [
-            # Node specific
-            node_cpu_cap / 10.0, node_mem_cap / 64.0, current_load, available_cpu / 10.0,
-            # Task specific
-            task_cpu_req / 20.0, task_mem_req / 16.0, len(dependencies) / 10.0,
-            # Interaction
-            cpu_surplus / 10.0, mem_surplus / 64.0, ratio_mismatch,
-            min(1.0, cpu_pressure), min(1.0, mem_pressure), est_exec_time / 10.0,
-            # Contextual
-            data_locality_score, load_vs_avg
+            node_cpu_cap / 10.0, node_mem_cap / 64.0,
+            task_cpu_req / 20.0, task_mem_req / 16.0,
+            cpu_pressure, mem_pressure,
+            waiting_time / 10.0, est_exec_time / 100.0,
+            est_finish_time / 200.0, finish_time_vs_avg / 50.0,
+            data_locality_score, float(len(dependencies)),
         ]
         
         while len(features) < 32: features.append(0.0)
@@ -376,38 +293,30 @@ class WASSRAGScheduler(BaseScheduler):
     def _predict_performance(self, state_embedding: torch.Tensor,
                            action_embedding: torch.Tensor,
                            context: Dict[str, Any]) -> float:
-        """[FINAL v2] Predicts makespan with a robust, simplified logic."""
         context_embedding = self._encode_context(context)
-
-        def pad_to_32(tensor):
-            t = tensor.flatten()
-            if len(t) < 32: return F.pad(t, (0, 32 - len(t)))
-            return t[:32]
-
-        combined_features = torch.cat([pad_to_32(state_embedding), pad_to_32(action_embedding), pad_to_32(context_embedding)])
+        
+        combined_features = torch.cat([
+            state_embedding.flatten(), action_embedding.flatten(), context_embedding.flatten()
+        ])
 
         if torch.isnan(combined_features).any() or torch.isinf(combined_features).any():
             print("⚠️ [FEATURE] Invalid features detected, using fallback prediction")
             return 10.0
 
         with torch.no_grad():
-            predicted_makespan_normalized = self.performance_predictor(combined_features).item()
-            # *** FIX: Use the loaded normalization parameters ***
+            predicted_value_normalized = self.performance_predictor(combined_features).item()
             if hasattr(self, '_y_mean') and hasattr(self, '_y_std') and self._y_std > 1e-6:
-                predicted_makespan = (predicted_makespan_normalized * self._y_std) + self._y_mean
+                predicted_value = (predicted_value_normalized * self._y_std) + self._y_mean
             else:
-                predicted_makespan = predicted_makespan_normalized * 5.0 + 5.0 # Fallback
-            return max(0.1, predicted_makespan)
-
+                predicted_value = predicted_value_normalized * 10.0 + 20.0
+            return max(0.1, predicted_value)
 
     def _encode_context(self, context: Dict[str, Any]) -> torch.Tensor:
         if not context or not context.get("similar_cases"):
             return torch.zeros(32, device=self.device)
-
         cases = context["similar_cases"]
         makespans = [c.get("makespan", 100.0) for c in cases]
         similarities = [c.get("similarity", 0.5) for c in cases]
-
         features = [np.mean(makespans)/100.0, np.min(makespans)/100.0, np.max(makespans)/100.0, len(cases) / 10.0, np.mean(similarities)]
         while len(features) < 32: features.append(0.0)
         return torch.tensor(features[:32], dtype=torch.float32, device=self.device)
@@ -432,19 +341,16 @@ class WASSRAGScheduler(BaseScheduler):
 
     def _load_performance_predictor(self, model_path: str):
         try:
-            # *** FIX: Set weights_only=False to load the entire checkpoint ***
             checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
             if "performance_predictor" in checkpoint:
                 self.performance_predictor.load_state_dict(checkpoint["performance_predictor"])
                 print("Successfully loaded performance predictor")
-                # *** FIX: Correctly load metadata ***
                 metadata = checkpoint.get("metadata", {}).get("performance_predictor", {})
                 if isinstance(metadata, dict):
                     self._y_mean = metadata.get("y_mean", 0.0)
                     self._y_std = metadata.get("y_std", 1.0)
                     print(f"Loaded normalization params: mean={self._y_mean:.2f}, std={self._y_std:.2f}")
-                else:
-                    self._y_mean, self._y_std = 0.0, 1.0
+                else: self._y_mean, self._y_std = 0.0, 1.0
         except Exception as e:
             print(f"Failed to load performance predictor: {e}")
             self._y_mean, self._y_std = 0.0, 1.0
@@ -480,8 +386,7 @@ class PerformancePredictor(nn.Module):
             nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Dropout(0.1),
             nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Dropout(0.1),
             nn.Linear(hidden_dim, hidden_dim // 2), nn.ReLU(),
-            nn.Linear(hidden_dim // 2, 1),
-            nn.ReLU()
+            nn.Linear(hidden_dim // 2, 1)
         )
     def forward(self, features: torch.Tensor) -> torch.Tensor:
         return self.network(features)
@@ -499,10 +404,11 @@ class RAGKnowledgeBase:
         print("Initialized empty knowledge base")
 
     def retrieve_similar_cases(self, query_embedding: np.ndarray, top_k: int = 5) -> Dict[str, Any]:
-        if not self.cases: return {"similar_cases": []}
+        if not self.cases or self.index.ntotal == 0: return {"similar_cases": []}
         query_vector = query_embedding.reshape(1, -1).astype('float32')
-        distances, indices = self.index.search(query_vector, min(top_k, len(self.cases)))
-        return {"similar_cases": [{**self.cases[i], "similarity": 1 / (1 + d)} for i, d in zip(indices[0], distances[0])]}
+        k = min(top_k, self.index.ntotal)
+        distances, indices = self.index.search(query_vector, k)
+        return {"similar_cases": [{**self.cases[i], "similarity": 1 / (1 + d)} for i, d in zip(indices[0], distances[0]) if i < len(self.cases)]}
 
     def add_case(self, embedding: np.ndarray, workflow_info: Dict[str, Any], actions: List[str], makespan: float):
         embedding_np = embedding.reshape(1, -1).astype('float32')
