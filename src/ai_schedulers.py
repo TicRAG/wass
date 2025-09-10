@@ -319,41 +319,57 @@ class WASSRAGScheduler(BaseScheduler):
             return fallback_action
 
     def _encode_action(self, node: str, state: SchedulingState) -> torch.Tensor:
-        """[FINAL v2] Generates highly discriminative features for a node-task pairing."""
+        """[FINAL v3] Generates highly discriminative features for a node-task pairing."""
         node_info = state.cluster_state.get("nodes", {}).get(node, {})
         task_info = self.heuristic_scheduler._get_task_info(state.workflow_graph, state.current_task)
 
-        task_cpu_req = task_info.get("flops", 2e9) / 1e9
+        # Task features
+        task_cpu_req = task_info.get("flops", 2e9) / 1e9  # G-flops
         task_mem_req = task_info.get("memory", 4.0)
-
+        
+        # Node features
         node_cpu_cap = node_info.get("cpu_capacity", 2.0)
         node_mem_cap = node_info.get("memory_capacity", 16.0)
         current_load = node_info.get("current_load", 0.5)
 
+        # Interaction features
         available_cpu = node_cpu_cap * (1.0 - current_load)
-        available_mem = node_mem_cap
+        available_mem = node_mem_cap # Assuming memory isn't consumed until task starts
         cpu_surplus = available_cpu - task_cpu_req
         mem_surplus = available_mem - task_mem_req
-
+        
+        # Ratios and pressures
         cpu_to_mem_ratio_task = task_cpu_req / max(1.0, task_mem_req)
         cpu_to_mem_ratio_node = available_cpu / max(1.0, available_mem)
-
+        ratio_mismatch = abs(cpu_to_mem_ratio_task - cpu_to_mem_ratio_node)
+        
         cpu_pressure = task_cpu_req / max(1e-6, available_cpu)
         mem_pressure = task_mem_req / max(1e-6, available_mem)
-
+        
+        # Estimated execution time on this node
         est_exec_time = task_cpu_req / max(1e-6, available_cpu)
+        
+        # Data locality (simple dynamic version)
         dependencies = task_info.get("dependencies", [])
         data_locality_score = ((hash(node) + hash(state.current_task) + len(dependencies)) % 100) / 100.0
 
-        features = [
-            node_cpu_cap / 10.0, node_mem_cap / 64.0, current_load,
-            task_cpu_req / 20.0, task_mem_req / 16.0,
-            cpu_surplus / 10.0, mem_surplus / 64.0,
-            cpu_to_mem_ratio_task, cpu_to_mem_ratio_node, abs(cpu_to_mem_ratio_task - cpu_to_mem_ratio_node),
-            min(1.0, cpu_pressure), min(1.0, mem_pressure),
-            est_exec_time / 10.0, data_locality_score
-        ]
+        # Cluster-wide context
+        all_loads = [n.get("current_load", 0.5) for n in state.cluster_state.get("nodes", {}).values()]
+        avg_cluster_load = np.mean(all_loads) if all_loads else 0.5
+        load_vs_avg = current_load - avg_cluster_load
 
+        features = [
+            # Node specific
+            node_cpu_cap / 10.0, node_mem_cap / 64.0, current_load, available_cpu / 10.0,
+            # Task specific
+            task_cpu_req / 20.0, task_mem_req / 16.0, len(dependencies) / 10.0,
+            # Interaction
+            cpu_surplus / 10.0, mem_surplus / 64.0, ratio_mismatch,
+            min(1.0, cpu_pressure), min(1.0, mem_pressure), est_exec_time / 10.0,
+            # Contextual
+            data_locality_score, load_vs_avg
+        ]
+        
         while len(features) < 32: features.append(0.0)
         return torch.tensor(features[:32], dtype=torch.float32, device=self.device)
 
