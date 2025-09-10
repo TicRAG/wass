@@ -1,230 +1,197 @@
-#!/usr/bin/env python3
-"""
-WASS-RAG 阶段三：DRL 代理训练脚本 (最终修正版)
-
-该脚本实现了论文中描述的 DRL 训练循环。它包含：
-1. 一个自定义的 Gym 环境 (WassEnv)，将我们的调度问题包装起来。
-2. 一个奖励函数，利用阶段二训练好的 PerformancePredictor 作为“教师”来提供奖励。
-3. 使用 Stable-Baselines3 库中的 PPO 算法来训练 PolicyNetwork。
-"""
-
+import logging
 import sys
-import os
-from pathlib import Path
+from typing import Dict, Tuple, Optional
+
+import gym
 import numpy as np
-import torch
-import gymnasium as gym
-from gymnasium import spaces
-from stable_baselines3 import PPO
-from stable_baselines3.common.env_checker import check_env
-from stable_baselines3.common.vec_env import DummyVecEnv
+import yaml
+from gym import spaces
 
-# --- 项目路径设置 ---
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, str(parent_dir))
-sys.path.insert(0, os.path.join(parent_dir, 'src'))
+# Add the project root to the Python path
+sys.path.append('.')
 
-# --- 导入我们自己的模块 ---
-from experiments.real_experiment_framework import WassExperimentRunner, ExperimentConfig
-from src.ai_schedulers import WASSRAGScheduler, SchedulingState, PolicyNetwork
+from src.drl_agent import DQNAgent, SchedulingState, SchedulingAction
+from src.factory import PlatformFactory, WorkflowFactory, SchedulerFactory
+from src.utils import get_logger
+from wass_wrench_simulator import WassWrenchSimulator
+
+logger = get_logger(__name__, logging.INFO)
+
 
 class WassEnv(gym.Env):
-    """
-    一个将 WASS 调度问题包装为与 Stable-Baselines3 兼容的自定义 Gym 环境。
-    """
-    metadata = {"render_modes": []}
+    """A Gym environment for training a WASS DRL agent."""
 
-    def __init__(self, config_dict):
+    def __init__(self, config: Dict):
         super().__init__()
+        self.config = config
         
-        # 1. 初始化仿真器和“教师”模型
-        sim_config = ExperimentConfig(
-            name="DRL_Training_Env",
-            workflow_sizes=config_dict["workflow_sizes"],
-            scheduling_methods=[], # 在 DRL 训练中不需要
-            cluster_sizes=config_dict["cluster_sizes"],
-            repetitions=1, # 在 DRL 训练中不需要
-            output_dir="temp_drl_env_results",
-            ai_model_path="models/wass_models.pth",
-            knowledge_base_path="data/knowledge_base.pkl"
-        )
-        self.sim_runner = WassExperimentRunner(sim_config)
-        self.teacher_model = WASSRAGScheduler(model_path="models/wass_models.pth")
+        # Factories
+        self.platform_factory = PlatformFactory(config['platform'])
+        self.platform = self.platform_factory.get_platform()
+        self.node_names = list(self.platform.get_nodes().keys())
         
-        # 2. 定义动作空间和观察空间
-        self.max_nodes = max(config_dict["cluster_sizes"])
-        self.action_space = spaces.Discrete(self.max_nodes)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(64,), dtype=np.float32)
-        
-        self.current_simulation_config = None
+        self.workflow_factory = WorkflowFactory(config['workflow'])
+        self.workflow = self.workflow_factory.get_workflow()
 
-    def reset(self, seed=None, options=None):
-        """开始一轮新的仿真（一个 episode）"""
-        super().reset(seed=seed)
+        # Define action and observation space
+        self.num_nodes = len(self.node_names)
+        self.action_space = spaces.Discrete(self.num_nodes)
+        
+        # The observation space needs to match the features from ai_schedulers
+        # It's a flattened vector of task features + per-node features
+        # Task features: computation_size, num_parents, num_children (3)
+        # Per-node features: speed, earliest_finish_time, total_d_time (3)
+        # Total size = 3 + 3 * num_nodes
+        state_size = 3 + 3 * self.num_nodes
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(state_size,), dtype=np.float32)
 
-        task_count = self.np_random.choice(self.sim_runner.config.workflow_sizes)
-        cluster_size = self.np_random.choice(self.sim_runner.config.cluster_sizes)
+        # Create a baseline scheduler for reward calculation
+        self.scheduler_factory = SchedulerFactory(config, self.node_names)
+        self.baseline_scheduler = self.scheduler_factory.get_scheduler("HEFT") # Using HEFT as baseline
+        self.baseline_makespan = self._get_baseline_makespan()
         
-        # 使用 Gym 环境内置的随机数生成器，保证可复现性
-        random_seed = self.np_random.integers(0, 1e9)
-        self.workflow, self.cluster = self.sim_runner._generate_scenario(task_count, cluster_size, random_seed)
-        self.nodes = list(self.cluster.keys())
-        
-        self.pending_tasks = {t['id'] for t in self.workflow['tasks']}
-        self.task_finish_times = {}
-        self.node_available_times = {node: 0.0 for node in self.nodes}
-        self.task_placements = {}
-        
-        observation, info = self._get_next_observation()
-        return observation, info
+        # Simulation state will be managed by an internal simulator instance
+        self.simulator: Optional[WassWrenchSimulator] = None
+        self.drl_scheduler_in_training: Optional['DRLSchedulerForEnv'] = None
 
-    def step(self, action):
-        """执行一个动作并推进环境"""
-        if action >= len(self.nodes):
-            # 无效动作，给予惩罚并结束
-            # 返回一个零观察，负奖励，终止状态为 True
-            return np.zeros(self.observation_space.shape, dtype=np.float32), -10.0, True, False, {"error": "Invalid action, node index out of bounds"}
-        
-        chosen_node = self.nodes[action]
+    def _get_baseline_makespan(self) -> float:
+        """Run a simulation with a baseline scheduler to get a reference makespan."""
+        logger.info("Calculating baseline makespan with HEFT...")
+        # HEFT needs a standard Wrench simulator
+        heft_sim = schedulers.WrenchSimulation(self.baseline_scheduler, self.platform, self.workflow)
+        heft_sim.run()
+        logger.info(f"Baseline HEFT makespan: {heft_sim.time:.2f}")
+        return heft_sim.time
 
-        action_embedding = self.teacher_model._encode_action(chosen_node, self.current_state)
-        predicted_finish_time = self.teacher_model._predict_performance(self.current_state_embedding, action_embedding, {})
+    def reset(self) -> SchedulingState:
+        """Resets the environment to an initial state."""
+        # The DRL scheduler is re-created for each episode
+        self.drl_scheduler_in_training = DRLSchedulerForEnv(self.node_names)
         
-        # 奖励函数：完成时间越短，奖励越高。放大奖励信号以促进学习。
-        reward = 10.0 / (predicted_finish_time + 1e-6)
+        # The simulator is also re-created
+        self.simulator = WassWrenchSimulator(self.drl_scheduler_in_training, self.platform, self.workflow)
+        self.simulator._initialize_simulation() # Start the simulation process
+        
+        # The first state is determined by the first ready task
+        first_event = heapq.heappop(self.simulator.event_queue)
+        first_task = first_event.event_data
+        
+        # The scheduler needs to be aware of the task it's deciding on
+        self.drl_scheduler_in_training.set_next_task(first_task)
 
-        task_to_schedule = self.current_task_obj
-        est = self.current_state.cluster_state['earliest_start_times'][chosen_node]
-        exec_time = task_to_schedule['flops'] / (self.cluster[chosen_node]['cpu_capacity'] * 1e9)
-        finish_time = est + exec_time
-        
-        self.task_finish_times[task_to_schedule['id']] = finish_time
-        self.node_available_times[chosen_node] = finish_time
-        self.task_placements[task_to_schedule['id']] = chosen_node
-        self.pending_tasks.remove(task_to_schedule['id'])
+        # Extract features for the first state
+        state = self.drl_scheduler_in_training._extract_features(first_task, self.simulator)
+        return state.vector
 
-        observation, info = self._get_next_observation()
+    def step(self, action: SchedulingAction) -> Tuple[SchedulingState, float, bool, Dict]:
+        """Execute one time step within the environment."""
+        # The action determines the node for the current task
+        chosen_node_name = self.node_names[action]
+        current_task = self.drl_scheduler_in_training.current_task
         
-        terminated = len(self.pending_tasks) == 0 or info.get("error") is not None
-        truncated = False
-        
-        return observation, reward, terminated, truncated, info
+        # Manually perform the scheduling step inside the simulator logic
+        self.simulator._handle_task_ready(self.simulator.event_queue[0].time if self.simulator.event_queue else 0, current_task)
 
-    def _get_next_observation(self):
-        """找到下一个就绪的任务并为其构建观察向量"""
-        if not self.pending_tasks:
-            return np.zeros(self.observation_space.shape, dtype=np.float32), {"is_success": True}
-
-        # --- 语法修正处 ---
-        # 将之前的列表推导式改为标准的 for 循环以避免语法错误
-        ready_tasks = []
-        for task_id in sorted(list(self.pending_tasks)):
-            task = next(t for t in self.workflow['tasks'] if t['id'] == task_id)
-            if all(dep in self.task_finish_times for dep in task.get('dependencies', [])):
-                ready_tasks.append(task)
-        # --- 修正结束 ---
+        # Run the simulation until the next scheduling decision is needed
+        next_state_vec = None
+        done = False
         
-        if not ready_tasks:
-            # 工作流已完成或卡住，这是一个终止状态
-            return np.zeros(self.observation_space.shape, dtype=np.float32), {"error": "No more ready tasks, workflow ended."}
+        while self.simulator.event_queue:
+            event = heapq.heappop(self.simulator.event_queue)
+            event_type = event.event_type
+            
+            if event_type == EventType.TASK_FINISH:
+                self.simulator._handle_task_finish(event.time, event.event_data)
+            elif event_type == EventType.TASK_READY:
+                # This is the next decision point
+                next_task = event.event_data
+                self.drl_scheduler_in_training.set_next_task(next_task)
+                next_state = self.drl_scheduler_in_training._extract_features(next_task, self.simulator)
+                next_state_vec = next_state.vector
+                # Push the event back so the next step can process it
+                heapq.heappush(self.simulator.event_queue, event)
+                break # Exit the loop to wait for the next action
 
-        self.current_task_obj = ready_tasks[0]
-        
-        current_time = min(self.node_available_times.values())
-        earliest_start_times = {}
-        for node in self.nodes:
-            deps = self.current_task_obj.get('dependencies', [])
-            data_ready = max([self.task_finish_times.get(d, 0) for d in deps], default=0)
-            earliest_start_times[node] = max(self.node_available_times[node], data_ready)
-
-        self.current_state = SchedulingState(
-            workflow_graph=self.workflow,
-            cluster_state={"nodes": self.cluster, "earliest_start_times": earliest_start_times},
-            pending_tasks=list(self.pending_tasks),
-            current_task=self.current_task_obj['id'],
-            available_nodes=self.nodes,
-            timestamp=current_time
-        )
-        
-        self.current_state_embedding = self.teacher_model._extract_simple_features_fallback(self.current_state)
-        
-        # 为了与 PolicyNetwork 的输入匹配，我们用 state_embedding 和一个零向量拼接
-        obs = np.concatenate([
-            self.current_state_embedding.cpu().numpy(),
-            np.zeros(32)
-        ])
-        
-        return obs.astype(np.float32), {}
-
-def main():
-    print("🚀 WASS-RAG Stage 3: DRL Agent Training 🚀")
-    
-    env_config = {
-        "workflow_sizes": [10, 50, 100],
-        "cluster_sizes": [4, 8, 16],
-    }
-    # 使用 DummyVecEnv 将我们的单个环境包装起来，这是 SB3 的标准做法
-    env = DummyVecEnv([lambda: WassEnv(env_config)])
-    
-    print("\n🕵️  (Skipping env checker for DummyVecEnv, as it's a vectorized env)")
-    
-    # 定义 PPO 代理的神经网络结构
-    policy_kwargs = {"net_arch": [128, 128]}
-    
-    agent = PPO(
-        "MlpPolicy",
-        env,
-        policy_kwargs=policy_kwargs,
-        verbose=1,
-        n_steps=2048,
-        batch_size=64,
-        n_epochs=10,
-        gamma=0.99,
-        tensorboard_log="./drl_tensorboard_logs/"
-    )
-
-    total_timesteps = 100000
-    print(f"\n🧠 Starting PPO training for {total_timesteps} timesteps...")
-    agent.learn(total_timesteps=total_timesteps, progress_bar=True)
-    
-    print("\n✅ DRL training complete. Saving the policy network...")
-    model_path = Path("models/wass_models.pth")
-    
-    try:
-        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
-        print("   Found existing model file. Updating Policy Network weights.")
-    except (FileNotFoundError, EOFError):
-        checkpoint = {}
-        print("   No existing model file found. Creating a new checkpoint.")
-    
-    # 从 SB3 代理中提取策略网络的状态字典
-    trained_policy_state_dict = agent.policy.state_dict()
-    
-    policy_net = PolicyNetwork(state_dim=64, hidden_dim=128)
-    new_state_dict = policy_net.state_dict()
-    
-    # 手动将 SB3 的权重映射到我们的自定义网络结构
-    key_mapping = {
-        'mlp_extractor.policy_net.0.weight': 'network.0.weight',
-        'mlp_extractor.policy_net.0.bias': 'network.0.bias',
-        'mlp_extractor.policy_net.2.weight': 'network.2.weight',
-        'mlp_extractor.policy_net.2.bias': 'network.2.bias',
-        'action_net.weight': 'network.4.weight',
-        'action_net.bias': 'network.4.bias',
-    }
-    
-    for sb3_key, custom_key in key_mapping.items():
-        if sb3_key in trained_policy_state_dict and custom_key in new_state_dict:
-            new_state_dict[custom_key] = trained_policy_state_dict[sb3_key]
+        if not self.simulator.event_queue:
+            # Simulation is over
+            done = True
+            final_makespan = self.simulator._calculate_makespan()
+            # Reward is based on improvement over baseline
+            reward = self.baseline_makespan - final_makespan
+            # Return a zero vector as the next state
+            next_state_vec = np.zeros(self.observation_space.shape)
         else:
-            print(f"Warning: Could not map key {sb3_key} to {custom_key}")
-    
-    checkpoint["policy_network"] = new_state_dict
-    
-    torch.save(checkpoint, model_path)
-    print(f"✅ Policy Network weights updated and saved to {model_path}")
-    print("\n🎉 All three stages are complete! Your AI schedulers are now fully trained.")
+            # Intermediate reward can be 0, or something more complex
+            reward = 0.0
+            
+        return next_state_vec, reward, done, {}
+
+    def render(self, mode='human'):
+        pass
+
+
+class DRLSchedulerForEnv(WASSDRLScheduler):
+    """A special scheduler for the Gym env that pauses to get actions."""
+    def __init__(self, node_names: List[str]):
+        # This scheduler doesn't need a real agent, it just extracts features
+        # and waits for the `schedule` method to be called with an action.
+        super().__init__(drl_agent=None, node_names=node_names)
+        self.current_task: Optional[w.Task] = None
+        self.next_action_node: Optional[str] = None
+
+    def set_next_task(self, task: w.Task):
+        self.current_task = task
+        
+    def set_next_action(self, node_name: str):
+        self.next_action_node = node_name
+
+    def schedule(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> SchedulingDecision:
+        # In the env, the action is provided externally via set_next_action
+        if not self.current_task or not self.next_action_node:
+            raise ValueError("set_next_task and set_next_action must be called before schedule")
+        
+        decision = {self.next_action_node: self.current_task}
+        # Reset for the next turn
+        self.current_task = None
+        self.next_action_node = None
+        return decision
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2:
+        print("Usage: python scripts/train_drl_agent.py <config.yaml>")
+        sys.exit(1)
+
+    config_path = sys.argv[1]
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    env = WassEnv(config['environment'])
+    
+    state_size = env.observation_space.shape[0]
+    action_size = env.action_space.n
+    
+    agent_config = config['drl']['agent']
+    agent = DQNAgent(state_size, action_size, seed=agent_config.get('seed', 0))
+
+    # Training loop
+    n_episodes = agent_config.get('n_episodes', 1000)
+    max_t = agent_config.get('max_t', 1000) # max number of steps per episode
+    
+    for i_episode in range(1, n_episodes + 1):
+        state = env.reset()
+        score = 0
+        for t in range(max_t):
+            action = agent.act(SchedulingState(state))
+            next_state, reward, done, _ = env.step(action)
+            agent.step(SchedulingState(state), action, reward, SchedulingState(next_state), done)
+            state = next_state
+            score += reward
+            if done:
+                break
+        
+        logger.info(f"Episode {i_episode}\tScore: {score:.2f}")
+
+    # Save the trained model
+    model_path = config['drl']['model_path']
+    agent.save(model_path)
+    logger.info(f"DRL agent model saved to {model_path}")
