@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/-bin/env python3
 """
-WASS-RAG 阶段二：性能预测器训练脚本
+WASS-RAG 阶段二：性能预测器训练脚本 (API修正版)
 
 该脚本加载由 `generate_kb_dataset.py` 生成的高质量数据集，
 并使用这些数据来训练 Performance Predictor 模型。
@@ -53,17 +53,14 @@ def train_predictor(training_data: List[Dict[str, Any]], epochs: int = 100, batc
     print(f"   Using device: {device}")
     
     # 1. 准备数据
-    # 特征是 state, action, context 的拼接
     X = np.array([
         s['state_features'] + s['action_features'] + s['context_features'] 
         for s in training_data
     ])
-    # 目标是预测特定任务的完成时间
     y = np.array([s['achieved_finish_time'] for s in training_data])
     
-    # 归一化目标值
     y_mean, y_std = np.mean(y), np.std(y)
-    if y_std < 1e-8: y_std = 1.0 # 避免除以零
+    if y_std < 1e-8: y_std = 1.0
     y_normalized = (y - y_mean) / y_std
     
     print(f"📈 Target (achieved_finish_time) stats: mean={y_mean:.2f}, std={y_std:.2f}")
@@ -78,7 +75,11 @@ def train_predictor(training_data: List[Dict[str, Any]], epochs: int = 100, batc
     model = PerformancePredictor(input_dim=X.shape[1], hidden_dim=128).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, factor=0.5, verbose=False)
+    
+    # --- API 修正处 ---
+    # 移除了在新版 PyTorch 中不再支持的 `verbose` 参数
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, factor=0.5)
+    # --- 修正结束 ---
     
     # 3. 训练循环
     best_loss = float('inf')
@@ -98,7 +99,6 @@ def train_predictor(training_data: List[Dict[str, Any]], epochs: int = 100, batc
 
         if avg_loss < best_loss:
             best_loss = avg_loss
-            # 保存最佳模型
             torch.save(model.state_dict(), "temp_best_predictor.pth")
 
         if (epoch + 1) % 10 == 0:
@@ -106,7 +106,6 @@ def train_predictor(training_data: List[Dict[str, Any]], epochs: int = 100, batc
     
     # 4. 评估和验证
     print("\n✅ Training complete. Evaluating on the full dataset...")
-    # 加载最佳模型进行评估
     model.load_state_dict(torch.load("temp_best_predictor.pth"))
     os.remove("temp_best_predictor.pth")
 
@@ -129,7 +128,6 @@ def save_model(model: PerformancePredictor, y_mean: float, y_std: float, metrics
     
     print(f"\n💾 Saving trained model and metadata to {model_path}...")
     
-    # 尝试加载现有模型，以保留 DRL Policy Network 等其他部分
     try:
         checkpoint = torch.load(model_path, map_location="cpu")
         print("   Found existing model file. Updating Performance Predictor weights.")
@@ -137,10 +135,8 @@ def save_model(model: PerformancePredictor, y_mean: float, y_std: float, metrics
         checkpoint = {}
         print("   No existing model file found. Creating a new checkpoint.")
 
-    # 更新 Performance Predictor 的权重
     checkpoint["performance_predictor"] = model.state_dict()
     
-    # 更新元数据
     checkpoint["metadata"] = checkpoint.get("metadata", {})
     checkpoint["metadata"]["performance_predictor"] = {
         "y_mean": float(y_mean),
