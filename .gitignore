@@ -16,3 +16,4 @@ charts/charts/output/heatmaps/performance_improvement_heatmap.png
 charts/charts/output/radar/scheduler_radar_chart.png
 src/__pycache__/__init__.cpython-312.pyc
 src/__pycache__/ai_schedulers.cpython-312.pyc
+experiments/__pycache__/*
