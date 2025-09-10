@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WASS-RAG 阶段三：DRL 代理训练脚本 (语法修正版)
+WASS-RAG 阶段三：DRL 代理训练脚本 (最终修正版)
 
 该脚本实现了论文中描述的 DRL 训练循环。它包含：
 1. 一个自定义的 Gym 环境 (WassEnv)，将我们的调度问题包装起来。
@@ -63,10 +63,12 @@ class WassEnv(gym.Env):
         """开始一轮新的仿真（一个 episode）"""
         super().reset(seed=seed)
 
-        task_count = np.random.choice(self.sim_runner.config.workflow_sizes)
-        cluster_size = np.random.choice(self.sim_runner.config.cluster_sizes)
+        task_count = self.np_random.choice(self.sim_runner.config.workflow_sizes)
+        cluster_size = self.np_random.choice(self.sim_runner.config.cluster_sizes)
         
-        self.workflow, self.cluster = self.sim_runner._generate_scenario(task_count, cluster_size, self.np_random.integers(0, 1e9))
+        # 使用 Gym 环境内置的随机数生成器，保证可复现性
+        random_seed = self.np_random.integers(0, 1e9)
+        self.workflow, self.cluster = self.sim_runner._generate_scenario(task_count, cluster_size, random_seed)
         self.nodes = list(self.cluster.keys())
         
         self.pending_tasks = {t['id'] for t in self.workflow['tasks']}
@@ -80,14 +82,17 @@ class WassEnv(gym.Env):
     def step(self, action):
         """执行一个动作并推进环境"""
         if action >= len(self.nodes):
-            return self._get_next_observation()[0], -100.0, True, False, {"error": "Invalid action, node index out of bounds"}
+            # 无效动作，给予惩罚并结束
+            # 返回一个零观察，负奖励，终止状态为 True
+            return np.zeros(self.observation_space.shape, dtype=np.float32), -10.0, True, False, {"error": "Invalid action, node index out of bounds"}
         
         chosen_node = self.nodes[action]
 
         action_embedding = self.teacher_model._encode_action(chosen_node, self.current_state)
         predicted_finish_time = self.teacher_model._predict_performance(self.current_state_embedding, action_embedding, {})
         
-        reward = 10.0 / (predicted_finish_time + 1e-6) # 放大奖励信号
+        # 奖励函数：完成时间越短，奖励越高。放大奖励信号以促进学习。
+        reward = 10.0 / (predicted_finish_time + 1e-6)
 
         task_to_schedule = self.current_task_obj
         est = self.current_state.cluster_state['earliest_start_times'][chosen_node]
@@ -101,7 +106,7 @@ class WassEnv(gym.Env):
 
         observation, info = self._get_next_observation()
         
-        terminated = len(self.pending_tasks) == 0
+        terminated = len(self.pending_tasks) == 0 or info.get("error") is not None
         truncated = False
         
         return observation, reward, terminated, truncated, info
@@ -121,7 +126,8 @@ class WassEnv(gym.Env):
         # --- 修正结束 ---
         
         if not ready_tasks:
-            return np.zeros(self.observation_space.shape, dtype=np.float32), {"is_success": True, "reason": "No more ready tasks, workflow complete."}
+            # 工作流已完成或卡住，这是一个终止状态
+            return np.zeros(self.observation_space.shape, dtype=np.float32), {"error": "No more ready tasks, workflow ended."}
 
         self.current_task_obj = ready_tasks[0]
         
@@ -143,6 +149,7 @@ class WassEnv(gym.Env):
         
         self.current_state_embedding = self.teacher_model._extract_simple_features_fallback(self.current_state)
         
+        # 为了与 PolicyNetwork 的输入匹配，我们用 state_embedding 和一个零向量拼接
         obs = np.concatenate([
             self.current_state_embedding.cpu().numpy(),
             np.zeros(32)
@@ -157,10 +164,12 @@ def main():
         "workflow_sizes": [10, 50, 100],
         "cluster_sizes": [4, 8, 16],
     }
+    # 使用 DummyVecEnv 将我们的单个环境包装起来，这是 SB3 的标准做法
     env = DummyVecEnv([lambda: WassEnv(env_config)])
     
-    print("\n🕵️  (Skipping env checker for DummyVecEnv)")
+    print("\n🕵️  (Skipping env checker for DummyVecEnv, as it's a vectorized env)")
     
+    # 定义 PPO 代理的神经网络结构
     policy_kwargs = {"net_arch": [128, 128]}
     
     agent = PPO(
@@ -189,13 +198,13 @@ def main():
         checkpoint = {}
         print("   No existing model file found. Creating a new checkpoint.")
     
+    # 从 SB3 代理中提取策略网络的状态字典
     trained_policy_state_dict = agent.policy.state_dict()
     
     policy_net = PolicyNetwork(state_dim=64, hidden_dim=128)
     new_state_dict = policy_net.state_dict()
     
     # 手动将 SB3 的权重映射到我们的自定义网络结构
-    # 这个过程比较脆弱，依赖于层名
     key_mapping = {
         'mlp_extractor.policy_net.0.weight': 'network.0.weight',
         'mlp_extractor.policy_net.0.bias': 'network.0.bias',
@@ -209,7 +218,7 @@ def main():
         if sb3_key in trained_policy_state_dict and custom_key in new_state_dict:
             new_state_dict[custom_key] = trained_policy_state_dict[sb3_key]
         else:
-            print(f"Warning: Could not map key {sb3_key}")
+            print(f"Warning: Could not map key {sb3_key} to {custom_key}")
     
     checkpoint["policy_network"] = new_state_dict
     

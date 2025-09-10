@@ -1,0 +1,1217 @@
+[
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 12.9789,
+    "avg_cpu_util": 0.3084,
+    "data_locality": 0.5882
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 12.9789,
+    "avg_cpu_util": 0.3084,
+    "data_locality": 0.5882
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 12.9789,
+    "avg_cpu_util": 0.3084,
+    "data_locality": 0.5882
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 16.0911,
+    "avg_cpu_util": 0.2487,
+    "data_locality": 0.2941
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 14.0327,
+    "avg_cpu_util": 0.2852,
+    "data_locality": 0.2353
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 15.2612,
+    "avg_cpu_util": 0.4743,
+    "data_locality": 0.4444
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 14.1889,
+    "avg_cpu_util": 0.5102,
+    "data_locality": 0.5
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 15.2612,
+    "avg_cpu_util": 0.4743,
+    "data_locality": 0.4444
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 19.0916,
+    "avg_cpu_util": 0.3792,
+    "data_locality": 0.3333
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 16.7679,
+    "avg_cpu_util": 0.4317,
+    "data_locality": 0.3333
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 14.5765,
+    "avg_cpu_util": 0.3632,
+    "data_locality": 0.5333
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 14.185,
+    "avg_cpu_util": 0.3732,
+    "data_locality": 0.6
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 14.5765,
+    "avg_cpu_util": 0.3632,
+    "data_locality": 0.5333
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 17.43,
+    "avg_cpu_util": 0.3037,
+    "data_locality": 0.2
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 16.4033,
+    "avg_cpu_util": 0.3227,
+    "data_locality": 0.3333
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 11.3381,
+    "avg_cpu_util": 0.327,
+    "data_locality": 0.6154
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 10.3034,
+    "avg_cpu_util": 0.3598,
+    "data_locality": 0.5385
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 11.3381,
+    "avg_cpu_util": 0.327,
+    "data_locality": 0.6154
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 19.707,
+    "avg_cpu_util": 0.1881,
+    "data_locality": 0.3077
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 11.08,
+    "avg_cpu_util": 0.3346,
+    "data_locality": 0.5385
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 8.8052,
+    "avg_cpu_util": 0.2904,
+    "data_locality": 0.6111
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 8.8052,
+    "avg_cpu_util": 0.2904,
+    "data_locality": 0.5
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 8.8052,
+    "avg_cpu_util": 0.2904,
+    "data_locality": 0.6111
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 12.9214,
+    "avg_cpu_util": 0.1979,
+    "data_locality": 0.1667
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 10.5045,
+    "avg_cpu_util": 0.2434,
+    "data_locality": 0.1667
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 10.0415,
+    "avg_cpu_util": 0.2564,
+    "data_locality": 0.4615
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 9.2863,
+    "avg_cpu_util": 0.2773,
+    "data_locality": 0.6154
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 10.0415,
+    "avg_cpu_util": 0.2564,
+    "data_locality": 0.4615
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 13.1344,
+    "avg_cpu_util": 0.196,
+    "data_locality": 0.0769
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 10.6482,
+    "avg_cpu_util": 0.2418,
+    "data_locality": 0.2308
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 8.5515,
+    "avg_cpu_util": 0.1708,
+    "data_locality": 0.4737
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 8.1101,
+    "avg_cpu_util": 0.1801,
+    "data_locality": 0.4737
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 8.5515,
+    "avg_cpu_util": 0.1708,
+    "data_locality": 0.4737
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 18.003,
+    "avg_cpu_util": 0.0811,
+    "data_locality": 0.0526
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 9.0426,
+    "avg_cpu_util": 0.1616,
+    "data_locality": 0.2105
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 11.6639,
+    "avg_cpu_util": 0.1279,
+    "data_locality": 0.5789
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 10.9677,
+    "avg_cpu_util": 0.136,
+    "data_locality": 0.6842
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 11.6639,
+    "avg_cpu_util": 0.1279,
+    "data_locality": 0.5789
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 19.8077,
+    "avg_cpu_util": 0.0753,
+    "data_locality": 0.1579
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 12.9752,
+    "avg_cpu_util": 0.1149,
+    "data_locality": 0.0526
+  },
+  {
+    "method": "FIFO",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 7.402,
+    "avg_cpu_util": 0.2402,
+    "data_locality": 0.5882
+  },
+  {
+    "method": "HEFT",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 7.402,
+    "avg_cpu_util": 0.2402,
+    "data_locality": 0.5882
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 7.402,
+    "avg_cpu_util": 0.2402,
+    "data_locality": 0.5882
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 15.3635,
+    "avg_cpu_util": 0.1157,
+    "data_locality": 0.1765
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 10,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 9.1021,
+    "avg_cpu_util": 0.1954,
+    "data_locality": 0.0
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 37.9061,
+    "avg_cpu_util": 0.8255,
+    "data_locality": 0.2857
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 34.8948,
+    "avg_cpu_util": 0.8967,
+    "data_locality": 0.2698
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 37.9061,
+    "avg_cpu_util": 0.8255,
+    "data_locality": 0.2857
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 87.1082,
+    "avg_cpu_util": 0.3592,
+    "data_locality": 0.381
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 48.4827,
+    "avg_cpu_util": 0.6454,
+    "data_locality": 0.3254
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 36.4808,
+    "avg_cpu_util": 0.7814,
+    "data_locality": 0.2478
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 29.693,
+    "avg_cpu_util": 0.96,
+    "data_locality": 0.292
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 36.4808,
+    "avg_cpu_util": 0.7814,
+    "data_locality": 0.2478
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 93.5079,
+    "avg_cpu_util": 0.3048,
+    "data_locality": 0.3982
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 34.9972,
+    "avg_cpu_util": 0.8145,
+    "data_locality": 0.3628
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 31.2082,
+    "avg_cpu_util": 0.7446,
+    "data_locality": 0.303
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 25.925,
+    "avg_cpu_util": 0.8964,
+    "data_locality": 0.2955
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 31.2082,
+    "avg_cpu_util": 0.7446,
+    "data_locality": 0.303
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 54.9595,
+    "avg_cpu_util": 0.4228,
+    "data_locality": 0.2803
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 34.3833,
+    "avg_cpu_util": 0.6759,
+    "data_locality": 0.2652
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 23.2168,
+    "avg_cpu_util": 0.6094,
+    "data_locality": 0.256
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 18.5742,
+    "avg_cpu_util": 0.7618,
+    "data_locality": 0.24
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 23.2168,
+    "avg_cpu_util": 0.6094,
+    "data_locality": 0.256
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 64.4073,
+    "avg_cpu_util": 0.2197,
+    "data_locality": 0.152
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 26.9691,
+    "avg_cpu_util": 0.5247,
+    "data_locality": 0.216
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 23.9764,
+    "avg_cpu_util": 0.5671,
+    "data_locality": 0.225
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 20.4154,
+    "avg_cpu_util": 0.666,
+    "data_locality": 0.2917
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 23.9764,
+    "avg_cpu_util": 0.5671,
+    "data_locality": 0.225
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 66.2199,
+    "avg_cpu_util": 0.2053,
+    "data_locality": 0.2417
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 25.0411,
+    "avg_cpu_util": 0.543,
+    "data_locality": 0.1333
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 25.1655,
+    "avg_cpu_util": 0.6281,
+    "data_locality": 0.3077
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 20.2627,
+    "avg_cpu_util": 0.78,
+    "data_locality": 0.2788
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 25.1655,
+    "avg_cpu_util": 0.6281,
+    "data_locality": 0.3077
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 58.5949,
+    "avg_cpu_util": 0.2697,
+    "data_locality": 0.2404
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 26.98,
+    "avg_cpu_util": 0.5858,
+    "data_locality": 0.2308
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 19.1274,
+    "avg_cpu_util": 0.3567,
+    "data_locality": 0.2466
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 15.8343,
+    "avg_cpu_util": 0.4309,
+    "data_locality": 0.2808
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 19.1274,
+    "avg_cpu_util": 0.3567,
+    "data_locality": 0.2466
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 49.679,
+    "avg_cpu_util": 0.1373,
+    "data_locality": 0.0753
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 20.0706,
+    "avg_cpu_util": 0.3399,
+    "data_locality": 0.2397
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 24.2062,
+    "avg_cpu_util": 0.2583,
+    "data_locality": 0.2523
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 22.8809,
+    "avg_cpu_util": 0.2733,
+    "data_locality": 0.2973
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 24.2062,
+    "avg_cpu_util": 0.2583,
+    "data_locality": 0.2523
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 78.2348,
+    "avg_cpu_util": 0.0799,
+    "data_locality": 0.1081
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 26.66,
+    "avg_cpu_util": 0.2345,
+    "data_locality": 0.0991
+  },
+  {
+    "method": "FIFO",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 17.3053,
+    "avg_cpu_util": 0.3123,
+    "data_locality": 0.2458
+  },
+  {
+    "method": "HEFT",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 16.9608,
+    "avg_cpu_util": 0.3187,
+    "data_locality": 0.2288
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 17.3053,
+    "avg_cpu_util": 0.3123,
+    "data_locality": 0.2458
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 64.689,
+    "avg_cpu_util": 0.0836,
+    "data_locality": 0.0424
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 50,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 19.7731,
+    "avg_cpu_util": 0.2734,
+    "data_locality": 0.0763
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 60.8043,
+    "avg_cpu_util": 0.7867,
+    "data_locality": 0.3517
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 48.9735,
+    "avg_cpu_util": 0.9767,
+    "data_locality": 0.2966
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 60.8043,
+    "avg_cpu_util": 0.7867,
+    "data_locality": 0.3517
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 148.9003,
+    "avg_cpu_util": 0.3212,
+    "data_locality": 0.1822
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 0,
+    "makespan": 74.1154,
+    "avg_cpu_util": 0.6454,
+    "data_locality": 0.2415
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 78.9693,
+    "avg_cpu_util": 0.8579,
+    "data_locality": 0.3534
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 70.7274,
+    "avg_cpu_util": 0.9579,
+    "data_locality": 0.319
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 78.9693,
+    "avg_cpu_util": 0.8579,
+    "data_locality": 0.3534
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 149.0161,
+    "avg_cpu_util": 0.4546,
+    "data_locality": 0.4224
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 1,
+    "makespan": 109.1869,
+    "avg_cpu_util": 0.6205,
+    "data_locality": 0.2931
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 46.4895,
+    "avg_cpu_util": 0.8536,
+    "data_locality": 0.3117
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 41.0164,
+    "avg_cpu_util": 0.9675,
+    "data_locality": 0.29
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 46.4895,
+    "avg_cpu_util": 0.8536,
+    "data_locality": 0.3117
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 115.3171,
+    "avg_cpu_util": 0.3441,
+    "data_locality": 0.2165
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 4,
+    "repetition": 2,
+    "makespan": 56.1203,
+    "avg_cpu_util": 0.7071,
+    "data_locality": 0.2424
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 35.696,
+    "avg_cpu_util": 0.6768,
+    "data_locality": 0.2408
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 32.9363,
+    "avg_cpu_util": 0.7335,
+    "data_locality": 0.2776
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 35.696,
+    "avg_cpu_util": 0.6768,
+    "data_locality": 0.2408
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 99.8733,
+    "avg_cpu_util": 0.2419,
+    "data_locality": 0.2163
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 0,
+    "makespan": 45.3136,
+    "avg_cpu_util": 0.5332,
+    "data_locality": 0.1429
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 35.4431,
+    "avg_cpu_util": 0.8029,
+    "data_locality": 0.2667
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 32.8496,
+    "avg_cpu_util": 0.8663,
+    "data_locality": 0.2275
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 35.4431,
+    "avg_cpu_util": 0.8029,
+    "data_locality": 0.2667
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 108.9481,
+    "avg_cpu_util": 0.2612,
+    "data_locality": 0.1804
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 1,
+    "makespan": 41.9307,
+    "avg_cpu_util": 0.6787,
+    "data_locality": 0.2078
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 31.4753,
+    "avg_cpu_util": 0.7745,
+    "data_locality": 0.2719
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 29.9948,
+    "avg_cpu_util": 0.8127,
+    "data_locality": 0.1751
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 31.4753,
+    "avg_cpu_util": 0.7745,
+    "data_locality": 0.2719
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 121.396,
+    "avg_cpu_util": 0.2008,
+    "data_locality": 0.1751
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 8,
+    "repetition": 2,
+    "makespan": 33.9251,
+    "avg_cpu_util": 0.7186,
+    "data_locality": 0.1659
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 28.9712,
+    "avg_cpu_util": 0.5063,
+    "data_locality": 0.1921
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 25.7552,
+    "avg_cpu_util": 0.5695,
+    "data_locality": 0.2271
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 28.9712,
+    "avg_cpu_util": 0.5063,
+    "data_locality": 0.1921
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 108.7306,
+    "avg_cpu_util": 0.1349,
+    "data_locality": 0.1441
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 0,
+    "makespan": 33.2805,
+    "avg_cpu_util": 0.4407,
+    "data_locality": 0.0742
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 25.4488,
+    "avg_cpu_util": 0.5463,
+    "data_locality": 0.1839
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 20.3039,
+    "avg_cpu_util": 0.6847,
+    "data_locality": 0.2222
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 25.4488,
+    "avg_cpu_util": 0.5463,
+    "data_locality": 0.1839
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 94.7027,
+    "avg_cpu_util": 0.1468,
+    "data_locality": 0.092
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 1,
+    "makespan": 27.2495,
+    "avg_cpu_util": 0.5102,
+    "data_locality": 0.1609
+  },
+  {
+    "method": "FIFO",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 26.1964,
+    "avg_cpu_util": 0.4982,
+    "data_locality": 0.2263
+  },
+  {
+    "method": "HEFT",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 24.6491,
+    "avg_cpu_util": 0.5295,
+    "data_locality": 0.2387
+  },
+  {
+    "method": "WASS (Heuristic)",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 26.1964,
+    "avg_cpu_util": 0.4982,
+    "data_locality": 0.2263
+  },
+  {
+    "method": "WASS-DRL (w/o RAG)",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 83.6761,
+    "avg_cpu_util": 0.156,
+    "data_locality": 0.1235
+  },
+  {
+    "method": "WASS-RAG",
+    "task_count": 100,
+    "cluster_size": 16,
+    "repetition": 2,
+    "makespan": 35.025,
+    "avg_cpu_util": 0.3726,
+    "data_locality": 0.1029
+  }
+]
