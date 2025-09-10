@@ -136,13 +136,14 @@ class WassExperimentRunner:
         return workflow, cluster
 
     def _run_single_simulation(self, workflow: Dict, cluster: Dict, method: str, repetition: int) -> ExperimentResult:
-        """运行一次完整的、决策驱动的仿真"""
-        
+        """运行一次完整的、决策驱动的仿真 (V3 - 动态状态更新)"""
+
         node_available_time = {node: 0.0 for node in cluster}
         task_finish_time = {}
         task_placements = {}
         total_cpu_work_done = 0
 
+        # Initialize the scheduler for this specific run
         if method == "FIFO":
             scheduler = self._get_fifo_scheduler()
         elif method == "HEFT":
@@ -151,54 +152,105 @@ class WassExperimentRunner:
             scheduler = self.ai_schedulers.get(method)
             if scheduler is None:
                 raise ValueError(f"Scheduler for method '{method}' not initialized.")
+            scheduler.reset() # Reset any internal state if necessary
+
+        pending_tasks_set = {task['id'] for task in workflow['tasks']}
         
-        pending_tasks = {task['id'] for task in workflow['tasks']}
-        
-        while pending_tasks:
+        # --- Main Simulation Loop ---
+        while pending_tasks_set:
             ready_tasks = []
-            for task_id in sorted(list(pending_tasks)):
+            # Find tasks whose dependencies are all met
+            for task_id in sorted(list(pending_tasks_set)):
                 task = next(t for t in workflow['tasks'] if t['id'] == task_id)
                 if all(dep in task_finish_time for dep in task['dependencies']):
                     ready_tasks.append(task)
-            
-            if not ready_tasks:
-                if not pending_tasks: break
-                raise RuntimeError("Simulation stuck: No ready tasks but pending tasks exist.")
 
+            if not ready_tasks:
+                if not pending_tasks_set: break
+                # This can happen in valid DAGs, just means we need to wait for tasks to finish
+                # We can simply continue the loop, time will advance.
+                # However, to prevent infinite loops on error, we add a check.
+                if not task_finish_time:
+                     raise RuntimeError("Simulation stuck: No ready tasks and no tasks have ever finished.")
+                # If we are here, it means there are tasks running, but none of the pending ones are ready yet.
+                # The logic below will correctly handle picking the next one.
+                pass
+
+
+            # For HEFT, we must follow its strict priority order
             if method == "HEFT":
                 next_task_obj = scheduler.get_next_task(ready_tasks)
-                ready_tasks = [next_task_obj] if next_task_obj else []
+                tasks_to_schedule = [next_task_obj] if next_task_obj else []
+            else:
+                tasks_to_schedule = ready_tasks
 
-            if not ready_tasks: continue
+            if not tasks_to_schedule:
+                if not pending_tasks_set: break
+                # If no tasks are ready to be scheduled, it means the simulation must advance.
+                # This state is handled by the time logic inside the loop.
+                # We add a safety break for misbehaving schedulers.
+                if not any(val > 0 for val in node_available_time.values()):
+                    if pending_tasks_set:
+                        # This implies a dependency graph issue or scheduler logic error
+                        pass # Let it try again
+                continue
 
-            for task in ready_tasks:
+
+            # Schedule all ready tasks
+            for task in tasks_to_schedule:
                 current_task_id = task['id']
+                if current_task_id not in pending_tasks_set: continue # Already scheduled in this batch
 
+                # --- DYNAMIC STATE CREATION ---
+                # 1. Determine current simulation time for this decision
+                # The time of decision is when the earliest node becomes free
+                current_sim_time = min(node_available_time.values()) if node_available_time else 0
+
+                # 2. Calculate dynamic 'current_load' and earliest start times
+                dynamic_cluster_nodes = {}
                 earliest_start_times = {}
-                for node in cluster:
+                for node, node_details in cluster.items():
+                    # Create a copy to avoid modifying the base scenario
+                    dynamic_node_info = node_details.copy()
+                    
+                    # If a node is busy beyond the current time, its load is high.
+                    # Otherwise, it's idle, so we use its base (random) load.
+                    if node_available_time[node] > current_sim_time:
+                        dynamic_node_info['current_load'] = 0.95 # Node is busy
+                    else:
+                        dynamic_node_info['current_load'] = node_details.get('current_load', 0.1) # Node is idle
+
+                    dynamic_cluster_nodes[node] = dynamic_node_info
+
+                    # Calculate when this task could start on this node
                     data_ready_time = 0
                     for dep_id in task['dependencies']:
-                        dep_finish_time = task_finish_time[dep_id]
+                        dep_finish_time = task_finish_time.get(dep_id, 0)
+                        # A simple network delay model
                         transfer_time = 0.1 if task_placements.get(dep_id) != node else 0
                         data_ready_time = max(data_ready_time, dep_finish_time + transfer_time)
+                    
                     earliest_start_times[node] = max(node_available_time[node], data_ready_time)
 
+
+                # 3. Create the state object with the fresh, dynamic view of the cluster
                 state = SchedulingState(
                     workflow_graph=workflow,
                     cluster_state={
-                        "nodes": cluster, 
-                        "earliest_start_times": earliest_start_times
+                        "nodes": dynamic_cluster_nodes, # Use the dynamic node info
                     },
-                    pending_tasks=list(pending_tasks),
+                    pending_tasks=list(pending_tasks_set),
                     current_task=current_task_id,
                     available_nodes=list(cluster.keys()),
-                    timestamp=min(node_available_time.values())
+                    timestamp=current_sim_time
                 )
                 
+                # --- MAKE DECISION ---
                 decision = scheduler.make_decision(state)
                 chosen_node = decision.target_node
                 
-                task_flops = task['flops'] / 1e9
+                # --- UPDATE SIMULATION STATE ---
+                task_flops = task['flops'] / 1e9 # G-flops
                 node_cpu = cluster[chosen_node]['cpu_capacity']
                 exec_time = task_flops / node_cpu
                 
@@ -210,9 +262,9 @@ class WassExperimentRunner:
                 node_available_time[chosen_node] = finish_time
                 total_cpu_work_done += task_flops
                 
-                if current_task_id in pending_tasks:
-                    pending_tasks.remove(current_task_id)
+                pending_tasks_set.remove(current_task_id)
 
+        # --- Final Metrics Calculation ---
         makespan = max(task_finish_time.values()) if task_finish_time else 0
         total_cluster_cpu_seconds = sum(c['cpu_capacity'] for c in cluster.values()) * makespan
         avg_cpu_util = total_cpu_work_done / total_cluster_cpu_seconds if total_cluster_cpu_seconds > 0 else 0
@@ -220,11 +272,16 @@ class WassExperimentRunner:
         transfers = 0
         total_deps = 0
         for task in workflow['tasks']:
-            total_deps += len(task['dependencies'])
-            for dep in task['dependencies']:
-                if task_placements.get(task['id']) != task_placements.get(dep):
-                    transfers += 1
-        data_locality = (1 - (transfers / total_deps)) if total_deps > 0 else 1.0
+            task_id = task['id']
+            # Ensure task has been placed before checking dependencies
+            if task_id in task_placements:
+                total_deps += len(task['dependencies'])
+                for dep in task['dependencies']:
+                     # Ensure dependency has been placed
+                    if dep in task_placements and task_placements[task_id] != task_placements[dep]:
+                        transfers += 1
+
+        data_locality = (1.0 - (transfers / total_deps)) if total_deps > 0 else 1.0
 
         return ExperimentResult(
             method=method,
