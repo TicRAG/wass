@@ -19,27 +19,19 @@
 ### Prerequisites
 ```bash
 # Required dependencies
-pip install torch torchvision torchaudio
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+#pip install torch torchvision torchaudio
 pip install faiss-cpu  # or faiss-gpu for GPU support
 pip install -r requirements.txt
 ```
 
-### 1. Train the AI Models
+### 3. Run Experiments
 ```bash
-# Train performance predictor and build knowledge base
-python scripts/retrain_performance_predictor.py
-```
-
-### 2. Test the System
-```bash
-# Validate model predictions and scheduling decisions
-python test_predictions.py
-```
-
-### 3. Run Complete Experiments
-```bash
-# Execute full experimental framework
+python scripts/generate_kb_dataset.py
+python scripts/train_predictor_from_kb.py
+python scripts/train_drl_agent.py
 python experiments/real_experiment_framework.py
+
 ```
 
 ## 📁 Project Structure

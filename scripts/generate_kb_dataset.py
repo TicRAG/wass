@@ -1,98 +1,104 @@
-# scripts/generate_kb_dataset.py
+"""Generate training dataset for performance predictor using wrench-python-api.
+
+This version synthesizes structured (state, action, context) feature triples
+for each (task, host) pair across simple synthetic workflows under two
+baseline labels (HEFT, FIFO). It does NOT currently emulate the true runtime
+selection order—rather, it produces deterministic feature grids suitable for
+bootstrapping the predictor.
+"""
 
 import json
+import os
 import logging
 import sys
 from typing import Dict, List, Any
-
-import wrench.schedulers as schedulers  # <--- UPDATED IMPORT
 import yaml
 
-# Add the project root to the Python path
-sys.path.append('.')
+import wrench  # type: ignore
 
-from src.factory import PlatformFactory, WorkflowFactory
-from src.utils import get_logger, extract_features_for_kb
-# Note: We use the standard Wrench Simulation for this script, not our custom one
-# because the standard schedulers are designed to work with it.
+sys.path.append('.')
+from src.utils import get_logger
 
 logger = get_logger(__name__, logging.INFO)
 
 def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
-    """
-    Generates a knowledge base dataset by running simulations with various schedulers.
-    """
-    platform_factory = PlatformFactory(config['platform'])
-    platform = platform_factory.get_platform()
-    node_names = list(platform.get_nodes().keys())
+    """Return list of KB samples with schema expected by training script."""
+    platform_cfg = config.get('platform', {})
+    kb_cfg = config.get('kb_generation', {})
+    platform_file = platform_cfg.get('platform_file')
+    if not platform_file:
+        raise ValueError("platform.platform_file missing in config")
 
-    workflow_factory = WorkflowFactory(config['workflow'])
-    workflow = workflow_factory.get_workflow()
+    controller_host = platform_cfg.get('controller_host', 'ControllerHost')
+    num_tasks = int(kb_cfg.get('num_tasks', 20))
+    context_dim = int(kb_cfg.get('context_dim', 8))
+    schedulers = ["HEFT", "FIFO"]
 
-    scheduler_classes = {
-        "HEFT": schedulers.HeftScheduler,
-        "FIFO": schedulers.FifoScheduler,
-    }
+    samples: List[Dict[str, Any]] = []
 
-    kb_entries = []
+    for sched_name in schedulers:
+        logger.info(f"[KB] Generating synthetic samples for {sched_name}")
+        sim = wrench.Simulation()
+        with open(platform_file, 'r', encoding='utf-8') as f:
+            xml = f.read()
+        sim.start(xml, controller_host)
 
-    for name, scheduler_class in scheduler_classes.items():
-        logger.info(f"Running simulation with {name} scheduler...")
+        hosts_all = sim.get_all_hostnames()
+        hosts = [h for h in hosts_all if 'Controller' not in h and 'Storage' not in h] or hosts_all
+        host_specs = {h: (4, 10.0) for h in hosts}  # (cores, speed)
+        avg_speed = sum(v[1] for v in host_specs.values()) / max(1, len(host_specs))
 
-        class RecordingScheduler(scheduler_class):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self.decisions = []
+        wf = sim.create_workflow()
+        tasks = []
+        for i in range(num_tasks):
+            t = wf.add_task(f"task_{i}", 100.0 + 25 * i, 1, 1, 0)
+            tasks.append(t)
+        for i in range(1, num_tasks):
+            if i % 2 == 0:
+                tasks[i].add_parent(tasks[i-1])
 
-            def schedule(self, ready_tasks, simulation_platform=None):
-                original_decision = super().schedule(ready_tasks, platform)
-                
-                simple_decision = {}
-                for node, task_list in original_decision.items():
-                    if task_list:
-                        simple_decision[node.name] = task_list[0] 
-                
-                if simple_decision:
-                    self.decisions.append(simple_decision)
-                
-                return original_decision
+        for t in tasks:
+            state_features = [
+                float(t.get_flops()),
+                float(len(t.get_parents())),
+                float(len(t.get_children())),
+                float(avg_speed),
+                float(len(host_specs))
+            ]
+            for idx, (host, spec) in enumerate(host_specs.items()):
+                speed = spec[1]
+                action_features = [0.0] * len(host_specs)
+                action_features[idx] = 1.0
+                context_features = [0.0] * context_dim
+                finish_time = t.get_flops() / max(1e-6, speed)
+                samples.append({
+                    'scheduler': sched_name,
+                    'state_features': state_features,
+                    'action_features': action_features,
+                    'context_features': context_features,
+                    'achieved_finish_time': finish_time,
+                    'meta': {'task_id': t.get_name(), 'host': host}
+                })
+        sim.terminate()
+        logger.info(f"[KB] {sched_name} cumulative samples: {len(samples)}")
 
-        scheduler_instance = RecordingScheduler(platform=platform)
-        
-        simulation = schedulers.Simulation(scheduler_instance, platform, workflow)
-        simulation.run()
-        final_makespan = simulation.time
+    logger.info(f"[KB] Total samples: {len(samples)}")
+    return samples
 
-        logger.info(f"Finished simulation with {name}. Makespan: {final_makespan:.2f}")
-
-        for decision in scheduler_instance.decisions:
-            node_id = list(decision.keys())[0]
-            task = list(decision.values())[0]
-            
-            features = extract_features_for_kb(task, node_id, platform, workflow)
-            
-            kb_entries.append({
-                "features": features,
-                "makespan": final_makespan
-            })
-
-    logger.info(f"Generated {len(kb_entries)} entries for the knowledge base.")
-    return kb_entries
-
-if __name__ == "__main__":
+def main():
     if len(sys.argv) != 2:
         print("Usage: python scripts/generate_kb_dataset.py <config.yaml>")
         sys.exit(1)
+    cfg_path = sys.argv[1]
+    with open(cfg_path, 'r', encoding='utf-8') as f:
+        cfg = yaml.safe_load(f) or {}
+    data = generate_kb_data(cfg)
+    out_path = 'data/kb_training_dataset.json'
+    os.makedirs('data', exist_ok=True)
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f)
+    logger.info(f"[KB] Saved {len(data)} samples to {out_path}")
 
-    config_path = sys.argv[1]
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-
-    kb_data = generate_kb_data(config)
-
-    output_file = config['drl']['knowledge_base_path']
-    with open(output_file, 'w') as f:
-        for entry in kb_data:
-            f.write(json.dumps(entry) + '\n')
-
-    logger.info(f"Knowledge base data successfully saved to {output_file}")
+if __name__ == '__main__':
+    main()
+    logger.info(f"[KB] Saved structured KB training dataset with {len(kb_data)} samples to {output_file}")

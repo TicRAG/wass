@@ -5,6 +5,7 @@ import time
 from contextlib import contextmanager
 from typing import Dict, Any, Generator
 from pathlib import Path
+import sys 
 
 def setup_logger(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
     """设置统一的日志器."""
@@ -87,3 +88,85 @@ def calculate_conflict_rate(L) -> float:
     else:
         # 其他格式，简单返回0
         return 0.0
+
+def get_logger(name, level=logging.INFO):
+    """
+    Returns a configured logger.
+    """
+    # Create a logger
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Create a handler
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(level)
+
+    # Create a formatter and add it to the handler
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+
+    # Add the handler to the logger
+    # This check prevents adding duplicate handlers if the function is called multiple times
+    if not logger.handlers:
+        logger.addHandler(handler)
+
+    return logger
+
+# -------------------------------------------------------------
+# Knowledge Base Feature Extraction (used by generate_kb_dataset)
+# -------------------------------------------------------------
+def extract_features_for_kb(task, node_id: str, platform, workflow) -> Dict[str, Any]:
+    """Extract a minimal, model-agnostic feature dict for a (task,node) decision.
+
+    Parameters
+    ----------
+    task : wrench.workflows.Task
+        The workflow task just scheduled or considered.
+    node_id : str
+        Target node name.
+    platform : wrench.platforms.Platform
+        Platform object (provides node characteristics / bandwidth).
+    workflow : wrench.workflows.Workflow
+        Workflow DAG (to query edges, parents, children etc.).
+
+    Returns
+    -------
+    Dict[str, Any]
+        Flat dictionary of numeric / categorical features.
+    """
+    try:
+        node = platform.get_node(node_id)
+    except Exception:
+        node = None
+
+    # Basic structural features
+    num_parents = len(task.parents)
+    num_children = len(task.children)
+
+    # Aggregate input data size (if API available)
+    total_input_data = 0.0
+    for p in task.parents:
+        try:
+            total_input_data += workflow.get_edge_data_size(p.id, task.id)
+        except Exception:
+            pass
+
+    features: Dict[str, Any] = {
+        "task_id": getattr(task, 'id', None),
+        "task_comp_size": getattr(task, 'computation_size', 0.0),
+        "num_parents": num_parents,
+        "num_children": num_children,
+        "total_input_data": total_input_data,
+        "node_id": node_id,
+    }
+
+    if node is not None:
+        # Common attributes; guard with getattr for API robustness
+        for attr, key in [
+            ("speed", "node_speed"),
+            ("core_count", "node_cores"),
+            ("memory", "node_memory"),
+        ]:
+            features[key] = getattr(node, attr, None)
+
+    return features

@@ -26,10 +26,11 @@ sys.path.insert(0, str(parent_dir))
 sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 # 导入 AI 调度器中定义的模型结构
-from src.ai_schedulers import PerformancePredictor
+from src.performance_predictor import PerformancePredictor
 
 def load_training_dataset() -> List[Dict[str, Any]]:
     """加载知识库播种阶段生成的数据集"""
+    # Align with JSONL knowledge base generation output name if needed
     dataset_path = Path("data/kb_training_dataset.json")
     if not dataset_path.exists():
         print(f"❌ 错误：数据集文件未找到于 {dataset_path}")

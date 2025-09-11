@@ -9,6 +9,7 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import StandardScaler
 
 from src.drl_agent import DQNAgent, SchedulingState
+from src.encoding_constants import STATE_DIM, ACTION_DIM, CONTEXT_DIM
 from src.interfaces import PredictedValue, Scheduler, SchedulingDecision
 from src.performance_predictor import PerformancePredictor
 from src.utils import get_logger
@@ -88,6 +89,27 @@ class WASSDRLScheduler(WASSScheduler):
         state_vector = np.concatenate([task_features, node_features]).astype(np.float32)
         
         return SchedulingState(state_vector)
+
+    # ---- Embedding Helpers (Placeholders) ----
+    def _encode_state(self, simulation: 'WassWrenchSimulator'):
+        vec = np.zeros(STATE_DIM, dtype=np.float32)
+        # simple aggregate placeholders
+        vec[0] = len(simulation.workflow.tasks) if hasattr(simulation.workflow, 'tasks') else 0
+        return torch.from_numpy(vec)
+
+    def _encode_action(self, node_name: str, state) -> torch.Tensor:
+        vec = np.zeros(ACTION_DIM, dtype=np.float32)
+        idx = self.node_map.get(node_name, 0) % ACTION_DIM
+        vec[idx] = 1.0
+        return torch.from_numpy(vec)
+
+    def _encode_context(self, retrieved_cases) -> torch.Tensor:
+        # Average outcome placeholder
+        vec = np.zeros(CONTEXT_DIM, dtype=np.float32)
+        if retrieved_cases:
+            avg = np.mean([c.get('outcome', 0.0) for c in retrieved_cases])
+            vec[0] = avg
+        return torch.from_numpy(vec)
 
 
 class WASSRAGScheduler(WASSDRLScheduler):
@@ -169,3 +191,16 @@ class WASSRAGScheduler(WASSDRLScheduler):
         features["total_input_data_size"] = total_input_data_size
 
         return features
+
+
+# -------- Factory API --------
+def create_scheduler(name: str, node_names: List[str], drl_agent: DQNAgent = None, predictor: PerformancePredictor = None):
+    if name == 'WASS-DRL (w/o RAG)':
+        if drl_agent is None:
+            raise ValueError('drl_agent required for DRL scheduler')
+        return WASSDRLScheduler(drl_agent, node_names)
+    if name == 'WASS-RAG':
+        if drl_agent is None or predictor is None:
+            raise ValueError('drl_agent and predictor required for RAG scheduler')
+        return WASSRAGScheduler(drl_agent, node_names, predictor)
+    raise ValueError(f'Unknown scheduler name: {name}')

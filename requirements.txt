@@ -1,53 +1,74 @@
-# WASS-RAG Academic Research Requirements
+###############################################################
+# WASS-RAG Requirements (Python 3.10–3.13)
+#
+# This file is trimmed to ONLY what the current code base imports.
+# Heavy / incompatible or unused research extras moved to OPTIONAL.
+# If you need full graph / RAG / tracking stack, see the OPTIONAL
+# sections below and enable selectively (prefer Python 3.10/3.11).
+#
+# Tested minimal environment target: Python 3.13 (no PyG / DGL yet)
+###############################################################
 
-# Core Python
-numpy>=1.21.0
-pandas>=1.3.0
-matplotlib>=3.5.0
-seaborn>=0.11.0
-scipy>=1.7.0
-scikit-learn>=1.0.0
+########## Core Scientific Stack (USED) ##########
+numpy>=1.23
+pandas>=2.2
+matplotlib>=3.8
+seaborn>=0.13
+scikit-learn>=1.4
+scipy>=1.11
 
-# Configuration
+########## Configuration (USED) ##########
 PyYAML>=6.0
-hydra-core>=1.1.0
-omegaconf>=2.1.0
 
-# Machine Learning
-torch>=1.12.0
-torch-geometric>=2.1.0
-dgl>=0.9.0
-stable-baselines3>=1.6.0
-gym>=0.21.0
+########## ML / DL (USED) ##########
+torch>=2.2  # 2.8.0+cpu works; keep lower bound for flexibility
 
-# Knowledge Base
-faiss-cpu>=1.7.0
-# faiss-gpu>=1.7.0  # For GPU acceleration
-h5py>=3.6.0
+########## Simulation (WRENCH Python binding) ##########
+# If installed from PyPI uncomment the next line (else follow docs)
+# wrench-project>=0.9  # See docs/academic/wrench_setup.md (安装后可取消注释)
 
-# Experiment Tracking
-mlflow>=1.20.0
-tensorboard>=2.8.0
-wandb>=0.12.0  # Optional
+########## RL Environment (USED) ##########
+gymnasium>=0.29  # Code imports gymnasium, not gym
 
-# Visualization
-plotly>=5.6.0
-dash>=2.0.0  # For interactive analysis
+########## Dev / Tooling ##########
+pytest>=7.0
+black>=23.0
+flake8>=6.0
+mypy>=1.5
 
-# Development
-pytest>=6.2.0
-black>=22.0.0
-flake8>=4.0.0
-mypy>=0.910
+########## (OPTIONAL) Tracking / Visualization / Extras ##########
+# Uncomment as needed. Keeping them commented avoids heavy wheels &
+# Python 3.13 incompatibilities during a quick setup.
+# mlflow>=2.4
+# tensorboard>=2.14
+# wandb>=0.17
+# plotly>=5.20
+# dash>=2.14
+# tqdm>=4.66
+# tabulate>=0.9
+# click>=8.1
 
-# Documentation
-sphinx>=4.3.0
-sphinx-rtd-theme>=1.0.0
+########## (OPTIONAL) Graph / GNN / Retrieval ##########
+# NOTE: torch-geometric & dgl do NOT yet provide wheels for Python 3.13.
+# Use Python 3.10/3.11 if you need them, then install via project docs.
+# torch-geometric>=2.5 ; python_version < "3.13"
+# dgl>=2.0 ; python_version < "3.13"
+# faiss-cpu>=1.7
+# faiss-gpu>=1.7  # If you have a CUDA capable environment
+# h5py>=3.10
 
-# Utilities
-tqdm>=4.62.0
-tabulate>=0.8.9
-click>=8.0.0
+########## (OPTIONAL) Config Frameworks (currently unused) ##########
+# hydra-core>=1.3
+# omegaconf>=2.3
 
-# WRENCH Dependencies (to be installed separately)
-# See docs/academic/wrench_setup.md for WRENCH installation
+########## (OPTIONAL) Docs ##########
+# sphinx>=7.0
+# sphinx-rtd-theme>=2.0
+
+########## Guidance ##########
+# 1. Start with:    pip install -r requirements.txt
+# 2. If you need WRENCH: follow docs/academic/wrench_setup.md (source build)
+# 3. For RAG + GNN features: use Python 3.11, then enable GNN extras.
+# 4. Keep this file minimal to reduce dependency conflict rate.
+
+########## End ##########

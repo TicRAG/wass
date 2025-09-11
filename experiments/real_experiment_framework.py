@@ -361,16 +361,10 @@ def main():
     """主函数"""
     config = ExperimentConfig(
         name="WASS-RAG Performance Evaluation (Discrete-Event Simulation)",
-        workflow_sizes=[10, 50, 100], # 简化配置以加快测试
-        scheduling_methods=[
-            "FIFO", 
-            "HEFT",
-            "WASS (Heuristic)",
-            "WASS-DRL (w/o RAG)",
-            "WASS-RAG"
-        ],
-        cluster_sizes=[4, 8, 16],
-        repetitions=3, # 增加重复次数以获得更可靠的统计数据
+    workflow_sizes=[10, 50],  # 初始测试减小规模
+    scheduling_methods=["FIFO", "HEFT"],  # 先仅运行已内置可用算法
+    cluster_sizes=[4, 8],
+    repetitions=1,  # 烟雾测试先跑 1 次
         output_dir="results/final_experiments_discrete_event" # 使用新的输出目录
     )
     
