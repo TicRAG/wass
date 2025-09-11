@@ -31,6 +31,7 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
 
     controller_host = platform_cfg.get('controller_host', 'ControllerHost')
     num_tasks = int(kb_cfg.get('num_tasks', 20))
+    num_workflows = int(kb_cfg.get('num_workflows', 60))  # 增加工作流数量
     context_dim = int(kb_cfg.get('context_dim', 8))
     schedulers = ["HEFT", "FIFO"]
 
@@ -48,51 +49,74 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
         host_specs = {h: (4, 10.0) for h in hosts}  # (cores, speed)
         avg_speed = sum(v[1] for v in host_specs.values()) / max(1, len(host_specs))
 
-        wf = sim.create_workflow()
-        tasks = []
-        files = []
-        
-        # Create tasks and files
-        for i in range(num_tasks):
-            t = wf.add_task(f"task_{i}", 100.0 + 25 * i, 1, 1, 0)
-            tasks.append(t)
+        # 生成多个工作流以增加数据多样性
+        for wf_idx in range(num_workflows):
+            wf = sim.create_workflow()
+            tasks = []
+            files = []
             
-            # Create output file for each task (except the last one)
-            if i < num_tasks - 1:
-                output_file = sim.add_file(f"output_{i}", 1024)  # 1KB file
-                t.add_output_file(output_file)
-                files.append(output_file)
-        
-        # Create dependencies by connecting files
-        for i in range(1, num_tasks):
-            if i % 2 == 0 and i > 1:  # Every second task depends on previous
-                input_file = files[i-2]  # Use output from task i-2
-                tasks[i].add_input_file(input_file)
+            # 为每个工作流使用不同的任务数量和复杂度
+            current_num_tasks = max(5, num_tasks + (wf_idx % 10) - 5)  # 变化任务数量
+            
+            # Create tasks and files
+            for i in range(current_num_tasks):
+                # 增加任务flops的变化性
+                flops_base = 100.0 + 25 * i
+                flops_variation = flops_base * (0.5 + wf_idx * 0.1 % 1.0)  # 50%-150%变化
+                t = wf.add_task(f"wf{wf_idx}_task_{i}", flops_variation, 1, 1, 0)
+                tasks.append(t)
+                
+                # Create output file for each task (except the last one)
+                if i < current_num_tasks - 1:
+                    # 文件大小也增加变化性
+                    file_size = 1024 * (1 + wf_idx % 5)  # 1KB到5KB
+                    output_file = sim.add_file(f"wf{wf_idx}_output_{i}", file_size)
+                    t.add_output_file(output_file)
+                    files.append(output_file)
+            
+            # Create dependencies with more variety
+            for i in range(1, current_num_tasks):
+                # 增加依赖关系的复杂性
+                if wf_idx % 3 == 0:  # 链式依赖
+                    if i > 0 and files:
+                        input_file = files[i-1]
+                        tasks[i].add_input_file(input_file)
+                elif wf_idx % 3 == 1:  # 树状依赖
+                    if i % 2 == 0 and i > 1 and len(files) >= i-1:
+                        input_file = files[i-2]
+                        tasks[i].add_input_file(input_file)
+                # else: 无依赖（并行工作流）
+                # else: 无依赖（并行工作流）
 
-        for t in tasks:
-            state_features = [
-                float(t.get_flops()),
-                float(len(t.get_input_files())),
-                float(t.get_number_of_children()),
-                float(avg_speed),
-                float(len(host_specs))
-            ]
-            for idx, (host, spec) in enumerate(host_specs.items()):
-                speed = spec[1]
-                action_features = [0.0] * len(host_specs)
-                action_features[idx] = 1.0
-                context_features = [0.0] * context_dim
-                finish_time = t.get_flops() / max(1e-6, speed)
-                samples.append({
-                    'scheduler': sched_name,
-                    'state_features': state_features,
-                    'action_features': action_features,
-                    'context_features': context_features,
-                    'achieved_finish_time': finish_time,
-                    'meta': {'task_id': t.get_name(), 'host': host}
-                })
+            for t in tasks:
+                state_features = [
+                    float(t.get_flops()),
+                    float(len(t.get_input_files())),
+                    float(t.get_number_of_children()),
+                    float(avg_speed),
+                    float(len(host_specs))
+                ]
+                for idx, (host, spec) in enumerate(host_specs.items()):
+                    speed = spec[1]
+                    action_features = [0.0] * len(host_specs)
+                    action_features[idx] = 1.0
+                    context_features = [0.0] * context_dim
+                    finish_time = t.get_flops() / max(1e-6, speed)
+                    samples.append({
+                        'scheduler': sched_name,
+                        'state_features': state_features,
+                        'action_features': action_features,
+                        'context_features': context_features,
+                        'achieved_finish_time': finish_time,
+                        'meta': {'task_id': t.get_name(), 'host': host, 'workflow_id': f'wf_{wf_idx}'}
+                    })
+            
+            # 显示进度
+            if (wf_idx + 1) % 10 == 0:
+                logger.info(f"[KB] {sched_name} 已生成 {wf_idx + 1}/{num_workflows} 个工作流")
+                
         sim.terminate()
-        logger.info(f"[KB] {sched_name} cumulative samples: {len(samples)}")
+        logger.info(f"[KB] {sched_name} 累计样本: {len(samples)}")
 
     logger.info(f"[KB] Total samples: {len(samples)}")
     return samples

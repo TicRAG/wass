@@ -9,7 +9,7 @@ import random
 import numpy as np
 from pathlib import Path
 
-def create_extended_rag_knowledge():
+def create_extended_rag_knowledge(num_cases=2500):
     """创建扩展的RAG知识库"""
     # 基础案例模板
     base_cases = [
@@ -53,7 +53,7 @@ def create_extended_rag_knowledge():
     # 生成扩展案例
     extended_cases = []
     
-    for i in range(500):  # 生成500个案例
+    for i in range(num_cases):  # 生成指定数量的案例
         # 随机选择调度器和节点
         scheduler = random.choice(schedulers)
         node = random.choice(nodes)
@@ -133,4 +133,11 @@ def create_extended_rag_knowledge():
     return output_path
 
 if __name__ == "__main__":
-    create_extended_rag_knowledge()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='创建扩展的RAG知识库')
+    parser.add_argument('--num_cases', type=int, default=2500, help='生成的案例数量')
+    
+    args = parser.parse_args()
+    
+    create_extended_rag_knowledge(args.num_cases)

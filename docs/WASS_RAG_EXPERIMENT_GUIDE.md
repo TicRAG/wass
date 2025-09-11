@@ -64,12 +64,12 @@ WRENCH仿真开始...
 ### 第2步: 知识库生成
 
 ```bash
-python scripts/generate_kb_dataset.py configs/experiment.yaml
+python scripts/generate_kb_dataset.py --num_cases 2500
 ```
 
 **功能:** 
 - 使用HEFT和FIFO调度器
-- 生成240个真实仿真样本
+- 生成2仿真样本
 - 输出: `data/kb_training_dataset.json`
 
 **预期输出:**

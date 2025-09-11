@@ -104,6 +104,92 @@ class HEFTScheduler(WRENCHScheduler):
         
         return best_node or available_nodes[0]
 
+class WASSHeuristicScheduler(WRENCHScheduler):
+    """WASS启发式调度器 - 在HEFT基础上考虑数据局部性"""
+    
+    def __init__(self, data_locality_weight: float = 0.5):
+        super().__init__("WASS-Heuristic")
+        self.data_locality_weight = data_locality_weight  # w参数
+        self.data_location_cache = {}  # 模拟数据位置缓存
+        
+        # 节点性能参数
+        self.node_capacities = {
+            "ComputeHost1": 2.0,
+            "ComputeHost2": 3.0,
+            "ComputeHost3": 2.5,
+            "ComputeHost4": 4.0
+        }
+    
+    def schedule_task(self, task, available_nodes, node_capacities, node_loads, compute_service):
+        """使用WASS启发式进行任务调度"""
+        best_node = None
+        best_score = float('inf')
+        
+        for node in available_nodes:
+            # 计算EFT (最早完成时间)
+            eft = self._calculate_eft(task, node, node_capacities, node_loads)
+            
+            # 计算DRT (数据就绪时间)
+            drt = self._calculate_drt(task, node)
+            
+            # 计算WASS综合评分
+            w = self.data_locality_weight
+            score = (1 - w) * eft + w * drt
+            
+            if score < best_score:
+                best_score = score
+                best_node = node
+        
+        # 更新数据位置缓存（假设任务输出数据存储在执行节点）
+        if best_node:
+            self._update_data_location(task, best_node)
+        
+        return best_node or available_nodes[0]
+    
+    def _calculate_eft(self, task, node, node_capacities, node_loads):
+        """计算任务在指定节点上的最早完成时间"""
+        capacity = node_capacities.get(node, 1.0)
+        load = node_loads.get(node, 0.0)
+        exec_time = task.get_flops() / (capacity * 1e9)
+        return load + exec_time
+    
+    def _calculate_drt(self, task, node):
+        """计算数据就绪时间 - 考虑数据传输开销"""
+        total_transfer_time = 0.0
+        
+        # 检查输入文件的数据位置
+        for input_file in task.get_input_files():
+            # 使用文件名而不是get_id()方法
+            file_id = input_file.get_name() if hasattr(input_file, 'get_name') else str(input_file)
+            
+            # 检查数据是否在目标节点上
+            data_location = self._get_data_location(file_id)
+            if data_location != node:
+                # 需要传输数据
+                file_size = input_file.get_size() if hasattr(input_file, 'get_size') else 1024
+                network_bandwidth = 1e9  # 1GB/s 假设网络带宽
+                transfer_time = file_size / network_bandwidth
+                total_transfer_time += transfer_time
+        
+        return total_transfer_time
+    
+    def _get_data_location(self, file_id):
+        """获取文件的数据位置"""
+        if file_id not in self.data_location_cache:
+            # 如果没有缓存，随机选择一个位置（模拟初始数据分布）
+            import random
+            self.data_location_cache[file_id] = random.choice(
+                ["ComputeHost1", "ComputeHost2", "ComputeHost3", "ComputeHost4"]
+            )
+        return self.data_location_cache[file_id]
+    
+    def _update_data_location(self, task, node):
+        """更新任务输出数据的位置"""
+        for output_file in task.get_output_files():
+            # 使用文件名而不是get_id()方法
+            file_id = output_file.get_name() if hasattr(output_file, 'get_name') else str(output_file)
+            self.data_location_cache[file_id] = node
+
 class WASSDRLScheduler(WRENCHScheduler):
     """基于训练好的DRL模型的调度器"""
     
@@ -398,6 +484,7 @@ class WRENCHExperimentRunner:
         schedulers = {
             "FIFO": FIFOScheduler(),
             "HEFT": HEFTScheduler(),
+            "WASS-Heuristic": WASSHeuristicScheduler(),  # 新增WASS启发式调度器
         }
         
         # 检查训练好的模型
