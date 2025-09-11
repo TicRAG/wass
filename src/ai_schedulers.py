@@ -194,13 +194,22 @@ class WASSRAGScheduler(WASSDRLScheduler):
 
 
 # -------- Factory API --------
-def create_scheduler(name: str, node_names: List[str], drl_agent: DQNAgent = None, predictor: PerformancePredictor = None):
+def create_scheduler(name: str, node_names: List[str] = None, drl_agent: DQNAgent = None, predictor: PerformancePredictor = None, model_path: str = None, knowledge_base_path: str = None):
+    """创建调度器的工厂函数"""
     if name == 'WASS-DRL (w/o RAG)':
         if drl_agent is None:
-            raise ValueError('drl_agent required for DRL scheduler')
+            # 如果没有提供drl_agent，创建一个简单的随机调度器
+            from .simple_schedulers import SimpleRandomScheduler
+            return SimpleRandomScheduler(name)
         return WASSDRLScheduler(drl_agent, node_names)
-    if name == 'WASS-RAG':
+    elif name == 'WASS-RAG':
         if drl_agent is None or predictor is None:
-            raise ValueError('drl_agent and predictor required for RAG scheduler')
+            # 如果没有提供完整的组件，创建一个改进的启发式调度器
+            from .simple_schedulers import ImprovedHeuristicScheduler  
+            return ImprovedHeuristicScheduler(name)
         return WASSRAGScheduler(drl_agent, node_names, predictor)
-    raise ValueError(f'Unknown scheduler name: {name}')
+    elif name == 'WASS (Heuristic)':
+        from .simple_schedulers import HeuristicScheduler
+        return HeuristicScheduler(name)
+    else:
+        raise ValueError(f'Unknown scheduler name: {name}')

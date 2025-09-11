@@ -1,4 +1,29 @@
-env: active_learning_env
-policy: random
-params:
-  gamma: 0.95
+drl:
+  # WRENCH环境配置
+  environment: "wrench"
+  episodes: 100
+  max_steps: 25
+  
+  # DQN智能体参数
+  network:
+    hidden_dim: 128
+    learning_rate: 0.001
+  
+  # 训练参数
+  epsilon_start: 1.0
+  epsilon_decay: 0.995
+  epsilon_min: 0.1
+  gamma: 0.99
+  batch_size: 32
+  memory_size: 10000
+  target_update_freq: 10
+  
+  # 任务生成参数
+  task_range: [5, 15]  # 最小和最大任务数
+  dependency_prob: 0.3  # 任务依赖概率
+  
+  # 奖励函数权重
+  rewards:
+    time_weight: -1.0
+    efficiency_weight: 2.0
+    balance_weight: -0.5

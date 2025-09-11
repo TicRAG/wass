@@ -2,6 +2,7 @@ experiment_name: demo_wass_pipeline
 random_seed: 42
 include:
   - data.yaml
+  - platform.yaml
   - labeling.yaml
   - label_model.yaml
   - graph.yaml

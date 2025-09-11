@@ -1,0 +1,14 @@
+platform:
+  platform_file: configs/platform.xml
+  controller_host: ControllerHost
+  compute_hosts:
+    - ComputeHost1
+    - ComputeHost2
+    - ComputeHost3
+    - ComputeHost4
+  storage_host: StorageHost
+
+kb_generation:
+  num_tasks: 30
+  context_dim: 8
+  workflows_per_scheduler: 10

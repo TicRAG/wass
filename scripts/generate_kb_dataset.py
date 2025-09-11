@@ -50,18 +50,30 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
 
         wf = sim.create_workflow()
         tasks = []
+        files = []
+        
+        # Create tasks and files
         for i in range(num_tasks):
             t = wf.add_task(f"task_{i}", 100.0 + 25 * i, 1, 1, 0)
             tasks.append(t)
+            
+            # Create output file for each task (except the last one)
+            if i < num_tasks - 1:
+                output_file = sim.add_file(f"output_{i}", 1024)  # 1KB file
+                t.add_output_file(output_file)
+                files.append(output_file)
+        
+        # Create dependencies by connecting files
         for i in range(1, num_tasks):
-            if i % 2 == 0:
-                tasks[i].add_parent(tasks[i-1])
+            if i % 2 == 0 and i > 1:  # Every second task depends on previous
+                input_file = files[i-2]  # Use output from task i-2
+                tasks[i].add_input_file(input_file)
 
         for t in tasks:
             state_features = [
                 float(t.get_flops()),
-                float(len(t.get_parents())),
-                float(len(t.get_children())),
+                float(len(t.get_input_files())),
+                float(t.get_number_of_children()),
                 float(avg_speed),
                 float(len(host_specs))
             ]
@@ -85,13 +97,32 @@ def generate_kb_data(config: Dict) -> List[Dict[str, Any]]:
     logger.info(f"[KB] Total samples: {len(samples)}")
     return samples
 
+def load_config(cfg_path: str) -> Dict:
+    """Load configuration with includes support"""
+    with open(cfg_path, 'r', encoding='utf-8') as f:
+        cfg = yaml.safe_load(f) or {}
+    
+    # Process includes
+    if 'include' in cfg:
+        base_dir = os.path.dirname(cfg_path)
+        for include_file in cfg['include']:
+            include_path = os.path.join(base_dir, include_file)
+            if os.path.exists(include_path):
+                with open(include_path, 'r', encoding='utf-8') as f:
+                    include_cfg = yaml.safe_load(f) or {}
+                    # Merge configurations
+                    for key, value in include_cfg.items():
+                        if key not in cfg:
+                            cfg[key] = value
+    
+    return cfg
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python scripts/generate_kb_dataset.py <config.yaml>")
         sys.exit(1)
     cfg_path = sys.argv[1]
-    with open(cfg_path, 'r', encoding='utf-8') as f:
-        cfg = yaml.safe_load(f) or {}
+    cfg = load_config(cfg_path)
     data = generate_kb_data(cfg)
     out_path = 'data/kb_training_dataset.json'
     os.makedirs('data', exist_ok=True)
@@ -101,4 +132,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    logger.info(f"[KB] Saved structured KB training dataset with {len(kb_data)} samples to {output_file}")
