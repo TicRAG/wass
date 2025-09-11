@@ -135,7 +135,7 @@ WRENCH环境初始化完成
 ✅ 知识库生成完成: 2400个样本
 ```
 
-### 第5步: 超参数调优 (可选但推荐)
+### 第5步: 超参数调优 (TODO)
 
 ```bash
 python scripts/local_hyperparameter_tuning.py
