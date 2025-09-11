@@ -5,4 +5,4 @@ experiments/__pycache__/*
 models/*
 data/*
 configs/platforms/*
-results/*
+results

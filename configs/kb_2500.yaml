@@ -1,0 +1,25 @@
+# WASS-RAG KB生成配置 - 2500样本目标
+experiment_name: kb_generation_2500
+random_seed: 42
+
+# 平台配置
+platform:
+  platform_file: "configs/platform.xml"
+  controller_host: "ControllerHost"
+  storage_host: "StorageHost"
+  compute_nodes: ["ComputeHost1", "ComputeHost2", "ComputeHost3", "ComputeHost4"]
+
+# KB生成配置
+# 计算：2调度器 × 16工作流 × 20任务 × 4主机 = 2560样本
+kb_generation:
+  num_tasks: 20           # 每个工作流的任务数
+  num_workflows: 16       # 每个调度器生成16个工作流
+  context_dim: 8
+
+# 数据配置
+data:
+  adapter: simple_jsonl
+  data_dir: data/
+  train_file: train.jsonl
+  valid_file: valid.jsonl
+  test_file: test.jsonl

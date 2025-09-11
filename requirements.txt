@@ -35,7 +35,7 @@ pytest>=7.0
 black>=23.0
 flake8>=6.0
 mypy>=1.5
-
+scikit-learn
 ########## (OPTIONAL) Tracking / Visualization / Extras ##########
 # Uncomment as needed. Keeping them commented avoids heavy wheels &
 # Python 3.13 incompatibilities during a quick setup.
