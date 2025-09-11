@@ -12,7 +12,7 @@ WASS-RAG 系统组件：
 ├── 性能预测器 (train_predictor_from_kb.py) - 基于WRENCH数据
 ├── DRL智能体 (train_drl_wrench.py)         - 基于WRENCH环境
 ├── RAG知识库 (train_rag_wrench.py)         - 基于WRENCH仿真
-└── 实验框架 (real_experiment_framework.py) - 性能对比
+└── 实验框架 (wrench_real_experiment.py)    - 真实WRENCH实验对比
 ```
 
 ## 实验环境要求
@@ -146,7 +146,7 @@ python scripts/train_rag_wrench.py configs/experiment.yaml
 ### 第6步: 运行完整实验
 
 ```bash
-python experiments/real_experiment_framework.py
+python experiments/wrench_real_experiment.py
 ```
 
 **功能:**
@@ -337,7 +337,7 @@ RAG知识库训练          | ~10分钟  | ~10MB
 
 ### 添加新调度器
 1. 在 `src/ai_schedulers.py` 中实现调度逻辑
-2. 更新 `experiments/real_experiment_framework.py` 中的调度器列表
+2. 更新 `experiments/wrench_real_experiment.py` 中的调度器列表
 3. 重新运行实验对比
 
 ### 修改平台配置

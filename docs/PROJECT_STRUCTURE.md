@@ -28,7 +28,7 @@ wass/
 │   └── retrain_performance_predictor.py # 重训性能预测器
 │
 ├── experiments/                         # 实验框架
-│   ├── real_experiment_framework.py    # 模拟实验框架 (仅用于演示)
+│   ├── wrench_real_experiment.py       # 真实WRENCH实验框架
 │   └── wrench_real_experiment.py       # [5] 真实WRENCH实验对比
 │
 ├── charts/                              # 图表生成
@@ -86,7 +86,7 @@ python scripts/train_drl_wrench.py configs/experiment.yaml
 python scripts/train_rag_wrench.py configs/experiment.yaml
 
 # 5. 运行完整实验对比
-python experiments/real_experiment_framework.py
+python experiments/wrench_real_experiment.py
 
 # 6. 生成学术论文图表
 python charts/paper_charts.py
@@ -141,7 +141,7 @@ src/:
 - `train_rag_wrench.py` - 基于WRENCH构建RAG知识库
 
 **实验和可视化**:
-- `real_experiment_framework.py` - 完整的性能对比实验
+- `wrench_real_experiment.py` - 完整的WRENCH性能对比实验
 - `paper_charts.py` - 生成学术论文所需图表
 
 **核心源码**:
@@ -174,7 +174,7 @@ files=(
     "scripts/train_predictor_from_kb.py" 
     "scripts/train_drl_wrench.py"
     "scripts/train_rag_wrench.py"
-    "experiments/real_experiment_framework.py"
+    "experiments/wrench_real_experiment.py"
     "charts/paper_charts.py"
     "configs/experiment.yaml"
     "configs/platform.xml"
