@@ -44,3 +44,5 @@ def load_experiment_config(base_dir: str, filename: str = 'experiment.yaml') -> 
 if __name__ == '__main__':
     cfg = load_experiment_config('configs')
     print(cfg)
+
+# Deprecated config_loader removed 2025-09-11.

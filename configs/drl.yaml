@@ -1,28 +1,53 @@
 drl:
-  # WRENCH环境配置
+  # Common RL settings
   environment: "wrench"
-  episodes: 100
-  max_steps: 25
-  
-  # DQN智能体参数
-  network:
-    hidden_dim: 128
-    learning_rate: 0.001
-  
-  # 训练参数
-  epsilon_start: 1.0
-  epsilon_decay: 0.995
-  epsilon_min: 0.1
+  episodes: 200           # Longer training for convergence
+  rollout_horizon: 96     # Larger rollout batch for PPO stability
   gamma: 0.99
-  batch_size: 32
-  memory_size: 10000
-  target_update_freq: 10
-  
-  # 任务生成参数
-  task_range: [5, 15]  # 最小和最大任务数
-  dependency_prob: 0.3  # 任务依赖概率
-  
-  # 奖励函数权重
+  gae_lambda: 0.95
+  rag_reward_weight: 0.7  # base w_rag in combined reward
+  rag_weight_schedule:    # two-stage emphasis growth
+    initial: 0.30
+    final: 0.80
+    warmup_episodes: 80
+  rag_reward_scale: 0.30  # base scale; dynamic scaling can lift to ~1.8x
+  dynamic_rag_scale: true
+  teacher_top_k_schedule: # retrieval breadth schedule
+    initial: 3
+    final: 7
+    warmup_episodes: 100
+
+  # Optimization enhancements
+  reward_norm: true       # Normalize rewards per trajectory
+  value_clip: 0.2         # PPO value function clipping range
+  lr_decay: true          # Linear learning rate decay
+  max_grad_norm: 1.0      # Gradient clipping
+  deterministic_eval: true
+
+  # PPO specific
+  learning_rate: 0.0003
+  hidden_dim: 256
+  ppo_batch_size: 64
+  ppo_update_epochs: 4
+  clip_eps: 0.2
+  entropy_coef: 0.01
+  value_coef: 0.5
+
+  # Legacy DQN (kept for backward compatibility, unused in PPO path)
+  dqn:
+    epsilon_start: 1.0
+    epsilon_decay: 0.995
+    epsilon_min: 0.1
+    batch_size: 32
+    memory_size: 10000
+    target_update_freq: 10
+    network_hidden_dim: 128
+
+  # Task generation
+  task_range: [10, 20]
+  dependency_prob: 0.35
+
+  # Old reward weights (unused in PPO prototype)
   rewards:
     time_weight: -1.0
     efficiency_weight: 2.0

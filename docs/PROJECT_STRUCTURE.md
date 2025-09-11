@@ -37,12 +37,11 @@ wass/
 │
 ├── src/                                 # 核心源码
 │   ├── __init__.py                     # 包初始化
-│   ├── config_loader.py                # 配置加载器
 │   ├── utils.py                        # 工具函数
-│   ├── performance_predictor.py        # 性能预测器
-│   ├── wrench_schedulers.py            # WRENCH调度器
-│   ├── ai_schedulers.py                # AI调度器
-│   └── interfaces.py                   # 接口定义
+│   ├── performance_predictor.py        # 性能预测器 (仍用于旧流程)
+│   ├── graph_encoder.py                # 轻量GNN式工作流图编码 (论文对齐)
+│   ├── ppo_agent.py                    # PPO智能体 (论文对齐)
+│   ├── rag_teacher.py                  # RAG检索教师奖励模块 (论文对齐)
 │
 ├── wrenchtest/                          # WRENCH测试
 │   ├── test_simple_wrech.py            # WRENCH环境验证
@@ -106,7 +105,7 @@ ls -la charts/*.png                              # 生成图表
 
 ## 删除的无用文件
 
-### 已清理的文件列表
+### 已清理/弃用的文件列表
 ```
 根目录:
 - wass_wrench_simulator.py              # 旧版仿真器
@@ -127,9 +126,13 @@ charts/:
 - acm_standards.py                      # ACM标准
 
 src/:
-- simple_schedulers.py                  # 简单调度器
-- factory.py                            # 工厂模式
-- encoding_constants.py                 # 编码常量
+- simple_schedulers.py                  # 简单调度器 (弃用)
+- factory.py                            # 工厂模式 (弃用)
+- encoding_constants.py                 # 编码常量 (弃用)
+- ai_schedulers.py                      # 已移除实现, 文件被清空占位
+- wrench_schedulers.py                  # 已移除实现, 文件被清空占位
+- interfaces.py                         # 已移除实现, 文件被清空占位
+- config_loader.py                      # 已移除实现, 文件被清空占位
 ```
 
 ### 保留原因说明
@@ -144,13 +147,15 @@ src/:
 - `wrench_real_experiment.py` - 完整的WRENCH性能对比实验
 - `paper_charts.py` - 生成学术论文所需图表
 
-**核心源码**:
-- `ai_schedulers.py` - AI调度器实现
-- `wrench_schedulers.py` - WRENCH调度器封装
-- `performance_predictor.py` - 性能预测器模型
-- `config_loader.py` - 配置文件加载
+**核心源码 (现行)**:
 - `utils.py` - 工具函数
-- `interfaces.py` - 接口定义
+- `performance_predictor.py` - 旧流程性能预测器 (DQN/RAG基线)
+- `graph_encoder.py` - 轻量GNN式图编码, 提供工作流结构向量
+- `ppo_agent.py` - PPO Actor-Critic + GAE 实现
+- `rag_teacher.py` - RAG教师: 基于历史案例检索生成 R_RAG 奖励
+
+**已弃用/占位清空**:
+- `ai_schedulers.py`, `wrench_schedulers.py`, `interfaces.py`, `config_loader.py` - 与当前实验不再匹配, 仅保留空壳防引用错误
 
 **测试和示例**:
 - `test_simple_wrech.py` - WRENCH环境验证
@@ -163,6 +168,40 @@ src/:
 3. **配置驱动**: 通过YAML文件统一管理实验参数
 4. **结果可重现**: 固定随机种子，确保实验一致性
 5. **清晰文档**: 完整的实验指南和API文档
+6. **论文对齐原型**: 新增 GNN + PPO + RAG 教师奖励路径 (`train_wass_paper_aligned.py`)
+
+## 论文对齐增强 (新增原型)
+
+| 论文要素 | 旧实现 (DQN 流程) | 新增原型 (paper-aligned) | 状态 |
+|----------|------------------|--------------------------|------|
+| 状态表示 | 扁平特征向量     | 轻量GNN图嵌入 + 扁平拼接 | 已实现基础版 |
+| DRL算法  | DQN              | PPO (clip + GAE)         | 已实现 |
+| RAG作用  | 仅动作建议/比较   | 参与奖励: R_RAG          | 已实现初版 |
+| 奖励设计 | 启发式加权        | R_total = w_rag*R_RAG + (1-w_rag)*R_env | 已实现 |
+| 知识检索 | 线性余弦遍历      | 轻量相似度 + 动态校正    | 已实现基础版 |
+| 可扩展性 | 无聚类索引        | 可替换为 FAISS / KMeans  | 规划中 |
+
+### 对齐训练脚本
+```
+python scripts/train_wass_paper_aligned.py configs/experiment.yaml
+```
+输出:
+```
+models/wass_paper_aligned.pth
+models/wass_paper_aligned_metrics.json
+```
+
+核心指标 (metrics.json 每 episode):
+```
+episode, reward, makespan, policy_loss, value_loss, entropy, teacher_cases
+```
+
+### 后续可扩展点
+1. 数据局部性真实建模 (文件放置 / 传输带宽) 替换占位 locality 值
+2. 引入 FAISS / ANN 索引加速 RAG 检索
+3. 关键路径真实计算：拓扑层次 + 最长路径估算
+4. 任务批次调度 (而非单任务) + 并发节点队列模型
+5. 奖励稳定化：引入 advantage-based shaping 减少方差
 
 ## 文件完整性检查
 
@@ -191,5 +230,7 @@ done
 
 ---
 **清理完成时间**: 2025-09-11  
-**保留文件数**: 核心文件25个  
-**删除文件数**: 无用文件9个
+**新增论文对齐原型时间**: 2025-09-11  
+**保留核心文件数**: 现行核心 ~28  
+**弃用/清空文件数**: 8  
+**新增原型文件**: 4 (graph_encoder, ppo_agent, rag_teacher, train_wass_paper_aligned.py)
