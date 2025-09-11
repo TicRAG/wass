@@ -1,0 +1,5276 @@
+{
+  "experiment_config": {
+    "schedulers": [
+      "FIFO",
+      "HEFT",
+      "WASS-DRL",
+      "WASS-RAG"
+    ],
+    "workflow_sizes": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "repetitions": 3,
+    "total_experiments": 48
+  },
+  "results": [
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_1",
+      "task_count": 5,
+      "dependency_count": 0,
+      "makespan": 6.660835415418356,
+      "cpu_utilization": {
+        "ComputeHost1": 0.25947671526167776,
+        "ComputeHost2": 0.1249895041781364,
+        "ComputeHost3": 0.2658396139882858,
+        "ComputeHost4": 0.3496941665719
+      },
+      "task_execution_times": {
+        "task_1_0": 1.728331694491408,
+        "task_1_1": 0.8325345159853115,
+        "task_1_2": 0.7104815421307693,
+        "task_1_3": 2.3292552892673175,
+        "task_1_4": 1.06023237354355
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_1_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 6912567417.965632
+        },
+        {
+          "task": "task_1_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 3329466117.274581
+        },
+        {
+          "task": "task_1_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 2841360221.8564115
+        },
+        {
+          "task": "task_1_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 9316288410.402603
+        },
+        {
+          "task": "task_1_4",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 4240929494.1741996
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 1,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:07"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_2",
+      "task_count": 5,
+      "dependency_count": 0,
+      "makespan": 7.475337673611999,
+      "cpu_utilization": {
+        "ComputeHost1": 0.29761343867419887,
+        "ComputeHost2": 0.13643632192222882,
+        "ComputeHost3": 0.2863292951181096,
+        "ComputeHost4": 0.27962094428546264
+      },
+      "task_execution_times": {
+        "task_2_0": 2.224760950294453,
+        "task_2_1": 1.0199075773142918,
+        "task_2_2": 2.140408166855173,
+        "task_2_3": 0.8697888010960568,
+        "task_2_4": 1.2204721780520238
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_2_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 8898290014.511147
+        },
+        {
+          "task": "task_2_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4078894815.9238353
+        },
+        {
+          "task": "task_2_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8560990347.420693
+        },
+        {
+          "task": "task_2_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 3478571231.050898
+        },
+        {
+          "task": "task_2_4",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 4881888712.208096
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 2,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:07"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_3",
+      "task_count": 5,
+      "dependency_count": 1,
+      "makespan": 7.84270867056634,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2790141689691754,
+        "ComputeHost2": 0.25457494341288717,
+        "ComputeHost3": 0.23526051800108727,
+        "ComputeHost4": 0.2311503696168501
+      },
+      "task_execution_times": {
+        "task_3_0": 0.7134807385011233,
+        "task_3_1": 1.9965571160131856,
+        "task_3_2": 1.8450797043690557,
+        "task_3_3": 1.8128450079986846,
+        "task_3_4": 1.474746103684291
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_3_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 2853322634.0044928
+        },
+        {
+          "task": "task_3_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 7985643690.719408
+        },
+        {
+          "task": "task_3_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 7379719110.809558
+        },
+        {
+          "task": "task_3_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7250181445.328073
+        },
+        {
+          "task": "task_3_4",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 5898984414.737163
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 3,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:07"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_4",
+      "task_count": 10,
+      "dependency_count": 2,
+      "makespan": 15.624869655901916,
+      "cpu_utilization": {
+        "ComputeHost1": 0.28509928884870295,
+        "ComputeHost2": 0.2247056006549194,
+        "ComputeHost3": 0.26653119561561295,
+        "ComputeHost4": 0.22366391488076479
+      },
+      "task_execution_times": {
+        "task_4_0": 0.922262657280136,
+        "task_4_1": 0.6241488430314979,
+        "task_4_2": 2.121185090994309,
+        "task_4_3": 1.4269795508532321,
+        "task_4_4": 0.9197944562799902,
+        "task_4_9": 2.481722079619348,
+        "task_4_5": 2.0677399658874585,
+        "task_4_6": 1.9670524218727756,
+        "task_4_7": 2.043330099731339,
+        "task_4_8": 1.05065449035183
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_4_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 3688411989.120544
+        },
+        {
+          "task": "task_4_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2495963345.459325
+        },
+        {
+          "task": "task_4_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8484060923.977237
+        },
+        {
+          "task": "task_4_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 5707143376.746262
+        },
+        {
+          "task": "task_4_4",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 3677907958.4532976
+        },
+        {
+          "task": "task_4_9",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 9926888318.47739
+        },
+        {
+          "task": "task_4_5",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 8270224530.216505
+        },
+        {
+          "task": "task_4_6",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 7866846034.157774
+        },
+        {
+          "task": "task_4_7",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8172731412.258692
+        },
+        {
+          "task": "task_4_8",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 4201992228.073988
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 4,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:08"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_5",
+      "task_count": 10,
+      "dependency_count": 2,
+      "makespan": 13.207709384364845,
+      "cpu_utilization": {
+        "ComputeHost1": 0.24982140537480022,
+        "ComputeHost2": 0.26475610574704794,
+        "ComputeHost3": 0.23653991483460846,
+        "ComputeHost4": 0.2488825740435434
+      },
+      "task_execution_times": {
+        "task_5_0": 1.9778567258605215,
+        "task_5_1": 0.6538092408232514,
+        "task_5_2": 1.4585253767354436,
+        "task_5_3": 0.6787095654776119,
+        "task_5_4": 0.5392538459958214,
+        "task_5_9": 1.944709341710051,
+        "task_5_5": 2.303758615624104,
+        "task_5_6": 1.6656250762024758,
+        "task_5_7": 1.3217117943234413,
+        "task_5_8": 0.6637498016121235
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_5_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 7910749436.775419
+        },
+        {
+          "task": "task_5_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2614616696.6263404
+        },
+        {
+          "task": "task_5_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 5833329773.6084385
+        },
+        {
+          "task": "task_5_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 2713446288.577117
+        },
+        {
+          "task": "task_5_4",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2156424770.649953
+        },
+        {
+          "task": "task_5_9",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7778837366.840204
+        },
+        {
+          "task": "task_5_5",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 9214372195.829754
+        },
+        {
+          "task": "task_5_6",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 6661767371.476574
+        },
+        {
+          "task": "task_5_7",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 5285547977.293764
+        },
+        {
+          "task": "task_5_8",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 2654364859.781827
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 5,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:08"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_6",
+      "task_count": 10,
+      "dependency_count": 4,
+      "makespan": 16.838289078759463,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2705985796585696,
+        "ComputeHost2": 0.2415046986721692,
+        "ComputeHost3": 0.22255255847481092,
+        "ComputeHost4": 0.26534416319445026
+      },
+      "task_execution_times": {
+        "task_6_0": 2.4770868411397213,
+        "task_6_1": 1.0130548950117597,
+        "task_6_2": 2.10891958952744,
+        "task_6_3": 2.3975483551911783,
+        "task_6_4": 0.937741215923408,
+        "task_6_9": 2.115729819185514,
+        "task_6_5": 0.7097478638492003,
+        "task_6_6": 2.070393370038502,
+        "task_6_7": 2.0793302674529937,
+        "task_6_8": 0.9287368614397451
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_6_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 9907714351.225552
+        },
+        {
+          "task": "task_6_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4051432726.713706
+        },
+        {
+          "task": "task_6_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8434406438.109763
+        },
+        {
+          "task": "task_6_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 9589487020.764715
+        },
+        {
+          "task": "task_6_4",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 3749465983.693632
+        },
+        {
+          "task": "task_6_9",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 8462919276.742052
+        },
+        {
+          "task": "task_6_5",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 2837688895.396802
+        },
+        {
+          "task": "task_6_6",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 8280836573.487339
+        },
+        {
+          "task": "task_6_7",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 8315757389.811978
+        },
+        {
+          "task": "task_6_8",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 3714200565.7589846
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 6,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:08"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_7",
+      "task_count": 15,
+      "dependency_count": 3,
+      "makespan": 20.584845497568253,
+      "cpu_utilization": {
+        "ComputeHost1": 0.23617656258186,
+        "ComputeHost2": 0.24418492132983707,
+        "ComputeHost3": 0.2528762690532297,
+        "ComputeHost4": 0.2667622470350733
+      },
+      "task_execution_times": {
+        "task_7_0": 1.4886306378705416,
+        "task_7_1": 1.5799672722203792,
+        "task_7_2": 1.4690732756853024,
+        "task_7_3": 1.2465685918997016,
+        "task_7_4": 1.8669070263186418,
+        "task_7_9": 0.7855616461106605,
+        "task_7_5": 1.3813960139235846,
+        "task_7_6": 2.0589427323602667,
+        "task_7_7": 2.2273039295416357,
+        "task_7_8": 0.9095591152808211,
+        "task_7_10": 1.6895585717585373,
+        "task_7_11": 1.3875988738299085,
+        "task_7_12": 1.0820722838194001,
+        "task_7_13": 0.7234800771246341,
+        "task_7_14": 0.6882254498242375
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_7_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 5953892738.148833
+        },
+        {
+          "task": "task_7_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 6319208422.214851
+        },
+        {
+          "task": "task_7_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 5875610276.074543
+        },
+        {
+          "task": "task_7_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 4985656367.598806
+        },
+        {
+          "task": "task_7_4",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7467074265.274568
+        },
+        {
+          "task": "task_7_9",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 3141585304.44265
+        },
+        {
+          "task": "task_7_5",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 5524178775.694336
+        },
+        {
+          "task": "task_7_6",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 8234622182.774399
+        },
+        {
+          "task": "task_7_7",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8908457904.833214
+        },
+        {
+          "task": "task_7_8",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 3636733687.789953
+        },
+        {
+          "task": "task_7_10",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 6757631033.700808
+        },
+        {
+          "task": "task_7_11",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 5549833148.652969
+        },
+        {
+          "task": "task_7_12",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 4327520228.610937
+        },
+        {
+          "task": "task_7_13",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 2893171375.1652045
+        },
+        {
+          "task": "task_7_14",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 2752901799.296954
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 7,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:08"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_8",
+      "task_count": 15,
+      "dependency_count": 6,
+      "makespan": 20.50875208300322,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2417574893058482,
+        "ComputeHost2": 0.3073064544197083,
+        "ComputeHost3": 0.23425159368656734,
+        "ComputeHost4": 0.2166844625878762
+      },
+      "task_execution_times": {
+        "task_8_0": 2.1121790546185903,
+        "task_8_1": 0.8978136038076903,
+        "task_8_2": 1.1366493585225066,
+        "task_8_3": 1.9125691676405294,
+        "task_8_4": 0.6867724890561231,
+        "task_8_9": 0.7768514268882507,
+        "task_8_5": 0.624965229394352,
+        "task_8_6": 1.9863852350158062,
+        "task_8_7": 1.7414911057701161,
+        "task_8_8": 1.795561774806302,
+        "task_8_10": 1.973563223159335,
+        "task_8_11": 1.149215968785338,
+        "task_8_12": 0.5449735207972033,
+        "task_8_13": 1.050403582958051,
+        "task_8_14": 2.119357341783026
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_8_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 8448072271.807695
+        },
+        {
+          "task": "task_8_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 3590548548.5640955
+        },
+        {
+          "task": "task_8_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 4545333060.756695
+        },
+        {
+          "task": "task_8_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7648791417.2287855
+        },
+        {
+          "task": "task_8_4",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2746426942.8911595
+        },
+        {
+          "task": "task_8_9",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 3106069254.219674
+        },
+        {
+          "task": "task_8_5",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2499117210.910738
+        },
+        {
+          "task": "task_8_6",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7944992540.063225
+        },
+        {
+          "task": "task_8_7",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 6965274636.413792
+        },
+        {
+          "task": "task_8_8",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 7180855499.22521
+        },
+        {
+          "task": "task_8_10",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 7893545665.970681
+        },
+        {
+          "task": "task_8_11",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 4595541021.80802
+        },
+        {
+          "task": "task_8_12",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 2179323363.188811
+        },
+        {
+          "task": "task_8_13",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 4200944065.1655383
+        },
+        {
+          "task": "task_8_14",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 8476817153.798777
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 8,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:08"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_9",
+      "task_count": 15,
+      "dependency_count": 5,
+      "makespan": 23.775841375086866,
+      "cpu_utilization": {
+        "ComputeHost1": 0.3000346906277144,
+        "ComputeHost2": 0.21067868600479167,
+        "ComputeHost3": 0.2780694715497174,
+        "ComputeHost4": 0.21121715181777656
+      },
+      "task_execution_times": {
+        "task_9_0": 2.4072540926431047,
+        "task_9_1": 0.5394933339107011,
+        "task_9_2": 2.1206567932215004,
+        "task_9_3": 2.4063308055863626,
+        "task_9_4": 1.0351625926477146,
+        "task_9_9": 1.2499482465966363,
+        "task_9_5": 2.0138895738851073,
+        "task_9_6": 0.9199230024470069,
+        "task_9_7": 1.930945583522604,
+        "task_9_8": 2.184458846406608,
+        "task_9_10": 0.8856435558487128,
+        "task_9_11": 2.476789279713703,
+        "task_9_12": 0.8099681334350137,
+        "task_9_13": 0.6048388679624885,
+        "task_9_14": 2.1905386672596023
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_9_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 9628352103.905752
+        },
+        {
+          "task": "task_9_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2157373628.9761376
+        },
+        {
+          "task": "task_9_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8481941492.886001
+        },
+        {
+          "task": "task_9_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 9624674609.012117
+        },
+        {
+          "task": "task_9_4",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4140004157.2575245
+        },
+        {
+          "task": "task_9_9",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4998365039.719879
+        },
+        {
+          "task": "task_9_5",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8054887602.207098
+        },
+        {
+          "task": "task_9_6",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 3679015423.121367
+        },
+        {
+          "task": "task_9_7",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 7723066520.75709
+        },
+        {
+          "task": "task_9_8",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 8736599305.626434
+        },
+        {
+          "task": "task_9_10",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 3541331663.3948593
+        },
+        {
+          "task": "task_9_11",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 9905849385.521473
+        },
+        {
+          "task": "task_9_12",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 3239246453.7400503
+        },
+        {
+          "task": "task_9_13",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 2418697285.183284
+        },
+        {
+          "task": "task_9_14",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 8761528589.038404
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 9,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:08"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_10",
+      "task_count": 20,
+      "dependency_count": 6,
+      "makespan": 28.827671433667582,
+      "cpu_utilization": {
+        "ComputeHost1": 0.22339590730113804,
+        "ComputeHost2": 0.28549155229072753,
+        "ComputeHost3": 0.24743490682631544,
+        "ComputeHost4": 0.24367763358181901
+      },
+      "task_execution_times": {
+        "task_10_0": 0.9234958160462896,
+        "task_10_1": 2.4343830714233365,
+        "task_10_2": 1.3927418786862438,
+        "task_10_3": 1.7965190334340546,
+        "task_10_4": 1.2984147531485766,
+        "task_10_9": 2.014765068948548,
+        "task_10_5": 2.3792590195047882,
+        "task_10_6": 1.9190167567561591,
+        "task_10_7": 1.6473328171053545,
+        "task_10_8": 0.7242533461248701,
+        "task_10_10": 0.9010448417459109,
+        "task_10_11": 0.5372880334952939,
+        "task_10_12": 0.5843165610667391,
+        "task_10_13": 1.4436668654480727,
+        "task_10_14": 2.463923867954218,
+        "task_10_15": 0.7134613278857103,
+        "task_10_16": 1.0771027470450534,
+        "task_10_17": 1.001278600399793,
+        "task_10_18": 1.4052138382434052,
+        "task_10_19": 2.1701931892051647
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_10_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 3693350944.1851583
+        },
+        {
+          "task": "task_10_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 9736863912.360012
+        },
+        {
+          "task": "task_10_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 5570228501.411642
+        },
+        {
+          "task": "task_10_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7184845733.736217
+        },
+        {
+          "task": "task_10_4",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 5192270185.927639
+        },
+        {
+          "task": "task_10_9",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8058295315.794191
+        },
+        {
+          "task": "task_10_5",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 9516466691.352486
+        },
+        {
+          "task": "task_10_6",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 7675390627.024637
+        },
+        {
+          "task": "task_10_7",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 6588614015.088081
+        },
+        {
+          "task": "task_10_8",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 2895742477.832815
+        },
+        {
+          "task": "task_10_10",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 3603551313.6503153
+        },
+        {
+          "task": "task_10_11",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 2148559067.3145146
+        },
+        {
+          "task": "task_10_12",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 2336609977.600295
+        },
+        {
+          "task": "task_10_13",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 5774028288.458963
+        },
+        {
+          "task": "task_10_14",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 9854976565.150215
+        },
+        {
+          "task": "task_10_15",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 2853065551.5428443
+        },
+        {
+          "task": "task_10_16",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4306944641.513556
+        },
+        {
+          "task": "task_10_17",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 4004418348.265848
+        },
+        {
+          "task": "task_10_18",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 5619442526.3069515
+        },
+        {
+          "task": "task_10_19",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 8680134170.153984
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 10,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:09"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_11",
+      "task_count": 20,
+      "dependency_count": 5,
+      "makespan": 29.208420411396517,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2507163518478559,
+        "ComputeHost2": 0.24902639347471953,
+        "ComputeHost3": 0.27883396327389676,
+        "ComputeHost4": 0.22142329140352782
+      },
+      "task_execution_times": {
+        "task_11_0": 1.4296942806824142,
+        "task_11_1": 1.644157728822905,
+        "task_11_2": 1.313633215665281,
+        "task_11_3": 1.77040196172399,
+        "task_11_4": 1.1183823072017,
+        "task_11_9": 1.9839442079912395,
+        "task_11_5": 0.6895263687155335,
+        "task_11_6": 1.3738932098596113,
+        "task_11_7": 1.6606820958725983,
+        "task_11_8": 1.0018820094519398,
+        "task_11_10": 2.0266229652945658,
+        "task_11_11": 0.6893276546100644,
+        "task_11_12": 1.6784278242136068,
+        "task_11_13": 1.0030051847301458,
+        "task_11_14": 2.157673119216774,
+        "task_11_15": 2.276296216002276,
+        "task_11_16": 1.3201149631304467,
+        "task_11_17": 1.2965064473112342,
+        "task_11_18": 1.0623893462832932,
+        "task_11_19": 1.7118593046168975
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_11_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 5717989576.06299
+        },
+        {
+          "task": "task_11_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 6576065341.958287
+        },
+        {
+          "task": "task_11_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 5253985049.327791
+        },
+        {
+          "task": "task_11_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7080878726.89596
+        },
+        {
+          "task": "task_11_4",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 4472886002.140137
+        },
+        {
+          "task": "task_11_9",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 7935072645.29829
+        },
+        {
+          "task": "task_11_5",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2756599341.528805
+        },
+        {
+          "task": "task_11_6",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 5494409799.438447
+        },
+        {
+          "task": "task_11_7",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 6642050410.1570635
+        },
+        {
+          "task": "task_11_8",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 4006846997.807763
+        },
+        {
+          "task": "task_11_10",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 8105162367.844934
+        },
+        {
+          "task": "task_11_11",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 2756544271.773591
+        },
+        {
+          "task": "task_11_12",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 6712471883.521104
+        },
+        {
+          "task": "task_11_13",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4010511965.587242
+        },
+        {
+          "task": "task_11_14",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 8630042743.533758
+        },
+        {
+          "task": "task_11_15",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 9104432304.009102
+        },
+        {
+          "task": "task_11_16",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 5279736305.85512
+        },
+        {
+          "task": "task_11_17",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 5185254615.911603
+        },
+        {
+          "task": "task_11_18",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 4249006051.7998323
+        },
+        {
+          "task": "task_11_19",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 6847437218.467588
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 11,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:09"
+      }
+    },
+    {
+      "scheduler_name": "FIFO",
+      "workflow_id": "workflow_12",
+      "task_count": 20,
+      "dependency_count": 6,
+      "makespan": 29.63920959455035,
+      "cpu_utilization": {
+        "ComputeHost1": 0.24290499809599678,
+        "ComputeHost2": 0.2467343016902089,
+        "ComputeHost3": 0.26076760512602437,
+        "ComputeHost4": 0.24959309508776997
+      },
+      "task_execution_times": {
+        "task_12_0": 0.8244289902193409,
+        "task_12_1": 0.6922223320107459,
+        "task_12_2": 2.170636489179543,
+        "task_12_3": 1.8829827247339663,
+        "task_12_4": 1.23855787659995,
+        "task_12_9": 0.9646960772458053,
+        "task_12_5": 1.8103380413666068,
+        "task_12_6": 1.114957210369866,
+        "task_12_7": 2.38209355816182,
+        "task_12_8": 1.1779071610077754,
+        "task_12_10": 2.151929465992689,
+        "task_12_11": 1.5401556655856794,
+        "task_12_12": 0.5854643965430739,
+        "task_12_13": 0.6546446141312465,
+        "task_12_14": 1.8596868524611914,
+        "task_12_15": 2.3599400306250296,
+        "task_12_16": 1.292651217229139,
+        "task_12_17": 2.2478726575624286,
+        "task_12_18": 1.1404490627274129,
+        "task_12_19": 1.5475951707970417
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_12_0",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 3297037827.54403
+        },
+        {
+          "task": "task_12_1",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 2768177141.3763165
+        },
+        {
+          "task": "task_12_2",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 8681972276.718172
+        },
+        {
+          "task": "task_12_3",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 7531381538.935866
+        },
+        {
+          "task": "task_12_4",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4953443853.066467
+        },
+        {
+          "task": "task_12_9",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 3857513348.9832253
+        },
+        {
+          "task": "task_12_5",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 7240102618.799763
+        },
+        {
+          "task": "task_12_6",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 4459169854.8127985
+        },
+        {
+          "task": "task_12_7",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 9527651139.313942
+        },
+        {
+          "task": "task_12_8",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 4710379177.364437
+        },
+        {
+          "task": "task_12_10",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 8606953170.637424
+        },
+        {
+          "task": "task_12_11",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 6160001195.676043
+        },
+        {
+          "task": "task_12_12",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 2341282279.5056334
+        },
+        {
+          "task": "task_12_13",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 2617807736.5249777
+        },
+        {
+          "task": "task_12_14",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 7438058556.51144
+        },
+        {
+          "task": "task_12_15",
+          "node": "ComputeHost1",
+          "scheduler": "FIFO",
+          "task_flops": 9439140042.500118
+        },
+        {
+          "task": "task_12_16",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 5169064282.249889
+        },
+        {
+          "task": "task_12_17",
+          "node": "ComputeHost4",
+          "scheduler": "FIFO",
+          "task_flops": 8990883270.249714
+        },
+        {
+          "task": "task_12_18",
+          "node": "ComputeHost2",
+          "scheduler": "FIFO",
+          "task_flops": 4560383984.24297
+        },
+        {
+          "task": "task_12_19",
+          "node": "ComputeHost3",
+          "scheduler": "FIFO",
+          "task_flops": 6189760603.188167
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 12,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:09"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_13",
+      "task_count": 5,
+      "dependency_count": 2,
+      "makespan": 7.566119650424228,
+      "cpu_utilization": {
+        "ComputeHost1": 0.1781546486527423,
+        "ComputeHost2": 0.3058870586389219,
+        "ComputeHost3": 0.25615096425930683,
+        "ComputeHost4": 0.259807328449029
+      },
+      "task_execution_times": {
+        "task_13_0": 1.9657333331024198,
+        "task_13_1": 2.314378085178415,
+        "task_13_2": 0.711907568314996,
+        "task_13_3": 1.3479393879859378,
+        "task_13_4": 1.2261612758424594
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_13_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 7862204265.743012
+        },
+        {
+          "task": "task_13_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 9256916394.046993
+        },
+        {
+          "task": "task_13_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 2846237126.5933185
+        },
+        {
+          "task": "task_13_3",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 5391206565.277083
+        },
+        {
+          "task": "task_13_4",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 4903916036.703173
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 13,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:09"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_14",
+      "task_count": 5,
+      "dependency_count": 1,
+      "makespan": 9.392175514836678,
+      "cpu_utilization": {
+        "ComputeHost1": 0.14309523915085504,
+        "ComputeHost2": 0.20740906395764577,
+        "ComputeHost3": 0.18746686832581771,
+        "ComputeHost4": 0.4620288285656815
+      },
+      "task_execution_times": {
+        "task_14_0": 2.067822711098799,
+        "task_14_1": 1.948022332058195,
+        "task_14_2": 1.7607217305328566,
+        "task_14_3": 2.271633139704468,
+        "task_14_4": 1.3439756014423594
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_14_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 8270538951.061865
+        },
+        {
+          "task": "task_14_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 7791482501.566116
+        },
+        {
+          "task": "task_14_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 7041536282.131429
+        },
+        {
+          "task": "task_14_3",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9085944532.151203
+        },
+        {
+          "task": "task_14_4",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 5375902405.769438
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 14,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:09"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_15",
+      "task_count": 5,
+      "dependency_count": 0,
+      "makespan": 8.151510620508297,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2613705007988395,
+        "ComputeHost2": 0.24442255878085958,
+        "ComputeHost3": 0.12436284840829982,
+        "ComputeHost4": 0.3698440920120011
+      },
+      "task_execution_times": {
+        "task_15_0": 0.8211263604574043,
+        "task_15_1": 1.9924130837939904,
+        "task_15_2": 2.1936616835106704,
+        "task_15_3": 1.0137450795969194,
+        "task_15_4": 2.1305644131493127
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_15_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 3283855175.1629505
+        },
+        {
+          "task": "task_15_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 7969023348.509297
+        },
+        {
+          "task": "task_15_2",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 8774031880.70935
+        },
+        {
+          "task": "task_15_3",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 4054257705.054342
+        },
+        {
+          "task": "task_15_4",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 8522257652.597248
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 15,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:09"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_16",
+      "task_count": 10,
+      "dependency_count": 2,
+      "makespan": 16.442469413401255,
+      "cpu_utilization": {
+        "ComputeHost1": 0.12339171578088273,
+        "ComputeHost2": 0.237445411597366,
+        "ComputeHost3": 0.22534565000886392,
+        "ComputeHost4": 0.4138172226128874
+      },
+      "task_execution_times": {
+        "task_16_0": 2.4251546241509216,
+        "task_16_1": 2.3606288778508815,
+        "task_16_2": 0.6171218535958287,
+        "task_16_3": 0.7341877872220932,
+        "task_16_4": 1.6914130962236067,
+        "task_16_9": 1.9818609948532782,
+        "task_16_5": 1.294676725372172,
+        "task_16_6": 1.5435600396912807,
+        "task_16_7": 1.3967040078943338,
+        "task_16_8": 2.397161406546859
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_16_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9699866069.93702
+        },
+        {
+          "task": "task_16_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 9441923031.403526
+        },
+        {
+          "task": "task_16_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 2467887601.0499797
+        },
+        {
+          "task": "task_16_3",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2935349335.5550413
+        },
+        {
+          "task": "task_16_4",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 6764936384.894426
+        },
+        {
+          "task": "task_16_9",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 7926844166.079781
+        },
+        {
+          "task": "task_16_5",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 5178133781.48869
+        },
+        {
+          "task": "task_16_6",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 6173481278.765123
+        },
+        {
+          "task": "task_16_7",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5586267338.243996
+        },
+        {
+          "task": "task_16_8",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9588027892.854105
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 16,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:09"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_17",
+      "task_count": 10,
+      "dependency_count": 1,
+      "makespan": 14.942749435860605,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2075080873703189,
+        "ComputeHost2": 0.31440528410239854,
+        "ComputeHost3": 0.17269430230939556,
+        "ComputeHost4": 0.305392326217887
+      },
+      "task_execution_times": {
+        "task_17_0": 2.430128949919078,
+        "task_17_1": 1.308056194066603,
+        "task_17_2": 1.3103954871674501,
+        "task_17_3": 0.6254185898327176,
+        "task_17_4": 1.375955083129802,
+        "task_17_9": 0.5121940126941436,
+        "task_17_5": 1.2701322012426113,
+        "task_17_6": 2.1332720603894106,
+        "task_17_7": 1.9631287529624846,
+        "task_17_8": 2.014068104456305
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_17_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9719810466.34298
+        },
+        {
+          "task": "task_17_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 5231528376.266413
+        },
+        {
+          "task": "task_17_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5240936162.003132
+        },
+        {
+          "task": "task_17_3",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2500884519.33087
+        },
+        {
+          "task": "task_17_4",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 5503135879.185877
+        },
+        {
+          "task": "task_17_9",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2048776050.776575
+        },
+        {
+          "task": "task_17_5",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5079805311.63711
+        },
+        {
+          "task": "task_17_6",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 8532534454.890981
+        },
+        {
+          "task": "task_17_7",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 7851253705.183268
+        },
+        {
+          "task": "task_17_8",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 8055580951.15855
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 17,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:10"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_18",
+      "task_count": 10,
+      "dependency_count": 5,
+      "makespan": 16.58756912104301,
+      "cpu_utilization": {
+        "ComputeHost1": 0.20932948181545577,
+        "ComputeHost2": 0.20866177937161265,
+        "ComputeHost3": 0.2560503310781991,
+        "ComputeHost4": 0.3259584077347325
+      },
+      "task_execution_times": {
+        "task_18_0": 0.6841270854470201,
+        "task_18_1": 1.9051361606783244,
+        "task_18_2": 2.331062026490686,
+        "task_18_3": 1.2524292785823619,
+        "task_18_4": 1.8628935487585645,
+        "task_18_5": 1.6035698599109587,
+        "task_18_6": 1.5560555275681267,
+        "task_18_7": 2.3916685069472905,
+        "task_18_9": 1.6093736999274242,
+        "task_18_8": 1.3912534267322538
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_18_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 2735929168.4547467
+        },
+        {
+          "task": "task_18_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 7619890589.379965
+        },
+        {
+          "task": "task_18_2",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9322900985.962748
+        },
+        {
+          "task": "task_18_3",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5008979994.329447
+        },
+        {
+          "task": "task_18_4",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 7450068061.700927
+        },
+        {
+          "task": "task_18_5",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 6413503706.310501
+        },
+        {
+          "task": "task_18_6",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 6222783950.272505
+        },
+        {
+          "task": "task_18_7",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9565343414.45583
+        },
+        {
+          "task": "task_18_9",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 6436902373.043035
+        },
+        {
+          "task": "task_18_8",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5564319040.262354
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 18,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:10"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_19",
+      "task_count": 15,
+      "dependency_count": 4,
+      "makespan": 20.058582930125564,
+      "cpu_utilization": {
+        "ComputeHost1": 0.20838263417723862,
+        "ComputeHost2": 0.2696356486662843,
+        "ComputeHost3": 0.25160381376716895,
+        "ComputeHost4": 0.27037790338930806
+      },
+      "task_execution_times": {
+        "task_19_0": 0.5002008121007055,
+        "task_19_1": 2.3418768717984086,
+        "task_19_2": 2.353283425361372,
+        "task_19_3": 0.7051474947860372,
+        "task_19_4": 0.6066091491921028,
+        "task_19_9": 1.8970748407778917,
+        "task_19_5": 1.611635753468617,
+        "task_19_6": 1.1646405754516422,
+        "task_19_7": 0.7350874064777546,
+        "task_19_8": 1.8462325072310453,
+        "task_19_10": 1.2292348244068911,
+        "task_19_11": 1.2325849187595654,
+        "task_19_12": 1.8905850188778501,
+        "task_19_13": 1.2153588040138068,
+        "task_19_14": 0.7290305274218731
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_19_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 2000020261.7361555
+        },
+        {
+          "task": "task_19_1",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9366821780.52697
+        },
+        {
+          "task": "task_19_2",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 9412438341.445492
+        },
+        {
+          "task": "task_19_3",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 2819283952.4774847
+        },
+        {
+          "task": "task_19_4",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2425042916.7684164
+        },
+        {
+          "task": "task_19_9",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 7587605869.778237
+        },
+        {
+          "task": "task_19_5",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 6445825493.874465
+        },
+        {
+          "task": "task_19_6",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 4657180861.806575
+        },
+        {
+          "task": "task_19_7",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 2938986025.9110208
+        },
+        {
+          "task": "task_19_8",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 7384186828.924178
+        },
+        {
+          "task": "task_19_10",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 4916150817.627565
+        },
+        {
+          "task": "task_19_11",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 4929652421.704919
+        },
+        {
+          "task": "task_19_12",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 7561790795.511394
+        },
+        {
+          "task": "task_19_13",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 4860787856.055225
+        },
+        {
+          "task": "task_19_14",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2916122109.687489
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 19,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:10"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_20",
+      "task_count": 15,
+      "dependency_count": 2,
+      "makespan": 23.11115043293254,
+      "cpu_utilization": {
+        "ComputeHost1": 0.21334195028503658,
+        "ComputeHost2": 0.23626085998139906,
+        "ComputeHost3": 0.2381303814738285,
+        "ComputeHost4": 0.31226680825973585
+      },
+      "task_execution_times": {
+        "task_20_0": 1.6906224988568306,
+        "task_20_1": 2.0443833899747696,
+        "task_20_2": 2.214023572644291,
+        "task_20_3": 2.425176532445459,
+        "task_20_4": 1.5322067864042914,
+        "task_20_9": 2.107143896495657,
+        "task_20_5": 0.6613936605431547,
+        "task_20_6": 2.0265262039553704,
+        "task_20_7": 0.9446423083759949,
+        "task_20_8": 1.2961721534282429,
+        "task_20_10": 0.6614090361924667,
+        "task_20_11": 1.3087329899736986,
+        "task_20_12": 1.2629172922936007,
+        "task_20_13": 1.1309261151767878,
+        "task_20_14": 1.8048739961719242
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_20_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 6761700022.093989
+        },
+        {
+          "task": "task_20_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 8176883266.565745
+        },
+        {
+          "task": "task_20_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 8855356050.577164
+        },
+        {
+          "task": "task_20_3",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9699966716.448502
+        },
+        {
+          "task": "task_20_4",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 6128233652.283831
+        },
+        {
+          "task": "task_20_9",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 8427842065.982632
+        },
+        {
+          "task": "task_20_5",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2644882322.1726184
+        },
+        {
+          "task": "task_20_6",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 8104952549.154819
+        },
+        {
+          "task": "task_20_7",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 3777888140.170643
+        },
+        {
+          "task": "task_20_8",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 5184075787.0463
+        },
+        {
+          "task": "task_20_10",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2644232011.4365296
+        },
+        {
+          "task": "task_20_11",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 5234277959.894804
+        },
+        {
+          "task": "task_20_12",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5050904849.174408
+        },
+        {
+          "task": "task_20_13",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 4523150860.707148
+        },
+        {
+          "task": "task_20_14",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 7219495984.687695
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 20,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:10"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_21",
+      "task_count": 15,
+      "dependency_count": 3,
+      "makespan": 22.01358273988479,
+      "cpu_utilization": {
+        "ComputeHost1": 0.22450804977961752,
+        "ComputeHost2": 0.23719604425652732,
+        "ComputeHost3": 0.21331978597702764,
+        "ComputeHost4": 0.32497611998682746
+      },
+      "task_execution_times": {
+        "task_21_0": 1.3938890999048834,
+        "task_21_1": 1.7886912876953953,
+        "task_21_2": 1.3712211045971028,
+        "task_21_3": 0.7646401952245796,
+        "task_21_4": 0.8702941495473375,
+        "task_21_9": 1.0676719998497077,
+        "task_21_5": 0.9811536330061283,
+        "task_21_6": 1.6070923320782846,
+        "task_21_7": 1.8703653398457991,
+        "task_21_8": 1.14764277959579,
+        "task_21_10": 2.343558021056582,
+        "task_21_11": 1.6022500016932621,
+        "task_21_12": 1.5624781182732441,
+        "task_21_13": 1.9622715549237064,
+        "task_21_14": 1.6803631225929863
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_21_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 5574917119.619534
+        },
+        {
+          "task": "task_21_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 7153986004.114916
+        },
+        {
+          "task": "task_21_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5484131458.3884115
+        },
+        {
+          "task": "task_21_3",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 3057956220.8983192
+        },
+        {
+          "task": "task_21_4",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 3480395558.18935
+        },
+        {
+          "task": "task_21_9",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 4270090506.065496
+        },
+        {
+          "task": "task_21_5",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 3923274905.357852
+        },
+        {
+          "task": "task_21_6",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 6427741568.313134
+        },
+        {
+          "task": "task_21_7",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 7480907332.716535
+        },
+        {
+          "task": "task_21_8",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 4589884478.383163
+        },
+        {
+          "task": "task_21_10",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 9373071657.559662
+        },
+        {
+          "task": "task_21_11",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 6408288700.106385
+        },
+        {
+          "task": "task_21_12",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 6248494713.09298
+        },
+        {
+          "task": "task_21_13",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 7848308646.361487
+        },
+        {
+          "task": "task_21_14",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 6721452490.371952
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 21,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:10"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_22",
+      "task_count": 20,
+      "dependency_count": 5,
+      "makespan": 32.00521937410294,
+      "cpu_utilization": {
+        "ComputeHost1": 0.24350404341753545,
+        "ComputeHost2": 0.23790052788786092,
+        "ComputeHost3": 0.26431198750506785,
+        "ComputeHost4": 0.2542834411895357
+      },
+      "task_execution_times": {
+        "task_22_0": 2.2638432064456038,
+        "task_22_1": 1.2477788638537421,
+        "task_22_2": 0.8382557455275403,
+        "task_22_3": 1.4850522771783563,
+        "task_22_4": 1.5337636686704768,
+        "task_22_9": 1.5945445607215012,
+        "task_22_5": 1.4898411763282358,
+        "task_22_6": 2.3599081816648404,
+        "task_22_7": 2.0026141416273493,
+        "task_22_8": 1.2821663243086885,
+        "task_22_10": 2.0830269642236594,
+        "task_22_11": 2.291056018132423,
+        "task_22_12": 1.0015211400458703,
+        "task_22_13": 2.301685971475397,
+        "task_22_14": 2.4118269780258004,
+        "task_22_15": 0.6429986286568301,
+        "task_22_16": 0.866682787837064,
+        "task_22_17": 1.207633531342406,
+        "task_22_18": 1.7945313527138396,
+        "task_22_19": 1.3064878553233186
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_22_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9054774185.782415
+        },
+        {
+          "task": "task_22_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 4990564362.081636
+        },
+        {
+          "task": "task_22_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 3351776848.77683
+        },
+        {
+          "task": "task_22_3",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 5938867242.046761
+        },
+        {
+          "task": "task_22_4",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 6134293848.015242
+        },
+        {
+          "task": "task_22_9",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 6377545442.886006
+        },
+        {
+          "task": "task_22_5",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 5958667531.979609
+        },
+        {
+          "task": "task_22_6",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 9438942939.992695
+        },
+        {
+          "task": "task_22_7",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 8009879579.842732
+        },
+        {
+          "task": "task_22_8",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5127917617.234751
+        },
+        {
+          "task": "task_22_10",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 8331422576.894633
+        },
+        {
+          "task": "task_22_11",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 9163499059.196358
+        },
+        {
+          "task": "task_22_12",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 4005292053.5168114
+        },
+        {
+          "task": "task_22_13",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9206035005.901587
+        },
+        {
+          "task": "task_22_14",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 9646690445.436531
+        },
+        {
+          "task": "task_22_15",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2570668594.627314
+        },
+        {
+          "task": "task_22_16",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 3465396511.348261
+        },
+        {
+          "task": "task_22_17",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 4829913645.369633
+        },
+        {
+          "task": "task_22_18",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 7176707944.18869
+        },
+        {
+          "task": "task_22_19",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5225951421.293279
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 22,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:10"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_23",
+      "task_count": 20,
+      "dependency_count": 5,
+      "makespan": 31.684255266129927,
+      "cpu_utilization": {
+        "ComputeHost1": 0.23697391429137402,
+        "ComputeHost2": 0.255715568906648,
+        "ComputeHost3": 0.2323237240422482,
+        "ComputeHost4": 0.27498679275972976
+      },
+      "task_execution_times": {
+        "task_23_0": 1.9953779215453247,
+        "task_23_1": 1.832129663322532,
+        "task_23_2": 1.8967617947947866,
+        "task_23_3": 2.1151742479277527,
+        "task_23_4": 0.9850439526565742,
+        "task_23_9": 1.3629567658671036,
+        "task_23_5": 2.1488102796732953,
+        "task_23_6": 1.4918996096813384,
+        "task_23_7": 2.268848103020913,
+        "task_23_8": 2.430503032082367,
+        "task_23_10": 0.7235156672741745,
+        "task_23_11": 1.6416316695101187,
+        "task_23_12": 0.9917419482325336,
+        "task_23_13": 1.612454652679208,
+        "task_23_14": 1.4694713007524598,
+        "task_23_15": 1.0727616048807356,
+        "task_23_16": 2.171696535058203,
+        "task_23_17": 1.6600944851011654,
+        "task_23_18": 0.7876138561972255,
+        "task_23_19": 1.0257681758721162
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_23_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 7980780672.847965
+        },
+        {
+          "task": "task_23_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 7327865159.956795
+        },
+        {
+          "task": "task_23_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 7586468779.179148
+        },
+        {
+          "task": "task_23_3",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 8459465125.044346
+        },
+        {
+          "task": "task_23_4",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 3939500210.626296
+        },
+        {
+          "task": "task_23_9",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 5451271703.468413
+        },
+        {
+          "task": "task_23_5",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 8594579198.69318
+        },
+        {
+          "task": "task_23_6",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5966925292.058693
+        },
+        {
+          "task": "task_23_7",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 9073947318.750328
+        },
+        {
+          "task": "task_23_8",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9721455754.996126
+        },
+        {
+          "task": "task_23_10",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 2893308269.0966873
+        },
+        {
+          "task": "task_23_11",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 6565232971.3737955
+        },
+        {
+          "task": "task_23_12",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 3965725206.263472
+        },
+        {
+          "task": "task_23_13",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 6449239170.716838
+        },
+        {
+          "task": "task_23_14",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 5877294296.343182
+        },
+        {
+          "task": "task_23_15",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 4289905512.8562827
+        },
+        {
+          "task": "task_23_16",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 8686042033.566132
+        },
+        {
+          "task": "task_23_17",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 6639694980.404651
+        },
+        {
+          "task": "task_23_18",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 3149687291.455562
+        },
+        {
+          "task": "task_23_19",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 4103072703.488469
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 23,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:11"
+      }
+    },
+    {
+      "scheduler_name": "HEFT",
+      "workflow_id": "workflow_24",
+      "task_count": 20,
+      "dependency_count": 4,
+      "makespan": 29.479612154280517,
+      "cpu_utilization": {
+        "ComputeHost1": 0.19071542321061902,
+        "ComputeHost2": 0.25897814820868803,
+        "ComputeHost3": 0.2763790792723186,
+        "ComputeHost4": 0.2739273493083744
+      },
+      "task_execution_times": {
+        "task_24_0": 1.7106709958305881,
+        "task_24_1": 1.5266018019337695,
+        "task_24_2": 0.66586444417067,
+        "task_24_3": 2.4335054272991767,
+        "task_24_4": 1.1261969081135055,
+        "task_24_9": 1.5207398679783442,
+        "task_24_5": 1.2423770132394925,
+        "task_24_6": 0.7300138038933834,
+        "task_24_7": 1.0686883744605957,
+        "task_24_8": 2.134978777344889,
+        "task_24_10": 0.9057218123939066,
+        "task_24_11": 1.5218316717008893,
+        "task_24_12": 1.870863036399836,
+        "task_24_13": 0.5691071037160995,
+        "task_24_14": 2.4092639212303446,
+        "task_24_15": 2.2911770799716216,
+        "task_24_16": 1.115254516948827,
+        "task_24_17": 0.5350017195649706,
+        "task_24_18": 1.615363256158922,
+        "task_24_19": 2.486390621930685
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_24_0",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 6841935183.322352
+        },
+        {
+          "task": "task_24_1",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 6105680967.735079
+        },
+        {
+          "task": "task_24_2",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 2662687563.3493485
+        },
+        {
+          "task": "task_24_3",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9732667522.530045
+        },
+        {
+          "task": "task_24_4",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 4504187552.454025
+        },
+        {
+          "task": "task_24_9",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 6082410938.580046
+        },
+        {
+          "task": "task_24_5",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 4968779919.624635
+        },
+        {
+          "task": "task_24_6",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2919324895.573535
+        },
+        {
+          "task": "task_24_7",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 4274071257.8423886
+        },
+        {
+          "task": "task_24_8",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 8538443909.379561
+        },
+        {
+          "task": "task_24_10",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 3622146129.5756273
+        },
+        {
+          "task": "task_24_11",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 6085969806.803548
+        },
+        {
+          "task": "task_24_12",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 7482207932.266026
+        },
+        {
+          "task": "task_24_13",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 2275806201.531063
+        },
+        {
+          "task": "task_24_14",
+          "node": "ComputeHost4",
+          "scheduler": "HEFT",
+          "task_flops": 9636392564.92138
+        },
+        {
+          "task": "task_24_15",
+          "node": "ComputeHost1",
+          "scheduler": "HEFT",
+          "task_flops": 9164002879.886482
+        },
+        {
+          "task": "task_24_16",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 4460410067.795316
+        },
+        {
+          "task": "task_24_17",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 2139301411.593217
+        },
+        {
+          "task": "task_24_18",
+          "node": "ComputeHost2",
+          "scheduler": "HEFT",
+          "task_flops": 6460887317.969026
+        },
+        {
+          "task": "task_24_19",
+          "node": "ComputeHost3",
+          "scheduler": "HEFT",
+          "task_flops": 9945562487.722734
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 24,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:11"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_25",
+      "task_count": 5,
+      "dependency_count": 1,
+      "makespan": 9.70554196781849,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_25_0": 2.1097169126246538,
+        "task_25_1": 1.7078395335378058,
+        "task_25_2": 2.2484359827535485,
+        "task_25_3": 2.117875237404732,
+        "task_25_4": 1.5216743014977503
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_25_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8438104397.165283
+        },
+        {
+          "task": "task_25_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6830647974.151224
+        },
+        {
+          "task": "task_25_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8992314491.014194
+        },
+        {
+          "task": "task_25_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8470859562.952264
+        },
+        {
+          "task": "task_25_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6086697205.991003
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 25,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:11"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_26",
+      "task_count": 5,
+      "dependency_count": 1,
+      "makespan": 6.552486793054307,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_26_0": 2.379482117457055,
+        "task_26_1": 0.9521880157187916,
+        "task_26_2": 0.8001037862591596,
+        "task_26_3": 0.8547244093336817,
+        "task_26_4": 1.5659884642856188
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_26_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9517258709.82822
+        },
+        {
+          "task": "task_26_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3808080676.208502
+        },
+        {
+          "task": "task_26_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3199818718.369973
+        },
+        {
+          "task": "task_26_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3417661557.334729
+        },
+        {
+          "task": "task_26_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6263953857.142477
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 26,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:11"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_27",
+      "task_count": 5,
+      "dependency_count": 2,
+      "makespan": 6.436143564906296,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_27_0": 1.1835656930147807,
+        "task_27_1": 1.0066807742570922,
+        "task_27_2": 1.0516275107057336,
+        "task_27_3": 1.3060322468986838,
+        "task_27_4": 1.888237340030006
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_27_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4733498505.392456
+        },
+        {
+          "task": "task_27_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4026147790.361702
+        },
+        {
+          "task": "task_27_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4205009936.1562696
+        },
+        {
+          "task": "task_27_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5223336214.261401
+        },
+        {
+          "task": "task_27_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7552213520.120025
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 27,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:11"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_28",
+      "task_count": 10,
+      "dependency_count": 1,
+      "makespan": 15.586314063903442,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_28_0": 1.7763183934183508,
+        "task_28_1": 0.838005540456128,
+        "task_28_2": 1.1929462199131047,
+        "task_28_3": 2.375337905021614,
+        "task_28_4": 2.489534344633917,
+        "task_28_9": 2.314115495289901,
+        "task_28_5": 1.1266243869937984,
+        "task_28_6": 1.3323013079424761,
+        "task_28_7": 1.3799832860736672,
+        "task_28_8": 0.7611471841604853
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_28_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7104638373.673403
+        },
+        {
+          "task": "task_28_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3351385655.157845
+        },
+        {
+          "task": "task_28_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4771127972.985753
+        },
+        {
+          "task": "task_28_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9500802180.086456
+        },
+        {
+          "task": "task_28_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9956699191.869007
+        },
+        {
+          "task": "task_28_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9256461981.159607
+        },
+        {
+          "task": "task_28_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4505846881.308525
+        },
+        {
+          "task": "task_28_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5328556645.103238
+        },
+        {
+          "task": "task_28_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5519262824.294669
+        },
+        {
+          "task": "task_28_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3044010869.975271
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 28,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:11"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_29",
+      "task_count": 10,
+      "dependency_count": 6,
+      "makespan": 14.35452381070814,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_29_0": 2.291946549484836,
+        "task_29_1": 2.370596356110337,
+        "task_29_2": 0.5018285548466812,
+        "task_29_3": 1.6649339541786414,
+        "task_29_4": 0.8650349119746092,
+        "task_29_5": 1.1236065544988652,
+        "task_29_6": 1.062384079678754,
+        "task_29_7": 0.6957996497952834,
+        "task_29_9": 2.1282298267047928,
+        "task_29_8": 1.6501633734353387
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_29_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9167147131.272678
+        },
+        {
+          "task": "task_29_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9481826064.441349
+        },
+        {
+          "task": "task_29_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2006107499.386726
+        },
+        {
+          "task": "task_29_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6658984750.047898
+        },
+        {
+          "task": "task_29_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3458768047.8984385
+        },
+        {
+          "task": "task_29_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4493648057.995464
+        },
+        {
+          "task": "task_29_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4248229358.7150126
+        },
+        {
+          "task": "task_29_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2781769612.5144663
+        },
+        {
+          "task": "task_29_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8512129386.819167
+        },
+        {
+          "task": "task_29_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6599504240.408027
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 29,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:11"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_30",
+      "task_count": 10,
+      "dependency_count": 1,
+      "makespan": 13.816220929937849,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_30_0": 1.3314695338743108,
+        "task_30_1": 1.0189134590178122,
+        "task_30_2": 1.4055946544038465,
+        "task_30_3": 2.4279529890318905,
+        "task_30_4": 0.9285645891479231,
+        "task_30_9": 1.5941373266179646,
+        "task_30_5": 1.2620173618327097,
+        "task_30_6": 0.8057618190349487,
+        "task_30_7": 1.3733567210464148,
+        "task_30_8": 1.668452475930028
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_30_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5325103282.16391
+        },
+        {
+          "task": "task_30_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4075088582.737916
+        },
+        {
+          "task": "task_30_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5621604777.615387
+        },
+        {
+          "task": "task_30_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9711261636.127563
+        },
+        {
+          "task": "task_30_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3713140836.591695
+        },
+        {
+          "task": "task_30_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6376549306.471857
+        },
+        {
+          "task": "task_30_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5047517713.997507
+        },
+        {
+          "task": "task_30_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3222332476.139797
+        },
+        {
+          "task": "task_30_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5492815497.518995
+        },
+        {
+          "task": "task_30_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6673240170.38678
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 30,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:12"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_31",
+      "task_count": 15,
+      "dependency_count": 0,
+      "makespan": 22.451850113507483,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_31_0": 1.899021029146157,
+        "task_31_1": 0.5906814458802967,
+        "task_31_2": 1.5182283315939364,
+        "task_31_3": 1.5046836772868026,
+        "task_31_4": 2.3685921792547937,
+        "task_31_9": 2.2485162412385815,
+        "task_31_5": 1.6742416096337873,
+        "task_31_6": 0.9312914282501357,
+        "task_31_7": 0.8771692531646149,
+        "task_31_8": 1.7321668995375354,
+        "task_31_10": 0.7982639224273136,
+        "task_31_11": 2.279156857501725,
+        "task_31_12": 1.721039330460897,
+        "task_31_13": 1.5313102230327402,
+        "task_31_14": 0.7774876850981656
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_31_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7595463583.251294
+        },
+        {
+          "task": "task_31_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2361992476.8545213
+        },
+        {
+          "task": "task_31_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6072276233.042414
+        },
+        {
+          "task": "task_31_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6017994415.813877
+        },
+        {
+          "task": "task_31_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9473813863.68584
+        },
+        {
+          "task": "task_31_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8993481258.287663
+        },
+        {
+          "task": "task_31_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6696181718.5351515
+        },
+        {
+          "task": "task_31_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3724429313.0005407
+        },
+        {
+          "task": "task_31_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3507948985.9917955
+        },
+        {
+          "task": "task_31_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6928016238.150145
+        },
+        {
+          "task": "task_31_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3192297849.7092524
+        },
+        {
+          "task": "task_31_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9116071376.673567
+        },
+        {
+          "task": "task_31_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6883498415.176912
+        },
+        {
+          "task": "task_31_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6124573692.130968
+        },
+        {
+          "task": "task_31_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3109950740.392664
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 31,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:12"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_32",
+      "task_count": 15,
+      "dependency_count": 3,
+      "makespan": 27.929739637229986,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_32_0": 2.4111506210231997,
+        "task_32_1": 1.500774248953801,
+        "task_32_2": 2.3299150326612823,
+        "task_32_3": 0.7224516744721354,
+        "task_32_4": 0.9355280756255491,
+        "task_32_9": 2.483984879138479,
+        "task_32_5": 2.234027784899345,
+        "task_32_6": 2.3252217502220596,
+        "task_32_7": 1.273017847250026,
+        "task_32_8": 2.338217177240928,
+        "task_32_10": 1.2053425724156455,
+        "task_32_11": 2.4297429922379052,
+        "task_32_12": 2.272558252399051,
+        "task_32_13": 1.372853409191496,
+        "task_32_14": 2.0949533194990835
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_32_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9643951097.426132
+        },
+        {
+          "task": "task_32_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6002419529.148539
+        },
+        {
+          "task": "task_32_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9318959730.64513
+        },
+        {
+          "task": "task_32_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2889118111.221877
+        },
+        {
+          "task": "task_32_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3740647129.1688623
+        },
+        {
+          "task": "task_32_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9935343543.220587
+        },
+        {
+          "task": "task_32_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8935427619.597374
+        },
+        {
+          "task": "task_32_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9300182707.554901
+        },
+        {
+          "task": "task_32_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5091501415.666774
+        },
+        {
+          "task": "task_32_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9352148575.630386
+        },
+        {
+          "task": "task_32_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4820085676.32925
+        },
+        {
+          "task": "task_32_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9717763302.284958
+        },
+        {
+          "task": "task_32_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9089450396.262882
+        },
+        {
+          "task": "task_32_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5490783663.4326515
+        },
+        {
+          "task": "task_32_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8379813277.996335
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 32,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:12"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_33",
+      "task_count": 15,
+      "dependency_count": 5,
+      "makespan": 24.18871021341841,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_33_0": 1.791069131051799,
+        "task_33_1": 2.495853631043291,
+        "task_33_2": 1.382398917328178,
+        "task_33_3": 2.3158902332405225,
+        "task_33_4": 1.0204976331810505,
+        "task_33_9": 1.6271238020807939,
+        "task_33_5": 1.6440101669532847,
+        "task_33_6": 1.3533107247005063,
+        "task_33_7": 1.8572433098345549,
+        "task_33_8": 1.0476702256159207,
+        "task_33_10": 2.4512258079689353,
+        "task_33_11": 0.6497446010470718,
+        "task_33_12": 1.1705590689903786,
+        "task_33_13": 1.086631743222732,
+        "task_33_14": 2.2954812171593915
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_33_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7163706150.873862
+        },
+        {
+          "task": "task_33_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9982733697.506496
+        },
+        {
+          "task": "task_33_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5528893295.97938
+        },
+        {
+          "task": "task_33_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9262401492.96209
+        },
+        {
+          "task": "task_33_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4080615759.3908663
+        },
+        {
+          "task": "task_33_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6507865928.323179
+        },
+        {
+          "task": "task_33_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6574713414.47981
+        },
+        {
+          "task": "task_33_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5412451805.468693
+        },
+        {
+          "task": "task_33_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7428326892.671558
+        },
+        {
+          "task": "task_33_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4189326769.1303515
+        },
+        {
+          "task": "task_33_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9804180191.875744
+        },
+        {
+          "task": "task_33_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2597743044.1882963
+        },
+        {
+          "task": "task_33_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4681574702.628185
+        },
+        {
+          "task": "task_33_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4345973479.557597
+        },
+        {
+          "task": "task_33_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9181924868.637566
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 33,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:12"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_34",
+      "task_count": 20,
+      "dependency_count": 4,
+      "makespan": 27.969840690240865,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_34_0": 1.0476853677827942,
+        "task_34_1": 0.7002098729628006,
+        "task_34_2": 1.6443758500677341,
+        "task_34_3": 1.5869508215480743,
+        "task_34_4": 1.2178861267910026,
+        "task_34_9": 1.6093713251200645,
+        "task_34_5": 1.977978010485418,
+        "task_34_6": 1.7310975219079072,
+        "task_34_7": 1.5780363712905245,
+        "task_34_8": 2.117623253237605,
+        "task_34_10": 0.6180980403007048,
+        "task_34_11": 0.6946073154940766,
+        "task_34_12": 0.7643554760347158,
+        "task_34_13": 2.3079199657282246,
+        "task_34_14": 0.9860435462971395,
+        "task_34_15": 0.5217111802904526,
+        "task_34_16": 1.9244631047522915,
+        "task_34_17": 0.8843066630711256,
+        "task_34_18": 1.9459999323684265,
+        "task_34_19": 2.111120944709782
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_34_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4190091684.46451
+        },
+        {
+          "task": "task_34_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2800172291.8512025
+        },
+        {
+          "task": "task_34_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6576863373.604271
+        },
+        {
+          "task": "task_34_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6346523766.192301
+        },
+        {
+          "task": "task_34_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4870918027.164012
+        },
+        {
+          "task": "task_34_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6436860047.146925
+        },
+        {
+          "task": "task_34_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7911184361.941674
+        },
+        {
+          "task": "task_34_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6923710380.96496
+        },
+        {
+          "task": "task_34_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6311409458.495434
+        },
+        {
+          "task": "task_34_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8469740132.9504175
+        },
+        {
+          "task": "task_34_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2471830214.5361557
+        },
+        {
+          "task": "task_34_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2777761235.3096523
+        },
+        {
+          "task": "task_34_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3056748384.1388683
+        },
+        {
+          "task": "task_34_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9230422582.912907
+        },
+        {
+          "task": "task_34_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3943555278.521905
+        },
+        {
+          "task": "task_34_15",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2085583281.1618037
+        },
+        {
+          "task": "task_34_16",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7696474712.342498
+        },
+        {
+          "task": "task_34_17",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3536473958.9511566
+        },
+        {
+          "task": "task_34_18",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7783252822.807043
+        },
+        {
+          "task": "task_34_19",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8444483778.839126
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 34,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:13"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_35",
+      "task_count": 20,
+      "dependency_count": 4,
+      "makespan": 29.32512336381922,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_35_0": 1.3907286182393075,
+        "task_35_1": 2.1581040837020615,
+        "task_35_2": 0.5002802881137276,
+        "task_35_3": 0.5287428948228055,
+        "task_35_4": 2.0868494984594674,
+        "task_35_9": 0.5605644787396207,
+        "task_35_5": 1.0640231726753306,
+        "task_35_6": 1.7465639735545793,
+        "task_35_7": 1.5573798265233911,
+        "task_35_8": 1.6762533124986483,
+        "task_35_10": 0.7956940073706171,
+        "task_35_11": 2.1036690919843064,
+        "task_35_12": 1.1556704661895303,
+        "task_35_13": 1.2779188965801254,
+        "task_35_14": 1.653079523215471,
+        "task_35_15": 0.7924964342617002,
+        "task_35_16": 2.2576538788800384,
+        "task_35_17": 1.4380314266590126,
+        "task_35_18": 2.4621619452323706,
+        "task_35_19": 2.119257546117108
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_35_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5562279912.95723
+        },
+        {
+          "task": "task_35_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8631684361.474915
+        },
+        {
+          "task": "task_35_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2000413259.1215801
+        },
+        {
+          "task": "task_35_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2114366672.6245573
+        },
+        {
+          "task": "task_35_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8346766713.837869
+        },
+        {
+          "task": "task_35_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2240959568.291817
+        },
+        {
+          "task": "task_35_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4255423677.3679924
+        },
+        {
+          "task": "task_35_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6984980267.551648
+        },
+        {
+          "task": "task_35_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6228765066.093568
+        },
+        {
+          "task": "task_35_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6704241623.327924
+        },
+        {
+          "task": "task_35_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3182141976.14913
+        },
+        {
+          "task": "task_35_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8413936101.270552
+        },
+        {
+          "task": "task_35_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4622024531.424783
+        },
+        {
+          "task": "task_35_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5110360172.98717
+        },
+        {
+          "task": "task_35_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6611685932.86189
+        },
+        {
+          "task": "task_35_15",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3169209230.3801384
+        },
+        {
+          "task": "task_35_16",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9030000395.520145
+        },
+        {
+          "task": "task_35_17",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5751447786.636045
+        },
+        {
+          "task": "task_35_18",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9848087540.92949
+        },
+        {
+          "task": "task_35_19",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8476398024.468442
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 35,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:13"
+      }
+    },
+    {
+      "scheduler_name": "WASS-DRL",
+      "workflow_id": "workflow_36",
+      "task_count": 20,
+      "dependency_count": 6,
+      "makespan": 32.5094639752867,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 1.0
+      },
+      "task_execution_times": {
+        "task_36_0": 2.339503551366409,
+        "task_36_1": 1.2843169705189323,
+        "task_36_2": 2.226414822205773,
+        "task_36_3": 0.7238050030604821,
+        "task_36_4": 1.1658822784847738,
+        "task_36_9": 2.1396379004397295,
+        "task_36_5": 1.171025673727394,
+        "task_36_6": 2.2053475889175402,
+        "task_36_7": 0.7973704182652703,
+        "task_36_8": 1.7208362632888736,
+        "task_36_10": 1.547479409486069,
+        "task_36_11": 1.3583687566141158,
+        "task_36_12": 1.8270856231178207,
+        "task_36_13": 1.33189340651667,
+        "task_36_14": 2.3787662414332544,
+        "task_36_15": 1.624390180513533,
+        "task_36_16": 1.5194392282102207,
+        "task_36_17": 1.9228949253693877,
+        "task_36_18": 2.369088662175198,
+        "task_36_19": 0.8559170715752522
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_36_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9357400285.465637
+        },
+        {
+          "task": "task_36_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5136507775.409063
+        },
+        {
+          "task": "task_36_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8904879555.489758
+        },
+        {
+          "task": "task_36_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 2894445105.5752616
+        },
+        {
+          "task": "task_36_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4662071300.605764
+        },
+        {
+          "task": "task_36_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8557974641.758924
+        },
+        {
+          "task": "task_36_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 4683549948.24291
+        },
+        {
+          "task": "task_36_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 8819844195.670166
+        },
+        {
+          "task": "task_36_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3188833726.394415
+        },
+        {
+          "task": "task_36_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6882573266.488826
+        },
+        {
+          "task": "task_36_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6188562544.610941
+        },
+        {
+          "task": "task_36_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5432766573.123138
+        },
+        {
+          "task": "task_36_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7307696305.804614
+        },
+        {
+          "task": "task_36_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 5326951652.733337
+        },
+        {
+          "task": "task_36_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9514299765.73301
+        },
+        {
+          "task": "task_36_15",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6496825335.387467
+        },
+        {
+          "task": "task_36_16",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 6076368459.507543
+        },
+        {
+          "task": "task_36_17",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 7690172154.810877
+        },
+        {
+          "task": "task_36_18",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 9475014888.700802
+        },
+        {
+          "task": "task_36_19",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-DRL",
+          "task_flops": 3423668286.3010044
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 36,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:13"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_37",
+      "task_count": 5,
+      "dependency_count": 1,
+      "makespan": 6.643663642255435,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2387964312142159,
+        "ComputeHost2": 0.10061509054069114,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 0.6605884782450929
+      },
+      "task_execution_times": {
+        "task_37_0": 0.7215547064413843,
+        "task_37_1": 2.14854506350613,
+        "task_37_2": 0.8649284615168527,
+        "task_37_3": 2.2401825919036393,
+        "task_37_4": 0.6684528188874284
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_37_0",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2885628479.0988703
+        },
+        {
+          "task": "task_37_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8593441054.02452
+        },
+        {
+          "task": "task_37_2",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3458454299.4007454
+        },
+        {
+          "task": "task_37_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8959966314.281229
+        },
+        {
+          "task": "task_37_4",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2673811275.549715
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 37,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:13"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_38",
+      "task_count": 5,
+      "dependency_count": 1,
+      "makespan": 8.840859208405032,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 0.1670128404768996,
+        "ComputeHost4": 0.8329871595231004
+      },
+      "task_execution_times": {
+        "task_38_0": 1.680558239119218,
+        "task_38_1": 1.4765370086520784,
+        "task_38_2": 2.463216630901846,
+        "task_38_3": 1.377380106578796,
+        "task_38_4": 1.8431672231530936
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_38_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6721572689.810205
+        },
+        {
+          "task": "task_38_1",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5905563714.608313
+        },
+        {
+          "task": "task_38_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9852230710.274052
+        },
+        {
+          "task": "task_38_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5508840719.648518
+        },
+        {
+          "task": "task_38_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7372008625.945707
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 38,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:13"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_39",
+      "task_count": 5,
+      "dependency_count": 1,
+      "makespan": 8.84853873055829,
+      "cpu_utilization": {
+        "ComputeHost1": 0.23459647547887627,
+        "ComputeHost2": 0.22260563817966864,
+        "ComputeHost3": 0.16462542617277787,
+        "ComputeHost4": 0.3781724601686772
+      },
+      "task_execution_times": {
+        "task_39_0": 1.3103913331585273,
+        "task_39_1": 1.4566944595244895,
+        "task_39_2": 2.0358823274745257,
+        "task_39_3": 2.075835999327305,
+        "task_39_4": 1.9697346110734433
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_39_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5240880479.300776
+        },
+        {
+          "task": "task_39_1",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5826075304.764627
+        },
+        {
+          "task": "task_39_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8142925603.231438
+        },
+        {
+          "task": "task_39_3",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8302628583.975889
+        },
+        {
+          "task": "task_39_4",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7878235910.9604435
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 39,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:13"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_40",
+      "task_count": 10,
+      "dependency_count": 3,
+      "makespan": 13.639858875005405,
+      "cpu_utilization": {
+        "ComputeHost1": 0.14426046374593993,
+        "ComputeHost2": 0.2611152656528817,
+        "ComputeHost3": 0.12088862077686595,
+        "ComputeHost4": 0.47373564982431243
+      },
+      "task_execution_times": {
+        "task_40_0": 1.6489037269904978,
+        "task_40_1": 1.4008173144097076,
+        "task_40_2": 1.0811284869968891,
+        "task_40_3": 2.123557362085858,
+        "task_40_4": 0.6273945301826771,
+        "task_40_9": 1.4380180115289942,
+        "task_40_5": 0.5394249410057963,
+        "task_40_6": 2.0363161390384406,
+        "task_40_7": 0.8008728955489808,
+        "task_40_8": 1.9434254672175637
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_40_0",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6595028001.295325
+        },
+        {
+          "task": "task_40_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5602523497.638831
+        },
+        {
+          "task": "task_40_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4323324107.987558
+        },
+        {
+          "task": "task_40_3",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8493504835.010098
+        },
+        {
+          "task": "task_40_4",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2508956387.397374
+        },
+        {
+          "task": "task_40_9",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5752072046.11598
+        },
+        {
+          "task": "task_40_5",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2156976137.356521
+        },
+        {
+          "task": "task_40_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8143932236.153768
+        },
+        {
+          "task": "task_40_7",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3202859075.529252
+        },
+        {
+          "task": "task_40_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7772269122.203589
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 40,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:14"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_41",
+      "task_count": 10,
+      "dependency_count": 4,
+      "makespan": 15.979530035109635,
+      "cpu_utilization": {
+        "ComputeHost1": 0.1213727381313939,
+        "ComputeHost2": 0.09167525280592291,
+        "ComputeHost3": 0.14396759811674326,
+        "ComputeHost4": 0.6429844109459399
+      },
+      "task_execution_times": {
+        "task_41_0": 1.9394793144141054,
+        "task_41_1": 2.3340492395703376,
+        "task_41_2": 1.464927455688514,
+        "task_41_3": 1.877347197689966,
+        "task_41_4": 0.982796069886577,
+        "task_41_5": 1.297061742738908,
+        "task_41_9": 1.3177384883025152,
+        "task_41_6": 1.4997355198327682,
+        "task_41_7": 2.028877259129125,
+        "task_41_8": 1.2375177478568187
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_41_0",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7757248217.656422
+        },
+        {
+          "task": "task_41_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9335563784.948017
+        },
+        {
+          "task": "task_41_2",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5859033902.754055
+        },
+        {
+          "task": "task_41_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7508760417.426534
+        },
+        {
+          "task": "task_41_4",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3930475079.5463104
+        },
+        {
+          "task": "task_41_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5187064837.622292
+        },
+        {
+          "task": "task_41_9",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5270400193.21006
+        },
+        {
+          "task": "task_41_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5998264159.331074
+        },
+        {
+          "task": "task_41_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8114189009.849832
+        },
+        {
+          "task": "task_41_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4948836378.093943
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 41,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:14"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_42",
+      "task_count": 10,
+      "dependency_count": 4,
+      "makespan": 13.618963803004354,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.18129050651112485,
+        "ComputeHost3": 0.37389283978488025,
+        "ComputeHost4": 0.44481665370399487
+      },
+      "task_execution_times": {
+        "task_42_0": 1.4813472180671488,
+        "task_42_1": 2.4689888460033345,
+        "task_42_2": 0.7750819299873042,
+        "task_42_3": 1.2641932886670375,
+        "task_42_4": 1.1124263109335901,
+        "task_42_9": 0.845294258315322,
+        "task_42_5": 0.8615196281045661,
+        "task_42_6": 1.6484897215100318,
+        "task_42_7": 1.1169018533402877,
+        "task_42_8": 2.044720748075731
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_42_0",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5924791032.268595
+        },
+        {
+          "task": "task_42_1",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9875295704.013338
+        },
+        {
+          "task": "task_42_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3098965986.6158857
+        },
+        {
+          "task": "task_42_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5056200301.334817
+        },
+        {
+          "task": "task_42_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4448990123.734364
+        },
+        {
+          "task": "task_42_9",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3380604179.9279566
+        },
+        {
+          "task": "task_42_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3445447525.7515984
+        },
+        {
+          "task": "task_42_6",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6593389606.040124
+        },
+        {
+          "task": "task_42_7",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4466403493.361153
+        },
+        {
+          "task": "task_42_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8177604512.30293
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 42,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:14"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_43",
+      "task_count": 15,
+      "dependency_count": 7,
+      "makespan": 26.13355929821115,
+      "cpu_utilization": {
+        "ComputeHost1": 0.318379191236772,
+        "ComputeHost2": 0.21805268282268336,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 0.4635681259405447
+      },
+      "task_execution_times": {
+        "task_43_0": 1.6327767364685755,
+        "task_43_1": 1.9204501949528547,
+        "task_43_2": 2.028071143423129,
+        "task_43_3": 2.2987796920551453,
+        "task_43_4": 1.5161532360730803,
+        "task_43_9": 2.209428445395952,
+        "task_43_5": 1.7310564450230448,
+        "task_43_6": 1.213455788816015,
+        "task_43_7": 1.7669362881569022,
+        "task_43_8": 2.224690312506187,
+        "task_43_10": 0.7349868456043858,
+        "task_43_11": 1.0593321320411562,
+        "task_43_12": 1.8642757954361215,
+        "task_43_13": 2.3262270377177607,
+        "task_43_14": 1.60693920454084
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_43_0",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6530317159.207635
+        },
+        {
+          "task": "task_43_1",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7681113446.478086
+        },
+        {
+          "task": "task_43_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8110744733.692518
+        },
+        {
+          "task": "task_43_3",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9193647834.887253
+        },
+        {
+          "task": "task_43_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6063342224.292323
+        },
+        {
+          "task": "task_43_9",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8837117274.91714
+        },
+        {
+          "task": "task_43_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6922767966.758845
+        },
+        {
+          "task": "task_43_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4853107928.597399
+        },
+        {
+          "task": "task_43_7",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7067196379.294267
+        },
+        {
+          "task": "task_43_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8897372130.024746
+        },
+        {
+          "task": "task_43_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2939188155.750881
+        },
+        {
+          "task": "task_43_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4235797248.1646194
+        },
+        {
+          "task": "task_43_12",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7456546648.411147
+        },
+        {
+          "task": "task_43_13",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9303550977.537708
+        },
+        {
+          "task": "task_43_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6427756818.163362
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 43,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:14"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_44",
+      "task_count": 15,
+      "dependency_count": 4,
+      "makespan": 23.361758370994444,
+      "cpu_utilization": {
+        "ComputeHost1": 0.46655435404836826,
+        "ComputeHost2": 0.1052211010961372,
+        "ComputeHost3": 0.05766000748102637,
+        "ComputeHost4": 0.37056453737446815
+      },
+      "task_execution_times": {
+        "task_44_0": 1.576494296570929,
+        "task_44_1": 0.583292173141087,
+        "task_44_2": 1.3286964954175193,
+        "task_44_3": 1.3470391624414702,
+        "task_44_4": 2.3234032646536225,
+        "task_44_9": 2.228856428018167,
+        "task_44_5": 2.174970547427945,
+        "task_44_6": 1.5135390948186203,
+        "task_44_7": 1.0767497137266187,
+        "task_44_8": 1.2471526545594873,
+        "task_44_10": 0.8465453717635416,
+        "task_44_11": 2.458149939337936,
+        "task_44_12": 0.9271647112674444,
+        "task_44_13": 1.330717437478512,
+        "task_44_14": 2.398987080371544
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_44_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6305270066.283715
+        },
+        {
+          "task": "task_44_1",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2332536665.897681
+        },
+        {
+          "task": "task_44_2",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5313524141.670078
+        },
+        {
+          "task": "task_44_3",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5387576383.099214
+        },
+        {
+          "task": "task_44_4",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9292922178.61449
+        },
+        {
+          "task": "task_44_9",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8914212805.406
+        },
+        {
+          "task": "task_44_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8699306883.045113
+        },
+        {
+          "task": "task_44_6",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6053401765.941143
+        },
+        {
+          "task": "task_44_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4306315388.239807
+        },
+        {
+          "task": "task_44_8",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4987247364.904617
+        },
+        {
+          "task": "task_44_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3384879993.720833
+        },
+        {
+          "task": "task_44_11",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9831862317.351746
+        },
+        {
+          "task": "task_44_12",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3708027218.403112
+        },
+        {
+          "task": "task_44_13",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5322262016.580704
+        },
+        {
+          "task": "task_44_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9595948321.48617
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 44,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:14"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_45",
+      "task_count": 15,
+      "dependency_count": 7,
+      "makespan": 27.299403201490755,
+      "cpu_utilization": {
+        "ComputeHost1": 0.2629481341460902,
+        "ComputeHost2": 0.08535900094496002,
+        "ComputeHost3": 0.08026049279549917,
+        "ComputeHost4": 0.5714323721134507
+      },
+      "task_execution_times": {
+        "task_45_0": 1.691766853898535,
+        "task_45_1": 2.2127242255150747,
+        "task_45_2": 1.9792525126159473,
+        "task_45_3": 2.436308800774931,
+        "task_45_4": 1.164399683149357,
+        "task_45_9": 1.6539673105882677,
+        "task_45_5": 2.4818810808622462,
+        "task_45_6": 1.8587373020372748,
+        "task_45_7": 2.3040059164515565,
+        "task_45_8": 2.145842010186815,
+        "task_45_10": 0.8028596911298891,
+        "task_45_11": 0.7760798869339567,
+        "task_45_12": 2.330249783672894,
+        "task_45_13": 2.0463444766332906,
+        "task_45_14": 1.414983667040719
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_45_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6766435815.59414
+        },
+        {
+          "task": "task_45_1",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8850257115.393633
+        },
+        {
+          "task": "task_45_2",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7916226823.797124
+        },
+        {
+          "task": "task_45_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9743893416.433064
+        },
+        {
+          "task": "task_45_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4656347052.597422
+        },
+        {
+          "task": "task_45_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6615253455.686405
+        },
+        {
+          "task": "task_45_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9926023443.448982
+        },
+        {
+          "task": "task_45_6",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7434375101.48243
+        },
+        {
+          "task": "task_45_7",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9215354999.13956
+        },
+        {
+          "task": "task_45_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8582183987.413922
+        },
+        {
+          "task": "task_45_10",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3210732817.8528814
+        },
+        {
+          "task": "task_45_11",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3103143627.735834
+        },
+        {
+          "task": "task_45_12",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9319617454.69157
+        },
+        {
+          "task": "task_45_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8184628573.199831
+        },
+        {
+          "task": "task_45_14",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5659228721.496201
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 45,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:15"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_46",
+      "task_count": 20,
+      "dependency_count": 3,
+      "makespan": 32.471220279322765,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.28957283443322107,
+        "ComputeHost3": 0.17027892522980972,
+        "ComputeHost4": 0.5401482403369692
+      },
+      "task_execution_times": {
+        "task_46_0": 2.333094682256497,
+        "task_46_1": 2.3993438991082017,
+        "task_46_2": 2.421905295729391,
+        "task_46_3": 1.375141189896154,
+        "task_46_4": 0.5702476304779776,
+        "task_46_9": 2.3054915269827223,
+        "task_46_5": 2.3519488178263135,
+        "task_46_6": 1.487155317241168,
+        "task_46_7": 1.42003179640046,
+        "task_46_8": 1.0601827436885145,
+        "task_46_10": 1.273107704250016,
+        "task_46_11": 1.7246931747848215,
+        "task_46_12": 1.9343087249948638,
+        "task_46_13": 0.7516601143809716,
+        "task_46_14": 0.994310877827342,
+        "task_46_15": 1.1169797674556534,
+        "task_46_16": 0.6718487428565396,
+        "task_46_17": 2.3383654853727904,
+        "task_46_18": 1.6864541285792605,
+        "task_46_19": 2.254948659213106
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_46_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9331596809.02599
+        },
+        {
+          "task": "task_46_1",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9596817143.099476
+        },
+        {
+          "task": "task_46_2",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9686865396.250898
+        },
+        {
+          "task": "task_46_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5499889479.584622
+        },
+        {
+          "task": "task_46_4",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2279655988.5785747
+        },
+        {
+          "task": "task_46_9",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9221354987.930891
+        },
+        {
+          "task": "task_46_5",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9407174684.638588
+        },
+        {
+          "task": "task_46_6",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5947291722.298008
+        },
+        {
+          "task": "task_46_7",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5679425798.935176
+        },
+        {
+          "task": "task_46_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4240033348.0873914
+        },
+        {
+          "task": "task_46_10",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5091697937.000061
+        },
+        {
+          "task": "task_46_11",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6898148112.472623
+        },
+        {
+          "task": "task_46_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7735935326.646128
+        },
+        {
+          "task": "task_46_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3005864190.85723
+        },
+        {
+          "task": "task_46_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3976480817.976033
+        },
+        {
+          "task": "task_46_15",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4467243496.489279
+        },
+        {
+          "task": "task_46_16",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2686793478.0928183
+        },
+        {
+          "task": "task_46_17",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9352837088.157824
+        },
+        {
+          "task": "task_46_18",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6745122967.650374
+        },
+        {
+          "task": "task_46_19",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9019794636.85243
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 46,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:15"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_47",
+      "task_count": 20,
+      "dependency_count": 7,
+      "makespan": 28.463270426265055,
+      "cpu_utilization": {
+        "ComputeHost1": 0.20837446235647103,
+        "ComputeHost2": 0.15546107156141237,
+        "ComputeHost3": 0.180775019723599,
+        "ComputeHost4": 0.45538944635851764
+      },
+      "task_execution_times": {
+        "task_47_0": 1.1708758445393588,
+        "task_47_1": 1.6653139147707228,
+        "task_47_2": 2.211587256754333,
+        "task_47_3": 2.013464777837629,
+        "task_47_4": 0.6669731332202762,
+        "task_47_9": 2.3082501973313008,
+        "task_47_5": 1.8257470937245284,
+        "task_47_6": 1.9597212979007672,
+        "task_47_7": 2.128475480991172,
+        "task_47_8": 0.9479434482101823,
+        "task_47_10": 0.5699711145665027,
+        "task_47_11": 0.7410698111248202,
+        "task_47_12": 1.189281022332672,
+        "task_47_13": 0.678628713094902,
+        "task_47_14": 2.2672269608083937,
+        "task_47_15": 1.2546743210287374,
+        "task_47_16": 0.7602669811951905,
+        "task_47_17": 2.0809878927437993,
+        "task_47_18": 0.505035796295985,
+        "task_47_19": 1.5177753677937815
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_47_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4682851778.157434
+        },
+        {
+          "task": "task_47_1",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6660667739.082891
+        },
+        {
+          "task": "task_47_2",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8844952600.350666
+        },
+        {
+          "task": "task_47_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8053078951.350517
+        },
+        {
+          "task": "task_47_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2667127119.5477705
+        },
+        {
+          "task": "task_47_9",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9232421855.991875
+        },
+        {
+          "task": "task_47_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7301451494.898115
+        },
+        {
+          "task": "task_47_6",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7838225938.26974
+        },
+        {
+          "task": "task_47_7",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8513254857.298024
+        },
+        {
+          "task": "task_47_8",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3790226219.5073986
+        },
+        {
+          "task": "task_47_10",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2279103738.2660236
+        },
+        {
+          "task": "task_47_11",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2963507697.832609
+        },
+        {
+          "task": "task_47_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4756494195.997356
+        },
+        {
+          "task": "task_47_13",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2713270532.379611
+        },
+        {
+          "task": "task_47_14",
+          "node": "ComputeHost3",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9067763629.900246
+        },
+        {
+          "task": "task_47_15",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5017936004.114947
+        },
+        {
+          "task": "task_47_16",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3039839684.780761
+        },
+        {
+          "task": "task_47_17",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8323384237.641865
+        },
+        {
+          "task": "task_47_18",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2018790118.5172663
+        },
+        {
+          "task": "task_47_19",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 6071101471.175131
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 47,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:15"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_48",
+      "task_count": 20,
+      "dependency_count": 10,
+      "makespan": 29.72344517417956,
+      "cpu_utilization": {
+        "ComputeHost1": 0.20761113438965365,
+        "ComputeHost2": 0.2919746409055491,
+        "ComputeHost3": 0.0,
+        "ComputeHost4": 0.5004142247047972
+      },
+      "task_execution_times": {
+        "task_48_0": 1.2374663354287394,
+        "task_48_1": 0.5019335848353488,
+        "task_48_2": 2.085912218946771,
+        "task_48_3": 1.4123207448013346,
+        "task_48_4": 1.2245914742479789,
+        "task_48_9": 2.2133533050129657,
+        "task_48_5": 0.7584786557106398,
+        "task_48_6": 2.3894748939303465,
+        "task_48_7": 1.81493559504759,
+        "task_48_8": 1.8359241752919804,
+        "task_48_10": 0.5522453479901657,
+        "task_48_11": 1.943971315913661,
+        "task_48_12": 2.356463415728026,
+        "task_48_13": 1.9405694602837755,
+        "task_48_14": 1.14786088765889,
+        "task_48_15": 0.6654523532477192,
+        "task_48_16": 0.576073631540428,
+        "task_48_17": 1.8552973675855249,
+        "task_48_18": 0.9355863332776906,
+        "task_48_19": 2.2755340776999837
+      },
+      "scheduling_decisions": [
+        {
+          "task": "task_48_0",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4949287581.714958
+        },
+        {
+          "task": "task_48_1",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2007068579.3413947
+        },
+        {
+          "task": "task_48_2",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8342478715.787085
+        },
+        {
+          "task": "task_48_3",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 5647930072.538671
+        },
+        {
+          "task": "task_48_4",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4897661763.658584
+        },
+        {
+          "task": "task_48_9",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 8852647006.718529
+        },
+        {
+          "task": "task_48_5",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3033349449.509224
+        },
+        {
+          "task": "task_48_6",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9556650509.054724
+        },
+        {
+          "task": "task_48_7",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7258409473.5237
+        },
+        {
+          "task": "task_48_8",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7343049047.834589
+        },
+        {
+          "task": "task_48_10",
+          "node": "ComputeHost2",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2207630458.627334
+        },
+        {
+          "task": "task_48_11",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7775139450.321301
+        },
+        {
+          "task": "task_48_12",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9424506062.912096
+        },
+        {
+          "task": "task_48_13",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7761622641.135102
+        },
+        {
+          "task": "task_48_14",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 4590723977.302227
+        },
+        {
+          "task": "task_48_15",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2661210612.9908695
+        },
+        {
+          "task": "task_48_16",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 2302947059.4950423
+        },
+        {
+          "task": "task_48_17",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 7419894537.0087595
+        },
+        {
+          "task": "task_48_18",
+          "node": "ComputeHost1",
+          "scheduler": "WASS-RAG",
+          "task_flops": 3740995279.7774334
+        },
+        {
+          "task": "task_48_19",
+          "node": "ComputeHost4",
+          "scheduler": "WASS-RAG",
+          "task_flops": 9101470550.799936
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 48,
+        "platform": "configs/platform.xml",
+        "timestamp": "2025-09-11 10:52:15"
+      }
+    }
+  ]
+}

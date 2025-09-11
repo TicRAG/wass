@@ -28,7 +28,8 @@ wass/
 │   └── retrain_performance_predictor.py # 重训性能预测器
 │
 ├── experiments/                         # 实验框架
-│   └── real_experiment_framework.py    # [5] 运行完整实验对比
+│   ├── real_experiment_framework.py    # 模拟实验框架 (仅用于演示)
+│   └── wrench_real_experiment.py       # [5] 真实WRENCH实验对比
 │
 ├── charts/                              # 图表生成
 │   ├── paper_charts.py                 # [6] 生成学术论文图表

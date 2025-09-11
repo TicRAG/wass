@@ -125,15 +125,15 @@ train_rag() {
 
 # 运行实验
 run_experiments() {
-    log_info "第5步: 运行完整实验对比..."
-    if python experiments/real_experiment_framework.py; then
-        log_success "实验运行完成"
+    log_info "第5步: 运行基于WRENCH的真实实验对比..."
+    if python experiments/wrench_real_experiment.py; then
+        log_success "WRENCH实验运行完成"
         # 检查实验结果
-        if [[ -f "results/final_experiments_discrete_event/experiment_results.json" ]]; then
-            log_info "实验结果已保存到 results/final_experiments_discrete_event/"
+        if [[ -f "results/wrench_experiments/detailed_results.json" ]]; then
+            log_info "实验结果已保存到 results/wrench_experiments/"
         fi
     else
-        log_error "实验运行失败"
+        log_error "WRENCH实验运行失败"
         exit 1
     fi
 }
