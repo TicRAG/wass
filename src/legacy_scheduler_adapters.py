@@ -130,36 +130,44 @@ class HEFTScheduler(_ShimBase):
         pass
 
 class WASSHeuristicScheduler(_ShimBase):
-    def __init__(self, alpha: float = 0.55, beta: float = 0.20, gamma: float = 0.15, delta: float = 0.10, bandwidth: float = 2e8):
+    """Refined WASS heuristic.
+
+    Step 1: Integrate transfer time directly into EFT (so locality directly shortens predicted completion time).
+    Step 2: Add explicit locality gain term rewarding placing task on node holding most of its inputs.
+
+    score = exec_eft + w_bal*load_ratio - w_rank*norm_rank - w_loc*locality_gain
+    Lower score better.
+    """
+    def __init__(self, w_loc: float = 0.40, w_rank: float = 0.25, w_bal: float = 0.05, bandwidth: float = 1e8):
         self.name = "WASS-Heuristic"
-        # Weights (can be overridden). Adjusted defaults emphasize critical path & data locality a bit more.
-        self.alpha = alpha      # EFT weight (execution + queued load)
-        self.beta = beta        # data transfer weight (penalty)
-        self.gamma = gamma      # load balance weight (penalty for global imbalance)
-        self.delta = delta      # critical path reward weight (subtracted in score)
-        self.bandwidth = bandwidth
-        self.data_location = {}
-        self._ranks = {}
+        self.w_loc = w_loc      # reward weight for locality gain
+        self.w_rank = w_rank    # reward weight for critical path rank
+        self.w_bal = w_bal      # small penalty for per-node load ratio
+        self.bandwidth = bandwidth  # lower bw -> amplify data movement cost
+        self.data_location: Dict[str,str] = {}
+        self._ranks: Dict[str,float] = {}
         self._max_rank = 1.0
 
     # ---- Internal helpers ----
     def _transfer_time(self, task, node):
-        total_t = 0.0
+        t = 0.0
         try:
             for f in task.get_input_files():
                 fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
                 loc = self.data_location.get(fid)
                 if loc is None or loc != node:
-                    total_t += f.get_size()/self.bandwidth
+                    t += f.get_size()/self.bandwidth
         except Exception:
             pass
-        return total_t
+        return t
 
     def _eft(self, task, node, node_caps, node_loads):
-        flops = getattr(task,'get_flops',lambda:1e9)()
-        cap = node_caps.get(node,1.0)
-        exec_time = flops / max(1e-6, cap*1e9)
-        return node_loads.get(node,0.0) + exec_time
+        # Integrated execution + queue + transfer
+        flops = getattr(task, 'get_flops', lambda: 1e9)()
+        cap = node_caps.get(node, 1.0)
+        exec_time = flops / max(1e-6, cap * 1e9)
+        transfer = self._transfer_time(task, node)
+        return node_loads.get(node, 0.0) + transfer + exec_time
 
     def _compute_upward_ranks(self, tasks, node_caps):
         task_map = {t.get_name(): t for t in tasks}
@@ -195,27 +203,31 @@ class WASSHeuristicScheduler(_ShimBase):
             except Exception: continue
         return ranks
 
-    def _score(self, task, node, node_caps, node_loads, load_std):
-        # Base components
-        eft_raw = self._eft(task, node, node_caps, node_loads)
-        transfer_raw = self._transfer_time(task, node)
+    def _locality_gain(self, task, node):
+        # Fraction of inputs already on this node
+        try:
+            ins = task.get_input_files()
+            if not ins:
+                return 0.0
+            hits = 0
+            for f in ins:
+                fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                if self.data_location.get(fid) == node:
+                    hits += 1
+            return hits / max(1, len(ins))
+        except Exception:
+            return 0.0
+
+    def _score(self, task, node, node_caps, node_loads):
+        eft = self._eft(task, node, node_caps, node_loads)
         rank_val = self._ranks.get(task.get_name(), 0.0)
         rank_term = (rank_val / self._max_rank) if self._max_rank > 0 else 0.0
-        # Per-node instantaneous load ratio (approx) helps spread tasks
         node_load = node_loads.get(node, 0.0)
         max_load = max(node_loads.values()) if node_loads else 1.0
         load_ratio = node_load / max(1e-6, max_load)
-        # Lightweight normalization: divide by (1 + mean) to dampen growth across scales
-        mean_load = sum(node_loads.values())/max(1,len(node_loads)) if node_loads else 0.0
-        eft = eft_raw / (1.0 + mean_load)
-        transfer = transfer_raw  # already scaled by bandwidth, retains magnitude
-        # Score: lower is better. Encourage critical path (subtract delta*rank_term)
-        return (
-            self.alpha * eft +
-            self.beta * transfer +
-            self.gamma * (0.5*load_std + 0.5*load_ratio) -
-            self.delta * rank_term
-        )
+        loc_gain = self._locality_gain(task, node)
+        # Lower better: eft + small load penalty - rewards
+        return eft + self.w_bal * load_ratio - self.w_rank * rank_term - self.w_loc * loc_gain
 
     # ---- Public scheduling interface ----
     def choose(self, ready_tasks, available_nodes, node_caps, node_loads, compute_service):
@@ -235,29 +247,18 @@ class WASSHeuristicScheduler(_ShimBase):
             if self._ranks:
                 self._max_rank = max(self._ranks.values())
         # Balance term
-        loads = list(node_loads.values()) or [0.0]
-        import math
-        mean_l = sum(loads)/len(loads)
-        load_var = sum((l-mean_l)**2 for l in loads)/len(loads)
-        load_std = math.sqrt(load_var)
         best = (1e18, None, None)
         for t in ready_tasks:
-            # Prefer exploring higher-rank tasks first by light ordering (not decisive, just early pruning)
             for n in available_nodes:
-                sc = self._score(t, n, node_caps, node_loads, load_std)
+                sc = self._score(t, n, node_caps, node_loads)
                 if sc < best[0]:
                     best = (sc, t, n)
         return best[1], best[2]
 
     def schedule_task(self, task, available_nodes, node_caps, node_loads, compute_service):
-        loads = list(node_loads.values()) or [0.0]
-        import math
-        mean_l = sum(loads)/len(loads)
-        load_var = sum((l-mean_l)**2 for l in loads)/len(loads)
-        load_std = math.sqrt(load_var)
         best_sc = 1e18; best_node = None
         for n in available_nodes:
-            sc = self._score(task, n, node_caps, node_loads, load_std)
+            sc = self._score(task, n, node_caps, node_loads)
             if sc < best_sc:
                 best_sc = sc; best_node = n
         return best_node or available_nodes[0]
