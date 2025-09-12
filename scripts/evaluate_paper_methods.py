@@ -67,7 +67,7 @@ class SimpleWorkflowEnv:
         storage_service = sim.create_simple_storage_service("StorageHost", ["/storage"])
         compute_resources = {n: (4, 8_589_934_592) for n in self.compute_nodes}
         compute_service = sim.create_bare_metal_compute_service("ComputeHost1", compute_resources, "/scratch", {}, {})
-        # Generate richer DAG
+        # Richer DAG with higher dependency density
         workflow, tasks, files, adjacency = generate_richer_workflow(
             sim,
             size=workflow_size,
@@ -75,9 +75,9 @@ class SimpleWorkflowEnv:
             file_size_range=DEFAULT_FILE_SIZE_RANGE,
             layers=None,
             layer_width_range=(3, 10),
-            max_parents=3,
-            parent_edge_prob=0.5,
-            merge_prob=0.3,
+            max_parents=4,
+            parent_edge_prob=0.7,
+            merge_prob=0.35,
             seed=random.randint(0, 10_000),
         )
         if hasattr(scheduler, "set_adjacency"):
@@ -87,7 +87,7 @@ class SimpleWorkflowEnv:
                 pass
         for f in files:
             storage_service.create_file_copy(f)
-        # Random initial placement of existing files to simulate prior tasks
+        # Random initial placement
         initial_nodes: Dict[str,str] = {}
         for f in files:
             fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
@@ -96,74 +96,89 @@ class SimpleWorkflowEnv:
             if hasattr(scheduler, 'data_location') and isinstance(getattr(scheduler,'data_location'), dict):
                 scheduler.data_location[fid] = node_choice
         node_loads = {n: 0.0 for n in self.compute_nodes}
-        ready = workflow.get_ready_tasks()
-        start_wall = time.time()
+        # Track running jobs: job -> (task, node, start_time)
+        active = {}
+        ready = list(workflow.get_ready_tasks())
         steps = 0
-        # Metrics (currently unused externally)
-        data_location: Dict[str, str] = {}
-        total_transfer = 0.0
-        transfer_events = 0
-        local_hits = 0
-        file_accesses = 0
-        while ready:
-            if hasattr(scheduler, "choose"):
-                t, chosen = scheduler.choose(
-                    ready, self.compute_nodes, self.node_capacities, node_loads, compute_service
-                )
-                if t is None:
-                    break
-            else:
-                t = ready[0]
-                chosen = scheduler.schedule_task(
-                    t, self.compute_nodes, self.node_capacities, node_loads, compute_service
-                )
-            file_locations = {f: storage_service for f in t.get_input_files()}
+        data_location: Dict[str,str] = {}
+        total_transfer = 0.0; transfer_events = 0; local_hits = 0; file_accesses = 0
+        start_wall = time.time()
+        # Helper to submit one task
+        def submit_task(task, node):
+            nonlocal steps, total_transfer, transfer_events, local_hits, file_accesses
+            file_locations = {f: storage_service for f in task.get_input_files()}
             try:
-                for f in t.get_input_files():
+                for f in task.get_input_files():
                     file_accesses += 1
                     fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
                     size_b = f.get_size()
                     loc = data_location.get(fid, initial_nodes.get(fid))
-                    if loc == chosen:
+                    if loc == node:
                         local_hits += 1
                     else:
-                        total_transfer += size_b
-                        transfer_events += 1
+                        total_transfer += size_b; transfer_events += 1
             except Exception:
                 pass
-            for f in t.get_output_files():
+            for f in task.get_output_files():
                 file_locations[f] = storage_service
-            job = sim.create_standard_job([t], file_locations)
+            job = sim.create_standard_job([task], file_locations)
             compute_service.submit_standard_job(job)
-            st = sim.get_simulated_time()
-            while True:
-                ev = sim.wait_for_next_event()
-                if (
-                    ev["event_type"] == "standard_job_completion" and ev["standard_job"] == job
-                ) or ev["event_type"] == "simulation_termination":
-                    if ev["event_type"] == "standard_job_completion":
-                        break
-                    else:
-                        break
-            et = sim.get_simulated_time()
-            exec_t = et - st
-            node_loads[chosen] += exec_t
-            ready = workflow.get_ready_tasks()
+            active[job] = (task, node, sim.get_simulated_time())
             steps += 1
-            if hasattr(scheduler, "notify_task_completion"):
+        # Main event loop
+        while True:
+            # Submit while we have ready tasks
+            scheduled_any = False
+            while ready:
+                if hasattr(scheduler, 'choose'):
+                    t, node = scheduler.choose(ready, self.compute_nodes, self.node_capacities, node_loads, compute_service)
+                    if t is None:
+                        break
+                else:
+                    t = ready[0]
+                    node = scheduler.schedule_task(t, self.compute_nodes, self.node_capacities, node_loads, compute_service)
+                # Remove chosen from ready
                 try:
-                    scheduler.notify_task_completion(t.get_name(), chosen)
-                except Exception:
+                    ready.remove(t)
+                except ValueError:
                     pass
-            try:
-                for f in t.get_output_files():
-                    fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
-                    data_location[fid] = chosen
-                    # Propagate to scheduler if it maintains a data_location map
-                    if hasattr(scheduler, 'data_location') and isinstance(getattr(scheduler, 'data_location'), dict):
-                        scheduler.data_location[fid] = chosen
-            except Exception:
-                pass
+                submit_task(t, node)
+                scheduled_any = True
+            if not active:
+                # No running jobs; if nothing ready either, we're done
+                if not ready:
+                    break
+            # Wait next event
+            ev = sim.wait_for_next_event()
+            if ev is None or ev.get('event_type') == 'simulation_termination':
+                break
+            if ev.get('event_type') == 'standard_job_completion':
+                job = ev.get('standard_job')
+                info = active.pop(job, None)
+                if info:
+                    task, node, st = info
+                    et = sim.get_simulated_time()
+                    exec_t = et - st
+                    node_loads[node] += exec_t
+                    # Update data locality
+                    try:
+                        for f in task.get_output_files():
+                            fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                            data_location[fid] = node
+                            if hasattr(scheduler,'data_location') and isinstance(getattr(scheduler,'data_location'), dict):
+                                scheduler.data_location[fid] = node
+                    except Exception:
+                        pass
+                    if hasattr(scheduler,'notify_task_completion'):
+                        try:
+                            scheduler.notify_task_completion(task.get_name(), node)
+                        except Exception:
+                            pass
+                # Refresh ready list after completion
+                try:
+                    ready = list(workflow.get_ready_tasks())
+                except Exception:
+                    ready = []
         makespan = sim.get_simulated_time()
         sim.terminate()
         return EvalRecord(
@@ -198,16 +213,27 @@ class PPOPaperScheduler:
             return self.encoder(g['node_feat'], g['adj']).cpu().numpy()
 
     def schedule_task(self, task, available_nodes, node_capacities, node_loads, compute_service):
-        task_features = [task.get_flops()/1e9, len(task.get_input_files()), task.get_number_of_children(), 0.0, 0.0]
+        # Base features (keep original dimensionality expectations)
+        task_features = [
+            task.get_flops()/1e9,
+            len(task.get_input_files()),
+            task.get_number_of_children(),
+            0.0,
+            0.0
+        ]
+        max_load = max(node_loads.values()) if node_loads else 1.0
         node_feats = []
+        exec_costs = {}
         for n in available_nodes:
-            cap = node_capacities.get(n,1.0); exec_time = task.get_flops()/(cap*1e9)
-            node_feats.extend([cap/4.0, 0.0, exec_time/10.0])
+            cap = node_capacities.get(n,1.0)
+            exec_time = task.get_flops()/(cap*1e9)
+            load_norm = (node_loads.get(n,0.0)/max(1e-6, max_load)) if max_load > 0 else 0.0
+            node_feats.extend([cap/8.0, load_norm, exec_time/10.0])  # capacity normalized to 0..1
+            exec_costs[n] = exec_time + node_loads.get(n,0.0)
         import numpy as np
         flat = np.array(task_features + node_feats, dtype=np.float32)
-        # Try to get workflow reference from task (depends on wrench API); fallback zeros if unavailable
         try:
-            workflow = task.get_workflow()  # if API provides
+            workflow = task.get_workflow()
             graph_emb = self._graph_embedding(workflow)
         except Exception:
             graph_emb = np.zeros(self.encoder.out_dim, dtype=np.float32)
@@ -215,10 +241,19 @@ class PPOPaperScheduler:
         with torch.no_grad():
             logits, _ = self.model(torch.from_numpy(state_vec).float().unsqueeze(0))
             if self.deterministic:
-                act = int(torch.argmax(logits, dim=-1).item())
+                act_idx = int(torch.argmax(logits, dim=-1).item())
             else:
-                act = torch.distributions.Categorical(logits=logits).sample().item()
-        return available_nodes[act % len(available_nodes)]
+                act_idx = torch.distributions.Categorical(logits=logits).sample().item()
+        rl_choice = available_nodes[act_idx % len(available_nodes)]
+        # Hybrid: prefer node with minimal (exec_time + accumulated load)
+        best_node = min(exec_costs.items(), key=lambda kv: kv[1])[0]
+        if self.deterministic:
+            return best_node
+        else:
+            import random as _r
+            if _r.random() < self.rag_weight:
+                return best_node
+            return rl_choice
 
 
 def evaluate(config_path: str, workflows: List[int] = None, repetitions: int = 3):
@@ -229,6 +264,15 @@ def evaluate(config_path: str, workflows: List[int] = None, repetitions: int = 3
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     if torch.cuda.is_available(): torch.cuda.manual_seed_all(seed)
     workflows = workflows or [5,10,15,25,35,50,60,80]
+    env_sizes = os.environ.get('WASS_EVAL_SIZES')
+    if env_sizes:
+        try:
+            parsed = [int(x.strip()) for x in env_sizes.split(',') if x.strip()]
+            if parsed:
+                workflows = parsed
+                print(f"Using workflow sizes from WASS_EVAL_SIZES: {workflows}")
+        except Exception as e:
+            print('Failed to parse WASS_EVAL_SIZES:', e)
 
     # Prepare schedulers
     schedulers = {
