@@ -109,163 +109,128 @@ class WassHeuristicScheduler(BaseScheduler):
         self._initialized = False
         # 模拟数据分布 - 实际应用中应该从真实系统获取
         self.data_location: Dict[str, str] = {}  # file_id -> host_name
-        # 记录主机资源（核心数, 内存）供后续构造job时“暗示”执行主机；需要compute_service资源键与hosts一致
-        try:
-            self._host_resource_specs = {h: self.hosts[h] for h in self.hosts}
-        except Exception:
-            self._host_resource_specs = {}
-        # 新增：跟踪主机可用时间与任务完成时间，实现真实EFT
-        self.host_available_time: Dict[str, float] = {h: 0.0 for h in self.hosts}
-        self.task_finish_times: Dict[str, float] = {}
-        self.bandwidth = bandwidth  # bytes/sec for transfer estimation
+        class WassHeuristicScheduler(BaseScheduler):
+            """Improved WASS heuristic with correct EFT (parents finish + transfer + host availability)."""
 
-    def _average_exec_time(self, task):
-        """计算任务的平均执行时间"""
-        flops = task.get_flops()
-        avg_speed = 0.0
-        for h in self.hosts:
-            try:
-                speed = self.hosts[h][1]
-            except Exception:
-                speed = 10.0
-            avg_speed += speed
-        avg_speed = avg_speed / max(1, len(self.hosts))
-        return flops / max(1e-6, avg_speed)
+            def __init__(self, simulation, compute_service, hosts: Dict[str, Any], data_locality_weight: float = 0.5,
+                         bandwidth: float = 1e9):
+                super().__init__(simulation, compute_service)
+                self.hosts = hosts
+                self.data_locality_weight = data_locality_weight
+                self.bandwidth = bandwidth  # bytes/sec
+                self._initialized = False
+                # Rank state
+                self.ranks: Dict[str, float] = {}
+                # Data placement (file_id -> host)
+                self.data_location: Dict[str, str] = {}
+                # Resource / timing prediction state
+                self.host_available_time: Dict[str, float] = {h: 0.0 for h in hosts}
+                self.task_finish_times: Dict[str, float] = {}
+                self.task_placement: Dict[str, str] = {}
 
-    def _compute_upward_ranks(self, workflow):
-        """计算向上排名 - 复用HEFT逻辑"""
-        tasks = workflow.get_tasks()
-        task_map = {t.get_name(): t for t in tasks}
-        ranks: Dict[str, float] = {}
-        
-        def rank(task_name: str):
-            if task_name in ranks: 
-                return ranks[task_name]
-            t = task_map[task_name]
-            succs = [c.get_name() for c in t.get_children()]
-            max_succ = 0.0
-            for s in succs:
-                max_succ = max(max_succ, rank(s))
-            r = self._average_exec_time(t) + max_succ
-            ranks[task_name] = r
-            return r
-        
-        for t in tasks:
-            rank(t.get_name())
-        return ranks
+            # ---------------- Rank Computation -----------------
+            def _average_exec_time(self, task) -> float:
+                flops = task.get_flops()
+                total = 0.0
+                for h in self.hosts:
+                    try:
+                        total += self.hosts[h][1]
+                    except Exception:
+                        total += 10.0
+                avg = total / max(1, len(self.hosts))
+                return flops / max(1e-6, avg)
 
-    def _execution_time(self, task, host_name: str) -> float:
-        """估算在指定主机上的纯执行时间。"""
-        try:
-            flops = task.get_flops()
-            host_speed = self.hosts.get(host_name, [1, 10.0])[1]
-            return flops / max(1e-6, host_speed)
-        except Exception:
-            return 10.0
+            def _compute_upward_ranks(self, workflow):
+                tasks = workflow.get_tasks()
+                tmap = {t.get_name(): t for t in tasks}
+                ranks: Dict[str, float] = {}
 
-    def _data_ready_time(self, task, host_name: str) -> float:
-        """所有输入在目标主机就绪的时间 (父任务完成 + 传输)。"""
-        ready = 0.0
-        try:
-            for f in task.get_input_files():
-                file_id = f.get_id()
-                # 生产者完成时间
-                # 简化：通过文件位置反查其生产主机的任务完成时间不可行 => 使用父任务 finish time
-                prod_finish = 0.0
+                def rank(name: str):
+                    if name in ranks:
+                        return ranks[name]
+                    t = tmap[name]
+                    succ_max = 0.0
+                    for c in t.get_children():
+                        succ_max = max(succ_max, rank(c.get_name()))
+                    val = self._average_exec_time(t) + succ_max
+                    ranks[name] = val
+                    return val
+
+                for t in tasks:
+                    try:
+                        rank(t.get_name())
+                    except Exception:
+                        continue
+                return ranks
+
+            # ---------------- Core Time Models -----------------
+            def _exec_time(self, task, host: str) -> float:
                 try:
-                    # 获取父任务最大完成时间
-                    parents = list(task.get_parents()) if hasattr(task, 'get_parents') else []
+                    flops = task.get_flops()
+                    speed = self.hosts.get(host, [1, 10.0])[1]
+                    return flops / max(1e-6, speed)
+                except Exception:
+                    return 10.0
+
+            def _select_best_host(self, task):
+                # Parent list
+                try:
+                    parents = list(task.get_parents())
                 except Exception:
                     parents = []
-                parent_max = 0.0
-                for p in parents:
-                    parent_max = max(parent_max, self.task_finish_times.get(p.get_name(), 0.0))
-                prod_finish = parent_max
-                # 若数据已在该主机，无需传输
-                loc = self.data_location.get(file_id)
-                if loc == host_name:
-                    arrival = prod_finish
-                else:
-                    size_b = f.get_size()
-                    transfer = size_b / self.bandwidth
-                    arrival = prod_finish + transfer
-                ready = max(ready, arrival)
-            return ready
-        except Exception:
-            return ready
+                best_host = None
+                best_score = float('inf')
+                best_eft = 0.0
+                for host in self.hosts:
+                    # Data arrival (latest parent finish + transfer if needed)
+                    max_dat = 0.0
+                    for p in parents:
+                        p_finish = self.task_finish_times.get(p.get_name(), 0.0)
+                        transfer_time = 0.0
+                        src_host = self.task_placement.get(p.get_name())
+                        if src_host and src_host != host:
+                            try:
+                                for of in p.get_output_files():
+                                    transfer_time = max(transfer_time, of.get_size() / self.bandwidth)
+                            except Exception:
+                                pass
+                        max_dat = max(max_dat, p_finish + transfer_time)
+                    host_avail = self.host_available_time.get(host, 0.0)
+                    est = max(host_avail, max_dat)
+                    eft = est + self._exec_time(task, host)
+                    w = self.data_locality_weight
+                    score = (1 - w) * eft + w * max_dat
+                    if score < best_score:
+                        best_score = score
+                        best_host = host
+                        best_eft = eft
+                return best_host, best_eft
 
-    def _earliest_finish_time(self, task, host_name: str) -> float:
-        data_ready = self._data_ready_time(task, host_name)
-        host_ready = self.host_available_time.get(host_name, 0.0)
-        est = max(data_ready, host_ready)
-        return est + self._execution_time(task, host_name)
+            # ---------------- Public API -----------------
+            def submit_ready_tasks(self, workflow):
+                if not self._initialized:
+                    self.ranks = self._compute_upward_ranks(workflow)
+                    self._initialize_data_locations(workflow)
+                    self._initialized = True
+                ready = workflow.get_runnable_tasks()
+                ready_sorted = sorted(ready, key=lambda t: self.ranks.get(t.get_name(), 0.0), reverse=True)
+                for task in ready_sorted:
+                    if task.get_state_as_string() != 'NOT_SUBMITTED':
+                        continue
+                    host, eft = self._select_best_host(task)
+                    if host is None:
+                        continue
+                    # (Best-effort) annotate preference
+                    try:
+                        if hasattr(task, 'set_property'):
+                            task.set_property('preferred_host', host)  # type: ignore
+                    except Exception:
+                        pass
+                    job = self.sim.create_standard_job([task], {})
+                    self.cs.submit_standard_job(job)
+                    self.host_available_time[host] = eft
+                    self.task_finish_times[task.get_name()] = eft
+                    self.task_placement[task.get_name()] = host
+                    self._update_data_locations_after_task(task, host)
 
-    def _compute_wass_score(self, task, host_name):
-        """使用真实EFT与数据就绪时间的组合分数。"""
-        eft = self._earliest_finish_time(task, host_name)
-        # 提取数据就绪与主机可用的组成部分用于 locality 权衡
-        data_ready = self._data_ready_time(task, host_name)
-        w = self.data_locality_weight
-        # 分数越低越好：EFT 主导 + locality (较小 data_ready 提升)
-        return (1 - w) * eft + w * data_ready
-
-    def _select_best_host(self, task):
-        best = (float('inf'), None, 0.0)
-        for host_name in self.hosts:
-            score = self._compute_wass_score(task, host_name)
-            eft = self._earliest_finish_time(task, host_name)
-            if score < best[0]:
-                best = (score, host_name, eft)
-        return best  # (score, host, eft)
-
-    def submit_ready_tasks(self, workflow):
-        """提交就绪任务 - 使用WASS启发式选择主机"""
-        if not self._initialized:
-            self.ranks = self._compute_upward_ranks(workflow)
-            self._initialize_data_locations(workflow)
-            self._initialized = True
-        
-        ready = workflow.get_runnable_tasks()
-        # 按向上排名排序（复用HEFT的任务优先级）
-        ready_sorted = sorted(ready, key=lambda t: self.ranks.get(t.get_name(), 0.0), reverse=True)
-        
-        for task in ready_sorted:
-            if task.get_state_as_string() == 'NOT_SUBMITTED':
-                score, best_host, eft = self._select_best_host(task)
-                if best_host is None:
-                    continue
-                try:
-                    if hasattr(task, 'set_property'):
-                        task.set_property('preferred_host', best_host)  # type: ignore
-                except Exception:
-                    pass
-                job = self.sim.create_standard_job([task], {})
-                self.cs.submit_standard_job(job)
-                # 更新预测状态
-                finish_time = eft
-                self.host_available_time[best_host] = finish_time
-                self.task_finish_times[task.get_name()] = finish_time
-                self._update_data_locations_after_task(task, best_host)
-
-    def _initialize_data_locations(self, workflow):
-        """初始化数据位置 - 简化模拟"""
-        import random
-        
-        # 获取所有文件
-        all_files = set()
-        for task in workflow.get_tasks():
-            for file in task.get_input_files():
-                all_files.add(file.get_id())
-            for file in task.get_output_files():
-                all_files.add(file.get_id())
-        
-        # 随机分配初始数据位置
-        host_names = list(self.hosts.keys())
-        for file_id in all_files:
-            self.data_location[file_id] = random.choice(host_names)
-
-    def _update_data_locations_after_task(self, task, host_name):
-        """任务执行后更新数据位置"""
-        # 假设任务的输出文件会存储在执行主机上
-        for file in task.get_output_files():
-            self.data_location[file.get_id()] = host_name
+    # (Deprecated legacy helpers removed by refactor)
