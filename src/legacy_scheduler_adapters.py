@@ -136,10 +136,11 @@ class HEFTScheduler(_ShimBase):
 class WASSHeuristicScheduler(_ShimBase):
     """Wrapper using improved internal WASS heuristic (EFT + data arrival + host availability)."""
 
-    def __init__(self, data_locality_weight: float = 0.5, bandwidth: float = 1e9):
+    def __init__(self, data_locality_weight: float = 0.35, bandwidth: float = 1e9, load_alpha: float = 0.05, tie_epsilon: float = 0.02):
         self.name = "WASS-Heuristic"
         self.w = max(0.0, min(1.0, data_locality_weight))
         self.bandwidth = bandwidth
+        self.network_bandwidth = bandwidth  # alias for clarity with spec
         # State
         self.host_available_time: Dict[str, float] = {}
         self.task_finish_times: Dict[str, float] = {}
@@ -147,6 +148,9 @@ class WASSHeuristicScheduler(_ShimBase):
         self._ranks: Dict[str, float] = {}
         self._rank_max: float = 1.0
         self._adjacency = None
+        self._parent_max_output_cache: Dict[str, float] = {}  # parent_task_name -> max_output_transfer_time (seconds)
+        self.load_alpha = max(0.0, load_alpha)
+        self.tie_epsilon = max(0.0, tie_epsilon)
 
     # ---------- Rank (upward) ----------
     def _compute_upward_ranks(self, tasks, node_caps):
@@ -211,26 +215,80 @@ class WASSHeuristicScheduler(_ShimBase):
         return score, eft, dat
 
     def choose(self, ready_tasks, available_nodes, node_caps, node_loads, compute_service):
+        """Select (task, host) by evaluating all ready tasks with corrected EST logic.
+
+        EST = max(host_available_time, max_parent_finish + transfer_if_remote)
+        EFT = EST + exec_time
+        Score = (1-w)*EFT + w*max_parent_data_arrival
+        """
         if not ready_tasks:
             return None, None
-        # Rank compute once
-        if not self._ranks:
-            self._ranks = self._compute_upward_ranks(ready_tasks, node_caps)
-            if self._ranks:
-                self._rank_max = max(self._ranks.values())
-        # Select highest rank task first (like HEFT ordering) then best host
-        task = max(ready_tasks, key=lambda t: self._ranks.get(t.get_name(),0.0))
-        best = (float('inf'), None, 0.0)
-        for n in available_nodes:
-            self.host_available_time.setdefault(n, 0.0)
-            sc, eft, _ = self._score_host_for_task(task, n, node_caps)
-            if sc < best[0]:
-                best = (sc, n, eft)
-        if best[1] is not None:
-            self.host_available_time[best[1]] = best[2]
-            self.task_finish_times[task.get_name()] = best[2]
-            self.task_placement[task.get_name()] = best[1]
-        return task, best[1]
+        # Compute/refresh ranks (could cache across calls if DAG static)
+        self._ranks = self._compute_upward_ranks(ready_tasks, node_caps)
+        if self._ranks:
+            self._rank_max = max(self._ranks.values())
+        best_tuple = (float('inf'), None, None, 0.0, 0.0)  # score, task, host, eft, rank
+        for task in ready_tasks:
+            # For each host evaluate corrected EST/EFT
+            for host_name in available_nodes:
+                self.host_available_time.setdefault(host_name, 0.0)
+                # 1. compute max parent data arrival (max_dat)
+                try:
+                    parents = list(task.get_parents())
+                except Exception:
+                    parents = []
+                max_dat = 0.0
+                for parent_task in parents:
+                    parent_finish_time = self.task_finish_times.get(parent_task.get_name(), 0.0)
+                    transfer_time = 0.0
+                    parent_host = self.task_placement.get(parent_task.get_name())
+                    if parent_host and parent_host != host_name:
+                        # cache max output size transfer time
+                        pname = parent_task.get_name()
+                        if pname not in self._parent_max_output_cache:
+                            max_tr = 0.0
+                            try:
+                                for output_file in parent_task.get_output_files():
+                                    file_size = output_file.get_size()
+                                    max_tr = max(max_tr, file_size / self.network_bandwidth)
+                            except Exception:
+                                pass
+                            self._parent_max_output_cache[pname] = max_tr
+                        transfer_time = self._parent_max_output_cache.get(pname, 0.0)
+                    dat = parent_finish_time + transfer_time
+                    if dat > max_dat:
+                        max_dat = dat
+                # 2. host availability
+                host_avail_time = self.host_available_time.get(host_name, 0.0)
+                # 3. EST
+                est = max(host_avail_time, max_dat)
+                # 4. execution time
+                exec_time = self._exec_time(task, host_name, node_caps)
+                # 5. EFT
+                eft = est + exec_time
+                # 6. score (add load penalty)
+                # approximate normalized load: predicted busy horizon / max horizon among hosts (avoid extra pass: use host_available_time)
+                max_horizon = max(self.host_available_time.values()) if self.host_available_time else 0.0
+                if max_horizon <= 0:
+                    load_ratio = 0.0
+                else:
+                    load_ratio = self.host_available_time.get(host_name,0.0)/max_horizon
+                score = (1 - self.w) * eft + self.w * max_dat + self.load_alpha * load_ratio
+                task_rank = self._ranks.get(task.get_name(),0.0)
+                if score < best_tuple[0] * (1.0 - self.tie_epsilon):
+                    best_tuple = (score, task, host_name, eft, task_rank)
+                elif score <= best_tuple[0] * (1.0 + self.tie_epsilon):
+                    # tie range: prefer higher rank (critical path)
+                    if task_rank > best_tuple[4]:
+                        best_tuple = (score, task, host_name, eft, task_rank)
+        # Commit selection
+        if best_tuple[1] is not None and best_tuple[2] is not None:
+            _, task, host, eft, _ = best_tuple
+            self.host_available_time[host] = eft
+            self.task_finish_times[task.get_name()] = eft
+            self.task_placement[task.get_name()] = host
+            return task, host
+        return None, None
 
     def schedule_task(self, task, available_nodes, node_caps, node_loads, compute_service):
         # Fallback single-task scheduling (rarely used by current env)
