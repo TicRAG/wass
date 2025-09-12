@@ -143,7 +143,8 @@ class WASSHeuristicScheduler(_ShimBase):
     Lower score better.
     """
     def __init__(self, w_loc: float = 0.40, w_rank: float = 0.25, w_bal: float = 0.05, bandwidth: float = 1e8,
-                 transfer_aggregate: str = "sum", overlap: bool = False, overlap_factor: float = 0.5):
+                 transfer_aggregate: str = "sum", overlap: bool = False, overlap_factor: float = 0.5,
+                 eft_mode: str = "predicted"):
         self.name = "WASS-Heuristic"
         self.w_loc = w_loc
         self.w_rank = w_rank
@@ -156,6 +157,10 @@ class WASSHeuristicScheduler(_ShimBase):
         self._ranks: Dict[str, float] = {}
         self._max_rank = 1.0
         self._node_available: Dict[str, float] = {}
+        # 新增：跟踪真实/预测 EFT 所需状态
+        self.host_available_time: Dict[str, float] = {}
+        self.task_finish_times: Dict[str, float] = {}
+        self.eft_mode = eft_mode  # 'predicted' currently; hook for 'actual'
 
     # ---- Internal helpers ----
     def _transfer_time(self, task, node):
@@ -177,10 +182,39 @@ class WASSHeuristicScheduler(_ShimBase):
         return raw
 
     def _eft(self, task, node, node_caps, node_loads):
+        # 旧（简化）EFT 与 新（包含主机可用与数据到达）的统一接口
         flops = getattr(task, 'get_flops', lambda: 1e9)()
         cap = node_caps.get(node, 1.0)
         exec_time = flops / max(1e-6, cap * 1e9)
         transfer = self._transfer_time(task, node)
+        # 如果启用新的 EFT 推理，使用 host_available_time + 数据到达时间
+        if self.eft_mode:
+            data_ready = 0.0
+            try:
+                ins = task.get_input_files()
+            except Exception:
+                ins = []
+            # 基于父任务完成时间 + 传输估算数据就绪
+            parents = []
+            try:
+                parents = list(task.get_parents())
+            except Exception:
+                pass
+            parent_finish_max = 0.0
+            for p in parents:
+                parent_finish_max = max(parent_finish_max, self.task_finish_times.get(p.get_name(), 0.0))
+            for f in ins:
+                fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                loc = self.data_location.get(fid)
+                if loc == node:
+                    arrival = parent_finish_max
+                else:
+                    arrival = parent_finish_max + f.get_size()/self.bandwidth
+                data_ready = max(data_ready, arrival)
+            host_ready = self.host_available_time.get(node, 0.0)
+            est = max(host_ready, data_ready)
+            return est + exec_time
+        # fallback legacy predicted queue
         avail = self._node_available.get(node, 0.0)
         return max(avail, 0.0) + transfer + exec_time
 
@@ -281,16 +315,18 @@ class WASSHeuristicScheduler(_ShimBase):
         for n in available_nodes:
             self._node_available.setdefault(n, 0.0)
         best = (1e18, None, None, 0.0)
+        for n in available_nodes:
+            self.host_available_time.setdefault(n, 0.0)
         for t in ready_tasks:
             for n in available_nodes:
                 sc = self._score(t, n, node_caps, node_loads)
                 if sc < best[0]:
-                    # 计算对应 EFT 以更新占用
                     eft = self._eft(t, n, node_caps, node_loads)
                     best = (sc, t, n, eft)
-        # 预留该任务占用窗口（贪心预测）
         if best[2] is not None:
-            self._node_available[best[2]] = best[3]
+            # 记录预测 finish（供后续任务数据就绪 & 资源占用）
+            self.host_available_time[best[2]] = best[3]
+            self.task_finish_times[best[1].get_name()] = best[3]
         return best[1], best[2]
 
     def schedule_task(self, task, available_nodes, node_caps, node_loads, compute_service):
@@ -302,7 +338,8 @@ class WASSHeuristicScheduler(_ShimBase):
         return best_node or available_nodes[0]
 
     def notify_task_completion(self, task_name: str, node: str):
-        return
+            # 若未来需要用实际完成时间更新，可在此钩子调整 host_available_time (当前模拟预测即用)
+            pass
 
 class WASSDRLScheduler(_ShimBase):
     """Thin placeholder referencing previously trained DQN-like agent if available.
