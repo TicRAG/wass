@@ -40,7 +40,7 @@ except Exception:
 from src.graph_encoder import GraphFeatureEncoder
 from src.ppo_agent import PPOAgent
 from src.rag_teacher import RAGTeacher
-from src.workflow_generator_shared import generate_workflow, DEFAULT_FLOPS_RANGE, DEFAULT_FILE_SIZE_RANGE, DEFAULT_DEP_PROB
+from src.workflow_generator_shared import generate_workflow, generate_richer_workflow, DEFAULT_FLOPS_RANGE, DEFAULT_FILE_SIZE_RANGE, DEFAULT_DEP_PROB
 
 # Reuse / fallback: lightweight performance predictor optional
 try:
@@ -78,7 +78,7 @@ class PaperWRENCHEnv:
         with open(platform_file, 'r', encoding='utf-8') as f:
             self.platform_xml = f.read()
 
-    def reset(self, num_tasks: int = 12):
+    def reset(self, num_tasks: int = 12, use_richer: bool = False, flops_range=None, file_size_range=None, sensitive_file_fraction: float = 0.0):
         if wrench is None:
             raise RuntimeError("WRENCH not available.")
         if self.sim:
@@ -94,13 +94,36 @@ class PaperWRENCHEnv:
             "ComputeHost1", compute_resources, "/scratch", {}, {}
         )
         # Unified workflow generation (shared with evaluation)
-        self.workflow, self.task_list, self.files = generate_workflow(
-            self.sim,
-            size=num_tasks,
-            flops_range=DEFAULT_FLOPS_RANGE,
-            dep_prob=DEFAULT_DEP_PROB,
-            file_size_range=DEFAULT_FILE_SIZE_RANGE
-        )
+        if use_richer:
+            self.workflow, self.task_list, self.files, _adj = generate_richer_workflow(
+                self.sim,
+                size=num_tasks,
+                flops_range=flops_range or DEFAULT_FLOPS_RANGE,
+                file_size_range=file_size_range or DEFAULT_FILE_SIZE_RANGE,
+                layers=None,
+                layer_width_range=(3,10),
+                max_parents=4,
+                parent_edge_prob=0.55,
+                merge_prob=0.30,
+                seed=random.randint(0,10_000)
+            )
+        else:
+            self.workflow, self.task_list, self.files = generate_workflow(
+                self.sim,
+                size=num_tasks,
+                flops_range=flops_range or DEFAULT_FLOPS_RANGE,
+                dep_prob=DEFAULT_DEP_PROB,
+                file_size_range=file_size_range or DEFAULT_FILE_SIZE_RANGE
+            )
+        # Mark sensitive subset for training (used only in reward shaping extension)
+        self.sensitive_files = set()
+        if sensitive_file_fraction > 0 and self.files:
+            rnd = random.Random(777)
+            shuffled = list(self.files); rnd.shuffle(shuffled)
+            take = int(len(shuffled)*min(1.0,max(0.0,sensitive_file_fraction)))
+            for f in shuffled[:take]:
+                fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                self.sensitive_files.add(fid)
         for f in self.files:
             self.storage_service.create_file_copy(f)
         self.current_time = 0.0
@@ -113,11 +136,26 @@ class PaperWRENCHEnv:
         if not ready:
             return np.zeros(self.state_dim_flat, dtype=np.float32)
         task = ready[0]
+        # Compute sensitivity ratio for the first ready task: fraction of its inputs that are sensitive
+        sens_ratio = 0.0
+        try:
+            if getattr(self, 'sensitive_files', None):
+                ins = task.get_input_files()
+                if ins:
+                    sens_hits = 0
+                    for f in ins:
+                        fid = f.get_name() if hasattr(f, 'get_name') else getattr(f, 'name', str(f))
+                        if fid in self.sensitive_files:
+                            sens_hits += 1
+                    sens_ratio = sens_hits / max(1, len(ins))
+        except Exception:
+            sens_ratio = 0.0
         task_features = [
             task.get_flops() / 1e9,
             len(task.get_input_files()),
             task.get_number_of_children(),
-            len(self.task_list),
+            # Replace the original absolute task count feature with sensitive ratio to keep dimension constant
+            sens_ratio,
             len(self.scheduled) / max(1, len(self.task_list)),
         ]
         node_feats = []
@@ -176,7 +214,7 @@ class RewardComposer:
     def __init__(self, rag_weight: float = 0.7):
         self.rag_weight = rag_weight
 
-    def dense_env_reward(self, task, info: Dict[str, Any]) -> float:
+    def dense_env_reward(self, task, info: Dict[str, Any], sensitive_files=None) -> float:
         # Proxy heuristics (scaled small to let R_RAG dominate)
         in_deg = len(task.get_input_files())
         out_deg = task.get_number_of_children()
@@ -184,7 +222,16 @@ class RewardComposer:
         critical_bonus = min(out_deg / 4.0, 1.0)
         locality_bonus = locality
         dependency_penalty = -0.1 * (in_deg > 2)
-        return 0.5 * critical_bonus + 0.3 * locality_bonus + dependency_penalty
+        sens_penalty = 0.0
+        if sensitive_files is not None:
+            try:
+                for f in task.get_input_files():
+                    fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                    if fid in sensitive_files:
+                        sens_penalty -= 0.05  # mild penalty to copying sensitive data (encourages locality)
+            except Exception:
+                pass
+        return 0.5 * critical_bonus + 0.3 * locality_bonus + dependency_penalty + sens_penalty
 
     def combine(self, r_env: float, r_rag: float) -> float:
         return self.rag_weight * r_rag + (1 - self.rag_weight) * r_env
@@ -228,6 +275,13 @@ def train(config_path: str):
     lr_decay = drl_cfg.get('lr_decay', True)
     max_grad_norm = drl_cfg.get('max_grad_norm', 1.0)
 
+    # Extended training distribution controls
+    use_richer_workflow = drl_cfg.get('use_richer_workflow', True)
+    train_flops_range = tuple(drl_cfg.get('train_flops_range', DEFAULT_FLOPS_RANGE))
+    train_file_size_range = tuple(drl_cfg.get('train_file_size_range', DEFAULT_FILE_SIZE_RANGE))
+    train_task_min, train_task_max = tuple(drl_cfg.get('train_task_range', drl_cfg.get('task_range', [10,20])))
+    train_sensitive_fraction = float(drl_cfg.get('train_sensitive_file_fraction', 0.0))
+
     platform_file = base_cfg.get('platform', {}).get('platform_file', 'configs/platform.xml')
 
     env = PaperWRENCHEnv(platform_file)
@@ -259,7 +313,13 @@ def train(config_path: str):
             tk_prog = min(1.0, ep / max(1, topk_sched['warmup_episodes']))
             cur_topk = int(round(topk_sched['initial'] + tk_prog * (topk_sched['final'] - topk_sched['initial'])))
             teacher.top_k = max(1, cur_topk)
-        env.reset(num_tasks=random.randint(10, 20))
+        env.reset(
+            num_tasks=random.randint(train_task_min, train_task_max),
+            use_richer=use_richer_workflow,
+            flops_range=train_flops_range,
+            file_size_range=train_file_size_range,
+            sensitive_file_fraction=train_sensitive_fraction
+        )
         traj_states: List[torch.Tensor] = []
         traj_actions: List[torch.Tensor] = []
         traj_logps: List[torch.Tensor] = []
@@ -291,7 +351,7 @@ def train(config_path: str):
                 # grow scale with memory richness (sqrt for diminishing returns)
                 scale_now = min(rag_reward_scale * (1 + 0.5 * (len(teacher.cases)**0.5 / 100.0)), rag_reward_scale*1.8)
             r_rag = teacher.rag_reward(graph_emb, task_flops, node_caps, action, scale=scale_now)
-            r_env = composer.dense_env_reward(task, info)
+            r_env = composer.dense_env_reward(task, info, getattr(env,'sensitive_files', None))
             reward = composer.combine(r_env, r_rag)
 
             # Store teacher case (uses observed exec time as completion_time - current_time delta ≈ exec)

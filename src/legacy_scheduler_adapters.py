@@ -130,29 +130,30 @@ class HEFTScheduler(_ShimBase):
         pass
 
 class WASSHeuristicScheduler(_ShimBase):
-    def __init__(self, alpha: float=0.55, beta: float=0.20, gamma: float=0.15, delta: float=0.10, bandwidth: float=2e8):
+    def __init__(self, alpha: float = 0.55, beta: float = 0.20, gamma: float = 0.15, delta: float = 0.10, bandwidth: float = 2e8):
         self.name = "WASS-Heuristic"
-        self.alpha = alpha      # EFT weight
-        self.beta = beta        # locality (transfer) weight
-        self.gamma = gamma      # load balance weight
-        self.delta = delta      # critical path reward weight
+        # Weights (can be overridden). Adjusted defaults emphasize critical path & data locality a bit more.
+        self.alpha = alpha      # EFT weight (execution + queued load)
+        self.beta = beta        # data transfer weight (penalty)
+        self.gamma = gamma      # load balance weight (penalty for global imbalance)
+        self.delta = delta      # critical path reward weight (subtracted in score)
         self.bandwidth = bandwidth
-        self.data_location: Dict[str,str] = {}
-        self._ranks: Dict[str,float] = {}
-        self._max_rank: float = 1.0
+        self.data_location = {}
+        self._ranks = {}
+        self._max_rank = 1.0
 
     # ---- Internal helpers ----
     def _transfer_time(self, task, node):
-        max_t = 0.0
+        total_t = 0.0
         try:
             for f in task.get_input_files():
                 fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
                 loc = self.data_location.get(fid)
                 if loc is None or loc != node:
-                    max_t = max(max_t, f.get_size()/self.bandwidth)
+                    total_t += f.get_size()/self.bandwidth
         except Exception:
             pass
-        return max_t
+        return total_t
 
     def _eft(self, task, node, node_caps, node_loads):
         flops = getattr(task,'get_flops',lambda:1e9)()
@@ -195,11 +196,26 @@ class WASSHeuristicScheduler(_ShimBase):
         return ranks
 
     def _score(self, task, node, node_caps, node_loads, load_std):
-        eft = self._eft(task, node, node_caps, node_loads)
-        transfer = self._transfer_time(task, node)
-        r = self._ranks.get(task.get_name(), 0.0)
-        rank_term = (r / self._max_rank) if self._max_rank > 0 else 0.0
-        return self.alpha*eft + self.beta*transfer + self.gamma*load_std - self.delta*rank_term
+        # Base components
+        eft_raw = self._eft(task, node, node_caps, node_loads)
+        transfer_raw = self._transfer_time(task, node)
+        rank_val = self._ranks.get(task.get_name(), 0.0)
+        rank_term = (rank_val / self._max_rank) if self._max_rank > 0 else 0.0
+        # Per-node instantaneous load ratio (approx) helps spread tasks
+        node_load = node_loads.get(node, 0.0)
+        max_load = max(node_loads.values()) if node_loads else 1.0
+        load_ratio = node_load / max(1e-6, max_load)
+        # Lightweight normalization: divide by (1 + mean) to dampen growth across scales
+        mean_load = sum(node_loads.values())/max(1,len(node_loads)) if node_loads else 0.0
+        eft = eft_raw / (1.0 + mean_load)
+        transfer = transfer_raw  # already scaled by bandwidth, retains magnitude
+        # Score: lower is better. Encourage critical path (subtract delta*rank_term)
+        return (
+            self.alpha * eft +
+            self.beta * transfer +
+            self.gamma * (0.5*load_std + 0.5*load_ratio) -
+            self.delta * rank_term
+        )
 
     # ---- Public scheduling interface ----
     def choose(self, ready_tasks, available_nodes, node_caps, node_loads, compute_service):
@@ -226,6 +242,7 @@ class WASSHeuristicScheduler(_ShimBase):
         load_std = math.sqrt(load_var)
         best = (1e18, None, None)
         for t in ready_tasks:
+            # Prefer exploring higher-rank tasks first by light ordering (not decisive, just early pruning)
             for n in available_nodes:
                 sc = self._score(t, n, node_caps, node_loads, load_std)
                 if sc < best[0]:
@@ -258,17 +275,36 @@ class WASSDRLScheduler(_ShimBase):
         self.model_path = model_path
         # Future: attempt to load torch model.
     def schedule_task(self, task, available_nodes: List[str], node_caps: Dict[str,float], node_loads: Dict[str,float], compute_service):
-        # Mirror heuristic with slight stochastic exploration
+        # Enhanced: approximate WASS heuristic (execution + load + transfer) + exploration
         flops = task.get_flops() if hasattr(task,'get_flops') else 1e9
-        scores = []
+        # Estimate simplistic transfer penalty (sum sizes not on node)
+        def transfer_penalty(node):
+            pen = 0.0
+            try:
+                for f in task.get_input_files():
+                    fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                    loc = getattr(self, 'data_location', {}).get(fid)
+                    if loc is None or loc != node:
+                        pen += f.get_size()/2e8  # align with heuristic bandwidth default
+            except Exception:
+                pass
+            return pen
+        best = (1e18, available_nodes[0])
+        alts = []
         for n in available_nodes:
             cap = node_caps.get(n,1.0)
             exec_est = flops/(cap*1e9)
             load = node_loads.get(n,0.0)
-            score = exec_est + 0.25*load + random.random()*0.01
-            scores.append((score,n))
-        scores.sort(key=lambda x: x[0])
-        return scores[0][1]
+            tpen = transfer_penalty(n)
+            score = exec_est + 0.15*load + 0.20*tpen
+            alts.append((score, n))
+            if score < best[0]:
+                best = (score, n)
+        # Exploration: with small probability pick near-optimal (<1.05*best)
+        near = [n for s,n in alts if s <= best[0]*1.05]
+        if random.random() < 0.15 and near:
+            return random.choice(near)
+        return best[1]
 
 __all__ = [
     'FIFOScheduler', 'HEFTScheduler', 'WASSHeuristicScheduler', 'WASSDRLScheduler'

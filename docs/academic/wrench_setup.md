@@ -76,6 +76,11 @@ sudo make install
 # Update library path
 echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
 source ~/.bashrc
+
+# Install wrench-daemon
+make wrench-daemon
+sudo make install
+
 ```
 
 ### Method 2: Using Conda (Alternative)
@@ -95,14 +100,13 @@ conda activate wrench
 ### Install Python Package
 
 ```bash
+git clone https://github.com/wrench-project/wrench-python-api.git
 # Navigate to WRENCH Python directory
-cd /path/to/wrench/python
+cd wrench-python-api
 
 # Install in development mode
 pip install -e .
 
-# Or install from PyPI (if available)
-pip install wrench-project
 ```
 
 ### Verify Python Installation
