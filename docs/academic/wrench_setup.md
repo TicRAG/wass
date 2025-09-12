@@ -23,11 +23,6 @@ sudo apt install -y build-essential cmake git
 sudo apt install -y libboost-all-dev
 sudo apt install -y python3-dev python3-pip
 
-# macOS (with Homebrew)
-brew install cmake boost python@3.9
-
-# Windows (WSL2 Ubuntu)
-# Follow Ubuntu instructions above
 ```
 
 #### SimGrid Installation
@@ -111,6 +106,12 @@ pip install -e .
 
 ### Verify Python Installation
 
+#### run wrench-daemon
+```bash
+# wrench-daemon path
+/opt/wrench-master/bin/wrench-daemon
+```
+#### verify
 ```python
 # Test in Python interpreter
 import wrench
