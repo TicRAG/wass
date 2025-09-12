@@ -259,6 +259,41 @@ sudo apt install libboost-all-dev
 export CXX=g++-9
 ```
 
+## Unified Workflow Generation (WASS Paper Experiments)
+
+To ensure fair comparison between training (PPO+RAG) and evaluation baselines (FIFO / HEFT / WASS-*), a shared workflow generator was introduced.
+
+Key points:
+
+- Module: `src/workflow_generator_shared.py`
+- Used by: `scripts/train_wass_paper_aligned.py` and `scripts/evaluate_paper_methods.py`
+- Parameters unified:
+  - FLOPS range: 1e9 – 12e9
+  - File size range: 5 KB – 50 KB
+  - Dependency probability: 0.35
+- Eliminates distribution shift observed earlier (training used small random size 10–20, evaluation used fixed larger set 5..80 with different flops & dep probability).
+
+Baseline Adjustments:
+
+- `HEFTScheduler` adapter now estimates earliest finish time (EFT = current load proxy + exec_time) instead of a crude capacity heuristic.
+- `WASS-Heuristic`, `WASS-DRL` adapter placeholders remain simplified; future work can plug in full historical logic from `legacy_archived` if needed.
+
+Re-running Evaluation:
+
+```bash
+python scripts/evaluate_paper_methods.py configs/experiment.yaml
+```
+
+If you retrain PPO after these changes, increase episodes (e.g. 300–500) and consider a rag_weight schedule (warmup) to avoid early over-reliance on noisy RAG reward.
+
+Planned Next Improvements:
+
+- Add critical-path approximation to dense env reward.
+- Calibrate RAG reward scale versus normalized makespan deltas.
+- Introduce curriculum over workflow sizes (progressively larger DAGs).
+
+This section was added after refactor commit introducing the shared generator so older results are not directly comparable.
+
 #### 4. Runtime Library Errors
 ```bash
 # Error: shared library not found

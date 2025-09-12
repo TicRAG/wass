@@ -24,6 +24,7 @@ sys.path.insert(0, str(root))
 from src.legacy_scheduler_adapters import (
     FIFOScheduler, HEFTScheduler, WASSHeuristicScheduler, WASSDRLScheduler
 )
+from src.workflow_generator_shared import generate_workflow, generate_richer_workflow, DEFAULT_FLOPS_RANGE, DEFAULT_FILE_SIZE_RANGE, DEFAULT_DEP_PROB
 
 # Paper aligned components
 from src.graph_encoder import GraphFeatureEncoder
@@ -44,6 +45,10 @@ class EvalRecord:
     makespan: float
     steps: int
     runtime_ms: float
+    total_transfer_bytes: float
+    transfer_events: int
+    locality_hit_rate: float
+    transfer_bytes_per_task: float
 
 class SimpleWorkflowEnv:
     def __init__(self, platform_file: str):
@@ -53,50 +58,126 @@ class SimpleWorkflowEnv:
         with open(platform_file,'r',encoding='utf-8') as f:
             self.platform_xml = f.read()
         self.compute_nodes = ["ComputeHost1","ComputeHost2","ComputeHost3","ComputeHost4"]
-        self.node_capacities = {"ComputeHost1":2.0,"ComputeHost2":3.0,"ComputeHost3":2.5,"ComputeHost4":4.0}
+        # Increase heterogeneity (wider spread)
+        self.node_capacities = {"ComputeHost1":1.0,"ComputeHost2":2.0,"ComputeHost3":4.0,"ComputeHost4":8.0}
 
     def run(self, workflow_size: int, scheduler) -> EvalRecord:
-        sim = wrench.Simulation(); sim.start(self.platform_xml, "ControllerHost")
+        sim = wrench.Simulation()
+        sim.start(self.platform_xml, "ControllerHost")
         storage_service = sim.create_simple_storage_service("StorageHost", ["/storage"])
-        compute_resources = {n:(4,8_589_934_592) for n in self.compute_nodes}
+        compute_resources = {n: (4, 8_589_934_592) for n in self.compute_nodes}
         compute_service = sim.create_bare_metal_compute_service("ComputeHost1", compute_resources, "/scratch", {}, {})
-        workflow = sim.create_workflow()
-        tasks = []
-        files = []
-        for i in range(workflow_size):
-            flops = random.uniform(2e9, 10e9)
-            task = workflow.add_task(f"task_{i}", flops, 1,1,0)
-            tasks.append(task)
-            if i < workflow_size -1:
-                ofile = sim.add_file(f"f_{i}", random.randint(1024,10240))
-                task.add_output_file(ofile); files.append(ofile)
-        for i in range(1, len(tasks)):
-            if random.random() < 0.3:
-                dep = random.randint(0, i-1)
-                if dep < len(files):
-                    tasks[i].add_input_file(files[dep])
-        for f in files: storage_service.create_file_copy(f)
-        node_loads = {n:0.0 for n in self.compute_nodes}
+        # Generate richer DAG
+        workflow, tasks, files, adjacency = generate_richer_workflow(
+            sim,
+            size=workflow_size,
+            flops_range=DEFAULT_FLOPS_RANGE,
+            file_size_range=DEFAULT_FILE_SIZE_RANGE,
+            layers=None,
+            layer_width_range=(3, 10),
+            max_parents=3,
+            parent_edge_prob=0.5,
+            merge_prob=0.3,
+            seed=random.randint(0, 10_000),
+        )
+        if hasattr(scheduler, "set_adjacency"):
+            try:
+                scheduler.set_adjacency(adjacency)
+            except Exception:
+                pass
+        for f in files:
+            storage_service.create_file_copy(f)
+        # Random initial placement of existing files to simulate prior tasks
+        initial_nodes: Dict[str,str] = {}
+        for f in files:
+            fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+            node_choice = random.choice(self.compute_nodes)
+            initial_nodes[fid] = node_choice
+            if hasattr(scheduler, 'data_location') and isinstance(getattr(scheduler,'data_location'), dict):
+                scheduler.data_location[fid] = node_choice
+        node_loads = {n: 0.0 for n in self.compute_nodes}
         ready = workflow.get_ready_tasks()
         start_wall = time.time()
         steps = 0
+        # Metrics (currently unused externally)
+        data_location: Dict[str, str] = {}
+        total_transfer = 0.0
+        transfer_events = 0
+        local_hits = 0
+        file_accesses = 0
         while ready:
-            t = ready[0]
-            chosen = scheduler.schedule_task(t, self.compute_nodes, self.node_capacities, node_loads, compute_service)
-            file_locations = {f:storage_service for f in t.get_input_files()}
-            for f in t.get_output_files(): file_locations[f]=storage_service
+            if hasattr(scheduler, "choose"):
+                t, chosen = scheduler.choose(
+                    ready, self.compute_nodes, self.node_capacities, node_loads, compute_service
+                )
+                if t is None:
+                    break
+            else:
+                t = ready[0]
+                chosen = scheduler.schedule_task(
+                    t, self.compute_nodes, self.node_capacities, node_loads, compute_service
+                )
+            file_locations = {f: storage_service for f in t.get_input_files()}
+            try:
+                for f in t.get_input_files():
+                    file_accesses += 1
+                    fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                    size_b = f.get_size()
+                    loc = data_location.get(fid, initial_nodes.get(fid))
+                    if loc == chosen:
+                        local_hits += 1
+                    else:
+                        total_transfer += size_b
+                        transfer_events += 1
+            except Exception:
+                pass
+            for f in t.get_output_files():
+                file_locations[f] = storage_service
             job = sim.create_standard_job([t], file_locations)
             compute_service.submit_standard_job(job)
             st = sim.get_simulated_time()
             while True:
                 ev = sim.wait_for_next_event()
-                if ev['event_type'] == 'standard_job_completion' and ev['standard_job']==job: break
-                if ev['event_type'] == 'simulation_termination': break
-            et = sim.get_simulated_time(); exec_t = et - st
+                if (
+                    ev["event_type"] == "standard_job_completion" and ev["standard_job"] == job
+                ) or ev["event_type"] == "simulation_termination":
+                    if ev["event_type"] == "standard_job_completion":
+                        break
+                    else:
+                        break
+            et = sim.get_simulated_time()
+            exec_t = et - st
             node_loads[chosen] += exec_t
-            ready = workflow.get_ready_tasks(); steps += 1
-        makespan = sim.get_simulated_time(); sim.terminate()
-        return EvalRecord(method=scheduler.name, workflow_id=f"wf_{workflow_size}_{random.randint(0,9999)}", tasks=workflow_size, makespan=makespan, steps=steps, runtime_ms=(time.time()-start_wall)*1000)
+            ready = workflow.get_ready_tasks()
+            steps += 1
+            if hasattr(scheduler, "notify_task_completion"):
+                try:
+                    scheduler.notify_task_completion(t.get_name(), chosen)
+                except Exception:
+                    pass
+            try:
+                for f in t.get_output_files():
+                    fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                    data_location[fid] = chosen
+                    # Propagate to scheduler if it maintains a data_location map
+                    if hasattr(scheduler, 'data_location') and isinstance(getattr(scheduler, 'data_location'), dict):
+                        scheduler.data_location[fid] = chosen
+            except Exception:
+                pass
+        makespan = sim.get_simulated_time()
+        sim.terminate()
+        return EvalRecord(
+            method=scheduler.name,
+            workflow_id=f"wf_{workflow_size}_{random.randint(0,9999)}",
+            tasks=workflow_size,
+            makespan=makespan,
+            steps=steps,
+            runtime_ms=(time.time() - start_wall) * 1000,
+            total_transfer_bytes=total_transfer,
+            transfer_events=transfer_events,
+            locality_hit_rate=(local_hits / file_accesses) if file_accesses else 0.0,
+            transfer_bytes_per_task=(total_transfer / workflow_size) if workflow_size else 0.0,
+        )
 
 class PPOPaperScheduler:
     def __init__(self, model_path: str, rag_weight: float = 0.7, deterministic: bool = True):
@@ -185,16 +266,26 @@ def evaluate(config_path: str, workflows: List[int] = None, repetitions: int = 3
     agg: Dict[str, Dict[str, Any]] = {}
     size_buckets: Dict[str, Dict[int, List[float]]] = {}
     for rec in records:
-        agg.setdefault(rec.method, {'makespans': []})['makespans'].append(rec.makespan)
+        agg.setdefault(rec.method, {'makespans': [], 'transfer_bytes': [], 'locality_hr': [], 'transfer_per_task': []})
+        agg[rec.method]['makespans'].append(rec.makespan)
+        agg[rec.method]['transfer_bytes'].append(rec.total_transfer_bytes)
+        agg[rec.method]['locality_hr'].append(rec.locality_hit_rate)
+        agg[rec.method]['transfer_per_task'].append(rec.transfer_bytes_per_task)
         size_buckets.setdefault(rec.method, {}).setdefault(rec.tasks, []).append(rec.makespan)
     summary = {}
     for m, d in agg.items():
         arr = np.array(d['makespans'])
+        t_arr = np.array(d['transfer_bytes'])
+        hr_arr = np.array(d['locality_hr'])
+        tpt_arr = np.array(d['transfer_per_task'])
         summary[m] = {
             'count': int(arr.size),
             'mean_makespan': float(arr.mean()),
             'std_makespan': float(arr.std()),
             'best': float(arr.min()),
+            'mean_total_transfer_bytes': float(t_arr.mean()) if t_arr.size else 0.0,
+            'mean_locality_hit_rate': float(hr_arr.mean()) if hr_arr.size else 0.0,
+            'mean_transfer_bytes_per_task': float(tpt_arr.mean()) if tpt_arr.size else 0.0,
         }
     # Significance quick comparison if both methods exist
     if 'WASS-DRL' in summary and 'WASS-PPO-RAG' in summary:

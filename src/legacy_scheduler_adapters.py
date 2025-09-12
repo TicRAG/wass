@@ -5,7 +5,7 @@ We wrap or re-implement minimal versions using wrench_schedulers where possible.
 """
 from __future__ import annotations
 import random
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 try:
     import wrench  # type: ignore
@@ -17,8 +17,19 @@ from src.wrench_schedulers import FIFOScheduler as _FIFONew, HEFTScheduler as _H
 
 class _ShimBase:
     name: str = "Unnamed"
-    def schedule_task(self, *args, **kwargs):  # pragma: no cover - interface placeholder
+    def schedule_task(self, *args, **kwargs):  # Simple (task already chosen)
         raise NotImplementedError
+    def choose(self, ready_tasks, available_nodes, node_caps, node_loads, compute_service):
+        """Optional extended interface: return (task, node). Fallback uses first ready + schedule_task."""
+        if not ready_tasks:
+            return None, None
+        t = ready_tasks[0]
+        node = self.schedule_task(t, available_nodes, node_caps, node_loads, compute_service)
+        return t, node
+    def set_adjacency(self, adjacency):  # optional
+        self._adjacency = adjacency
+    def notify_task_completion(self, task_name: str, node: str):  # optional hook
+        pass
 
 class FIFOScheduler(_ShimBase):
     def __init__(self):
@@ -30,31 +41,169 @@ class FIFOScheduler(_ShimBase):
 class HEFTScheduler(_ShimBase):
     def __init__(self):
         self.name = "HEFT"
-    def schedule_task(self, task, available_nodes: List[str], node_caps: Dict[str,float], node_loads: Dict[str,float], compute_service):
-        # Pick node with max capacity; tiebreak earliest load
-        best = None; best_score = -1
+        self._ranks: Dict[str, float] = {}
+        self.data_location: Dict[str, str] = {}
+        self.bandwidth = 2e8  # lower to amplify transfer cost
+
+    def _average_exec_time(self, task, node_caps: Dict[str, float]):
+        flops = getattr(task, 'get_flops', lambda: 1e9)()
+        avg_cap = sum(node_caps.values()) / max(1, len(node_caps))
+        return flops / max(1e-6, avg_cap * 1e9)
+
+    def _compute_upward_ranks(self, tasks, node_caps):
+        task_map = {t.get_name(): t for t in tasks}
+        ranks: Dict[str, float] = {}
+
+        def children_of(t):
+            if hasattr(self, '_adjacency') and getattr(self, '_adjacency') and 'children' in self._adjacency:
+                return [task_map[c] for c in self._adjacency['children'].get(t.get_name(), []) if c in task_map]
+            return []
+
+        def rank(name: str):
+            if name in ranks:
+                return ranks[name]
+            t = task_map[name]
+            child_max = 0.0
+            for c in children_of(t):
+                child_max = max(child_max, rank(c.get_name()))
+            val = self._average_exec_time(t, node_caps) + child_max
+            ranks[name] = val
+            return val
+
+        for t in tasks:
+            try:
+                rank(t.get_name())
+            except Exception:
+                ranks[t.get_name()] = self._average_exec_time(t, node_caps)
+        return ranks
+
+    def _eft(self, task, node, node_caps, node_loads):
+        flops = getattr(task, 'get_flops', lambda: 1e9)()
+        cap = node_caps.get(node, 1.0)
+        exec_time = flops / max(1e-6, cap * 1e9)
+        load = node_loads.get(node, 0.0)
+        transfer = 0.0
+        try:
+            for f in task.get_input_files():
+                fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                loc = self.data_location.get(fid)
+                if loc is None or loc != node:
+                    transfer += f.get_size() / self.bandwidth
+        except Exception:
+            pass
+        return load + exec_time + transfer
+
+    def choose(self, ready_tasks, available_nodes, node_caps, node_loads, compute_service):
+        if not ready_tasks:
+            return None, None
+        all_tasks = list(ready_tasks)
+        try:
+            wf = getattr(ready_tasks[0], 'get_workflow', lambda: None)()
+            if wf is not None and hasattr(wf, 'get_tasks'):
+                cand = wf.get_tasks()
+                if cand and not isinstance(cand[0], str):
+                    all_tasks = cand
+        except Exception:
+            pass
+        self._ranks = self._compute_upward_ranks(all_tasks, node_caps)
+        chosen_task = max(ready_tasks, key=lambda t: self._ranks.get(t.get_name(), 0.0))
+        best_node = None
+        best_eft = 1e18
         for n in available_nodes:
-            cap = node_caps.get(n,0.0); load = node_loads.get(n,0.0)
-            score = cap - 0.1*load
-            if score > best_score:
-                best_score = score; best = n
-        return best or available_nodes[0]
+            eft = self._eft(chosen_task, n, node_caps, node_loads)
+            if eft < best_eft:
+                best_eft = eft
+                best_node = n
+        return chosen_task, best_node or available_nodes[0]
+
+    def schedule_task(self, task, available_nodes, node_caps, node_loads, compute_service):
+        best_node = None
+        best_eft = 1e18
+        for n in available_nodes:
+            eft = self._eft(task, n, node_caps, node_loads)
+            if eft < best_eft:
+                best_eft = eft
+                best_node = n
+        return best_node or available_nodes[0]
+
+    def notify_task_completion(self, task_name: str, node: str):  # pragma: no cover
+        pass
 
 class WASSHeuristicScheduler(_ShimBase):
-    def __init__(self):
+    def __init__(self, alpha: float=0.65, beta: float=0.15, gamma: float=0.20, bandwidth: float=2e8):
+        """alpha: weight for EFT, beta: locality penalty weight, gamma: load balance penalty.
+        bandwidth: assumed network bandwidth for transfer estimation."""
         self.name = "WASS-Heuristic"
-    def schedule_task(self, task, available_nodes: List[str], node_caps: Dict[str,float], node_loads: Dict[str,float], compute_service):
-        # Combine capacity, current load, estimated exec time
-        flops = task.get_flops() if hasattr(task, 'get_flops') else 1e9
-        best=None; best_score=1e18
+        self.alpha = alpha
+        self.beta = beta
+        self.gamma = gamma
+        self.bandwidth = bandwidth
+        self.data_location: Dict[str,str] = {}
+
+    def _transfer_time(self, task, node):
+        max_t = 0.0
+        try:
+            for f in task.get_input_files():
+                fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                loc = self.data_location.get(fid)
+                if loc is None or loc != node:
+                    size_b = f.get_size()
+                    max_t = max(max_t, size_b / self.bandwidth)
+        except Exception:
+            pass
+        return max_t
+
+    def _eft(self, task, node, node_caps, node_loads):
+        flops = getattr(task,'get_flops',lambda:1e9)()
+        cap = node_caps.get(node,1.0)
+        exec_time = flops / max(1e-6, cap*1e9)
+        return node_loads.get(node,0.0) + exec_time
+
+    def _score(self, task, node, node_caps, node_loads, load_std):
+        eft = self._eft(task, node, node_caps, node_loads)
+        transfer = self._transfer_time(task, node)
+        # locality penalty approximated by transfer time
+        return self.alpha*eft + self.beta*transfer + self.gamma*load_std
+
+    def _update_data_locations(self, task, node):
+        try:
+            for f in task.get_output_files():
+                self.data_location[f.get_id()] = node
+        except Exception:
+            pass
+    def notify_task_completion(self, task_name: str, node: str):
+        # Could be used for future adaptive weighting; currently data location updated earlier in run loop
+        pass
+
+    def choose(self, ready_tasks, available_nodes, node_caps, node_loads, compute_service):
+        if not ready_tasks:
+            return None, None
+        # Precompute load std (balance) after hypothetical assignment not modeled; use current snapshot
+        loads = list(node_loads.values()) or [0.0]
+        import math
+        mean_l = sum(loads)/len(loads)
+        load_var = sum((l-mean_l)**2 for l in loads)/len(loads)
+        load_std = math.sqrt(load_var)
+        best_tuple: Tuple[float,Any,Any] = (1e18,None,None)
+        for t in ready_tasks:
+            for n in available_nodes:
+                sc = self._score(t, n, node_caps, node_loads, load_std)
+                if sc < best_tuple[0]:
+                    best_tuple = (sc, t, n)
+        return best_tuple[1], best_tuple[2]
+
+    def schedule_task(self, task, available_nodes, node_caps, node_loads, compute_service):
+        # Fallback single-task selection
+        loads = list(node_loads.values()) or [0.0]
+        import math
+        mean_l = sum(loads)/len(loads)
+        load_var = sum((l-mean_l)**2 for l in loads)/len(loads)
+        load_std = math.sqrt(load_var)
+        best=None; best_sc=1e18
         for n in available_nodes:
-            cap = node_caps.get(n,1.0)
-            exec_est = flops/(cap*1e9)
-            load = node_loads.get(n,0.0)
-            # Score: weighted sum lower better
-            score = exec_est + 0.25*load
-            if score < best_score:
-                best_score=score; best=n
+            sc = self._score(task, n, node_caps, node_loads, load_std)
+            if sc < best_sc:
+                best_sc=sc; best=n
         return best or available_nodes[0]
 
 class WASSDRLScheduler(_ShimBase):

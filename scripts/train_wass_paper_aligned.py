@@ -40,6 +40,7 @@ except Exception:
 from src.graph_encoder import GraphFeatureEncoder
 from src.ppo_agent import PPOAgent
 from src.rag_teacher import RAGTeacher
+from src.workflow_generator_shared import generate_workflow, DEFAULT_FLOPS_RANGE, DEFAULT_FILE_SIZE_RANGE, DEFAULT_DEP_PROB
 
 # Reuse / fallback: lightweight performance predictor optional
 try:
@@ -92,24 +93,14 @@ class PaperWRENCHEnv:
         self.compute_service = self.sim.create_bare_metal_compute_service(
             "ComputeHost1", compute_resources, "/scratch", {}, {}
         )
-        self.workflow = self.sim.create_workflow()
-        self.task_list = []
-        self.files = []
-        # Create tasks
-        for i in range(num_tasks):
-            flops = random.uniform(1e9, 12e9)
-            task = self.workflow.add_task(f"task_{i}", flops, 1, 1, 0)
-            self.task_list.append(task)
-            if i < num_tasks - 1:
-                ofile = self.sim.add_file(f"f_{i}", random.randint(5_000, 50_000))
-                task.add_output_file(ofile)
-                self.files.append(ofile)
-        # Random dependencies
-        for i in range(1, len(self.task_list)):
-            if random.random() < 0.35:
-                dep_idx = random.randint(0, i - 1)
-                if dep_idx < len(self.files):
-                    self.task_list[i].add_input_file(self.files[dep_idx])
+        # Unified workflow generation (shared with evaluation)
+        self.workflow, self.task_list, self.files = generate_workflow(
+            self.sim,
+            size=num_tasks,
+            flops_range=DEFAULT_FLOPS_RANGE,
+            dep_prob=DEFAULT_DEP_PROB,
+            file_size_range=DEFAULT_FILE_SIZE_RANGE
+        )
         for f in self.files:
             self.storage_service.create_file_copy(f)
         self.current_time = 0.0
