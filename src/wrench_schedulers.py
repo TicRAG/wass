@@ -100,7 +100,8 @@ class HEFTScheduler(BaseScheduler):
 class WassHeuristicScheduler(BaseScheduler):
     """WASS启发式调度器 - 在HEFT基础上加入数据局部性考虑"""
     
-    def __init__(self, simulation, compute_service, hosts: Dict[str, Any], data_locality_weight: float = 0.5):
+    def __init__(self, simulation, compute_service, hosts: Dict[str, Any], data_locality_weight: float = 0.5,
+                 bandwidth: float = 1e9):
         super().__init__(simulation, compute_service)
         self.ranks: Dict[str, float] = {}
         self.hosts = hosts
@@ -113,6 +114,10 @@ class WassHeuristicScheduler(BaseScheduler):
             self._host_resource_specs = {h: self.hosts[h] for h in self.hosts}
         except Exception:
             self._host_resource_specs = {}
+        # 新增：跟踪主机可用时间与任务完成时间，实现真实EFT
+        self.host_available_time: Dict[str, float] = {h: 0.0 for h in self.hosts}
+        self.task_finish_times: Dict[str, float] = {}
+        self.bandwidth = bandwidth  # bytes/sec for transfer estimation
 
     def _average_exec_time(self, task):
         """计算任务的平均执行时间"""
@@ -149,67 +154,69 @@ class WassHeuristicScheduler(BaseScheduler):
             rank(t.get_name())
         return ranks
 
-    def _get_earliest_finish_time(self, task, host_name):
-        """计算任务在指定主机上的最早完成时间 (EFT)"""
+    def _execution_time(self, task, host_name: str) -> float:
+        """估算在指定主机上的纯执行时间。"""
         try:
             flops = task.get_flops()
             host_speed = self.hosts.get(host_name, [1, 10.0])[1]
-            exec_time = flops / max(1e-6, host_speed)
-            # 简化实现：实际应该考虑主机当前负载和队列
-            return exec_time
+            return flops / max(1e-6, host_speed)
         except Exception:
             return 10.0
 
-    def _get_data_ready_time(self, task, host_name):
-        """计算数据就绪时间 (DRT) - 考虑数据传输开销"""
+    def _data_ready_time(self, task, host_name: str) -> float:
+        """所有输入在目标主机就绪的时间 (父任务完成 + 传输)。"""
+        ready = 0.0
         try:
-            # 获取任务的输入文件
-            input_files = task.get_input_files()
-            max_transfer_time = 0.0
-            
-            for file in input_files:
-                file_id = file.get_id()
-                # 检查文件是否在目标主机上
-                if self.data_location.get(file_id) == host_name:
-                    # 数据已在本地，无传输时间
-                    transfer_time = 0.0
+            for f in task.get_input_files():
+                file_id = f.get_id()
+                # 生产者完成时间
+                # 简化：通过文件位置反查其生产主机的任务完成时间不可行 => 使用父任务 finish time
+                prod_finish = 0.0
+                try:
+                    # 获取父任务最大完成时间
+                    parents = list(task.get_parents()) if hasattr(task, 'get_parents') else []
+                except Exception:
+                    parents = []
+                parent_max = 0.0
+                for p in parents:
+                    parent_max = max(parent_max, self.task_finish_times.get(p.get_name(), 0.0))
+                prod_finish = parent_max
+                # 若数据已在该主机，无需传输
+                loc = self.data_location.get(file_id)
+                if loc == host_name:
+                    arrival = prod_finish
                 else:
-                    # 需要传输数据，简化计算传输时间
-                    file_size = file.get_size()  # bytes
-                    network_bandwidth = 1e9  # 1GB/s，实际应该从平台配置获取
-                    transfer_time = file_size / network_bandwidth
-                
-                max_transfer_time = max(max_transfer_time, transfer_time)
-            
-            return max_transfer_time
+                    size_b = f.get_size()
+                    transfer = size_b / self.bandwidth
+                    arrival = prod_finish + transfer
+                ready = max(ready, arrival)
+            return ready
         except Exception:
-            # 如果出现异常，返回一个默认值
-            return 1.0
+            return ready
+
+    def _earliest_finish_time(self, task, host_name: str) -> float:
+        data_ready = self._data_ready_time(task, host_name)
+        host_ready = self.host_available_time.get(host_name, 0.0)
+        est = max(data_ready, host_ready)
+        return est + self._execution_time(task, host_name)
 
     def _compute_wass_score(self, task, host_name):
-        """计算WASS综合评分"""
-        eft = self._get_earliest_finish_time(task, host_name)
-        drt = self._get_data_ready_time(task, host_name)
-        
-        # 归一化处理（简化版本）
-        # 实际应该根据所有候选主机的EFT和DRT范围进行归一化
+        """使用真实EFT与数据就绪时间的组合分数。"""
+        eft = self._earliest_finish_time(task, host_name)
+        # 提取数据就绪与主机可用的组成部分用于 locality 权衡
+        data_ready = self._data_ready_time(task, host_name)
         w = self.data_locality_weight
-        score = (1 - w) * eft + w * drt
-        
-        return score
+        # 分数越低越好：EFT 主导 + locality (较小 data_ready 提升)
+        return (1 - w) * eft + w * data_ready
 
     def _select_best_host(self, task):
-        """为任务选择最佳主机"""
-        best_host = None
-        best_score = float('inf')
-        
+        best = (float('inf'), None, 0.0)
         for host_name in self.hosts:
             score = self._compute_wass_score(task, host_name)
-            if score < best_score:
-                best_score = score
-                best_host = host_name
-        
-        return best_host or list(self.hosts.keys())[0]
+            eft = self._earliest_finish_time(task, host_name)
+            if score < best[0]:
+                best = (score, host_name, eft)
+        return best  # (score, host, eft)
 
     def submit_ready_tasks(self, workflow):
         """提交就绪任务 - 使用WASS启发式选择主机"""
@@ -224,24 +231,20 @@ class WassHeuristicScheduler(BaseScheduler):
         
         for task in ready_sorted:
             if task.get_state_as_string() == 'NOT_SUBMITTED':
-                # 使用WASS启发式选择最佳主机
-                best_host = self._select_best_host(task)
-                
-                # 创建作业；WRENCH Python API 没有直接传入执行主机参数，这里利用如下策略：
-                # 1) 仍然创建标准作业；
-                # 2) 立即向 compute_service 提交前，尝试通过设置任务“首选”主机属性（若API支持）或者在数据位置映射中仅保留该主机的输入输出文件副本。
-                # 如果 API 不支持强制绑定，将回退为提示式：通过减少其它主机局部性吸引力迭代逼近。
+                score, best_host, eft = self._select_best_host(task)
+                if best_host is None:
+                    continue
                 try:
-                    # 若任务对象支持 set_property 之类自定义属性，可写入；忽略异常
                     if hasattr(task, 'set_property'):
                         task.set_property('preferred_host', best_host)  # type: ignore
                 except Exception:
                     pass
                 job = self.sim.create_standard_job([task], {})
-                # 直接提交（WRENCH内部仍可能重新选择），但我们同步内部数据位置，使后续任务的局部性计算基于该假设主机。
                 self.cs.submit_standard_job(job)
-                
-                # 更新数据位置（假设任务输出数据会保存在执行主机上）
+                # 更新预测状态
+                finish_time = eft
+                self.host_available_time[best_host] = finish_time
+                self.task_finish_times[task.get_name()] = finish_time
                 self._update_data_locations_after_task(task, best_host)
 
     def _initialize_data_locations(self, workflow):

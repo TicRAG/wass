@@ -433,7 +433,13 @@ def evaluate(config_path: str, workflows: List[int] = None, repetitions: int = 3
     for r in records:
         base = asdict(r)
         # merge dynamic attrs if present
-        for extra in ['sensitive_transfer_bytes','sensitive_transfer_events','sensitive_file_fraction']:
+        for extra in [
+            'sensitive_transfer_bytes',
+            'sensitive_transfer_events',
+            'sensitive_file_fraction',
+            'zero_access_tasks',
+            'total_file_accesses'
+        ]:
             if hasattr(r, extra):
                 base[extra] = getattr(r, extra)
         out_records.append(base)

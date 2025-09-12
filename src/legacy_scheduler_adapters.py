@@ -34,9 +34,13 @@ class _ShimBase:
 class FIFOScheduler(_ShimBase):
     def __init__(self):
         self.name = "FIFO"
+        self._last_index = -1
     def schedule_task(self, task, available_nodes: List[str], node_caps: Dict[str,float], node_loads: Dict[str,float], compute_service):
-        # Simple FIFO: just pick first available node
-        return available_nodes[0]
+        # Simple round-robin across available nodes to avoid trivial perfect locality
+        if not available_nodes:
+            return None
+        self._last_index = (self._last_index + 1) % len(available_nodes)
+        return available_nodes[self._last_index]
 
 class HEFTScheduler(_ShimBase):
     def __init__(self):
