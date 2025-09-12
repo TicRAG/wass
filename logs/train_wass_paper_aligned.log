@@ -1,0 +1,8 @@
+EP 000 | avgR=0.145 (env=0.199 rag=0.123) mksp=28.10 cases=20
+EP 010 | avgR=0.149 (env=0.229 rag=0.115) mksp=28.69 cases=181
+EP 020 | avgR=0.173 (env=0.192 rag=0.165) mksp=14.65 cases=342
+EP 030 | avgR=0.178 (env=0.225 rag=0.158) mksp=16.11 cases=489
+EP 040 | avgR=0.174 (env=0.201 rag=0.163) mksp=26.53 cases=648
+EP 050 | avgR=0.179 (env=0.206 rag=0.167) mksp=25.45 cases=832
+✅ Saved paper-aligned PPO model -> models/wass_paper_aligned.pth
+📊 Metrics -> models/wass_paper_aligned_metrics.json

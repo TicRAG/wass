@@ -281,25 +281,6 @@ export SIMGRID_CONTEXT_STACK_SIZE=8192
 export SIMGRID_LOG_THRESHOLD=warning
 ```
 
-## Integration with WASS
-
-### Directory Structure
-```
-wass/
-├── wrench_integration/
-│   ├── simulator.py           # Main WRENCH interface
-│   ├── platform_builder.py    # Platform XML generation
-│   ├── workflow_converter.py  # DAG to WRENCH workflow
-│   └── results_collector.py   # Simulation results
-```
-
-### Next Steps
-
-1. **Run verification tests** to ensure WRENCH is working
-2. **Implement basic WASS-WRENCH interface** in `wrench_integration/`
-3. **Create first workflow simulation** using WASS workflows
-4. **Validate results** against expected behavior
-
 ## Resources
 
 - [WRENCH Documentation](https://wrench-project.org/wrench/latest/)

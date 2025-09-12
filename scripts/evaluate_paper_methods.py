@@ -20,8 +20,8 @@ import torch
 root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(root))
 
-# Import legacy experiment schedulers (reuse code)
-from experiments.wrench_real_experiment import (
+# Import scheduler adapters (replaces deprecated experiments.wrench_real_experiment)
+from src.legacy_scheduler_adapters import (
     FIFOScheduler, HEFTScheduler, WASSHeuristicScheduler, WASSDRLScheduler
 )
 
