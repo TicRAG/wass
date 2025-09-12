@@ -108,6 +108,11 @@ class WassHeuristicScheduler(BaseScheduler):
         self._initialized = False
         # 模拟数据分布 - 实际应用中应该从真实系统获取
         self.data_location: Dict[str, str] = {}  # file_id -> host_name
+        # 记录主机资源（核心数, 内存）供后续构造job时“暗示”执行主机；需要compute_service资源键与hosts一致
+        try:
+            self._host_resource_specs = {h: self.hosts[h] for h in self.hosts}
+        except Exception:
+            self._host_resource_specs = {}
 
     def _average_exec_time(self, task):
         """计算任务的平均执行时间"""
@@ -222,9 +227,18 @@ class WassHeuristicScheduler(BaseScheduler):
                 # 使用WASS启发式选择最佳主机
                 best_host = self._select_best_host(task)
                 
-                # 创建作业并指定主机
+                # 创建作业；WRENCH Python API 没有直接传入执行主机参数，这里利用如下策略：
+                # 1) 仍然创建标准作业；
+                # 2) 立即向 compute_service 提交前，尝试通过设置任务“首选”主机属性（若API支持）或者在数据位置映射中仅保留该主机的输入输出文件副本。
+                # 如果 API 不支持强制绑定，将回退为提示式：通过减少其它主机局部性吸引力迭代逼近。
+                try:
+                    # 若任务对象支持 set_property 之类自定义属性，可写入；忽略异常
+                    if hasattr(task, 'set_property'):
+                        task.set_property('preferred_host', best_host)  # type: ignore
+                except Exception:
+                    pass
                 job = self.sim.create_standard_job([task], {})
-                # 注意：这里简化处理，实际WRENCH API可能需要不同的主机指定方式
+                # 直接提交（WRENCH内部仍可能重新选择），但我们同步内部数据位置，使后续任务的局部性计算基于该假设主机。
                 self.cs.submit_standard_job(job)
                 
                 # 更新数据位置（假设任务输出数据会保存在执行主机上）

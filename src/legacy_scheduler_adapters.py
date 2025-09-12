@@ -138,36 +138,47 @@ class WASSHeuristicScheduler(_ShimBase):
     score = exec_eft + w_bal*load_ratio - w_rank*norm_rank - w_loc*locality_gain
     Lower score better.
     """
-    def __init__(self, w_loc: float = 0.40, w_rank: float = 0.25, w_bal: float = 0.05, bandwidth: float = 1e8):
+    def __init__(self, w_loc: float = 0.40, w_rank: float = 0.25, w_bal: float = 0.05, bandwidth: float = 1e8,
+                 transfer_aggregate: str = "sum", overlap: bool = False, overlap_factor: float = 0.5):
         self.name = "WASS-Heuristic"
-        self.w_loc = w_loc      # reward weight for locality gain
-        self.w_rank = w_rank    # reward weight for critical path rank
-        self.w_bal = w_bal      # small penalty for per-node load ratio
-        self.bandwidth = bandwidth  # lower bw -> amplify data movement cost
-        self.data_location: Dict[str,str] = {}
-        self._ranks: Dict[str,float] = {}
+        self.w_loc = w_loc
+        self.w_rank = w_rank
+        self.w_bal = w_bal
+        self.bandwidth = bandwidth
+        self.transfer_aggregate = transfer_aggregate
+        self.overlap = overlap
+        self.overlap_factor = max(0.0, min(1.0, overlap_factor))
+        self.data_location: Dict[str, str] = {}
+        self._ranks: Dict[str, float] = {}
         self._max_rank = 1.0
+        self._node_available: Dict[str, float] = {}
 
     # ---- Internal helpers ----
     def _transfer_time(self, task, node):
-        t = 0.0
+        total = 0.0; max_single = 0.0
         try:
             for f in task.get_input_files():
                 fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
                 loc = self.data_location.get(fid)
                 if loc is None or loc != node:
-                    t += f.get_size()/self.bandwidth
+                    dt = f.get_size()/self.bandwidth
+                    total += dt
+                    if dt > max_single:
+                        max_single = dt
         except Exception:
             pass
-        return t
+        raw = total if self.transfer_aggregate == "sum" else max_single
+        if self.overlap:
+            return raw * (1.0 - self.overlap_factor)
+        return raw
 
     def _eft(self, task, node, node_caps, node_loads):
-        # Integrated execution + queue + transfer
         flops = getattr(task, 'get_flops', lambda: 1e9)()
         cap = node_caps.get(node, 1.0)
         exec_time = flops / max(1e-6, cap * 1e9)
         transfer = self._transfer_time(task, node)
-        return node_loads.get(node, 0.0) + transfer + exec_time
+        avail = self._node_available.get(node, 0.0)
+        return max(avail, 0.0) + transfer + exec_time
 
     def _compute_upward_ranks(self, tasks, node_caps):
         task_map = {t.get_name(): t for t in tasks}
@@ -204,17 +215,32 @@ class WASSHeuristicScheduler(_ShimBase):
         return ranks
 
     def _locality_gain(self, task, node):
-        # Fraction of inputs already on this node
+        # Fan-out weighted fraction of inputs located on this node.
         try:
             ins = task.get_input_files()
             if not ins:
                 return 0.0
-            hits = 0
+            total_weight = 0.0
+            local_weight = 0.0
+            # Precompute downstream reuse (fan-out) via adjacency children mapping if available
+            downstream_counts: Dict[str,int] = {}
+            if hasattr(self,'_adjacency') and getattr(self,'_adjacency') and 'producers' in self._adjacency:
+                # _adjacency['producers'][file_id] -> producing task; we derive consumers from 'file_consumers' if exists
+                consumers = self._adjacency.get('file_consumers', {}) if isinstance(self._adjacency, dict) else {}
+                for f in ins:
+                    fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                    fan = len(consumers.get(fid, [])) if consumers else 1
+                    downstream_counts[fid] = max(1, fan)
             for f in ins:
                 fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
+                fan_out = downstream_counts.get(fid, 1)
+                w = 1.0 + 0.25 * (fan_out - 1)  # amplify weight for widely reused data
+                total_weight += w
                 if self.data_location.get(fid) == node:
-                    hits += 1
-            return hits / max(1, len(ins))
+                    local_weight += w
+            if total_weight <= 0:
+                return 0.0
+            return local_weight / total_weight
         except Exception:
             return 0.0
 
@@ -247,12 +273,20 @@ class WASSHeuristicScheduler(_ShimBase):
             if self._ranks:
                 self._max_rank = max(self._ranks.values())
         # Balance term
-        best = (1e18, None, None)
+        # Ensure node availability map includes all nodes
+        for n in available_nodes:
+            self._node_available.setdefault(n, 0.0)
+        best = (1e18, None, None, 0.0)
         for t in ready_tasks:
             for n in available_nodes:
                 sc = self._score(t, n, node_caps, node_loads)
                 if sc < best[0]:
-                    best = (sc, t, n)
+                    # 计算对应 EFT 以更新占用
+                    eft = self._eft(t, n, node_caps, node_loads)
+                    best = (sc, t, n, eft)
+        # 预留该任务占用窗口（贪心预测）
+        if best[2] is not None:
+            self._node_available[best[2]] = best[3]
         return best[1], best[2]
 
     def schedule_task(self, task, available_nodes, node_caps, node_loads, compute_service):
@@ -264,8 +298,7 @@ class WASSHeuristicScheduler(_ShimBase):
         return best_node or available_nodes[0]
 
     def notify_task_completion(self, task_name: str, node: str):
-        # Placeholder for adaptive adjustments (not used currently)
-        pass
+        return
 
 class WASSDRLScheduler(_ShimBase):
     """Thin placeholder referencing previously trained DQN-like agent if available.

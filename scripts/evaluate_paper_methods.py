@@ -73,6 +73,7 @@ class SimpleWorkflowEnv:
         storage_service = sim.create_simple_storage_service("StorageHost", ["/storage"])
         compute_resources = {n: (4, 8_589_934_592) for n in self.compute_nodes}
         compute_service = sim.create_bare_metal_compute_service("ComputeHost1", compute_resources, "/scratch", {}, {})
+
         workflow, tasks, files, adjacency = generate_richer_workflow(
             sim,
             size=workflow_size,
@@ -90,6 +91,8 @@ class SimpleWorkflowEnv:
                 scheduler.set_adjacency(adjacency)
             except Exception:
                 pass
+
+        # Select sensitive files
         if self.sensitive_file_fraction > 0 and files:
             rng = random.Random(1234)
             shuffled = list(files); rng.shuffle(shuffled)
@@ -97,35 +100,43 @@ class SimpleWorkflowEnv:
             self.sensitive_files = {
                 (ff.get_name() if hasattr(ff, 'get_name') else getattr(ff, 'name', str(ff))) for ff in shuffled[:take]
             }
+        # Create baseline copies on storage
         for f in files:
             storage_service.create_file_copy(f)
+
+        # Random initial placement knowledge for scheduler locality map
         initial_nodes: Dict[str, str] = {}
         for f in files:
             fid = f.get_name() if hasattr(f, 'get_name') else getattr(f, 'name', str(f))
-            node_choice = random.choice(self.compute_nodes)
-            initial_nodes[fid] = node_choice
+            host_choice = random.choice(self.compute_nodes)
+            initial_nodes[fid] = host_choice
             if hasattr(scheduler, 'data_location') and isinstance(getattr(scheduler, 'data_location'), dict):
-                scheduler.data_location[fid] = node_choice
+                scheduler.data_location[fid] = host_choice
+
         node_loads = {n: 0.0 for n in self.compute_nodes}
-        active = {}
+        active: Dict[Any, Any] = {}
         ready = list(workflow.get_ready_tasks())
         steps = 0
         data_location: Dict[str, str] = {}
         total_transfer = 0.0; transfer_events = 0; local_hits = 0; file_accesses = 0
+        zero_access_tasks = 0
         sensitive_transfer_bytes = 0.0; sensitive_transfer_events = 0
         start_wall = time.time()
 
         def submit_task(task, node):
             nonlocal steps, total_transfer, transfer_events, local_hits, file_accesses
-            nonlocal sensitive_transfer_bytes, sensitive_transfer_events
+            nonlocal zero_access_tasks, sensitive_transfer_bytes, sensitive_transfer_events
             file_locations = {f: storage_service for f in task.get_input_files()}
             try:
-                for f in task.get_input_files():
+                ins = list(task.get_input_files())
+                if not ins:
+                    zero_access_tasks += 1
+                for f in ins:
                     file_accesses += 1
-                    fid = f.get_name() if hasattr(f, 'get_name') else getattr(f, 'name', str(f))
+                    fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
                     size_b = f.get_size()
-                    loc = data_location.get(fid, initial_nodes.get(fid))
-                    if loc == node:
+                    origin = data_location.get(fid, initial_nodes.get(fid))
+                    if origin == node:
                         local_hits += 1
                     else:
                         mult = self.sensitive_transfer_multiplier if fid in self.sensitive_files else 1.0
@@ -144,6 +155,7 @@ class SimpleWorkflowEnv:
             active[job] = (task, node, sim.get_simulated_time())
             steps += 1
 
+        # Main simulation loop
         while True:
             while ready:
                 if hasattr(scheduler, 'choose'):
@@ -174,7 +186,7 @@ class SimpleWorkflowEnv:
                     node_loads[node] += exec_t
                     try:
                         for f in task.get_output_files():
-                            fid = f.get_name() if hasattr(f, 'get_name') else getattr(f, 'name', str(f))
+                            fid = f.get_name() if hasattr(f,'get_name') else getattr(f,'name', str(f))
                             data_location[fid] = node
                             if hasattr(scheduler, 'data_location') and isinstance(getattr(scheduler, 'data_location'), dict):
                                 scheduler.data_location[fid] = node
@@ -207,6 +219,8 @@ class SimpleWorkflowEnv:
         rec.sensitive_transfer_bytes = sensitive_transfer_bytes  # type: ignore
         rec.sensitive_transfer_events = sensitive_transfer_events  # type: ignore
         rec.sensitive_file_fraction = self.sensitive_file_fraction  # type: ignore
+        rec.zero_access_tasks = zero_access_tasks  # type: ignore
+        rec.total_file_accesses = file_accesses  # type: ignore
         return rec
 
 class PPOPaperScheduler:
