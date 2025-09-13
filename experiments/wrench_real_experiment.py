@@ -326,17 +326,31 @@ class WASSRAGScheduler(WRENCHScheduler):
         self._load_rag_knowledge(rag_path)
     
     def _load_rag_knowledge(self, rag_path: str):
-        """加载RAG知识库"""
+        """加载增强的RAG知识库"""
         self.knowledge_base = []
         
-        # 方法1: 使用扩展的JSON知识库（最优先）
+        # 优先使用增强知识库
+        enhanced_path = "data/enhanced_rag_knowledge.json"
+        if os.path.exists(enhanced_path):
+            try:
+                with open(enhanced_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                cases = data.get('cases', [])
+                self.knowledge_base.extend(cases)
+                print(f"✅ 增强RAG知识库已加载: {len(cases)} 个优化案例")
+                return
+            except Exception as e:
+                print(f"增强知识库加载失败: {e}")
+        
+        # 回退到原始方法
+        # 方法1: 使用扩展的JSON知识库
         extended_json_path = "data/extended_rag_knowledge.json"
         if os.path.exists(extended_json_path):
             try:
                 with open(extended_json_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 
-                # 处理不同格式的JSON数据
                 cases = []
                 if isinstance(data, dict):
                     if 'cases' in data:
@@ -344,7 +358,6 @@ class WASSRAGScheduler(WRENCHScheduler):
                     elif 'sample_cases' in data:
                         cases = data['sample_cases']
                     else:
-                        # 假设整个就是案例列表
                         cases = list(data.values()) if isinstance(data, dict) else data
                 elif isinstance(data, list):
                     cases = data
@@ -358,7 +371,9 @@ class WASSRAGScheduler(WRENCHScheduler):
                             'task_execution_time': float(case.get('task_execution_time', 0.0)),
                             'workflow_makespan': float(case.get('workflow_makespan', 0.0)),
                             'node_capacity': float(case.get('node_capacity', 2.0)),
-                            'performance_ratio': float(case.get('performance_ratio', 1.0))
+                            'performance_ratio': float(case.get('performance_ratio', 1.0)),
+                            'total_workflow_flops': float(case.get('total_workflow_flops', case.get('task_flops', 1e9))),
+                            'workflow_size': int(case.get('workflow_size', 5))
                         }
                         self.knowledge_base.append(simple_case)
                 
@@ -442,50 +457,99 @@ class WASSRAGScheduler(WRENCHScheduler):
         print("❌ 无法加载任何RAG知识库，WASS-RAG将不可用")
     
     def schedule_task(self, task, available_nodes, node_capacities, node_loads, compute_service):
-        """基于RAG知识库增强的调度决策"""
+        """基于RAG知识库增强的调度决策 - 优化版本"""
         try:
             # 首先使用DRL进行基础调度决策
-            drl_node = self.drl_scheduler.schedule_task(task, available_nodes, node_capacities, node_loads, compute_service)
+            drl_node = self.drl_scheduler.schedule_task(
+                task, available_nodes, node_capacities, node_loads, compute_service
+            )
             
             # 如果没有知识库，直接返回DRL决策
             if not self.knowledge_base or len(self.knowledge_base) == 0:
                 return drl_node
             
-            # 获取任务特征用于RAG匹配
+            # 获取更丰富的任务特征用于RAG匹配
             try:
                 task_flops = float(getattr(task, 'get_flops', lambda: 1e9)())
-            except:
+                task_memory = float(getattr(task, 'get_memory_requirement', lambda: 1024)())
+                
+                # 计算工作流特征
+                total_workflow_flops = sum(
+                    float(getattr(t, 'get_flops', lambda: 1e9)()) 
+                    for t in [task]  # 这里简化处理，实际应该获取整个工作流
+                )
+                
+                # 计算当前节点负载特征
+                avg_load = np.mean([node_loads.get(node, 0) for node in available_nodes])
+                max_load = max([node_loads.get(node, 0) for node in available_nodes])
+                
+            except Exception as e:
                 task_flops = 1e9
+                task_memory = 1024
+                total_workflow_flops = task_flops
+                avg_load = 0
+                max_load = 0
             
-            # 在知识库中查找相似任务
-            best_match = None
-            min_distance = float('inf')
+            # 增强的相似度匹配
+            best_matches = []
+            min_similarity_threshold = 0.7
             
             for case in self.knowledge_base:
-                # 简单的相似度匹配：基于计算量
+                # 多维特征相似度计算
                 case_flops = float(case.get('task_flops', 1e9))
-                distance = abs(task_flops - case_flops) / max(task_flops, case_flops, 1e-6)
+                case_workflow_flops = float(case.get('total_workflow_flops', case_flops))
                 
-                if distance < min_distance and distance < 0.2:  # 20%容差
-                    min_distance = distance
-                    best_match = case
+                # 计算归一化距离
+                flops_distance = abs(task_flops - case_flops) / max(task_flops, case_flops, 1e-6)
+                workflow_distance = abs(total_workflow_flops - case_workflow_flops) / max(total_workflow_flops, case_workflow_flops, 1e-6)
+                
+                # 综合相似度
+                similarity = 1.0 - (flops_distance * 0.6 + workflow_distance * 0.4)
+                
+                if similarity >= min_similarity_threshold:
+                    best_matches.append({
+                        'case': case,
+                        'similarity': similarity,
+                        'suggested_node': str(case.get('chosen_node', drl_node))
+                    })
             
-            # 如果找到匹配的案例，使用RAG建议的节点
-            if best_match:
-                suggested_node = str(best_match.get('chosen_node', drl_node))
-                if suggested_node in available_nodes:
-                    return suggested_node
+            # 如果有高质量匹配，使用加权投票机制
+            if best_matches:
+                # 按相似度排序，取前5个最佳匹配
+                best_matches.sort(key=lambda x: x['similarity'], reverse=True)
+                top_matches = best_matches[:5]
+                
+                # 加权投票选择节点
+                node_votes = {}
+                for match in top_matches:
+                    node = match['suggested_node']
+                    weight = match['similarity']
+                    
+                    if node not in node_votes:
+                        node_votes[node] = 0
+                    node_votes[node] += weight
+                
+                # 选择得票最高的节点
+                if node_votes:
+                    rag_suggested_node = max(node_votes.keys(), key=lambda x: node_votes[x])
+                    
+                    # 增强RAG决策权重：如果RAG有强建议且节点可用，优先使用
+                    total_weight = sum(node_votes.values())
+                    max_weight = max(node_votes.values())
+                    confidence = max_weight / total_weight
+                    
+                    # 如果RAG信心度高且建议节点可用，使用RAG决策
+                    if confidence > 0.4 and rag_suggested_node in available_nodes:
+                        return rag_suggested_node
             
-            # 否则使用DRL决策
+            # 回退到DRL决策
             return drl_node
             
         except Exception as e:
-            # 任何错误都回退到DRL决策
-            try:
-                return self.drl_scheduler.schedule_task(task, available_nodes, node_capacities, node_loads, compute_service)
-            except:
-                # 最终回退：选择第一个可用节点
-                return available_nodes[0] if available_nodes else None
+            # 任何异常都回退到DRL
+            return self.drl_scheduler.schedule_task(
+                task, available_nodes, node_capacities, node_loads, compute_service
+            )
 
 class WRENCHExperimentRunner:
     """基于真实WRENCH的实验运行器"""
