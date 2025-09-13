@@ -54,75 +54,72 @@ class WASSDRLScheduler(WASSScheduler):
         return {chosen_node_name: task_to_schedule}
 
     def _extract_features(self, task: w.Task, simulation: 'WassWrenchSimulator') -> SchedulingState:
-        """Extracts enhanced features for better decision making."""
-        num_nodes = len(self.node_names)
+        """提取图结构特征，构建GNN输入"""
         
-        # 1. Task features - 增强任务特征
-        total_input_size = sum(simulation.workflow.get_edge_data_size(p.id, task.id) for p in task.parents)
-        avg_parent_runtime = np.mean([p.computation_size for p in task.parents]) if task.parents else 0.0
+        # 构建当前工作流的DAG图
+        dag = self._build_dag_graph(simulation.workflow)
         
-        task_features = [
+        # 更新当前任务的状态
+        if task.id in dag.nodes:
+            dag.nodes[task.id]['is_submitted'] = True
+        
+        # 构建节点特征（包含当前任务和平台状态）
+        node_features = {}
+        for node_name in self.node_names:
+            platform_node = simulation.platform.get_node(node_name)
+            node_features[node_name] = {
+                'speed': platform_node.speed,
+                'available_time': simulation.node_earliest_finish_time.get(node_name, 0.0),
+                'queue_length': len([t for t, n in simulation.task_to_node_map.items() if n == node_name])
+            }
+        
+        # 使用GNN提取图特征
+        graph_data = self.predictor.extract_graph_features(dag, node_features, focus_task_id=task.id)
+        
+        # 将图数据转换为特征向量（简化处理）
+        # 这里我们使用图的全局特征作为状态表示
+        node_embeddings = graph_data.x.numpy()
+        
+        # 计算图的全局统计特征
+        graph_features = [
+            np.mean(node_embeddings[:, 0]),  # 平均计算量
+            np.std(node_embeddings[:, 0]),   # 计算量方差
+            np.mean(node_embeddings[:, 5]),  # 平均节点速度
+            np.mean(node_embeddings[:, 6]),  # 平均可用时间
+            np.mean(node_embeddings[:, 7]),  # 平均队列长度
+            np.mean(node_embeddings[:, 8]),  # 关键路径任务比例
+            len(simulation.workflow.tasks),  # 总任务数
+            len(simulation.completed_tasks) / len(simulation.workflow.tasks),  # 完成率
+        ]
+        
+        # 任务特定特征
+        task_specific_features = [
             task.computation_size,
             len(task.parents),
             len(task.children),
-            total_input_size,
-            avg_parent_runtime,
-            task.computation_size / (total_input_size + 1e-6),  # 计算密度
+            sum(simulation.workflow.get_edge_data_size(p.id, task.id) for p in task.parents),
+            sum(simulation.workflow.get_edge_data_size(task.id, c.id) for c in task.children),
         ]
         
-        # 2. Node features - 增强节点特征
-        node_features = []
+        # 平台状态特征
+        platform_features = []
         for node_name in self.node_names:
-            node = simulation.platform.get_node(node_name)
+            platform_node = simulation.platform.get_node(node_name)
+            current_tasks = [t for t, n in simulation.task_to_node_map.items() if n == node_name]
+            total_computation = sum(t.computation_size for t in current_tasks)
             
-            # 基础时间计算
-            earliest_finish_time = simulation.node_earliest_finish_time.get(node_name, 0.0)
-            computation_time = task.computation_size / node.speed
-            
-            # 数据传输时间
-            total_d_time = 0.0
-            max_d_time = 0.0
-            parent_nodes = [simulation.task_to_node_map.get(parent) for parent in task.parents]
-            
-            for parent in task.parents:
-                parent_node_id = simulation.task_to_node_map.get(parent)
-                if parent_node_id and parent_node_id != node_name:
-                    data_size = simulation.workflow.get_edge_data_size(parent.id, task.id)
-                    bandwidth = simulation.platform.get_bandwidth(parent_node_id, node_name)
-                    d_time = data_size / bandwidth
-                    total_d_time += d_time
-                    max_d_time = max(max_d_time, d_time)
-            
-            # 完成时间 = max(最早可用时间 + 数据传输时间) + 计算时间
-            ready_time = max(earliest_finish_time, max_d_time)
-            total_finish_time = ready_time + computation_time
-            
-            # 节点负载特征
-            node_queue_length = len([t for t, n in simulation.task_to_node_map.items() if n == node_name])
-            
-            node_features.extend([
-                node.speed,
-                earliest_finish_time,
-                total_d_time,
-                max_d_time,
-                total_finish_time,
-                node_queue_length,
-                computation_time,
-                total_d_time / (computation_time + 1e-6),  # 通信计算比
+            platform_features.extend([
+                platform_node.speed,
+                len(current_tasks),
+                simulation.node_earliest_finish_time.get(node_name, 0.0),
             ])
-
-        # 3. 全局特征 - 工作流上下文
-        total_tasks = len(simulation.workflow.tasks)
-        completed_tasks = len([t for t in simulation.workflow.tasks if t.get_state_as_string() == 'COMPLETED'])
         
-        global_features = [
-            completed_tasks / total_tasks,  # 完成进度
-            len([t for t in simulation.workflow.tasks if t.get_state_as_string() == 'RUNNING']),  # 运行中任务
-            np.mean([simulation.node_earliest_finish_time.get(n, 0.0) for n in self.node_names]),  # 平均节点负载
-        ]
-        
-        # 标准化特征
-        state_vector = np.concatenate([task_features, node_features, global_features]).astype(np.float32)
+        # 合并所有特征
+        state_vector = np.concatenate([
+            graph_features,
+            task_specific_features,
+            platform_features
+        ]).astype(np.float32)
         
         return SchedulingState(state_vector)
 
@@ -236,47 +233,60 @@ class WASSRAGScheduler(WASSDRLScheduler):
         
         task_to_schedule = ready_tasks[0]
         
-        # Get predictions from the "teacher" (performance predictor)
-        estimated_makespans = self._get_estimated_makespans(task_to_schedule, simulation)
-        
-        # Find the best node according to the teacher
-        best_node_from_teacher = min(estimated_makespans, key=lambda n: estimated_makespans[n].value)
-        teacher_makespan = estimated_makespans[best_node_from_teacher].value
-        
-        # Get the action from the DRL agent (the "student") - 独立自主决策，不使用教师指导
+        # 构建当前状态
         state = self._extract_features(task_to_schedule, simulation)
-        action_idx_from_student = self.drl_agent.act(state, epsilon=0.1)  # 使用固定的探索率
+        
+        # 让DRL Agent完全自主决策 - 彻底移除模仿学习
+        action_idx_from_student = self.drl_agent.act(state, epsilon=0.1)
         chosen_node_name = self.node_names[action_idx_from_student]
         
-        # 计算学生选择的预测makespan
+        # 获取"老师"（性能预测器）的建议 - 用于奖励计算，不用于决策
+        estimated_makespans = self._get_estimated_makespans(task_to_schedule, simulation)
+        best_node_from_teacher = min(estimated_makespans, key=lambda n: estimated_makespans[n].value)
+        teacher_makespan = estimated_makespans[best_node_from_teacher].value
         student_makespan = estimated_makespans[chosen_node_name].value
         
-        # 实现R_RAG动态奖励机制
+        # 实现真正的R_RAG动态差分奖励机制
         # 奖励 = 老师最优选择的预测makespan - Agent自己探索的预测makespan
-        # 这个差分奖励能明确告诉 Agent 它的探索方向是对是错
-        rag_reward = self.reward_alpha * (teacher_makespan - student_makespan)
+        # 这个差值明确告诉Agent它的探索方向是对是错
+        raw_reward = teacher_makespan - student_makespan
         
-        # 奖励归一化，使用tanh使奖励信号更稳定
-        normalized_reward = np.tanh(rag_reward / (np.abs(teacher_makespan) + 1e-6) * 10.0)
+        # 智能归一化：根据任务规模动态调整奖励范围
+        task_scale = max(task_to_schedule.computation_size, 1.0)
+        normalized_reward = raw_reward / task_scale
         
-        # 获取下一个状态
+        # 使用sigmoid函数稳定奖励信号
+        stable_reward = 2.0 / (1.0 + np.exp(-normalized_reward * 5.0)) - 1.0
+        
+        # 获取下一个状态用于学习
         next_state = self._extract_features(task_to_schedule, simulation)
         
-        # 立即反馈给Agent进行学习
+        # 计算任务完成率作为辅助奖励信号
+        completion_ratio = len(simulation.completed_tasks) / len(simulation.workflow.tasks)
+        completion_bonus = 0.1 * completion_ratio if completion_ratio > 0.9 else 0.0
+        
+        # 最终奖励 = 主奖励 + 完成进度奖励
+        final_reward = stable_reward + completion_bonus
+        
+        # 立即反馈给Agent进行强化学习
         self.drl_agent.store_transition(
             state=state,
             action=action_idx_from_student,
-            reward=normalized_reward,
+            reward=final_reward,
             next_state=next_state,
             done=len(simulation.workflow.tasks) == len(simulation.completed_tasks)
         )
         
-        # 在线学习更新
-        self.drl_agent.replay()
+        # 每10个决策进行一次批量学习，避免过度更新
+        if len(simulation.completed_tasks) % 10 == 0:
+            self.drl_agent.replay(batch_size=32)
         
-        logger.debug(f"R_RAG: Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
-                    f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
-                    f"Reward={normalized_reward:.4f}")
+        # 记录详细的奖励信息用于调试和分析
+        logger.info(f"R_RAG Decision: Task={task_to_schedule.id}, "
+                   f"Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
+                   f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
+                   f"RawReward={raw_reward:.3f}, Normalized={stable_reward:.3f}, "
+                   f"FinalReward={final_reward:.3f}, Completion={completion_ratio:.2f}")
         
         return {chosen_node_name: task_to_schedule}
 
