@@ -213,26 +213,33 @@ class WASSRAGScheduler(WASSDRLScheduler):
         self.scaler.fit(self.vectorizer.fit_transform(features_list))
         logger.info("Scaler and Vectorizer for RAG have been fitted.")
 
-    def _extract_rag_features(self, task: w.Task, node_name: str, simulation: 'WassWrenchSimulator') -> Dict:
-        """Extracts features for the RAG performance predictor."""
-        # This should be consistent with the features used to train the predictor
-        features = {
-            "task_computation_size": task.computation_size,
-            "num_parents": len(task.parents),
-            "num_children": len(task.children),
+    def _build_dag_graph(self, workflow):
+        """Convert workflow DAG to networkx DiGraph with task metadata"""
+        dag = nx.DiGraph()
+        for task in workflow.tasks:
+            dag.add_node(task.id, 
+                computation_size=task.computation_size,
+                parents=[p.id for p in task.parents],
+                children=[c.id for c in task.children]
+            )
+        for task in workflow.tasks:
+            for child in task.children:
+                data_size = workflow.get_edge_data_size(task.id, child.id)
+                dag.add_edge(task.id, child.id, data_size=data_size)
+        return dag
+
+    def _extract_graph_state(self, task: w.Task, simulation: 'WassWrenchSimulator') -> Dict:
+        """Build graph state representation for GNN predictor"""
+        dag = self._build_dag_graph(simulation.workflow)
+        node_features = {
+            n.name: {
+                'speed': n.speed,
+                'available_time': simulation.node_earliest_finish_time.get(n.name, 0.0),
+                'queue_length': len([t for t,n_id in simulation.task_to_node_map.items() if n_id == n.name])
+            }
+            for n in simulation.platform.nodes.values()
         }
-        
-        node = simulation.platform.get_node(node_name)
-        features.update({
-            f"node_speed": node.speed,
-            f"node_available_time": simulation.node_earliest_finish_time.get(node_name, 0.0),
-        })
-
-        # Data transfer features
-        total_input_data_size = sum(simulation.workflow.get_edge_data_size(p.id, task.id) for p in task.parents)
-        features["total_input_data_size"] = total_input_data_size
-
-        return features
+        return self.predictor.extract_graph_features(dag, node_features, focus_task_id=task.id)
 
 
 # -------- Factory API --------
