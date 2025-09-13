@@ -96,9 +96,9 @@ train_drl() {
     if python scripts/train_drl_wrench.py configs/experiment.yaml; then
         log_success "DRL智能体训练完成"
         # 检查训练结果
-        if [[ -f "models/wass_models.pth" ]]; then
-            makespan=$(python -c "import torch; cp=torch.load('models/wass_models.pth', map_location='cpu', weights_only=False); print(f\"{cp['drl_metadata']['avg_makespan']:.2f}\")")
-            epsilon=$(python -c "import torch; cp=torch.load('models/wass_models.pth', map_location='cpu', weights_only=False); print(f\"{cp['drl_metadata']['final_epsilon']:.3f}\")")
+        if [[ -f "models/wass_optimized_models.pth" ]]; then
+            makespan=$(python -c "import torch; cp=torch.load('models/wass_optimized_models.pth', map_location='cpu', weights_only=False); print(f\"{cp['drl_metadata']['avg_makespan']:.2f}\")")
+            epsilon=$(python -c "import torch; cp=torch.load('models/wass_optimized_models.pth', map_location='cpu', weights_only=False); print(f\"{cp['drl_metadata']['final_epsilon']:.3f}\")")
             log_info "最终性能: ${makespan}s, ε: $epsilon"
         fi
     else
@@ -112,9 +112,9 @@ train_rag() {
     log_info "第4步: 训练RAG知识库..."
     if python scripts/train_rag_wrench.py configs/experiment.yaml; then
         log_success "RAG知识库训练完成"
-        # 检查知识库大小
-        if [[ -f "data/wrench_rag_knowledge_base.pkl" ]]; then
-            cases=$(python -c "import pickle; kb=pickle.load(open('data/wrench_rag_knowledge_base.pkl', 'rb')); print(len(kb['cases']))")
+        # 使用安全的方式验证知识库
+        if [[ -f "data/wrench_rag_knowledge_base.json" ]]; then
+            cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(data['metadata']['total_cases'])")
             log_info "知识库包含 $cases 个案例"
         fi
     else
@@ -157,18 +157,28 @@ show_summary() {
     log_info "=============== 实验完成摘要 ==============="
     
     echo -e "${GREEN}训练模型:${NC}"
+    if [[ -f "models/wass_optimized_models.pth" ]]; then
+        python -c "
+import torch
+cp = torch.load('models/wass_optimized_models.pth', map_location='cpu', weights_only=False)
+print('  • DRL智能体: 最终性能 = {:.2f}s'.format(cp['drl_metadata']['avg_makespan']))
+"
+    fi
     if [[ -f "models/wass_models.pth" ]]; then
         python -c "
 import torch
 cp = torch.load('models/wass_models.pth', map_location='cpu', weights_only=False)
 print('  • 性能预测器: R² = {:.4f}'.format(cp['metadata']['performance_predictor']['validation_results']['r2']))
-print('  • DRL智能体: 最终性能 = {:.2f}s'.format(cp['drl_metadata']['avg_makespan']))
 "
     fi
     
     echo -e "${GREEN}知识库:${NC}"
-    if [[ -f "data/wrench_rag_knowledge_base.pkl" ]]; then
-        cases=$(python -c "import pickle; kb=pickle.load(open('data/wrench_rag_knowledge_base.pkl', 'rb')); print(len(kb['cases']))")
+    if [[ -f "data/wrench_rag_knowledge_base.json" ]]; then
+        cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(data['metadata']['total_cases'])")
+        echo "  • RAG知识库: $cases 个案例"
+    elif [[ -f "data/wrench_rag_knowledge_base.pkl" ]]; then
+        # 使用安全的方式检查pickle文件
+        cases=$(python -c 'import sys; sys.path.insert(0, "scripts"); from scripts.train_rag_wrench import WRENCHRAGKnowledgeBase; kb = WRENCHRAGKnowledgeBase.load("data/wrench_rag_knowledge_base.pkl"); print(len(kb.cases))' 2>/dev/null || python -c 'import pickle; data=pickle.load(open("data/wrench_rag_knowledge_base.pkl", "rb")); print(len(data.get("cases", [])))')
         echo "  • RAG知识库: $cases 个案例"
     fi
     

@@ -191,6 +191,21 @@ class WASSHeuristicScheduler(WRENCHScheduler):
             file_id = output_file.get_name() if hasattr(output_file, 'get_name') else str(output_file)
             self.data_location_cache[file_id] = node
 
+# 定义DRL网络结构
+class SimpleDQN(nn.Module):
+    def __init__(self, state_dim: int, action_dim: int, hidden_dim: int = 128):
+        super(SimpleDQN, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(state_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, action_dim)
+        )
+    
+    def forward(self, x):
+        return self.network(x)
+
 class WASSDRLScheduler(WRENCHScheduler):
     """基于训练好的DRL模型的调度器"""
     
@@ -590,44 +605,60 @@ class WRENCHExperimentRunner:
             "WASS-Heuristic": WASSHeuristicScheduler(),  # 新增WASS启发式调度器
         }
         
-        # 使用兼容的模型文件
-        model_path = "models/wass_optimized_models_compatible.pth"
-        original_model_path = "models/wass_optimized_models.pth"
+        # 模型文件优先级：兼容模型 > 原始优化模型 > 基础模型
+        model_candidates = [
+            "models/wass_optimized_models_compatible.pth",
+            "models/wass_optimized_models.pth",
+            "models/wass_models.pth"
+        ]
+        
+        model_path = None
+        for candidate in model_candidates:
+            if os.path.exists(candidate):
+                model_path = candidate
+                break
+        
         rag_path = "data/wrench_rag_knowledge_base.pkl"
         
-        # 如果没有兼容模型，尝试创建或使用原始模型
-        if not os.path.exists(model_path):
-            if os.path.exists(original_model_path):
-                print("⚠️  使用原始模型，但可能存在兼容性问题")
-                model_path = original_model_path
-        
-        if os.path.exists(model_path):
-            # 尝试加载DRL调度器
+        if model_path:
+            print(f"📁 使用模型文件: {model_path}")
+            
+            # 强制启用WASS-DRL调度器
             try:
                 drl_scheduler = WASSDRLScheduler(model_path)
-                if drl_scheduler.model is not None:
-                    schedulers["WASS-DRL"] = drl_scheduler
-                    print("✅ WASS-DRL调度器已启用")
-                    
-                    # 只有在DRL成功加载后才尝试RAG
-                    if os.path.exists(rag_path):
+                schedulers["WASS-DRL"] = drl_scheduler
+                print("✅ WASS-DRL调度器已强制启用")
+                
+                # 强制启用WASS-RAG调度器
+                rag_candidates = [
+                    rag_path,
+                    "data/wrench_rag_knowledge_base.json",
+                    "data/extended_rag_knowledge.json"
+                ]
+                
+                rag_available = False
+                for rag_candidate in rag_candidates:
+                    if os.path.exists(rag_candidate):
                         try:
-                            rag_scheduler = WASSRAGScheduler(model_path, rag_path)
-                            if rag_scheduler.knowledge_base:
-                                schedulers["WASS-RAG"] = rag_scheduler
-                                print("✅ WASS-RAG调度器已启用")
-                            else:
-                                print("⚠️  RAG知识库为空，跳过WASS-RAG")
+                            rag_scheduler = WASSRAGScheduler(model_path, rag_candidate)
+                            schedulers["WASS-RAG"] = rag_scheduler
+                            print(f"✅ WASS-RAG调度器已启用 (知识库: {rag_candidate})")
+                            rag_available = True
+                            break
                         except Exception as e:
-                            print(f"⚠️  WASS-RAG初始化失败: {e}")
-                    else:
-                        print(f"⚠️  RAG知识库文件未找到: {rag_path}")
-                else:
-                    print("⚠️  DRL模型加载失败，跳过WASS-DRL和WASS-RAG")
+                            print(f"⚠️  WASS-RAG从{rag_candidate}加载失败: {e}")
+                            continue
+                
+                if not rag_available:
+                    # 即使没有知识库，也创建空的RAG调度器
+                    rag_scheduler = WASSRAGScheduler(model_path, rag_path)
+                    schedulers["WASS-RAG"] = rag_scheduler
+                    print("⚠️  WASS-RAG调度器已创建 (知识库为空)")
+                    
             except Exception as e:
-                print(f"⚠️  DRL调度器初始化失败: {e}")
+                print(f"❌ DRL/RAG调度器初始化失败: {e}")
         else:
-            print(f"⚠️  训练模型文件未找到: {model_path}")
+            print("❌ 未找到任何模型文件，仅使用基础调度器")
         
         print(f"🔧 已启用调度器: {list(schedulers.keys())}")
         return schedulers
@@ -869,18 +900,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# 定义DRL网络结构
-class SimpleDQN(nn.Module):
-    def __init__(self, state_dim: int, action_dim: int, hidden_dim: int = 128):
-        super(SimpleDQN, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(state_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, action_dim)
-        )
-    
-    def forward(self, x):
-        return self.network(x)

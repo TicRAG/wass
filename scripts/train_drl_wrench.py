@@ -510,14 +510,28 @@ class DQNAgent:
         # 复制参数到目标网络
         self.target_network.load_state_dict(self.q_network.state_dict())
     
-    def act(self, state: np.ndarray) -> int:
+    def act(self, state: np.ndarray, use_teacher: bool = False, teacher_action: int = None) -> int:
         """选择动作"""
-        if np.random.random() < self.epsilon:
-            return np.random.randint(0, self.q_network.network[-1].out_features)
-        
-        state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
-        q_values = self.q_network(state_tensor)
-        return q_values.argmax().item()
+        if use_teacher and teacher_action is not None:
+            # 在RAG模式下，有一定概率使用教师动作
+            if np.random.random() < 0.8:  # 80%概率使用教师动作
+                return teacher_action
+            else:
+                # 20%概率使用DRL agent自己的动作
+                if np.random.random() < self.epsilon:
+                    return np.random.randint(0, self.q_network.network[-1].out_features)
+                
+                state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+                q_values = self.q_network(state_tensor)
+                return q_values.argmax().item()
+        else:
+            # 标准的ε-贪婪策略
+            if np.random.random() < self.epsilon:
+                return np.random.randint(0, self.q_network.network[-1].out_features)
+            
+            state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+            q_values = self.q_network(state_tensor)
+            return q_values.argmax().item()
     
     def remember(self, state, action, reward, next_state, done):
         """存储经验"""
