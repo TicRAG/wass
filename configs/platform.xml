@@ -43,7 +43,7 @@
     </host>
     
     <!-- Network -->
-    <link id="network" bandwidth="1GBps" latency="10us"/>
+    <link id="network" bandwidth="1GBps" latency="0.1ms"/>
     
     <!-- Routes -->
     <route src="ControllerHost" dst="StorageHost">

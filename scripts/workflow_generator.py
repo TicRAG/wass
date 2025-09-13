@@ -47,8 +47,29 @@ class Workflow:
 class WorkflowPattern:
     """工作流模式定义"""
     
+    # 平台参数（用于CCR计算）
+    AVG_PROCESSOR_SPEED = 2.625e9  # 平均处理器速度 (2.625 Gflops)
+    AVG_BANDWIDTH = 1e9  # 平均带宽 (1 GBps)
+    
     @staticmethod
-    def generate_montage_like(num_tasks: int) -> Workflow:
+    def calculate_data_size(compute_flops: float, ccr: float) -> int:
+        """
+        根据计算量和CCR计算数据大小
+        :param compute_flops: 计算量 (flops)
+        :param ccr: 通信计算比
+        :return: 数据大小 (bytes)
+        """
+        # 计算时间 = 计算量 / 处理器速度
+        compute_time = compute_flops / WorkflowPattern.AVG_PROCESSOR_SPEED
+        # 通信时间 = 计算时间 * CCR
+        communication_time = compute_time * ccr
+        # 数据大小 = 通信时间 * 带宽
+        data_size = int(communication_time * WorkflowPattern.AVG_BANDWIDTH)
+        # 确保最小数据大小
+        return max(data_size, 1024)
+    
+    @staticmethod
+    def generate_montage_like(num_tasks: int, ccr: float = 1.0) -> Workflow:
         """生成类Montage（天文学图像拼接）工作流"""
         tasks = []
         files = []
@@ -60,15 +81,19 @@ class WorkflowPattern:
             input_file = f"raw_image_{i}.fits"
             output_file = f"processed_image_{i}.fits"
             
-            files.append(File(input_file, input_file, random.randint(100, 500) * 1024 * 1024))  # 100-500MB
-            files.append(File(output_file, output_file, random.randint(80, 400) * 1024 * 1024))
+            flops = random.uniform(1e10, 5e10)
+            input_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(input_file, input_file, input_size))
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Preprocess Image {i}",
                 runtime=random.uniform(300, 900),  # 5-15分钟
                 memory=random.randint(2000, 4000),  # 2-4GB
-                flops=random.uniform(1e10, 5e10),
+                flops=flops,
                 input_files=[input_file],
                 output_files=[output_file],
                 dependencies=[]
@@ -83,14 +108,17 @@ class WorkflowPattern:
             input_files = [dep.output_files[0] for dep in deps]
             output_file = f"diff_{i}.fits"
             
-            files.append(File(output_file, output_file, random.randint(10, 50) * 1024 * 1024))
+            flops = random.uniform(5e9, 2e10)
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Difference Detection {i}",
                 runtime=random.uniform(120, 480),  # 2-8分钟
                 memory=random.randint(1000, 2000),
-                flops=random.uniform(5e9, 2e10),
+                flops=flops,
                 input_files=input_files,
                 output_files=[output_file],
                 dependencies=[dep.id for dep in deps]
@@ -104,14 +132,17 @@ class WorkflowPattern:
             input_files = [task.output_files[0] for task in tasks if task.id.startswith('diff_')]
             output_file = f"final_mosaic_{i}.fits"
             
-            files.append(File(output_file, output_file, random.randint(500, 1000) * 1024 * 1024))
+            flops = random.uniform(2e10, 1e11)
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Final Mosaic {i}",
                 runtime=random.uniform(600, 1800),  # 10-30分钟
                 memory=random.randint(4000, 8000),  # 4-8GB
-                flops=random.uniform(2e10, 1e11),
+                flops=flops,
                 input_files=input_files,
                 output_files=[output_file],
                 dependencies=[task.id for task in tasks if task.id.startswith('diff_')]
@@ -127,7 +158,7 @@ class WorkflowPattern:
         )
     
     @staticmethod
-    def generate_ligo_like(num_tasks: int) -> Workflow:
+    def generate_ligo_like(num_tasks: int, ccr: float = 1.0) -> Workflow:
         """生成类LIGO（引力波检测）工作流"""
         tasks = []
         files = []
@@ -139,16 +170,21 @@ class WorkflowPattern:
             input_file = f"raw_data_{i}.dat"
             output_files = [f"segment_{i}_{j}.dat" for j in range(4)]
             
-            files.append(File(input_file, input_file, random.randint(1000, 2000) * 1024 * 1024))  # 1-2GB
+            flops = random.uniform(1e9, 5e9)
+            input_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(input_file, input_file, input_size))  # 1-2GB
             for out_file in output_files:
-                files.append(File(out_file, out_file, random.randint(200, 400) * 1024 * 1024))
+                # 每个输出文件的大小根据总计算量分配
+                output_size = WorkflowPattern.calculate_data_size(flops / len(output_files), ccr)
+                files.append(File(out_file, out_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Data Split {i}",
                 runtime=random.uniform(60, 180),
                 memory=random.randint(1000, 2000),
-                flops=random.uniform(1e9, 5e9),
+                flops=flops,
                 input_files=[input_file],
                 output_files=output_files,
                 dependencies=[]
@@ -163,14 +199,17 @@ class WorkflowPattern:
             input_file = random.choice(split_task.output_files)
             output_file = f"analysis_result_{i}.json"
             
-            files.append(File(output_file, output_file, random.randint(1, 10) * 1024 * 1024))
+            flops = random.uniform(5e10, 2e11)  # 高计算量
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Signal Analysis {i}",
                 runtime=random.uniform(1200, 3600),  # 20-60分钟，计算密集
                 memory=random.randint(3000, 6000),
-                flops=random.uniform(5e10, 2e11),  # 高计算量
+                flops=flops,  # 高计算量
                 input_files=[input_file],
                 output_files=[output_file],
                 dependencies=[split_task.id]
@@ -183,14 +222,17 @@ class WorkflowPattern:
             input_files = [task.output_files[0] for task in tasks if task.id.startswith('analyze_')]
             output_file = f"detection_report_{i}.pdf"
             
-            files.append(File(output_file, output_file, random.randint(5, 20) * 1024 * 1024))
+            flops = random.uniform(1e10, 5e10)
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Result Merge {i}",
                 runtime=random.uniform(300, 900),
                 memory=random.randint(2000, 4000),
-                flops=random.uniform(1e10, 5e10),
+                flops=flops,
                 input_files=input_files,
                 output_files=[output_file],
                 dependencies=[task.id for task in tasks if task.id.startswith('analyze_')]
@@ -206,7 +248,7 @@ class WorkflowPattern:
         )
     
     @staticmethod
-    def generate_cybershake_like(num_tasks: int) -> Workflow:
+    def generate_cybershake_like(num_tasks: int, ccr: float = 1.0) -> Workflow:
         """生成类CyberShake（地震模拟）工作流"""
         tasks = []
         files = []
@@ -218,15 +260,19 @@ class WorkflowPattern:
             input_file = f"seismic_model_{i}.dat"
             output_file = f"preprocessed_model_{i}.dat"
             
-            files.append(File(input_file, input_file, random.randint(200, 800) * 1024 * 1024))
-            files.append(File(output_file, output_file, random.randint(150, 600) * 1024 * 1024))
+            flops = random.uniform(2e10, 8e10)
+            input_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(input_file, input_file, input_size))
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Model Preprocessing {i}",
                 runtime=random.uniform(600, 1200),
                 memory=random.randint(2000, 4000),
-                flops=random.uniform(2e10, 8e10),
+                flops=flops,
                 input_files=[input_file],
                 output_files=[output_file],
                 dependencies=[]
@@ -241,14 +287,17 @@ class WorkflowPattern:
             input_file = prep_task.output_files[0]
             output_file = f"simulation_result_{i}.dat"
             
-            files.append(File(output_file, output_file, random.randint(300, 1200) * 1024 * 1024))
+            flops = random.uniform(1e11, 5e11)  # 极高计算量
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Earthquake Simulation {i}",
                 runtime=random.uniform(3600, 7200),  # 1-2小时，高计算量
                 memory=random.randint(6000, 12000),  # 6-12GB
-                flops=random.uniform(1e11, 5e11),  # 极高计算量
+                flops=flops,  # 极高计算量
                 input_files=[input_file],
                 output_files=[output_file],
                 dependencies=[prep_task.id]
@@ -263,14 +312,17 @@ class WorkflowPattern:
             input_files = [task.output_files[0] for task in sim_subset]
             output_file = f"hazard_map_{i}.png"
             
-            files.append(File(output_file, output_file, random.randint(50, 200) * 1024 * 1024))
+            flops = random.uniform(5e9, 2e10)
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
             
             tasks.append(Task(
                 id=task_id,
                 name=f"Hazard Analysis {i}",
                 runtime=random.uniform(900, 1800),
                 memory=random.randint(3000, 6000),
-                flops=random.uniform(5e9, 2e10),
+                flops=flops,
                 input_files=input_files,
                 output_files=[output_file],
                 dependencies=[task.id for task in sim_subset]
@@ -288,14 +340,15 @@ class WorkflowPattern:
 class WorkflowGenerator:
     """工作流生成器主类"""
     
-    def __init__(self, output_dir: str = "data/workflows"):
+    def __init__(self, output_dir: str = "data/workflows", ccr: float = 1.0):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.ccr = ccr  # Communication to Computation Ratio
         
         self.patterns = {
-            'montage': WorkflowPattern.generate_montage_like,
-            'ligo': WorkflowPattern.generate_ligo_like,
-            'cybershake': WorkflowPattern.generate_cybershake_like
+            'montage': lambda n: WorkflowPattern.generate_montage_like(n, self.ccr),
+            'ligo': lambda n: WorkflowPattern.generate_ligo_like(n, self.ccr),
+            'cybershake': lambda n: WorkflowPattern.generate_cybershake_like(n, self.ccr)
         }
     
     def generate_workflow_set(self, pattern: str, task_counts: List[int]) -> List[str]:
@@ -401,10 +454,12 @@ def main():
                        help='任务数量列表，例如：--tasks 50 100 200')
     parser.add_argument('--output', default='data/workflows', 
                        help='输出目录')
+    parser.add_argument('--ccr', type=float, default=1.0,
+                       help='通信计算比 (Communication to Computation Ratio)，默认为1.0')
     
     args = parser.parse_args()
     
-    generator = WorkflowGenerator(args.output)
+    generator = WorkflowGenerator(args.output, args.ccr)
     
     if args.pattern == 'all':
         print("🌟 生成完整工作流集合...")
