@@ -1,0 +1,29 @@
+[
+  {
+    "ccr": 0.1,
+    "task_count": 50,
+    "total_flops": 28681951142.379814,
+    "total_data": 500000000000.0,
+    "fifo_makespan": 528.6819511423798,
+    "heft_makespan": 269.12130076158655,
+    "improvement": 49.09580321778202
+  },
+  {
+    "ccr": 1.0,
+    "task_count": 50,
+    "total_flops": 24169350091.479233,
+    "total_data": 500000000000.0,
+    "fifo_makespan": 524.1693500914793,
+    "heft_makespan": 266.11290006098614,
+    "improvement": 49.23150313643034
+  },
+  {
+    "ccr": 10.0,
+    "task_count": 50,
+    "total_flops": 30362015167.258373,
+    "total_data": 500000000000.0,
+    "fifo_makespan": 530.3620151672584,
+    "heft_makespan": 189.1689404113872,
+    "improvement": 64.33210995479574
+  }
+]

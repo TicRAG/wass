@@ -1,0 +1,19 @@
+{
+  "experiment_info": {
+    "name": "CCR\u5bf9\u6bd4\u5b9e\u9a8c",
+    "description": "\u6d4b\u8bd5HEFT vs FIFO\u5728\u4e0d\u540cCCR\u503c\u4e0b\u7684\u6027\u80fd\u8868\u73b0",
+    "ccr_values": [
+      0.1,
+      1.0,
+      10.0
+    ],
+    "task_counts": [
+      20,
+      50,
+      100
+    ],
+    "total_tests": 0
+  },
+  "results": [],
+  "analysis": {}
+}

@@ -1,0 +1,515 @@
+{
+  "metadata": {
+    "name": "Communication-Intensive-20",
+    "description": "通信密集型工作流，20个任务，CCR=0.1",
+    "generated_at": "2025-09-13T21:08:34.092292",
+    "task_count": 20,
+    "file_count": 40
+  },
+  "workflow": {
+    "tasks": [
+      {
+        "id": "comm_task_0",
+        "name": "Communication Task 0",
+        "memory": 1887,
+        "flops": 397025813.50241715,
+        "input_files": [
+          "input_data_0.dat"
+        ],
+        "output_files": [
+          "output_data_0.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "comm_task_1",
+        "name": "Communication Task 1",
+        "memory": 1840,
+        "flops": 245263799.38536182,
+        "input_files": [
+          "input_data_1.dat"
+        ],
+        "output_files": [
+          "output_data_1.dat"
+        ],
+        "dependencies": [
+          "comm_task_0"
+        ]
+      },
+      {
+        "id": "comm_task_2",
+        "name": "Communication Task 2",
+        "memory": 1209,
+        "flops": 860569932.1503441,
+        "input_files": [
+          "input_data_2.dat"
+        ],
+        "output_files": [
+          "output_data_2.dat"
+        ],
+        "dependencies": [
+          "comm_task_1"
+        ]
+      },
+      {
+        "id": "comm_task_3",
+        "name": "Communication Task 3",
+        "memory": 1418,
+        "flops": 891865766.9439573,
+        "input_files": [
+          "input_data_3.dat"
+        ],
+        "output_files": [
+          "output_data_3.dat"
+        ],
+        "dependencies": [
+          "comm_task_2"
+        ]
+      },
+      {
+        "id": "comm_task_4",
+        "name": "Communication Task 4",
+        "memory": 1863,
+        "flops": 189612300.68784305,
+        "input_files": [
+          "input_data_4.dat"
+        ],
+        "output_files": [
+          "output_data_4.dat"
+        ],
+        "dependencies": [
+          "comm_task_3"
+        ]
+      },
+      {
+        "id": "comm_task_5",
+        "name": "Communication Task 5",
+        "memory": 1693,
+        "flops": 134465552.26618704,
+        "input_files": [
+          "input_data_5.dat"
+        ],
+        "output_files": [
+          "output_data_5.dat"
+        ],
+        "dependencies": [
+          "comm_task_4"
+        ]
+      },
+      {
+        "id": "comm_task_6",
+        "name": "Communication Task 6",
+        "memory": 1850,
+        "flops": 973873463.2715743,
+        "input_files": [
+          "input_data_6.dat"
+        ],
+        "output_files": [
+          "output_data_6.dat"
+        ],
+        "dependencies": [
+          "comm_task_5"
+        ]
+      },
+      {
+        "id": "comm_task_7",
+        "name": "Communication Task 7",
+        "memory": 1119,
+        "flops": 603029424.7432193,
+        "input_files": [
+          "input_data_7.dat"
+        ],
+        "output_files": [
+          "output_data_7.dat"
+        ],
+        "dependencies": [
+          "comm_task_6"
+        ]
+      },
+      {
+        "id": "comm_task_8",
+        "name": "Communication Task 8",
+        "memory": 623,
+        "flops": 629875096.4548619,
+        "input_files": [
+          "input_data_8.dat"
+        ],
+        "output_files": [
+          "output_data_8.dat"
+        ],
+        "dependencies": [
+          "comm_task_7"
+        ]
+      },
+      {
+        "id": "comm_task_9",
+        "name": "Communication Task 9",
+        "memory": 1348,
+        "flops": 312029504.5758889,
+        "input_files": [
+          "input_data_9.dat"
+        ],
+        "output_files": [
+          "output_data_9.dat"
+        ],
+        "dependencies": [
+          "comm_task_8"
+        ]
+      },
+      {
+        "id": "comm_task_10",
+        "name": "Communication Task 10",
+        "memory": 687,
+        "flops": 867429459.3580341,
+        "input_files": [
+          "input_data_10.dat"
+        ],
+        "output_files": [
+          "output_data_10.dat"
+        ],
+        "dependencies": [
+          "comm_task_9"
+        ]
+      },
+      {
+        "id": "comm_task_11",
+        "name": "Communication Task 11",
+        "memory": 1206,
+        "flops": 199809853.86247692,
+        "input_files": [
+          "input_data_11.dat"
+        ],
+        "output_files": [
+          "output_data_11.dat"
+        ],
+        "dependencies": [
+          "comm_task_10"
+        ]
+      },
+      {
+        "id": "comm_task_12",
+        "name": "Communication Task 12",
+        "memory": 1661,
+        "flops": 421067006.3648602,
+        "input_files": [
+          "input_data_12.dat"
+        ],
+        "output_files": [
+          "output_data_12.dat"
+        ],
+        "dependencies": [
+          "comm_task_11"
+        ]
+      },
+      {
+        "id": "comm_task_13",
+        "name": "Communication Task 13",
+        "memory": 1677,
+        "flops": 998165748.4247224,
+        "input_files": [
+          "input_data_13.dat"
+        ],
+        "output_files": [
+          "output_data_13.dat"
+        ],
+        "dependencies": [
+          "comm_task_12"
+        ]
+      },
+      {
+        "id": "comm_task_14",
+        "name": "Communication Task 14",
+        "memory": 742,
+        "flops": 871774569.8597122,
+        "input_files": [
+          "input_data_14.dat"
+        ],
+        "output_files": [
+          "output_data_14.dat"
+        ],
+        "dependencies": [
+          "comm_task_13"
+        ]
+      },
+      {
+        "id": "comm_task_15",
+        "name": "Communication Task 15",
+        "memory": 1843,
+        "flops": 952276259.7531523,
+        "input_files": [
+          "input_data_15.dat"
+        ],
+        "output_files": [
+          "output_data_15.dat"
+        ],
+        "dependencies": [
+          "comm_task_14"
+        ]
+      },
+      {
+        "id": "comm_task_16",
+        "name": "Communication Task 16",
+        "memory": 970,
+        "flops": 574567958.9107066,
+        "input_files": [
+          "input_data_16.dat"
+        ],
+        "output_files": [
+          "output_data_16.dat"
+        ],
+        "dependencies": [
+          "comm_task_15"
+        ]
+      },
+      {
+        "id": "comm_task_17",
+        "name": "Communication Task 17",
+        "memory": 812,
+        "flops": 642580338.9478171,
+        "input_files": [
+          "input_data_17.dat"
+        ],
+        "output_files": [
+          "output_data_17.dat"
+        ],
+        "dependencies": [
+          "comm_task_16"
+        ]
+      },
+      {
+        "id": "comm_task_18",
+        "name": "Communication Task 18",
+        "memory": 1046,
+        "flops": 472170202.0940052,
+        "input_files": [
+          "input_data_18.dat"
+        ],
+        "output_files": [
+          "output_data_18.dat"
+        ],
+        "dependencies": [
+          "comm_task_17"
+        ]
+      },
+      {
+        "id": "comm_task_19",
+        "name": "Communication Task 19",
+        "memory": 805,
+        "flops": 832493985.3002697,
+        "input_files": [
+          "input_data_19.dat"
+        ],
+        "output_files": [
+          "output_data_19.dat"
+        ],
+        "dependencies": [
+          "comm_task_18"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "id": "input_data_0.dat",
+        "name": "input_data_0.dat",
+        "size": 15124792
+      },
+      {
+        "id": "output_data_0.dat",
+        "name": "output_data_0.dat",
+        "size": 15124792
+      },
+      {
+        "id": "input_data_1.dat",
+        "name": "input_data_1.dat",
+        "size": 9343382
+      },
+      {
+        "id": "output_data_1.dat",
+        "name": "output_data_1.dat",
+        "size": 9343382
+      },
+      {
+        "id": "input_data_2.dat",
+        "name": "input_data_2.dat",
+        "size": 32783616
+      },
+      {
+        "id": "output_data_2.dat",
+        "name": "output_data_2.dat",
+        "size": 32783616
+      },
+      {
+        "id": "input_data_3.dat",
+        "name": "input_data_3.dat",
+        "size": 33975838
+      },
+      {
+        "id": "output_data_3.dat",
+        "name": "output_data_3.dat",
+        "size": 33975838
+      },
+      {
+        "id": "input_data_4.dat",
+        "name": "input_data_4.dat",
+        "size": 7223325
+      },
+      {
+        "id": "output_data_4.dat",
+        "name": "output_data_4.dat",
+        "size": 7223325
+      },
+      {
+        "id": "input_data_5.dat",
+        "name": "input_data_5.dat",
+        "size": 5122497
+      },
+      {
+        "id": "output_data_5.dat",
+        "name": "output_data_5.dat",
+        "size": 5122497
+      },
+      {
+        "id": "input_data_6.dat",
+        "name": "input_data_6.dat",
+        "size": 37099941
+      },
+      {
+        "id": "output_data_6.dat",
+        "name": "output_data_6.dat",
+        "size": 37099941
+      },
+      {
+        "id": "input_data_7.dat",
+        "name": "input_data_7.dat",
+        "size": 22972549
+      },
+      {
+        "id": "output_data_7.dat",
+        "name": "output_data_7.dat",
+        "size": 22972549
+      },
+      {
+        "id": "input_data_8.dat",
+        "name": "input_data_8.dat",
+        "size": 23995241
+      },
+      {
+        "id": "output_data_8.dat",
+        "name": "output_data_8.dat",
+        "size": 23995241
+      },
+      {
+        "id": "input_data_9.dat",
+        "name": "input_data_9.dat",
+        "size": 11886838
+      },
+      {
+        "id": "output_data_9.dat",
+        "name": "output_data_9.dat",
+        "size": 11886838
+      },
+      {
+        "id": "input_data_10.dat",
+        "name": "input_data_10.dat",
+        "size": 33044931
+      },
+      {
+        "id": "output_data_10.dat",
+        "name": "output_data_10.dat",
+        "size": 33044931
+      },
+      {
+        "id": "input_data_11.dat",
+        "name": "input_data_11.dat",
+        "size": 7611803
+      },
+      {
+        "id": "output_data_11.dat",
+        "name": "output_data_11.dat",
+        "size": 7611803
+      },
+      {
+        "id": "input_data_12.dat",
+        "name": "input_data_12.dat",
+        "size": 16040647
+      },
+      {
+        "id": "output_data_12.dat",
+        "name": "output_data_12.dat",
+        "size": 16040647
+      },
+      {
+        "id": "input_data_13.dat",
+        "name": "input_data_13.dat",
+        "size": 38025361
+      },
+      {
+        "id": "output_data_13.dat",
+        "name": "output_data_13.dat",
+        "size": 38025361
+      },
+      {
+        "id": "input_data_14.dat",
+        "name": "input_data_14.dat",
+        "size": 33210459
+      },
+      {
+        "id": "output_data_14.dat",
+        "name": "output_data_14.dat",
+        "size": 33210459
+      },
+      {
+        "id": "input_data_15.dat",
+        "name": "input_data_15.dat",
+        "size": 36277190
+      },
+      {
+        "id": "output_data_15.dat",
+        "name": "output_data_15.dat",
+        "size": 36277190
+      },
+      {
+        "id": "input_data_16.dat",
+        "name": "input_data_16.dat",
+        "size": 21888303
+      },
+      {
+        "id": "output_data_16.dat",
+        "name": "output_data_16.dat",
+        "size": 21888303
+      },
+      {
+        "id": "input_data_17.dat",
+        "name": "input_data_17.dat",
+        "size": 24479251
+      },
+      {
+        "id": "output_data_17.dat",
+        "name": "output_data_17.dat",
+        "size": 24479251
+      },
+      {
+        "id": "input_data_18.dat",
+        "name": "input_data_18.dat",
+        "size": 17987436
+      },
+      {
+        "id": "output_data_18.dat",
+        "name": "output_data_18.dat",
+        "size": 17987436
+      },
+      {
+        "id": "input_data_19.dat",
+        "name": "input_data_19.dat",
+        "size": 31714056
+      },
+      {
+        "id": "output_data_19.dat",
+        "name": "output_data_19.dat",
+        "size": 31714056
+      }
+    ],
+    "entry_task": "comm_task_0",
+    "exit_task": "comm_task_19"
+  }
+}

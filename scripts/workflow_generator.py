@@ -20,7 +20,6 @@ class Task:
     """工作流任务定义"""
     id: str
     name: str
-    runtime: float  # 秒
     memory: int     # MB
     flops: float    # 浮点运算次数
     input_files: List[str]
@@ -91,7 +90,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Preprocess Image {i}",
-                runtime=random.uniform(300, 900),  # 5-15分钟
                 memory=random.randint(2000, 4000),  # 2-4GB
                 flops=flops,
                 input_files=[input_file],
@@ -116,7 +114,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Difference Detection {i}",
-                runtime=random.uniform(120, 480),  # 2-8分钟
                 memory=random.randint(1000, 2000),
                 flops=flops,
                 input_files=input_files,
@@ -140,7 +137,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Final Mosaic {i}",
-                runtime=random.uniform(600, 1800),  # 10-30分钟
                 memory=random.randint(4000, 8000),  # 4-8GB
                 flops=flops,
                 input_files=input_files,
@@ -182,7 +178,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Data Split {i}",
-                runtime=random.uniform(60, 180),
                 memory=random.randint(1000, 2000),
                 flops=flops,
                 input_files=[input_file],
@@ -207,7 +202,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Signal Analysis {i}",
-                runtime=random.uniform(1200, 3600),  # 20-60分钟，计算密集
                 memory=random.randint(3000, 6000),
                 flops=flops,  # 高计算量
                 input_files=[input_file],
@@ -230,7 +224,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Result Merge {i}",
-                runtime=random.uniform(300, 900),
                 memory=random.randint(2000, 4000),
                 flops=flops,
                 input_files=input_files,
@@ -247,6 +240,48 @@ class WorkflowPattern:
             exit_task=tasks[-1].id
         )
     
+    @staticmethod
+    def generate_communication_intensive(num_tasks: int, ccr: float = 10.0) -> Workflow:
+        """生成通信密集型工作流（高CCR）"""
+        tasks = []
+        files = []
+        
+        # 创建多个小型计算任务，但产生大量数据传输
+        for i in range(num_tasks):
+            task_id = f"comm_task_{i}"
+            input_file = f"input_data_{i}.dat"
+            output_file = f"output_data_{i}.dat"
+            
+            # 限制计算量，但产生大量数据传输
+            flops = random.uniform(1e8, 1e9)  # 小计算量
+            input_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(input_file, input_file, input_size))
+            files.append(File(output_file, output_file, output_size))
+            
+            # 创建依赖链，强制数据流动
+            dependencies = [f"comm_task_{i-1}"] if i > 0 else []
+            
+            tasks.append(Task(
+                id=task_id,
+                name=f"Communication Task {i}",
+                memory=random.randint(500, 2000),
+                flops=flops,
+                input_files=[input_file],
+                output_files=[output_file],
+                dependencies=dependencies
+            ))
+        
+        return Workflow(
+            name=f"Communication-Intensive-{num_tasks}",
+            description=f"通信密集型工作流，{num_tasks}个任务，CCR={ccr}",
+            tasks=tasks,
+            files=files,
+            entry_task=tasks[0].id,
+            exit_task=tasks[-1].id
+        )
+
     @staticmethod
     def generate_cybershake_like(num_tasks: int, ccr: float = 1.0) -> Workflow:
         """生成类CyberShake（地震模拟）工作流"""
@@ -270,7 +305,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Model Preprocessing {i}",
-                runtime=random.uniform(600, 1200),
                 memory=random.randint(2000, 4000),
                 flops=flops,
                 input_files=[input_file],
@@ -295,7 +329,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Earthquake Simulation {i}",
-                runtime=random.uniform(3600, 7200),  # 1-2小时，高计算量
                 memory=random.randint(6000, 12000),  # 6-12GB
                 flops=flops,  # 极高计算量
                 input_files=[input_file],
@@ -320,7 +353,6 @@ class WorkflowPattern:
             tasks.append(Task(
                 id=task_id,
                 name=f"Hazard Analysis {i}",
-                runtime=random.uniform(900, 1800),
                 memory=random.randint(3000, 6000),
                 flops=flops,
                 input_files=input_files,
@@ -348,7 +380,8 @@ class WorkflowGenerator:
         self.patterns = {
             'montage': lambda n: WorkflowPattern.generate_montage_like(n, self.ccr),
             'ligo': lambda n: WorkflowPattern.generate_ligo_like(n, self.ccr),
-            'cybershake': lambda n: WorkflowPattern.generate_cybershake_like(n, self.ccr)
+            'cybershake': lambda n: WorkflowPattern.generate_cybershake_like(n, self.ccr),
+            'comm_intensive': lambda n: WorkflowPattern.generate_communication_intensive(n, self.ccr)
         }
     
     def generate_workflow_set(self, pattern: str, task_counts: List[int]) -> List[str]:
@@ -448,7 +481,7 @@ class WorkflowGenerator:
 
 def main():
     parser = argparse.ArgumentParser(description='WASS-RAG 工作流生成器')
-    parser.add_argument('--pattern', choices=['montage', 'ligo', 'cybershake', 'all'], 
+    parser.add_argument('--pattern', choices=['montage', 'ligo', 'cybershake', 'comm_intensive', 'all'], 
                        default='all', help='工作流模式')
     parser.add_argument('--tasks', nargs='+', type=int, 
                        help='任务数量列表，例如：--tasks 50 100 200')
