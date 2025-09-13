@@ -73,15 +73,16 @@ class HEFTScheduler(BaseScheduler):
         return ranks
 
     def get_earliest_finish_time(self, task, host_name):
-        """计算任务在指定主机上的最早完成时间"""
+        """计算任务在指定主机上的最早完成时间（考虑当前负载）"""
         try:
+            # 获取主机当前可用时间（从最后任务完成时间获取）
+            current_makespan = self.cs.get_host_current_makespan(host_name)
             flops = task.get_flops()
-            host_speed = self.hosts.get(host_name, [1, 10.0])[1]
-            exec_time = flops / max(1e-6, host_speed)
-            # 简化：假设当前时间为0，实际应该考虑主机当前负载
-            return exec_time
-        except Exception:
-            return 10.0
+            host_speed = self.hosts[host_name][1]
+            exec_time = flops / host_speed
+            return current_makespan + exec_time
+        except KeyError:
+            return float('inf')
 
     def submit_ready_tasks(self, workflow):
         if not self._initialized:
@@ -91,22 +92,25 @@ class HEFTScheduler(BaseScheduler):
         ready = workflow.get_runnable_tasks()
         # Select highest rank first
         ready_sorted = sorted(ready, key=lambda t: self.ranks.get(t.get_name(), 0.0), reverse=True)
+        # 动态维护主机可用时间
+        host_available = {h: self.cs.get_host_current_makespan(h) for h in self.hosts}
+        
         for task in ready_sorted:
             if task.get_state_as_string() == 'NOT_SUBMITTED':
-                # 选择能最早完成任务的主机
-                best_host = None
-                best_finish_time = float('inf')
-                
-                for host_name in self.hosts:
-                    finish_time = self.get_earliest_finish_time(task, host_name)
-                    if finish_time < best_finish_time:
-                        best_finish_time = finish_time
-                        best_host = host_name
-                
-                if best_host:
-                    # 创建作业并指定最佳主机
-                    job = self.sim.create_standard_job([task], {})
-                    self.cs.submit_standard_job(job)
+                # 计算所有主机的预测完成时间
+                finish_times = {
+                    h: host_available[h] + (task.get_flops() / self.hosts[h][1])
+                    for h in self.hosts
+                }
+                best_host = min(finish_times, key=finish_times.get)
+                # 更新主机可用时间
+                host_available[best_host] = finish_times[best_host]
+                # 提交作业并记录提交时间
+                job = self.sim.create_standard_job([task], {
+                    'start_time': host_available[best_host] - (task.get_flops() / self.hosts[best_host][1]),
+                    'end_time': host_available[best_host]
+                })
+                self.cs.submit_standard_job(job, target_host=best_host)
 
 
 class WassHeuristicScheduler(BaseScheduler):

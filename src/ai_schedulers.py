@@ -197,11 +197,25 @@ class WASSRAGScheduler(WASSDRLScheduler):
         # 计算学生选择的预测makespan
         student_makespan = estimated_makespans[chosen_node_name].value
         
-        # 计算RAG奖励：教师预测与学生选择的差异
-        rag_reward = self.drl_agent.compute_reward(teacher_makespan, student_makespan)
+        # 实现R_RAG动态奖励机制
+        rag_reward = teacher_makespan - student_makespan  # R_RAG = P_teacher - P_agent
         
-        # 使用奖励进行学习
-        self.drl_agent.learn(state, action_idx_from_student, rag_reward)
+        # 添加奖励规范化
+        baseline = np.mean(list(estimated_makespans.values()))
+        rag_reward = (rag_reward / (baseline + 1e-6)) * 10.0  # 标准化奖励范围
+        
+        # 带历史轨迹的学习
+        self.drl_agent.store_transition(
+            state=state,
+            action=action_idx_from_student,
+            reward=rag_reward,
+            next_state=self._extract_features(task_to_schedule, simulation),
+            done=len(simulation.workflow.tasks) == len(simulation.completed_tasks)
+        )
+        
+        # 每100步批量学习
+        if len(self.drl_agent.memory) % 100 == 0:
+            self.drl_agent.replay()
         
         logger.debug(f"RAG: Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
                     f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
