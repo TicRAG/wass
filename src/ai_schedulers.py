@@ -155,26 +155,8 @@ class WASSRAGScheduler(WASSDRLScheduler):
         self.predictor = predictor
         self.scaler = StandardScaler()
         self.vectorizer = DictVectorizer()
+        self.reward_alpha = 0.8  # 新增奖励系数
         logger.info("Initialized WASSRAGScheduler.")
-
-    def _get_estimated_makespans(self, task: w.Task, simulation: 'WassWrenchSimulator') -> Dict[str, PredictedValue]:
-        """Gets estimated makespans for scheduling a task on each node."""
-        predictions = {}
-        for node_name in self.node_names:
-            # Create a hypothetical future state for the predictor
-            # This logic needs to be carefully designed. For simplicity, we use the same features as DRL
-            # but in a production system, this could be much more complex.
-            features = self._extract_rag_features(task, node_name, simulation)
-            
-            # Vectorize and scale features
-            vectorized_features = self.vectorizer.transform([features])
-            scaled_features = self.scaler.transform(vectorized_features)
-            
-            # Predict
-            predicted_makespan = self.predictor.predict(scaled_features)[0]
-            predictions[node_name] = PredictedValue(predicted_makespan)
-            
-        return predictions
 
     def schedule(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> SchedulingDecision:
         if not ready_tasks:
@@ -198,7 +180,7 @@ class WASSRAGScheduler(WASSDRLScheduler):
         student_makespan = estimated_makespans[chosen_node_name].value
         
         # 实现R_RAG动态奖励机制
-        rag_reward = teacher_makespan - student_makespan  # R_RAG = P_teacher - P_agent
+        rag_reward = self.reward_alpha * (teacher_makespan - student_makespan)  # 应用系数
         
         # 添加奖励规范化
         baseline = np.mean(list(estimated_makespans.values()))

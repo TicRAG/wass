@@ -310,7 +310,7 @@ class WRENCHRAGTrainer:
         }
         
         # 调度器配置
-        self.schedulers = ["HEFT", "FIFO", "Random"]
+        self.schedulers = ["HEFT", "WASS-Heuristic"]
         
         print(f"WRENCH RAG训练器初始化完成")
     
