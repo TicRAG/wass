@@ -40,53 +40,88 @@ class WASSDRLScheduler(WASSScheduler):
         task_to_schedule = ready_tasks[0]  # In the new sim, we schedule one by one
         state = self._extract_features(task_to_schedule, simulation)
         
-        # Use the DRL agent to choose the best action (node)
-        action_idx = self.drl_agent.act(state)
+        # 使用DRL agent选择动作，启用探索机制
+        # 随着训练进行逐步降低epsilon值
+        training_progress = simulation.current_step / max(simulation.total_steps, 1000)
+        epsilon = max(0.1, 0.5 * (1 - training_progress))  # 从0.5递减到0.1
+        
+        action_idx = self.drl_agent.act(state, epsilon=epsilon)
         chosen_node_name = self.node_names[action_idx]
         
-        logger.debug(f"DRL Agent chose action {action_idx} -> Node {chosen_node_name} for task {task_to_schedule.id}")
+        logger.debug(f"DRL Agent chose action {action_idx} -> Node {chosen_node_name} for task {task_to_schedule.id} (epsilon={epsilon:.2f})")
         
         return {chosen_node_name: task_to_schedule}
 
     def _extract_features(self, task: w.Task, simulation: 'WassWrenchSimulator') -> SchedulingState:
-        """Extracts features for a single task scheduling decision."""
+        """Extracts enhanced features for better decision making."""
         num_nodes = len(self.node_names)
         
-        # 1. Task features
+        # 1. Task features - 增强任务特征
+        total_input_size = sum(simulation.workflow.get_edge_data_size(p.id, task.id) for p in task.parents)
+        avg_parent_runtime = np.mean([p.computation_size for p in task.parents]) if task.parents else 0.0
+        
         task_features = [
             task.computation_size,
             len(task.parents),
             len(task.children),
-            # Add more task-specific features if needed
+            total_input_size,
+            avg_parent_runtime,
+            task.computation_size / (total_input_size + 1e-6),  # 计算密度
         ]
         
-        # 2. Node features (dynamic)
+        # 2. Node features - 增强节点特征
         node_features = []
         for node_name in self.node_names:
             node = simulation.platform.get_node(node_name)
             
-            # Earliest time the node will be free
+            # 基础时间计算
             earliest_finish_time = simulation.node_earliest_finish_time.get(node_name, 0.0)
+            computation_time = task.computation_size / node.speed
             
-            # Estimated data transfer time from all parents to this node
+            # 数据传输时间
             total_d_time = 0.0
+            max_d_time = 0.0
+            parent_nodes = [simulation.task_to_node_map.get(parent) for parent in task.parents]
+            
             for parent in task.parents:
                 parent_node_id = simulation.task_to_node_map.get(parent)
                 if parent_node_id and parent_node_id != node_name:
                     data_size = simulation.workflow.get_edge_data_size(parent.id, task.id)
-                    # total_d_time += simulation.platform.get_communication_time(data_size, parent_node_id, node_name)
                     bandwidth = simulation.platform.get_bandwidth(parent_node_id, node_name)
-                    total_d_time += data_size / bandwidth
-
-
+                    d_time = data_size / bandwidth
+                    total_d_time += d_time
+                    max_d_time = max(max_d_time, d_time)
+            
+            # 完成时间 = max(最早可用时间 + 数据传输时间) + 计算时间
+            ready_time = max(earliest_finish_time, max_d_time)
+            total_finish_time = ready_time + computation_time
+            
+            # 节点负载特征
+            node_queue_length = len([t for t, n in simulation.task_to_node_map.items() if n == node_name])
+            
             node_features.extend([
                 node.speed,
                 earliest_finish_time,
                 total_d_time,
+                max_d_time,
+                total_finish_time,
+                node_queue_length,
+                computation_time,
+                total_d_time / (computation_time + 1e-6),  # 通信计算比
             ])
 
-        # Combine and flatten
-        state_vector = np.concatenate([task_features, node_features]).astype(np.float32)
+        # 3. 全局特征 - 工作流上下文
+        total_tasks = len(simulation.workflow.tasks)
+        completed_tasks = len([t for t in simulation.workflow.tasks if t.get_state_as_string() == 'COMPLETED'])
+        
+        global_features = [
+            completed_tasks / total_tasks,  # 完成进度
+            len([t for t in simulation.workflow.tasks if t.get_state_as_string() == 'RUNNING']),  # 运行中任务
+            np.mean([simulation.node_earliest_finish_time.get(n, 0.0) for n in self.node_names]),  # 平均节点负载
+        ]
+        
+        # 标准化特征
+        state_vector = np.concatenate([task_features, node_features, global_features]).astype(np.float32)
         
         return SchedulingState(state_vector)
 
@@ -152,14 +187,25 @@ class WASSRAGScheduler(WASSDRLScheduler):
         
         # Find the best node according to the teacher
         best_node_from_teacher = min(estimated_makespans, key=lambda n: estimated_makespans[n].value)
+        teacher_makespan = estimated_makespans[best_node_from_teacher].value
         
-        # Get the action from the DRL agent (the "student")
+        # Get the action from the DRL agent (the "student") - 不使用教师指导，让Agent独立决策
         state = self._extract_features(task_to_schedule, simulation)
-        action_idx_from_student = self.drl_agent.act(state, use_teacher=True, teacher_action=self.node_map[best_node_from_teacher])
-        
+        action_idx_from_student = self.drl_agent.act(state, use_teacher=False)
         chosen_node_name = self.node_names[action_idx_from_student]
         
-        logger.debug(f"RAG Teacher chose {best_node_from_teacher}, Student chose {chosen_node_name} for {task_to_schedule.id}")
+        # 计算学生选择的预测makespan
+        student_makespan = estimated_makespans[chosen_node_name].value
+        
+        # 计算RAG奖励：教师预测与学生选择的差异
+        rag_reward = self.drl_agent.compute_reward(teacher_makespan, student_makespan)
+        
+        # 使用奖励进行学习
+        self.drl_agent.learn(state, action_idx_from_student, rag_reward)
+        
+        logger.debug(f"RAG: Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
+                    f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
+                    f"Reward={rag_reward:.2f}")
         
         return {chosen_node_name: task_to_schedule}
 

@@ -93,8 +93,20 @@ class HEFTScheduler(BaseScheduler):
         ready_sorted = sorted(ready, key=lambda t: self.ranks.get(t.get_name(), 0.0), reverse=True)
         for task in ready_sorted:
             if task.get_state_as_string() == 'NOT_SUBMITTED':
-                job = self.sim.create_standard_job([task], {})
-                self.cs.submit_standard_job(job)
+                # 选择能最早完成任务的主机
+                best_host = None
+                best_finish_time = float('inf')
+                
+                for host_name in self.hosts:
+                    finish_time = self.get_earliest_finish_time(task, host_name)
+                    if finish_time < best_finish_time:
+                        best_finish_time = finish_time
+                        best_host = host_name
+                
+                if best_host:
+                    # 创建作业并指定最佳主机
+                    job = self.sim.create_standard_job([task], {})
+                    self.cs.submit_standard_job(job)
 
 
 class WassHeuristicScheduler(BaseScheduler):
