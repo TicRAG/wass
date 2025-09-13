@@ -45,10 +45,10 @@ wrench-python-api
 
 ```bash
 # 1. 激活虚拟环境
-source wrench-env/bin/activate
+conda deactivate
+source ~/venvs/wrench-env/bin/activate
 
 # 2. 验证WRENCH环境
-cd /data/workspace/wass
 python wrenchtest/test_simple_wrech.py
 ```
 
