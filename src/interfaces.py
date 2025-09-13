@@ -1,15 +1,41 @@
-"""核心接口占位.
-在仅文档/设计阶段，用于约束后续实现。
 """
-from __future__ import annotations
-from typing import Protocol, List, Dict, Any, Iterable, Tuple, Optional
+Interfaces for the WASS system.
+Used only in documentation/design phase to constrain subsequent implementations.
+"""
+import math
+from typing import Dict, List, Protocol, Tuple, Iterable, Optional, Any, Union
+from typing import NamedTuple
+from abc import ABC, abstractmethod
 
-class DataSample(dict):
-    """简单表示单条数据，后续可替换为pydantic/dataclass"""
-    pass
+DataSample = Dict[str, Any]
 
-class DatasetAdapter(Protocol):
-    def load(self) -> Iterable[DataSample]: ...
+class PredictedValue(NamedTuple):
+    """Represents a predicted value with confidence."""
+    value: float
+    confidence: float
+
+# Type alias for scheduling decisions
+SchedulingDecision = Dict[str, Any]  # Maps node names to tasks
+
+class Scheduler(ABC):
+    """Abstract base class for all schedulers."""
+    
+    @abstractmethod
+    def schedule(self, ready_tasks: List[Any], simulation: Any) -> SchedulingDecision:
+        """Schedule ready tasks on available nodes.
+        
+        Args:
+            ready_tasks: List of tasks that are ready to be scheduled
+            simulation: The simulation environment
+            
+        Returns:
+            A dictionary mapping node names to tasks to be scheduled on them
+        """
+        pass
+
+
+class DataReader(Protocol):
+    def read(self) -> Iterable[DataSample]: ...
     def train_split(self) -> List[DataSample]: ...
     def valid_split(self) -> List[DataSample]: ...
     def test_split(self) -> List[DataSample]: ...
@@ -21,7 +47,6 @@ class LabelFunction(Protocol):
 
 class LabelMatrixBuilder(Protocol):
     def build(self, data: List[DataSample], lfs: List[LabelFunction]) -> Any: ...  # returns L
-
 class LabelModel(Protocol):
     def fit(self, L, **kwargs) -> None: ...
     def predict_proba(self, L) -> Any: ...  # numpy array
@@ -39,7 +64,6 @@ class Retriever(Protocol):
 
 class RAGFusion(Protocol):
     def fuse(self, sample: DataSample, retrieved: List[Dict[str, Any]]) -> Dict[str, Any]: ...
-
 class DRLEnvironment(Protocol):
     def reset(self) -> Any: ...
     def step(self, action: Any) -> Tuple[Any, float, bool, Dict[str, Any]]: ...

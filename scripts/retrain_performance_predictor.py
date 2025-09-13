@@ -20,7 +20,8 @@ sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 try:
     from torch.utils.data import TensorDataset, DataLoader
-    from src.ai_schedulers import WASSRAGScheduler, SchedulingState, PerformancePredictor, RAGKnowledgeBase
+    from src.ai_schedulers import WASSRAGScheduler, SchedulingState, RAGKnowledgeBase
+    from src.performance_predictor import PerformancePredictor, SimplePerformancePredictor
     HAS_AI_MODULES = True
 except ImportError as e:
     print(f"Error: Required AI modules not available: {e}")
@@ -130,7 +131,7 @@ def train_improved_performance_predictor(training_data: List[Dict[str, Any]], ep
     dataset = TensorDataset(X_tensor, y_tensor)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
-    model = PerformancePredictor(input_dim=96, hidden_dim=128).to(device)
+    model = SimplePerformancePredictor(input_dim=96, hidden_dim=128).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, factor=0.5)

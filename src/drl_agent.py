@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from typing import Optional
+from collections import deque
+import random
 
 
 class SchedulingState:
@@ -13,9 +15,15 @@ class SchedulingState:
 class DQNAgent:
     """简化版的DQN Agent，支持奖励机制"""
     
-    def __init__(self, state_dim: int, action_dim: int, learning_rate: float = 0.001):
+    def __init__(self, state_dim: int, action_dim: int, learning_rate: float = 0.001, 
+                 buffer_size: int = 10000, batch_size: int = 32):
         self.state_dim = state_dim
         self.action_dim = action_dim
+        self.batch_size = batch_size
+        
+        # 经验回放缓冲区
+        self.memory = deque(maxlen=buffer_size)
+        
         self.q_network = nn.Sequential(
             nn.Linear(state_dim, 128),
             nn.ReLU(),
@@ -45,6 +53,42 @@ class DQNAgent:
     def compute_reward(self, teacher_makespan: float, student_makespan: float) -> float:
         """计算RAG奖励：教师预测与当前选择的差异"""
         return teacher_makespan - student_makespan
+    
+    def store_transition(self, state: SchedulingState, action: int, reward: float, next_state: Optional[SchedulingState] = None, done: bool = False):
+        """存储经验到回放缓冲区"""
+        self.memory.append((state, action, reward, next_state, done))
+    
+    def replay(self):
+        """从经验回放中学习"""
+        if len(self.memory) < self.batch_size:
+            return
+            
+        # 采样一批经验
+        batch = random.sample(self.memory, self.batch_size)
+        states = torch.FloatTensor(np.array([e[0].features for e in batch]))
+        actions = torch.LongTensor([e[1] for e in batch])
+        rewards = torch.FloatTensor([e[2] for e in batch])
+        dones = torch.BoolTensor([e[4] for e in batch])
+        
+        # 处理下一个状态
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, [e[3] for e in batch])), dtype=torch.bool)
+        non_final_next_states = torch.FloatTensor(np.array([e[3].features for e in batch if e[3] is not None]))
+        
+        # 计算当前Q值
+        current_q_values = self.q_network(states).gather(1, actions.unsqueeze(1))
+        
+        # 计算目标Q值
+        next_q_values = torch.zeros(self.batch_size)
+        with torch.no_grad():
+            if non_final_next_states.size(0) > 0:
+                next_q_values[non_final_mask] = self.q_network(non_final_next_states).max(1)[0]
+        target_q_values = (rewards + 0.99 * next_q_values * ~dones)
+        
+        # 计算损失并更新
+        loss = self.criterion(current_q_values.squeeze(), target_q_values)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
     
     def learn(self, state: SchedulingState, action: int, reward: float, next_state: Optional[SchedulingState] = None):
         """学习更新"""

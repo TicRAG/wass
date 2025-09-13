@@ -26,7 +26,7 @@ sys.path.insert(0, str(parent_dir))
 sys.path.insert(0, os.path.join(parent_dir, 'src'))
 
 # 导入 AI 调度器中定义的模型结构
-from src.performance_predictor import PerformancePredictor
+from src.performance_predictor import PerformancePredictor, SimplePerformancePredictor
 
 def load_training_dataset() -> List[Dict[str, Any]]:
     """加载知识库播种阶段生成的数据集"""
@@ -102,7 +102,7 @@ def train_predictor(training_data: List[Dict[str, Any]], epochs: int = 100, batc
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     
     # 4. 初始化模型、损失函数和优化器
-    model = PerformancePredictor(input_dim=X.shape[1], hidden_dim=128).to(device)
+    model = SimplePerformancePredictor(input_dim=X.shape[1], hidden_dim=128).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, factor=0.5)

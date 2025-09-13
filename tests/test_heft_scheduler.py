@@ -5,14 +5,31 @@ from unittest.mock import Mock
 # 模拟3个任务的工作流
 def create_micro_workflow():
     class Task:
-        def __init__(self, name, flops, parents=None):
-            self.name = name
-            self._flops = flops
-            self.parents = parents or []
-            self.state = 'NOT_SUBMITTED'
-        
-        def mark_completed(self):
-            self.state = 'COMPLETED'
+            def __init__(self, name, flops, parents=None):
+                self.name = name
+                self._flops = flops
+                self.parents = parents or []
+                self.state = 'NOT_SUBMITTED'
+    
+            def mark_completed(self):
+                self.state = 'COMPLETED'
+                
+            def get_name(self):
+                return self.name
+                
+            def get_children(self):
+                # 在这个简单的测试中，我们通过遍历所有任务来查找子任务
+                # 这不是最优实现，但对于测试足够了
+                return []
+                
+            def get_flops(self):
+                return self._flops
+                
+            def get_id(self):
+                return self.name
+                
+            def get_state_as_string(self):
+                return self.state
     
     class Workflow:
         def __init__(self, tasks):
@@ -28,8 +45,6 @@ def create_micro_workflow():
     t1 = Task('t1', 10, parents=[t2])
     t2.parents.append(t3)  # 显式建立t3->t2依赖
 
-    # 在Mock计算服务中返回数值类型
-    mock_cs.get_host_current_makespan.return_value = 0.0
     return Workflow([t1, t2, t3])
 
 # 测试HEFT调度器核心逻辑
@@ -44,45 +59,110 @@ def test_heft_scheduler():
         'slow_host': (2, 10.0)   # 2核心，10 GFlop/s
     }
     
+    # 创建模拟仿真器
+    mock_sim = Mock()
+    
+    # 配置Mock以返回正确的任务名称
+    job_tasks = {}  # 用于存储job到task的映射
+    
+    def create_standard_job_side_effect(task_list, *args, **kwargs):
+        job_mock = Mock()
+        task = task_list[0]  # 获取任务列表中的第一个任务
+        job_mock.get_name.return_value = task.get_name()
+        job_tasks[job_mock] = task  # 存储映射
+        return job_mock
+    
+    mock_sim.create_standard_job.side_effect = create_standard_job_side_effect
+    
+    # 配置submit_standard_job以存储调用信息
+    submitted_jobs = []
+    
+    def submit_standard_job_side_effect(job, *args, **kwargs):
+        submitted_jobs.append((job, kwargs))
+        # 标记任务为完成，以便下一个任务可以运行
+        task = job_tasks[job]
+        task.mark_completed()
+        return Mock()
+    
+    mock_cs.submit_standard_job.side_effect = submit_standard_job_side_effect
+    
     # 初始化调度器
     scheduler = HEFTScheduler(
-        simulation=Mock(),
+        simulation=mock_sim,
         compute_service=mock_cs,
         hosts=hosts
     )
     
     # 运行调度
     workflow = create_micro_workflow()
-    scheduler.submit_ready_tasks(workflow)
+    
+    # 多次调用submit_ready_tasks直到所有任务都被提交
+    while len(submitted_jobs) < 3:
+        scheduler.submit_ready_tasks(workflow)
     
     # 验证调度顺序应为t3 -> t2 -> t1
-    submit_order = [call.args[0].get_name() for call in mock_cs.submit_standard_job.call_args_list]
+    submit_order = [job_tasks[job].get_name() for job, _ in submitted_jobs]
     assert submit_order == ['t3', 't2', 't1'], "任务调度顺序不符合HEFT优先级"
     
     # 验证主机分配（t3应分配到最快主机）
-    first_job_host = mock_cs.submit_standard_job.call_args_list[0][1]['target_host']
+    first_job_host = submitted_jobs[0][1]['target_host']
     assert first_job_host == 'fast_host', "首个任务未分配到最快主机"
     
     # 验证完成时间计算
+    tasks = workflow.get_tasks()
     t3_flops = 20
     expected_t3_time = t3_flops / 20.0  # 在fast_host执行时间
-    assert scheduler.get_earliest_finish_time(workflow[2], 'fast_host') == expected_t3_time
+    assert scheduler.get_earliest_finish_time(tasks[2], 'fast_host') == expected_t3_time
 
 # 验证极端场景
 # 在test_heft_with_single_host测试中配置Mock返回值
 def test_heft_with_single_host():
     mock_cs = Mock()
     mock_cs.get_host_current_makespan.return_value = 0.0  # 添加返回值配置
+    
+    # 创建模拟仿真器
+    mock_sim = Mock()
+    
+    # 配置Mock以返回正确的任务名称
+    job_tasks = {}  # 用于存储job到task的映射
+    
+    def create_standard_job_side_effect(task_list, *args, **kwargs):
+        job_mock = Mock()
+        task = task_list[0]  # 获取任务列表中的第一个任务
+        job_mock.get_name.return_value = task.get_name()
+        job_tasks[job_mock] = task  # 存储映射
+        return job_mock
+    
+    mock_sim.create_standard_job.side_effect = create_standard_job_side_effect
+    
+    # 配置submit_standard_job以存储调用信息
+    submitted_jobs = []
+    
+    def submit_standard_job_side_effect(job, *args, **kwargs):
+        submitted_jobs.append((job, kwargs))
+        # 标记任务为完成，以便下一个任务可以运行
+        task = job_tasks[job]
+        task.mark_completed()
+        return Mock()
+    
+    mock_cs.submit_standard_job.side_effect = submit_standard_job_side_effect
+    
     hosts = {'single_host': (1, 5.0)}
-    
-    scheduler = HEFTScheduler(Mock(), mock_cs, hosts)
+
+    scheduler = HEFTScheduler(mock_sim, mock_cs, hosts)
     workflow = create_micro_workflow()
-    scheduler.submit_ready_tasks(workflow)
     
+    # 多次调用submit_ready_tasks直到所有任务都被提交
+    while len(submitted_jobs) < 3:
+        scheduler.submit_ready_tasks(workflow)
+    
+    # 获取提交顺序
+    submit_order = [job_tasks[job].get_name() for job, _ in submitted_jobs]
+
     # 所有任务都应分配到唯一主机
-    for call in mock_cs.submit_standard_job.call_args_list:
-        assert call[1]['target_host'] == 'single_host'
-    
+    for _, kwargs in submitted_jobs:
+        assert kwargs['target_host'] == 'single_host'
+
     # 添加调试日志输出
     try:
         assert submit_order == ['t3', 't2', 't1'], f"实际调度顺序: {submit_order}"
@@ -97,16 +177,3 @@ def _submit_job(job, target_host):
     task = job.get_tasks()[0]
     task.mark_completed()
     submitted_tasks.append(task)
-mock_cs.submit_standard_job.side_effect = _submit_job
-
-# 分三个阶段执行调度
-for _ in range(3):
-    # 增强任务状态追踪
-    print(f'[PRE] 就绪任务: {[t.name for t in workflow.get_runnable_tasks()]}')
-    for i in range(3):
-        print(f'--- 调度轮次 {i+1} ---')
-        scheduler.submit_ready_tasks(workflow)
-        print(f'提交任务: {[t.name for t in submitted_tasks[-1:]]}' if submitted_tasks else '无任务提交')
-        print(f'当前主机可用时间: {scheduler.cs.get_host_current_makespan.mock_calls[-1].args if scheduler.cs.method_calls else "未更新"}')
-    
-    assert [t.name for t in submitted_tasks] == ['t3', 't2', 't1'], f"实际调度顺序: {[t.name for t in submitted_tasks]}"

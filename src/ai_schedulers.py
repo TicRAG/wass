@@ -4,7 +4,8 @@ from typing import Dict, List
 
 import numpy as np
 import torch
-import wrench.workflows as w
+import networkx as nx
+import wrench.task as w
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import StandardScaler
 
@@ -146,17 +147,88 @@ class WASSDRLScheduler(WASSScheduler):
             vec[0] = avg
         return torch.from_numpy(vec)
 
+    def _build_dag_graph(self, workflow):
+        """Convert workflow DAG to networkx DiGraph with task metadata"""
+        dag = nx.DiGraph()
+        for task in workflow.tasks:
+            # 获取任务状态信息
+            is_submitted = task.get_state_as_string() in ['SUBMITTED', 'RUNNING', 'COMPLETED']
+            is_finished = task.get_state_as_string() == 'COMPLETED'
+            assigned_host_id = -1  # 默认未分配
+            
+            dag.add_node(task.id, 
+                computation_size=task.computation_size,
+                parents=[p.id for p in task.parents],
+                children=[c.id for c in task.children],
+                is_submitted=is_submitted,
+                is_finished=is_finished,
+                assigned_host_id=assigned_host_id
+            )
+        for task in workflow.tasks:
+            for child in task.children:
+                data_size = workflow.get_edge_data_size(task.id, child.id)
+                dag.add_edge(task.id, child.id, data_size=data_size)
+        return dag
+
+    def _get_estimated_makespans(self, task: w.Task, simulation: 'WassWrenchSimulator') -> Dict[str, PredictedValue]:
+        """Estimate makespan for each possible node assignment using the GNN predictor.
+        
+        Returns:
+            Dict mapping node names to predicted makespan values.
+        """
+        # 构建当前工作流的DAG图
+        dag = self._build_dag_graph(simulation.workflow)
+        
+        # 更新当前任务的状态信息
+        if task.id in dag.nodes:
+            dag.nodes[task.id]['is_submitted'] = True
+            
+        # 构建节点特征
+        node_features = {}
+        for node_name in self.node_names:
+            node = simulation.platform.get_node(node_name)
+            node_features[node_name] = {
+                'speed': node.speed,
+                'available_time': simulation.node_earliest_finish_time.get(node_name, 0.0),
+                'queue_length': len([t for t, n in simulation.task_to_node_map.items() if n == node_name])
+            }
+        
+        # 为每个可能的节点分配计算预测的makespan
+        estimated_makespans = {}
+        for node_name in self.node_names:
+            # 创建临时的节点分配
+            temp_task_to_node_map = simulation.task_to_node_map.copy()
+            temp_task_to_node_map[task] = node_name
+            
+            # 更新DAG中任务的分配信息
+            temp_dag = dag.copy()
+            if task.id in temp_dag.nodes:
+                temp_dag.nodes[task.id]['assigned_host_id'] = self.node_names.index(node_name)
+            
+            # 提取图特征
+            graph_data = self.predictor.extract_graph_features(temp_dag, node_features, focus_task_id=task.id)
+            
+            # 使用GNN预测器进行预测
+            predicted_makespan = self.predictor.predict(graph_data)
+            
+            estimated_makespans[node_name] = PredictedValue(
+                value=predicted_makespan,
+                confidence=1.0  # 简化处理，实际应用中可以计算置信度
+            )
+        
+        return estimated_makespans
+
 
 class WASSRAGScheduler(WASSDRLScheduler):
-    """WASS-RAG Scheduler."""
+    """WASS-RAG Scheduler with true R_RAG dynamic reward mechanism."""
 
     def __init__(self, drl_agent: DQNAgent, node_names: List[str], predictor: PerformancePredictor):
         super().__init__(drl_agent, node_names)
         self.predictor = predictor
         self.scaler = StandardScaler()
         self.vectorizer = DictVectorizer()
-        self.reward_alpha = 0.8  # 新增奖励系数
-        logger.info("Initialized WASSRAGScheduler.")
+        self.reward_alpha = 0.8  # 奖励系数
+        logger.info("Initialized WASSRAGScheduler with R_RAG dynamic reward mechanism.")
 
     def schedule(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> SchedulingDecision:
         if not ready_tasks:
@@ -171,37 +243,40 @@ class WASSRAGScheduler(WASSDRLScheduler):
         best_node_from_teacher = min(estimated_makespans, key=lambda n: estimated_makespans[n].value)
         teacher_makespan = estimated_makespans[best_node_from_teacher].value
         
-        # Get the action from the DRL agent (the "student") - 不使用教师指导，让Agent独立决策
+        # Get the action from the DRL agent (the "student") - 独立自主决策，不使用教师指导
         state = self._extract_features(task_to_schedule, simulation)
-        action_idx_from_student = self.drl_agent.act(state, use_teacher=False)
+        action_idx_from_student = self.drl_agent.act(state, epsilon=0.1)  # 使用固定的探索率
         chosen_node_name = self.node_names[action_idx_from_student]
         
         # 计算学生选择的预测makespan
         student_makespan = estimated_makespans[chosen_node_name].value
         
         # 实现R_RAG动态奖励机制
-        rag_reward = self.reward_alpha * (teacher_makespan - student_makespan)  # 应用系数
+        # 奖励 = 老师最优选择的预测makespan - Agent自己探索的预测makespan
+        # 这个差分奖励能明确告诉 Agent 它的探索方向是对是错
+        rag_reward = self.reward_alpha * (teacher_makespan - student_makespan)
         
-        # 添加奖励规范化
-        baseline = np.mean(list(estimated_makespans.values()))
-        rag_reward = (rag_reward / (baseline + 1e-6)) * 10.0  # 标准化奖励范围
+        # 奖励归一化，使用tanh使奖励信号更稳定
+        normalized_reward = np.tanh(rag_reward / (np.abs(teacher_makespan) + 1e-6) * 10.0)
         
-        # 带历史轨迹的学习
+        # 获取下一个状态
+        next_state = self._extract_features(task_to_schedule, simulation)
+        
+        # 立即反馈给Agent进行学习
         self.drl_agent.store_transition(
             state=state,
             action=action_idx_from_student,
-            reward=rag_reward,
-            next_state=self._extract_features(task_to_schedule, simulation),
+            reward=normalized_reward,
+            next_state=next_state,
             done=len(simulation.workflow.tasks) == len(simulation.completed_tasks)
         )
         
-        # 每100步批量学习
-        if len(self.drl_agent.memory) % 100 == 0:
-            self.drl_agent.replay()
+        # 在线学习更新
+        self.drl_agent.replay()
         
-        logger.debug(f"RAG: Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
+        logger.debug(f"R_RAG: Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
                     f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
-                    f"Reward={rag_reward:.2f}")
+                    f"Reward={normalized_reward:.4f}")
         
         return {chosen_node_name: task_to_schedule}
 
@@ -212,34 +287,6 @@ class WASSRAGScheduler(WASSDRLScheduler):
             return
         self.scaler.fit(self.vectorizer.fit_transform(features_list))
         logger.info("Scaler and Vectorizer for RAG have been fitted.")
-
-    def _build_dag_graph(self, workflow):
-        """Convert workflow DAG to networkx DiGraph with task metadata"""
-        dag = nx.DiGraph()
-        for task in workflow.tasks:
-            dag.add_node(task.id, 
-                computation_size=task.computation_size,
-                parents=[p.id for p in task.parents],
-                children=[c.id for c in task.children]
-            )
-        for task in workflow.tasks:
-            for child in task.children:
-                data_size = workflow.get_edge_data_size(task.id, child.id)
-                dag.add_edge(task.id, child.id, data_size=data_size)
-        return dag
-
-    def _extract_graph_state(self, task: w.Task, simulation: 'WassWrenchSimulator') -> Dict:
-        """Build graph state representation for GNN predictor"""
-        dag = self._build_dag_graph(simulation.workflow)
-        node_features = {
-            n.name: {
-                'speed': n.speed,
-                'available_time': simulation.node_earliest_finish_time.get(n.name, 0.0),
-                'queue_length': len([t for t,n_id in simulation.task_to_node_map.items() if n_id == n.name])
-            }
-            for n in simulation.platform.nodes.values()
-        }
-        return self.predictor.extract_graph_features(dag, node_features, focus_task_id=task.id)
 
 
 # -------- Factory API --------
