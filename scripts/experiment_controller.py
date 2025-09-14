@@ -130,6 +130,56 @@ class ExperimentController:
         min_size, max_size = compatibility_matrix[platform_scale]
         return min_size <= workflow_size <= max_size
     
+    def run_experiment_batch(self, experiments: List[ExperimentConfig]) -> List[ExperimentResult]:
+        """运行批量实验（公平实验设计）"""
+        results = []
+        total = len(experiments)
+        
+        print(f"🚀 开始批量实验: {total} 个实验")
+        print(f"📊 实验矩阵:")
+        print(f"   - 工作流模式: {set(exp.workflow_pattern for exp in experiments)}")
+        print(f"   - 工作流大小: {sorted(set(exp.workflow_size for exp in experiments))}")
+        print(f"   - 平台规模: {set(exp.platform_scale for exp in experiments)}")
+        print(f"   - 调度器: {set(exp.scheduler for exp in experiments)}")
+        print()
+        
+        # 按工作流大小和重复次数分组，确保公平性
+        experiment_groups = {}
+        for config in experiments:
+            key = (config.workflow_pattern, config.workflow_size, config.platform_scale, config.repeat_count)
+            if key not in experiment_groups:
+                experiment_groups[key] = []
+            experiment_groups[key].append(config)
+        
+        # 为每个组预生成工作流
+        group_workflows = {}
+        for (pattern, size, scale, repeat), group_configs in experiment_groups.items():
+            # 为这个组生成固定的工作流
+            workflow_file = self._prepare_workflow(group_configs[0])
+            group_workflows[(pattern, size, scale, repeat)] = workflow_file
+        
+        # 按组运行实验
+        processed = 0
+        for (pattern, size, scale, repeat), group_configs in experiment_groups.items():
+            workflow_file = group_workflows[(pattern, size, scale, repeat)]
+            
+            for config in group_configs:
+                print(f"进度: {processed+1}/{total} ({(processed+1)/total*100:.1f}%)")
+                
+                # 使用预生成的工作流文件
+                result = self.run_single_experiment_with_workflow(config, workflow_file)
+                results.append(result)
+                self.results.append(result)
+                processed += 1
+                
+                # 定期保存中间结果
+                if processed % 10 == 0:
+                    self._save_intermediate_results()
+                
+                print()
+        
+        return results
+    
     def run_single_experiment(self, config: ExperimentConfig) -> ExperimentResult:
         """运行单个实验"""
         print(f"🔬 运行实验: {config.name}")
@@ -150,6 +200,54 @@ class ExperimentController:
             result_data = self._run_wrench_experiment(config, workflow_file, platform_file)
             
             # 4. 创建结果对象
+            result = ExperimentResult(
+                config=config,
+                makespan=result_data.get('makespan', 0.0),
+                cpu_utilization=result_data.get('cpu_utilization', 0.0),
+                memory_usage=result_data.get('memory_usage', 0.0),
+                network_usage=result_data.get('network_usage', 0.0),
+                scheduling_time=result_data.get('scheduling_time', 0.0),
+                success=True,
+                execution_time=time.time() - start_time,
+                timestamp=timestamp
+            )
+            
+            print(f"   ✅ 完成: Makespan={result.makespan:.2f}s")
+            
+        except Exception as e:
+            print(f"   ❌ 失败: {str(e)}")
+            result = ExperimentResult(
+                config=config,
+                makespan=float('inf'),
+                cpu_utilization=0.0,
+                memory_usage=0.0,
+                network_usage=0.0,
+                scheduling_time=0.0,
+                success=False,
+                error_message=str(e),
+                execution_time=time.time() - start_time,
+                timestamp=timestamp
+            )
+        
+        return result
+    
+    def run_single_experiment_with_workflow(self, config: ExperimentConfig, workflow_file: str) -> ExperimentResult:
+        """使用预生成工作流运行单个实验"""
+        print(f"🔬 运行实验: {config.name}")
+        print(f"   工作流: {config.workflow_pattern}-{config.workflow_size}")
+        print(f"   平台: {config.platform_scale}, 调度器: {config.scheduler}")
+        
+        start_time = time.time()
+        timestamp = datetime.now().isoformat()
+        
+        try:
+            # 1. 准备平台配置
+            platform_file = self._prepare_platform(config)
+            
+            # 2. 运行WRENCH实验
+            result_data = self._run_wrench_experiment(config, workflow_file, platform_file)
+            
+            # 3. 创建结果对象
             result = ExperimentResult(
                 config=config,
                 makespan=result_data.get('makespan', 0.0),
@@ -255,34 +353,6 @@ class ExperimentController:
             'WASS-RAG': 0.7        # 最优（理论值）
         }
         return factors.get(scheduler, 1.0)
-    
-    def run_experiment_batch(self, experiments: List[ExperimentConfig]) -> List[ExperimentResult]:
-        """运行批量实验"""
-        results = []
-        total = len(experiments)
-        
-        print(f"🚀 开始批量实验: {total} 个实验")
-        print(f"📊 实验矩阵:")
-        print(f"   - 工作流模式: {set(exp.workflow_pattern for exp in experiments)}")
-        print(f"   - 工作流大小: {sorted(set(exp.workflow_size for exp in experiments))}")
-        print(f"   - 平台规模: {set(exp.platform_scale for exp in experiments)}")
-        print(f"   - 调度器: {set(exp.scheduler for exp in experiments)}")
-        print()
-        
-        for i, config in enumerate(experiments, 1):
-            print(f"进度: {i}/{total} ({i/total*100:.1f}%)")
-            
-            result = self.run_single_experiment(config)
-            results.append(result)
-            self.results.append(result)
-            
-            # 定期保存中间结果
-            if i % 10 == 0:
-                self._save_intermediate_results()
-            
-            print()
-        
-        return results
     
     def _save_intermediate_results(self):
         """保存中间结果"""
