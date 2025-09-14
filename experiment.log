@@ -6,24 +6,24 @@
 [0;34m[INFO][0m 验证WRENCH环境...
 [0;32m[SUCCESS][0m WRENCH环境验证成功
 [0;34m[INFO][0m 第1步: 生成知识库数据集...
-2025-09-13 17:49:51,948 - __main__ - INFO - [KB] Generating synthetic samples for HEFT
-2025-09-13 17:49:53,108 - __main__ - INFO - [KB] HEFT 已生成 10/60 个工作流
-2025-09-13 17:49:54,391 - __main__ - INFO - [KB] HEFT 已生成 20/60 个工作流
-2025-09-13 17:49:55,961 - __main__ - INFO - [KB] HEFT 已生成 30/60 个工作流
-2025-09-13 17:49:57,547 - __main__ - INFO - [KB] HEFT 已生成 40/60 个工作流
-2025-09-13 17:49:58,844 - __main__ - INFO - [KB] HEFT 已生成 50/60 个工作流
-2025-09-13 17:50:00,602 - __main__ - INFO - [KB] HEFT 已生成 60/60 个工作流
-2025-09-13 17:50:00,614 - __main__ - INFO - [KB] HEFT 累计样本: 7080
-2025-09-13 17:50:00,614 - __main__ - INFO - [KB] Generating synthetic samples for FIFO
-2025-09-13 17:50:02,279 - __main__ - INFO - [KB] FIFO 已生成 10/60 个工作流
-2025-09-13 17:50:03,518 - __main__ - INFO - [KB] FIFO 已生成 20/60 个工作流
-2025-09-13 17:50:04,724 - __main__ - INFO - [KB] FIFO 已生成 30/60 个工作流
-2025-09-13 17:50:05,914 - __main__ - INFO - [KB] FIFO 已生成 40/60 个工作流
-2025-09-13 17:50:07,289 - __main__ - INFO - [KB] FIFO 已生成 50/60 个工作流
-2025-09-13 17:50:08,644 - __main__ - INFO - [KB] FIFO 已生成 60/60 个工作流
-2025-09-13 17:50:08,655 - __main__ - INFO - [KB] FIFO 累计样本: 14160
-2025-09-13 17:50:08,655 - __main__ - INFO - [KB] Total samples: 14160
-2025-09-13 17:50:08,868 - __main__ - INFO - [KB] Saved 14160 samples to data/kb_training_dataset.json
+2025-09-14 12:11:20,202 - __main__ - INFO - [KB] Generating synthetic samples for HEFT
+2025-09-14 12:11:21,584 - __main__ - INFO - [KB] HEFT 已生成 10/60 个工作流
+2025-09-14 12:11:22,971 - __main__ - INFO - [KB] HEFT 已生成 20/60 个工作流
+2025-09-14 12:11:24,390 - __main__ - INFO - [KB] HEFT 已生成 30/60 个工作流
+2025-09-14 12:11:25,666 - __main__ - INFO - [KB] HEFT 已生成 40/60 个工作流
+2025-09-14 12:11:26,966 - __main__ - INFO - [KB] HEFT 已生成 50/60 个工作流
+2025-09-14 12:11:28,391 - __main__ - INFO - [KB] HEFT 已生成 60/60 个工作流
+2025-09-14 12:11:28,404 - __main__ - INFO - [KB] HEFT 累计样本: 7080
+2025-09-14 12:11:28,404 - __main__ - INFO - [KB] Generating synthetic samples for FIFO
+2025-09-14 12:11:29,791 - __main__ - INFO - [KB] FIFO 已生成 10/60 个工作流
+2025-09-14 12:11:31,279 - __main__ - INFO - [KB] FIFO 已生成 20/60 个工作流
+2025-09-14 12:11:32,568 - __main__ - INFO - [KB] FIFO 已生成 30/60 个工作流
+2025-09-14 12:11:33,854 - __main__ - INFO - [KB] FIFO 已生成 40/60 个工作流
+2025-09-14 12:11:35,020 - __main__ - INFO - [KB] FIFO 已生成 50/60 个工作流
+2025-09-14 12:11:36,224 - __main__ - INFO - [KB] FIFO 已生成 60/60 个工作流
+2025-09-14 12:11:36,234 - __main__ - INFO - [KB] FIFO 累计样本: 14160
+2025-09-14 12:11:36,235 - __main__ - INFO - [KB] Total samples: 14160
+2025-09-14 12:11:36,436 - __main__ - INFO - [KB] Saved 14160 samples to data/kb_training_dataset.json
 [0;32m[SUCCESS][0m 知识库生成完成
 [0;34m[INFO][0m 生成了 14160 个训练样本
 [0;34m[INFO][0m 第2步: 训练性能预测器...
@@ -37,26 +37,26 @@
    Unique samples after deduplication: 3468
 📈 Target (achieved_finish_time) stats: mean=48.76, std=29.59
    Train samples: 2774, Validation samples: 694
-   Epoch 10/100: Train Loss = 0.958414, Val Loss = 0.778528, LR = 0.001000
-   Epoch 20/100: Train Loss = 0.754999, Val Loss = 0.672145, LR = 0.000500
-   Epoch 30/100: Train Loss = 0.654592, Val Loss = 0.622088, LR = 0.000500
-   Epoch 40/100: Train Loss = 0.552596, Val Loss = 0.443181, LR = 0.000500
-   Epoch 50/100: Train Loss = 0.318781, Val Loss = 0.149468, LR = 0.000500
-   Epoch 60/100: Train Loss = 0.231345, Val Loss = 0.109807, LR = 0.000500
-   Epoch 70/100: Train Loss = 0.192594, Val Loss = 0.078144, LR = 0.000500
-   Epoch 80/100: Train Loss = 0.167207, Val Loss = 0.085447, LR = 0.000500
-   Epoch 90/100: Train Loss = 0.150030, Val Loss = 0.047063, LR = 0.000500
-   Epoch 100/100: Train Loss = 0.128265, Val Loss = 0.039890, LR = 0.000500
+   Epoch 10/100: Train Loss = 0.893800, Val Loss = 0.584062, LR = 0.001000
+   Epoch 20/100: Train Loss = 0.656224, Val Loss = 0.527773, LR = 0.001000
+   Epoch 30/100: Train Loss = 0.571840, Val Loss = 0.440445, LR = 0.001000
+   Epoch 40/100: Train Loss = 0.395193, Val Loss = 0.221192, LR = 0.001000
+   Epoch 50/100: Train Loss = 0.195197, Val Loss = 0.071863, LR = 0.001000
+   Epoch 60/100: Train Loss = 0.164871, Val Loss = 0.061114, LR = 0.001000
+   Epoch 70/100: Train Loss = 0.132695, Val Loss = 0.052647, LR = 0.001000
+   Epoch 80/100: Train Loss = 0.111420, Val Loss = 0.038348, LR = 0.001000
+   Epoch 90/100: Train Loss = 0.094356, Val Loss = 0.028671, LR = 0.001000
+   Epoch 100/100: Train Loss = 0.084885, Val Loss = 0.026376, LR = 0.001000
 
 ✅ Training complete. Evaluating on validation set...
-   Validation Results: MSE = 32.4289, MAE = 4.1718, R² = 0.9617
-   ✅ R²值正常 (0.9617)，模型训练成功
+   Validation Results: MSE = 20.8678, MAE = 3.2745, R² = 0.9753
+   ✅ R²值正常 (0.9753)，模型训练成功
 
 💾 Saving trained model and metadata to models/wass_models.pth...
    Found existing model file. Updating Performance Predictor weights.
 ✅ Model saved successfully.
 [0;32m[SUCCESS][0m 性能预测器训练完成
-[0;34m[INFO][0m 验证R²: 0.9617
+[0;34m[INFO][0m 验证R²: 0.9753
 [0;34m[INFO][0m 第3步: 训练DRL智能体...
 🎯 WASS-DRL 优化训练脚本
 ==================================================
@@ -80,37 +80,37 @@ WRENCH环境初始化完成: 4 计算节点, 状态维度: 17
    Dropout率: 0.2
 
 🎯 开始训练 100 episodes...
-Episode   0: 奖励= -1.00, Makespan= 11.94s, ε=1.000, 步数=8
-Episode   1: 奖励= -1.66, Makespan= 14.04s, ε=1.000, 步数=10
-Episode   2: 奖励= -2.86, Makespan= 16.02s, ε=1.000, 步数=12
-Episode   3: 奖励= -2.97, Makespan= 16.35s, ε=1.000, 步数=12
-Episode   4: 奖励= -4.67, Makespan= 19.15s, ε=1.000, 步数=19
-Episode   5: 奖励= -5.29, Makespan= 20.30s, ε=0.995, 步数=16
-Episode   6: 奖励= -5.52, Makespan= 21.09s, ε=0.990, 步数=15
-Episode   7: 奖励= -4.96, Makespan= 19.98s, ε=0.985, 步数=8
-Episode   8: 奖励= -5.53, Makespan= 21.10s, ε=0.980, 步数=17
-Episode   9: 奖励= -6.14, Makespan= 21.98s, ε=0.975, 步数=18
-Episode  20: 奖励= -4.47, Makespan= 19.40s, ε=0.923, 步数=10
-Episode  40: 奖励= -7.28, Makespan= 23.80s, ε=0.835, 步数=18
-Episode  60: 奖励= -6.48, Makespan= 22.24s, ε=0.755, 步数=10
-Episode  80: 奖励= -7.37, Makespan= 24.68s, ε=0.683, 步数=16
+Episode   0: 奖励= -5.79, Makespan= 23.70s, ε=1.000, 步数=13
+Episode   1: 奖励= -4.32, Makespan= 19.95s, ε=1.000, 步数=9
+Episode   2: 奖励= -4.48, Makespan= 20.20s, ε=1.000, 步数=13
+Episode   3: 奖励= -5.28, Makespan= 21.53s, ε=1.000, 步数=16
+Episode   4: 奖励= -4.68, Makespan= 20.48s, ε=1.000, 步数=8
+Episode   5: 奖励= -4.21, Makespan= 19.33s, ε=0.995, 步数=9
+Episode   6: 奖励= -4.08, Makespan= 18.98s, ε=0.990, 步数=10
+Episode   7: 奖励= -4.28, Makespan= 19.34s, ε=0.985, 步数=14
+Episode   8: 奖励= -4.75, Makespan= 20.24s, ε=0.980, 步数=16
+Episode   9: 奖励= -4.62, Makespan= 20.03s, ε=0.975, 步数=10
+Episode  20: 奖励= -6.84, Makespan= 23.23s, ε=0.923, 步数=15
+Episode  40: 奖励= -4.06, Makespan= 18.40s, ε=0.835, 步数=8
+Episode  60: 奖励= -5.36, Makespan= 20.87s, ε=0.755, 步数=13
+Episode  80: 奖励= -7.68, Makespan= 24.75s, ε=0.683, 步数=12
 ✅ 优化DRL模型已保存到 models/wass_optimized_models.pth
 
 📊 训练总结:
-   最终平均Makespan: 23.92s
-   相比初期改善: -100.3%
+   最终平均Makespan: 25.31s
+   相比初期改善: -6.8%
    最终探索率: 0.621
    训练步数总计: 95
 
 🎉 DRL训练完成！
-🏆 最终性能: 23.92s
-📈 性能改善: -100.3%
+🏆 最终性能: 25.31s
+📈 性能改善: -6.8%
 💾 模型已保存到: models/wass_optimized_models.pth
 
 💡 下一步: 运行完整实验验证调优效果
    python experiments/wrench_real_experiment.py
 [0;32m[SUCCESS][0m DRL智能体训练完成
-[0;34m[INFO][0m 最终性能: 23.92s, ε: 0.621
+[0;34m[INFO][0m 最终性能: 25.31s, ε: 0.621
 [0;34m[INFO][0m 第4步: 训练RAG知识库...
 WRENCH RAG训练器初始化完成
 🚀 开始生成 600 个WRENCH知识案例...
@@ -130,27 +130,27 @@ WRENCH RAG训练器初始化完成
 🔧 训练RAG检索器...
 构建检索索引，共 600 个案例...
 索引构建完成：20 个聚类
-  聚类 0: 15 个案例
-  聚类 1: 37 个案例
-  聚类 2: 21 个案例
-  聚类 3: 43 个案例
-  聚类 4: 23 个案例
-  聚类 5: 43 个案例
-  聚类 6: 34 个案例
-  聚类 7: 51 个案例
-  聚类 8: 36 个案例
-  聚类 9: 17 个案例
-  聚类 10: 14 个案例
-  聚类 11: 33 个案例
-  聚类 12: 22 个案例
-  聚类 13: 23 个案例
-  聚类 14: 38 个案例
-  聚类 15: 42 个案例
-  聚类 16: 40 个案例
-  聚类 17: 19 个案例
-  聚类 18: 33 个案例
-  聚类 19: 16 个案例
-📊 检索质量评估 - 调度器一致性: 0.650
+  聚类 0: 31 个案例
+  聚类 1: 39 个案例
+  聚类 2: 18 个案例
+  聚类 3: 20 个案例
+  聚类 4: 14 个案例
+  聚类 5: 58 个案例
+  聚类 6: 30 个案例
+  聚类 7: 49 个案例
+  聚类 8: 14 个案例
+  聚类 9: 31 个案例
+  聚类 10: 12 个案例
+  聚类 11: 28 个案例
+  聚类 12: 25 个案例
+  聚类 13: 32 个案例
+  聚类 14: 15 个案例
+  聚类 15: 39 个案例
+  聚类 16: 30 个案例
+  聚类 17: 78 个案例
+  聚类 18: 30 个案例
+  聚类 19: 7 个案例
+📊 检索质量评估 - 调度器一致性: 0.530
 ✅ RAG检索器训练完成
 知识库已保存到 data/wrench_rag_knowledge_base.pkl
 📄 知识库概要已保存到 data/wrench_rag_knowledge_base.json
@@ -165,7 +165,10 @@ WRENCH RAG训练器初始化完成
 ✅ DRL模型加载成功 (训练轮数: 100)
 ✅ WASS-DRL调度器已强制启用
 ✅ DRL模型加载成功 (训练轮数: 100)
-✅ RAG知识库已从扩展JSON加载: 2500 个案例
+PKL加载失败: Can't get attribute 'WRENCHKnowledgeCase' on <module '__main__' from '/data/workspace/traespace/wass/experiments/wrench_real_experiment.py'>
+最终加载失败: [Errno 2] No such file or directory: 'data/extended_rag_knowledge.json'
+⚠️ 无法加载任何RAG知识库，创建默认知识库...
+✅ 默认RAG知识库已创建: 25 个案例
 ✅ WASS-RAG调度器已启用 (知识库: data/wrench_rag_knowledge_base.pkl)
 🔧 已启用调度器: ['FIFO', 'HEFT', 'WASS-Heuristic', 'WASS-DRL', 'WASS-RAG']
 🚀 WRENCH实验运行器初始化完成
@@ -175,273 +178,573 @@ WRENCH RAG训练器初始化完成
 重复次数: 3
 总实验数: 60 = 5调度器 × 4任务规模 × 3次重复
 
+📝 预生成工作流（确保公平比较）...
+   生成工作流: 5个任务, 重复1
+   ✅ 工作流生成成功
+   生成工作流: 5个任务, 重复2
+   ✅ 工作流生成成功
+   生成工作流: 5个任务, 重复3
+   ✅ 工作流生成成功
+   生成工作流: 10个任务, 重复1
+   ✅ 工作流生成成功
+   生成工作流: 10个任务, 重复2
+   ✅ 工作流生成成功
+   生成工作流: 10个任务, 重复3
+   ✅ 工作流生成成功
+   生成工作流: 15个任务, 重复1
+   ✅ 工作流生成成功
+   生成工作流: 15个任务, 重复2
+   ✅ 工作流生成成功
+   生成工作流: 15个任务, 重复3
+   ✅ 工作流生成成功
+   生成工作流: 20个任务, 重复1
+   ✅ 工作流生成成功
+   生成工作流: 20个任务, 重复2
+   ✅ 工作流生成成功
+   生成工作流: 20个任务, 重复3
+   ✅ 工作流生成成功
+
+🚀 开始运行实验...
+
 进度: 1/60
-  运行实验: FIFO, 5任务, 实验#1
-  ✅ 完成: 7.48s (调度器: FIFO, 任务数: 5, 重复: 1)
+   工作流: 5个任务, 重复1
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 5)
+   ✅ 完成: 4.42s
 
 进度: 2/60
-  运行实验: FIFO, 5任务, 实验#2
-  ✅ 完成: 9.39s (调度器: FIFO, 任务数: 5, 重复: 2)
+   工作流: 5个任务, 重复1
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 5)
+   ✅ 完成: 3.66s
 
 进度: 3/60
-  运行实验: FIFO, 5任务, 实验#3
-  ✅ 完成: 6.89s (调度器: FIFO, 任务数: 5, 重复: 3)
+   工作流: 5个任务, 重复1
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 5)
+   ✅ 完成: 3.97s
 
 进度: 4/60
-  运行实验: FIFO, 10任务, 实验#4
-  ✅ 完成: 14.11s (调度器: FIFO, 任务数: 10, 重复: 1)
+   工作流: 5个任务, 重复1
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 5)
+   ✅ 完成: 7.00s
 
 进度: 5/60
-  运行实验: FIFO, 10任务, 实验#5
-  ✅ 完成: 14.90s (调度器: FIFO, 任务数: 10, 重复: 2)
+   工作流: 5个任务, 重复1
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 5)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+   ✅ 完成: 4.77s
 
 进度: 6/60
-  运行实验: FIFO, 10任务, 实验#6
-  ✅ 完成: 17.10s (调度器: FIFO, 任务数: 10, 重复: 3)
+   工作流: 5个任务, 重复2
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 5)
+   ✅ 完成: 4.65s
 
 进度: 7/60
-  运行实验: FIFO, 15任务, 实验#7
-  ✅ 完成: 24.30s (调度器: FIFO, 任务数: 15, 重复: 1)
+   工作流: 5个任务, 重复2
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 5)
+   ✅ 完成: 3.72s
 
 进度: 8/60
-  运行实验: FIFO, 15任务, 实验#8
-  ✅ 完成: 21.83s (调度器: FIFO, 任务数: 15, 重复: 2)
+   工作流: 5个任务, 重复2
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 5)
+   ✅ 完成: 4.30s
 
 进度: 9/60
-  运行实验: FIFO, 15任务, 实验#9
-  ✅ 完成: 19.10s (调度器: FIFO, 任务数: 15, 重复: 3)
+   工作流: 5个任务, 重复2
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 5)
+   ✅ 完成: 8.57s
 
 进度: 10/60
-  运行实验: FIFO, 20任务, 实验#10
-  ✅ 完成: 29.06s (调度器: FIFO, 任务数: 20, 重复: 1)
+   工作流: 5个任务, 重复2
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 5)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 1.00)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.60)
+   ✅ 完成: 5.73s
 
 进度: 11/60
-  运行实验: FIFO, 20任务, 实验#11
-  ✅ 完成: 28.01s (调度器: FIFO, 任务数: 20, 重复: 2)
+   工作流: 5个任务, 重复3
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 5)
+   ✅ 完成: 3.25s
 
 进度: 12/60
-  运行实验: FIFO, 20任务, 实验#12
-  ✅ 完成: 29.74s (调度器: FIFO, 任务数: 20, 重复: 3)
+   工作流: 5个任务, 重复3
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 5)
+   ✅ 完成: 4.04s
 
 进度: 13/60
-  运行实验: HEFT, 5任务, 实验#13
-  ✅ 完成: 7.96s (调度器: HEFT, 任务数: 5, 重复: 1)
+   工作流: 5个任务, 重复3
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 5)
+   ✅ 完成: 3.16s
 
 进度: 14/60
-  运行实验: HEFT, 5任务, 实验#14
-  ✅ 完成: 7.49s (调度器: HEFT, 任务数: 5, 重复: 2)
+   工作流: 5个任务, 重复3
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 5)
+   ✅ 完成: 7.51s
 
 进度: 15/60
-  运行实验: HEFT, 5任务, 实验#15
-  ✅ 完成: 6.29s (调度器: HEFT, 任务数: 5, 重复: 3)
+   工作流: 5个任务, 重复3
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 5)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.41)
+   ✅ 完成: 9.22s
 
 进度: 16/60
-  运行实验: HEFT, 10任务, 实验#16
-  ✅ 完成: 13.29s (调度器: HEFT, 任务数: 10, 重复: 1)
+   工作流: 10个任务, 重复1
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 10)
+   ✅ 完成: 7.04s
 
 进度: 17/60
-  运行实验: HEFT, 10任务, 实验#17
-  ✅ 完成: 12.79s (调度器: HEFT, 任务数: 10, 重复: 2)
+   工作流: 10个任务, 重复1
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 10)
+   ✅ 完成: 6.24s
 
 进度: 18/60
-  运行实验: HEFT, 10任务, 实验#18
-  ✅ 完成: 14.85s (调度器: HEFT, 任务数: 10, 重复: 3)
+   工作流: 10个任务, 重复1
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 10)
+   ✅ 完成: 5.36s
 
 进度: 19/60
-  运行实验: HEFT, 15任务, 实验#19
-  ✅ 完成: 20.57s (调度器: HEFT, 任务数: 15, 重复: 1)
+   工作流: 10个任务, 重复1
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 10)
+   ✅ 完成: 13.45s
 
 进度: 20/60
-  运行实验: HEFT, 15任务, 实验#20
-  ✅ 完成: 27.08s (调度器: HEFT, 任务数: 15, 重复: 2)
+   工作流: 10个任务, 重复1
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 10)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.52)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.67)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.42)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.60)
+   ✅ 完成: 6.32s
 
 进度: 21/60
-  运行实验: HEFT, 15任务, 实验#21
-  ✅ 完成: 22.93s (调度器: HEFT, 任务数: 15, 重复: 3)
+   工作流: 10个任务, 重复2
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 10)
+   ✅ 完成: 5.68s
 
 进度: 22/60
-  运行实验: HEFT, 20任务, 实验#22
-  ✅ 完成: 27.46s (调度器: HEFT, 任务数: 20, 重复: 1)
+   工作流: 10个任务, 重复2
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 10)
+   ✅ 完成: 6.40s
 
 进度: 23/60
-  运行实验: HEFT, 20任务, 实验#23
-  ✅ 完成: 33.69s (调度器: HEFT, 任务数: 20, 重复: 2)
+   工作流: 10个任务, 重复2
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 10)
+   ✅ 完成: 6.66s
 
 进度: 24/60
-  运行实验: HEFT, 20任务, 实验#24
-  ✅ 完成: 30.73s (调度器: HEFT, 任务数: 20, 重复: 3)
+   工作流: 10个任务, 重复2
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 10)
+   ✅ 完成: 14.11s
 
 进度: 25/60
-  运行实验: WASS-Heuristic, 5任务, 实验#25
-  ✅ 完成: 7.91s (调度器: WASS-Heuristic, 任务数: 5, 重复: 1)
+   工作流: 10个任务, 重复2
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 10)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.67)
+   ✅ 完成: 6.14s
 
 进度: 26/60
-  运行实验: WASS-Heuristic, 5任务, 实验#26
-  ✅ 完成: 5.86s (调度器: WASS-Heuristic, 任务数: 5, 重复: 2)
+   工作流: 10个任务, 重复3
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 10)
+   ✅ 完成: 6.27s
 
 进度: 27/60
-  运行实验: WASS-Heuristic, 5任务, 实验#27
-  ✅ 完成: 6.33s (调度器: WASS-Heuristic, 任务数: 5, 重复: 3)
+   工作流: 10个任务, 重复3
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 10)
+   ✅ 完成: 6.53s
 
 进度: 28/60
-  运行实验: WASS-Heuristic, 10任务, 实验#28
-  ✅ 完成: 17.61s (调度器: WASS-Heuristic, 任务数: 10, 重复: 1)
+   工作流: 10个任务, 重复3
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 10)
+   ✅ 完成: 6.43s
 
 进度: 29/60
-  运行实验: WASS-Heuristic, 10任务, 实验#29
-  ✅ 完成: 16.79s (调度器: WASS-Heuristic, 任务数: 10, 重复: 2)
+   工作流: 10个任务, 重复3
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 10)
+   ✅ 完成: 15.27s
 
 进度: 30/60
-  运行实验: WASS-Heuristic, 10任务, 实验#30
-  ✅ 完成: 15.90s (调度器: WASS-Heuristic, 任务数: 10, 重复: 3)
+   工作流: 10个任务, 重复3
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 10)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.50)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+   ✅ 完成: 14.50s
 
 进度: 31/60
-  运行实验: WASS-Heuristic, 15任务, 实验#31
-  ✅ 完成: 21.93s (调度器: WASS-Heuristic, 任务数: 15, 重复: 1)
+   工作流: 15个任务, 重复1
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 15)
+   ✅ 完成: 6.15s
 
 进度: 32/60
-  运行实验: WASS-Heuristic, 15任务, 实验#32
-  ✅ 完成: 20.88s (调度器: WASS-Heuristic, 任务数: 15, 重复: 2)
+   工作流: 15个任务, 重复1
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 15)
+   ✅ 完成: 5.89s
 
 进度: 33/60
-  运行实验: WASS-Heuristic, 15任务, 实验#33
-  ✅ 完成: 25.85s (调度器: WASS-Heuristic, 任务数: 15, 重复: 3)
+   工作流: 15个任务, 重复1
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 15)
+   ✅ 完成: 5.97s
 
 进度: 34/60
-  运行实验: WASS-Heuristic, 20任务, 实验#34
-  ✅ 完成: 28.70s (调度器: WASS-Heuristic, 任务数: 20, 重复: 1)
+   工作流: 15个任务, 重复1
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 15)
+   ✅ 完成: 16.01s
 
 进度: 35/60
-  运行实验: WASS-Heuristic, 20任务, 实验#35
-  ✅ 完成: 29.38s (调度器: WASS-Heuristic, 任务数: 20, 重复: 2)
+   工作流: 15个任务, 重复1
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 15)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 1.00)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.50)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 1.00)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 1.00)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+   ✅ 完成: 9.16s
 
 进度: 36/60
-  运行实验: WASS-Heuristic, 20任务, 实验#36
-  ✅ 完成: 32.55s (调度器: WASS-Heuristic, 任务数: 20, 重复: 3)
+   工作流: 15个任务, 重复2
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 15)
+   ✅ 完成: 10.26s
 
 进度: 37/60
-  运行实验: WASS-DRL, 5任务, 实验#37
-  ✅ 完成: 8.66s (调度器: WASS-DRL, 任务数: 5, 重复: 1)
+   工作流: 15个任务, 重复2
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 15)
+   ✅ 完成: 10.17s
 
 进度: 38/60
-  运行实验: WASS-DRL, 5任务, 实验#38
-  ✅ 完成: 8.87s (调度器: WASS-DRL, 任务数: 5, 重复: 2)
+   工作流: 15个任务, 重复2
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 15)
+   ✅ 完成: 9.45s
 
 进度: 39/60
-  运行实验: WASS-DRL, 5任务, 实验#39
-  ✅ 完成: 9.06s (调度器: WASS-DRL, 任务数: 5, 重复: 3)
+   工作流: 15个任务, 重复2
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 15)
+   ✅ 完成: 24.41s
 
 进度: 40/60
-  运行实验: WASS-DRL, 10任务, 实验#40
-  ✅ 完成: 15.02s (调度器: WASS-DRL, 任务数: 10, 重复: 1)
+   工作流: 15个任务, 重复2
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 15)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 1.00)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 1.00)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.59)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.59)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.59)
+   ✅ 完成: 20.75s
 
 进度: 41/60
-  运行实验: WASS-DRL, 10任务, 实验#41
-  ✅ 完成: 16.62s (调度器: WASS-DRL, 任务数: 10, 重复: 2)
+   工作流: 15个任务, 重复3
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 15)
+   ✅ 完成: 7.80s
 
 进度: 42/60
-  运行实验: WASS-DRL, 10任务, 实验#42
-  ✅ 完成: 16.43s (调度器: WASS-DRL, 任务数: 10, 重复: 3)
+   工作流: 15个任务, 重复3
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 15)
+   ✅ 完成: 8.00s
 
 进度: 43/60
-  运行实验: WASS-DRL, 15任务, 实验#43
-  ✅ 完成: 24.82s (调度器: WASS-DRL, 任务数: 15, 重复: 1)
+   工作流: 15个任务, 重复3
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 15)
+   ✅ 完成: 7.48s
 
 进度: 44/60
-  运行实验: WASS-DRL, 15任务, 实验#44
-  ✅ 完成: 22.66s (调度器: WASS-DRL, 任务数: 15, 重复: 2)
+   工作流: 15个任务, 重复3
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 15)
+   ✅ 完成: 19.54s
 
 进度: 45/60
-  运行实验: WASS-DRL, 15任务, 实验#45
-  ✅ 完成: 22.05s (调度器: WASS-DRL, 任务数: 15, 重复: 3)
+   工作流: 15个任务, 重复3
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 15)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.79)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.59)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+   ✅ 完成: 15.67s
 
 进度: 46/60
-  运行实验: WASS-DRL, 20任务, 实验#46
-  ✅ 完成: 25.95s (调度器: WASS-DRL, 任务数: 20, 重复: 1)
+   工作流: 20个任务, 重复1
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 20)
+   ✅ 完成: 11.37s
 
 进度: 47/60
-  运行实验: WASS-DRL, 20任务, 实验#47
-  ✅ 完成: 27.90s (调度器: WASS-DRL, 任务数: 20, 重复: 2)
+   工作流: 20个任务, 重复1
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 20)
+   ✅ 完成: 10.38s
 
 进度: 48/60
-  运行实验: WASS-DRL, 20任务, 实验#48
-  ✅ 完成: 28.79s (调度器: WASS-DRL, 任务数: 20, 重复: 3)
+   工作流: 20个任务, 重复1
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 20)
+   ✅ 完成: 9.66s
 
 进度: 49/60
-  运行实验: WASS-RAG, 5任务, 实验#49
-  ✅ 完成: 6.41s (调度器: WASS-RAG, 任务数: 5, 重复: 1)
+   工作流: 20个任务, 重复1
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 20)
+   ✅ 完成: 25.93s
 
 进度: 50/60
-  运行实验: WASS-RAG, 5任务, 实验#50
-  ✅ 完成: 7.65s (调度器: WASS-RAG, 任务数: 5, 重复: 2)
+   工作流: 20个任务, 重复1
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 20)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.59)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.67)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.67)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.52)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+   ✅ 完成: 24.43s
 
 进度: 51/60
-  运行实验: WASS-RAG, 5任务, 实验#51
-  ✅ 完成: 8.27s (调度器: WASS-RAG, 任务数: 5, 重复: 3)
+   工作流: 20个任务, 重复2
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 20)
+   ✅ 完成: 10.87s
 
 进度: 52/60
-  运行实验: WASS-RAG, 10任务, 实验#52
-  ✅ 完成: 13.12s (调度器: WASS-RAG, 任务数: 10, 重复: 1)
+   工作流: 20个任务, 重复2
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 20)
+   ✅ 完成: 10.69s
 
 进度: 53/60
-  运行实验: WASS-RAG, 10任务, 实验#53
-  ✅ 完成: 14.37s (调度器: WASS-RAG, 任务数: 10, 重复: 2)
+   工作流: 20个任务, 重复2
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 20)
+   ✅ 完成: 10.95s
 
 进度: 54/60
-  运行实验: WASS-RAG, 10任务, 实验#54
-  ✅ 完成: 14.32s (调度器: WASS-RAG, 任务数: 10, 重复: 3)
+   工作流: 20个任务, 重复2
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 20)
+   ✅ 完成: 28.12s
 
 进度: 55/60
-  运行实验: WASS-RAG, 15任务, 实验#55
-  ✅ 完成: 22.30s (调度器: WASS-RAG, 任务数: 15, 重复: 1)
+   工作流: 20个任务, 重复2
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 20)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.59)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.50)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.50)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.41)
+   ✅ 完成: 20.61s
 
 进度: 56/60
-  运行实验: WASS-RAG, 15任务, 实验#56
-  ✅ 完成: 25.51s (调度器: WASS-RAG, 任务数: 15, 重复: 2)
+   工作流: 20个任务, 重复3
+   调度器: FIFO
+    🔬 运行实验: FIFO (工作流大小: 20)
+   ✅ 完成: 9.69s
 
 进度: 57/60
-  运行实验: WASS-RAG, 15任务, 实验#57
-  ✅ 完成: 22.08s (调度器: WASS-RAG, 任务数: 15, 重复: 3)
+   工作流: 20个任务, 重复3
+   调度器: HEFT
+    🔬 运行实验: HEFT (工作流大小: 20)
+   ✅ 完成: 10.57s
 
 进度: 58/60
-  运行实验: WASS-RAG, 20任务, 实验#58
-  ✅ 完成: 30.95s (调度器: WASS-RAG, 任务数: 20, 重复: 1)
+   工作流: 20个任务, 重复3
+   调度器: WASS-Heuristic
+    🔬 运行实验: WASS-Heuristic (工作流大小: 20)
+   ✅ 完成: 9.87s
 
 进度: 59/60
-  运行实验: WASS-RAG, 20任务, 实验#59
-  ✅ 完成: 30.47s (调度器: WASS-RAG, 任务数: 20, 重复: 2)
+   工作流: 20个任务, 重复3
+   调度器: WASS-DRL
+    🔬 运行实验: WASS-DRL (工作流大小: 20)
+   ✅ 完成: 26.74s
 
 进度: 60/60
-  运行实验: WASS-RAG, 20任务, 实验#60
-  ✅ 完成: 29.47s (调度器: WASS-RAG, 任务数: 20, 重复: 3)
+   工作流: 20个任务, 重复3
+   调度器: WASS-RAG
+    🔬 运行实验: WASS-RAG (工作流大小: 20)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 1.00)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.79)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.66)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.40)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.80)
+🎯 RAG决策: 选择ComputeHost1 (置信度: 0.65)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.41)
+🎯 RAG决策: 选择ComputeHost3 (置信度: 0.60)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.76)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.62)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost4 (置信度: 0.61)
+🎯 RAG决策: 选择ComputeHost2 (置信度: 0.40)
+   ✅ 完成: 17.56s
 📊 实验结果已保存到 results/wrench_experiments
 
 📈 实验结果分析:
 ============================================================
 调度器             平均Makespan      标准差        最佳         实验次数    
 ------------------------------------------------------------
-FIFO            18.49           7.89       6.89       12      
-HEFT            18.76           9.18       6.29       12      
-WASS-Heuristic  19.14           8.74       5.86       12      
-WASS-DRL        18.90           7.17       8.66       12      
-WASS-RAG        18.74           8.79       6.41       12      
+FIFO            7.29            2.60       3.25       12      
+HEFT            7.19            2.60       3.66       12      
+WASS-Heuristic  6.94            2.46       3.16       12      
+WASS-DRL        17.22           7.33       7.00       12      
+WASS-RAG        12.91           6.58       4.77       12      
 
-🏆 最佳调度器: FIFO (平均Makespan: 18.49s)
+🏆 最佳调度器: WASS-Heuristic (平均Makespan: 6.94s)
+
+🎉 所有实验完成！共运行 60 次实验
 
 🎉 所有实验完成!
 [0;32m[SUCCESS][0m WRENCH实验运行完成
 [0;34m[INFO][0m 实验结果已保存到 results/wrench_experiments/
 [0;34m[INFO][0m 第6步: 生成学术论文图表...
-开始生成论文图表...
-加载了 60 个实验结果
-生成调度器性能比较图表...
-生成完成时间分布图表...
-生成CPU利用率图表...
-生成任务规模分析图表...
-生成性能提升图表...
-所有图表生成完成!
+Starting paper chart generation...
+Loaded 60 experimental results
+Generating scheduler performance comparison chart...
+Generating makespan distribution chart...
+Generating CPU utilization chart...
+Generating task scaling analysis chart...
+Generating performance improvement chart...
+All charts generated successfully!
 
-生成的图表:
+Generated charts:
   - task_scaling_analysis.png
   - makespan_comparison.png
   - scheduler_performance_comparison.png
@@ -452,11 +755,11 @@ WASS-RAG        18.74           8.79       6.41       12
 [0;32m[SUCCESS][0m 图表生成完成
 [0;34m[INFO][0m 生成了 7 个图表文件
 
-[0;34m[INFO][0m 总执行时间: 2分19秒
+[0;34m[INFO][0m 总执行时间: 2分1秒
 [0;34m[INFO][0m =============== 实验完成摘要 ===============
 [0;32m训练模型:[0m
-  • DRL智能体: 最终性能 = 23.92s
-  • 性能预测器: R² = 0.9617
+  • DRL智能体: 最终性能 = 25.31s
+  • 性能预测器: R² = 0.9753
 [0;32m知识库:[0m
   • RAG知识库: 600 个案例
 [0;32m实验结果:[0m
