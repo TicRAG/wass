@@ -237,7 +237,11 @@ class WASSRAGScheduler(WASSDRLScheduler):
         state = self._extract_features(task_to_schedule, simulation)
         
         # 让DRL Agent完全自主决策 - 彻底移除模仿学习
-        action_idx_from_student = self.drl_agent.act(state, epsilon=0.1)
+        # 使用动态epsilon值，随着训练进行逐步降低探索率
+        training_progress = min(simulation.current_step / max(simulation.total_steps, 1000), 1.0)
+        epsilon = max(0.05, 0.3 * (1 - training_progress))  # 从0.3递减到0.05
+        
+        action_idx_from_student = self.drl_agent.act(state, epsilon=epsilon)
         chosen_node_name = self.node_names[action_idx_from_student]
         
         # 获取"老师"（性能预测器）的建议 - 用于奖励计算，不用于决策
@@ -255,18 +259,29 @@ class WASSRAGScheduler(WASSDRLScheduler):
         task_scale = max(task_to_schedule.computation_size, 1.0)
         normalized_reward = raw_reward / task_scale
         
-        # 使用sigmoid函数稳定奖励信号
+        # 使用sigmoid函数稳定奖励信号，避免极端值
         stable_reward = 2.0 / (1.0 + np.exp(-normalized_reward * 5.0)) - 1.0
+        
+        # 动态奖励缩放：根据训练进度调整奖励强度
+        reward_scaling = 1.0 + training_progress * 2.0  # 训练后期加强学习信号
+        scaled_reward = stable_reward * reward_scaling
         
         # 获取下一个状态用于学习
         next_state = self._extract_features(task_to_schedule, simulation)
         
         # 计算任务完成率作为辅助奖励信号
         completion_ratio = len(simulation.completed_tasks) / len(simulation.workflow.tasks)
-        completion_bonus = 0.1 * completion_ratio if completion_ratio > 0.9 else 0.0
+        completion_bonus = 0.05 * completion_ratio if completion_ratio > 0.8 else 0.0
         
-        # 最终奖励 = 主奖励 + 完成进度奖励
-        final_reward = stable_reward + completion_bonus
+        # 紧急任务奖励：接近deadline时给予额外激励
+        deadline_urgency = min(simulation.current_step / max(simulation.total_steps, 100), 1.0)
+        urgency_bonus = 0.02 * deadline_urgency * completion_ratio
+        
+        # 探索奖励：鼓励探索新的调度策略
+        exploration_bonus = 0.01 * np.random.random() if epsilon > 0.1 else 0.0
+        
+        # 最终奖励 = 主奖励 + 各种辅助奖励
+        final_reward = scaled_reward + completion_bonus + urgency_bonus + exploration_bonus
         
         # 立即反馈给Agent进行强化学习
         self.drl_agent.store_transition(
@@ -277,16 +292,19 @@ class WASSRAGScheduler(WASSDRLScheduler):
             done=len(simulation.workflow.tasks) == len(simulation.completed_tasks)
         )
         
-        # 每10个决策进行一次批量学习，避免过度更新
-        if len(simulation.completed_tasks) % 10 == 0:
-            self.drl_agent.replay(batch_size=32)
+        # 自适应学习频率：根据训练进度调整学习频率
+        learn_frequency = max(5, int(20 * (1 - training_progress)))  # 从20递减到5
+        if len(simulation.completed_tasks) % learn_frequency == 0:
+            self.drl_agent.replay(batch_size=min(64, 16 + int(training_progress * 48)))
         
         # 记录详细的奖励信息用于调试和分析
-        logger.info(f"R_RAG Decision: Task={task_to_schedule.id}, "
-                   f"Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
-                   f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
-                   f"RawReward={raw_reward:.3f}, Normalized={stable_reward:.3f}, "
-                   f"FinalReward={final_reward:.3f}, Completion={completion_ratio:.2f}")
+        if len(simulation.completed_tasks) % 10 == 0:
+            logger.info(f"R_RAG Decision: Task={task_to_schedule.id}, "
+                       f"Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
+                       f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
+                       f"RawReward={raw_reward:.3f}, Scaled={scaled_reward:.3f}, "
+                       f"FinalReward={final_reward:.3f}, Epsilon={epsilon:.2f}, "
+                       f"Completion={completion_ratio:.2f}")
         
         return {chosen_node_name: task_to_schedule}
 

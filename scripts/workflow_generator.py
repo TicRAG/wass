@@ -422,6 +422,54 @@ class WorkflowGenerator:
         
         return generated_files
     
+    def generate_single_workflow(self, pattern: str, task_count: int, random_seed: int, filename: str = None) -> str:
+        """生成单个固定工作流（用于公平实验）"""
+        if pattern not in self.patterns:
+            raise ValueError(f"未知的工作流模式: {pattern}. 支持的模式: {list(self.patterns.keys())}")
+        
+        # 设置固定种子确保可重现
+        original_state = random.getstate()
+        random.seed(random_seed)
+        
+        try:
+            pattern_func = self.patterns[pattern]
+            workflow = pattern_func(task_count)
+            
+            if filename is None:
+                filename = f"{pattern}_{task_count}_seed{random_seed}.json"
+            
+            filepath = self.output_dir / filename
+            
+            # 保存为JSON格式
+            workflow_dict = {
+                'metadata': {
+                    'name': workflow.name,
+                    'description': workflow.description,
+                    'generated_at': datetime.now().isoformat(),
+                    'task_count': len(workflow.tasks),
+                    'file_count': len(workflow.files),
+                    'random_seed': random_seed,
+                    'pattern': pattern,
+                    'ccr': self.ccr
+                },
+                'workflow': {
+                    'tasks': [asdict(task) for task in workflow.tasks],
+                    'files': [asdict(file) for file in workflow.files],
+                    'entry_task': workflow.entry_task,
+                    'exit_task': workflow.exit_task
+                }
+            }
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(workflow_dict, f, indent=2, ensure_ascii=False)
+            
+            print(f"✅ 生成固定工作流: {filename} ({task_count} 任务, 种子: {random_seed})")
+            return str(filepath)
+            
+        finally:
+            # 恢复随机状态
+            random.setstate(original_state)
+    
     def generate_all_scales(self) -> Dict[str, List[str]]:
         """生成所有规模的标准工作流集合"""
         # 定义标准规模集合

@@ -17,9 +17,13 @@ import argparse
 class PlatformGenerator:
     """平台配置生成器"""
     
-    def __init__(self, output_dir: str = "configs/platforms"):
+    def __init__(self, output_dir: str = "configs/platforms", seed: int = None):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.seed = seed
+        if seed is not None:
+            import random
+            random.seed(seed)
     
     def create_platform_xml(self, 
                            config_name: str,
@@ -128,7 +132,7 @@ class PlatformGenerator:
     def generate_standard_configs(self) -> Dict[str, str]:
         """生成标准配置集合"""
         configs = {}
-        
+
         # 小规模配置 - 16节点
         configs['small'] = self.create_platform_xml(
             config_name='small',
@@ -142,7 +146,7 @@ class PlatformGenerator:
             network_bandwidth="1GBps",
             network_latency="100us"
         )
-        
+
         # 中等规模配置 - 64节点
         configs['medium'] = self.create_platform_xml(
             config_name='medium', 
@@ -157,7 +161,7 @@ class PlatformGenerator:
             network_bandwidth="10GBps", 
             network_latency="50us"
         )
-        
+
         # 大规模配置 - 128节点
         configs['large'] = self.create_platform_xml(
             config_name='large',
@@ -173,7 +177,7 @@ class PlatformGenerator:
             network_bandwidth="25GBps",
             network_latency="20us"
         )
-        
+
         # 超大规模配置 - 256节点（用于极限测试）
         configs['xlarge'] = self.create_platform_xml(
             config_name='xlarge',
@@ -189,8 +193,74 @@ class PlatformGenerator:
             network_bandwidth="100GBps",
             network_latency="10us"
         )
-        
+
         return configs
+
+    def generate_single_platform(self, 
+                               scale: str, 
+                               repetition_index: int = 0,
+                               seed: int = None) -> str:
+        """生成单个固定平台配置（用于公平实验）
+        
+        Args:
+            scale: 平台规模 ('small', 'medium', 'large', 'xlarge')
+            repetition_index: 重复实验索引
+            seed: 随机种子
+        
+        Returns:
+            生成的平台文件路径
+        """
+        # 设置随机种子以确保可重现性
+        if seed is not None:
+            import random
+            random.seed(seed + repetition_index)
+        
+        scale_configs = {
+            'small': {
+                'num_nodes': 16,
+                'node_configs': [(4, 2.0), (4, 2.5), (8, 2.0), (8, 3.0)],
+                'bandwidth': "1GBps",
+                'latency': "100us"
+            },
+            'medium': {
+                'num_nodes': 64,
+                'node_configs': [(8, 2.5), (8, 3.0), (16, 2.0), (16, 2.8), (12, 3.2)],
+                'bandwidth': "10GBps",
+                'latency': "50us"
+            },
+            'large': {
+                'num_nodes': 128,
+                'node_configs': [(16, 2.8), (16, 3.2), (32, 2.5), (32, 3.0), (24, 3.5), (20, 4.0)],
+                'bandwidth': "25GBps",
+                'latency': "20us"
+            },
+            'xlarge': {
+                'num_nodes': 256,
+                'node_configs': [(32, 3.0), (32, 3.5), (64, 2.8), (64, 3.2), (48, 4.0), (40, 4.5)],
+                'bandwidth': "100GBps",
+                'latency': "10us"
+            }
+        }
+        
+        if scale not in scale_configs:
+            raise ValueError(f"未知的规模: {scale}")
+        
+        config = scale_configs[scale]
+        
+        # 生成唯一文件名
+        config_name = f"{scale}_rep{repetition_index}"
+        if seed is not None:
+            config_name += f"_seed{seed}"
+        
+        platform_path = self.create_platform_xml(
+            config_name=config_name,
+            num_compute_nodes=config['num_nodes'],
+            node_configs=config['node_configs'],
+            network_bandwidth=config['bandwidth'],
+            network_latency=config['latency']
+        )
+        
+        return platform_path
     
     def create_config_yaml(self, platform_file: str, scale: str) -> str:
         """为平台配置创建对应的YAML配置文件"""
