@@ -12,7 +12,23 @@ class FusionError(Exception):
     pass
 
 def fuse_decision(q_values: List[float], rag_scores: List[float], load_values: List[float], progress: float,
-                  rag_confidence_threshold: float = 0.05) -> Dict[str, Any]:
+                  rag_confidence_threshold: float = 0.05, makespan_predictions: List[float] = None,
+                  baseline_makespan: float = None) -> Dict[str, Any]:
+    """
+    融合DRL、RAG和负载均衡决策，加入makespan预测权重
+    
+    Args:
+        q_values: DRL Q值列表
+        rag_scores: RAG相似度分数列表
+        load_values: 负载值列表
+        progress: 训练进度
+        rag_confidence_threshold: RAG置信度阈值
+        makespan_predictions: 各节点的makespan预测列表
+        baseline_makespan: 基准makespan（如HEFT算法的结果）
+        
+    Returns:
+        融合决策结果
+    """
     if not (len(q_values) == len(rag_scores) == len(load_values)):
         raise FusionError("Input length mismatch")
     n = len(q_values)
@@ -30,23 +46,51 @@ def fuse_decision(q_values: List[float], rag_scores: List[float], load_values: L
     rag_norm = [s / max_rag if max_rag > 0 else 0.0 for s in rag_scores]
 
     # Load transformed to positive preference (lower load -> higher score)
+    # 增强负载均衡权重：使用更强的指数变换，使高负载节点得分更低
     max_load = max(load_values) if load_values else 1.0
     load_norm_raw = [lv / max_load if max_load > 0 else 0.0 for lv in load_values]
-    load_pref = [1.0 - lv for lv in load_norm_raw]
+    
+    # 使用极强的指数变换增强负载均衡效果
+    load_pref = [math.exp(-16.0 * lv) for lv in load_norm_raw]  # 增强系数从8.0提高到16.0，使高负载节点得分极低
+
+    # 计算makespan预测得分（如果提供）
+    makespan_scores = [0.0] * n
+    if makespan_predictions is not None and baseline_makespan is not None and baseline_makespan > 0:
+        for i, pred in enumerate(makespan_predictions):
+            # makespan改进程度（越小越好）
+            improvement = (baseline_makespan - pred) / baseline_makespan
+            # 使用sigmoid函数将改进程度转换为得分
+            makespan_scores[i] = 1.0 / (1.0 + math.exp(-improvement * 5.0))  # 乘以5.0使函数更陡峭
 
     progress = max(0.0, min(1.0, progress))
-    alpha = 0.4 + 0.2 * progress
-    beta = 0.4 - 0.15 * progress
-    gamma = max(0.0, 1.0 - alpha - beta)
+    
+    # 调整权重分配：负载均衡权重占绝对主导地位，但加入makespan预测权重
+    alpha = 0.03 + 0.015 * progress  # DRL权重极低
+    beta = 0.03 - 0.015 * progress   # RAG权重极低
+    gamma = 0.70  # 负载均衡权重占主导地位
+    delta = 0.24  # makespan预测权重
+    
+    # 确保权重总和为1
+    total_weight = alpha + beta + gamma + delta
+    if total_weight > 0:
+        alpha /= total_weight
+        beta /= total_weight
+        gamma /= total_weight
+        delta /= total_weight
 
     # Confidence gating
     if max(rag_norm) < rag_confidence_threshold:
         beta = 0.0
-        gamma = max(0.0, 1.0 - alpha)
+        # 重新分配权重
+        total_weight = alpha + gamma + delta
+        if total_weight > 0:
+            alpha /= total_weight
+            gamma /= total_weight
+            delta /= total_weight
 
     fused = []
     for i in range(n):
-        fused.append(alpha * q_norm[i] + beta * rag_norm[i] + gamma * load_pref[i])
+        fused.append(alpha * q_norm[i] + beta * rag_norm[i] + gamma * load_pref[i] + delta * makespan_scores[i])
 
     # Select best
     best_idx = max(range(n), key=lambda i: fused[i])
@@ -56,9 +100,11 @@ def fuse_decision(q_values: List[float], rag_scores: List[float], load_values: L
         'alpha': alpha,
         'beta': beta,
         'gamma': gamma,
+        'delta': delta,
         'q_norm': q_norm,
         'rag_norm': rag_norm,
         'load_pref': load_pref,
+        'makespan_scores': makespan_scores,
         'fused': fused
     }
 

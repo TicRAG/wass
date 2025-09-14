@@ -14,6 +14,9 @@ from src.encoding_constants import STATE_DIM, ACTION_DIM, CONTEXT_DIM
 from src.interfaces import PredictedValue, Scheduler, SchedulingDecision
 from src.performance_predictor import PerformancePredictor
 from src.utils import get_logger
+from src.reward_fix import RewardFix
+from src.rag_fusion_fix import RAGFusionFix
+from src.training_fix import TrainingFix
 
 logger = get_logger(__name__, logging.INFO)
 
@@ -217,7 +220,7 @@ class WASSDRLScheduler(WASSScheduler):
 
 
 class WASSRAGScheduler(WASSDRLScheduler):
-    """WASS-RAG Scheduler with true R_RAG dynamic reward mechanism."""
+    """修复后的WASS-RAG调度器，整合了改进的奖励函数、RAG融合机制和训练策略"""
 
     def __init__(self, drl_agent: DQNAgent, node_names: List[str], predictor: PerformancePredictor):
         super().__init__(drl_agent, node_names)
@@ -225,94 +228,288 @@ class WASSRAGScheduler(WASSDRLScheduler):
         self.scaler = StandardScaler()
         self.vectorizer = DictVectorizer()
         self.reward_alpha = 0.8  # 奖励系数
-        logger.info("Initialized WASSRAGScheduler with R_RAG dynamic reward mechanism.")
+        
+        # 初始化修复组件
+        self.reward_fix = RewardFix()
+        self.rag_fusion_fix = RAGFusionFix()
+        self.training_fix = TrainingFix(
+            initial_epsilon=1.0,
+            min_epsilon=0.01,
+            total_episodes=2000
+        )
+        
+        # 训练统计
+        self.episode_count = 0
+        self.total_reward = 0.0
+        self.makespan_history = []
+        self.performance_history = []
+        
+        # 调试信息
+        self.debug_info = {
+            'reward_history': [],
+            'fusion_history': [],
+            'epsilon_history': []
+        }
+        
+        logger.info("Initialized WASSRAGScheduler with R_RAG dynamic reward mechanism and fix components.")
 
     def schedule(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> SchedulingDecision:
+        """
+        修复后的调度方法，整合了改进的奖励函数、RAG融合机制和训练策略
+        
+        Args:
+            ready_tasks: 就绪任务列表
+            simulation: 仿真环境
+        
+        Returns:
+            调度决策
+        """
         if not ready_tasks:
             return {}
         
-        task_to_schedule = ready_tasks[0]
+        task_to_schedule = ready_tasks[0]  # 只调度第一个任务
         
-        # 构建当前状态
-        state = self._extract_features(task_to_schedule, simulation)
+        # 1. 获取当前状态
+        state = self._extract_features([task_to_schedule], simulation)
         
-        # 让DRL Agent完全自主决策 - 彻底移除模仿学习
-        # 使用动态epsilon值，随着训练进行逐步降低探索率
-        training_progress = min(simulation.current_step / max(simulation.total_steps, 1000), 1.0)
-        epsilon = max(0.05, 0.3 * (1 - training_progress))  # 从0.3递减到0.05
+        # 2. 自适应epsilon探索
+        recent_performance = self.performance_history[-1] if self.performance_history else None
+        epsilon = self.training_fix.adaptive_epsilon(self.episode_count, recent_performance)
+        self.debug_info['epsilon_history'].append(epsilon)
         
-        action_idx_from_student = self.drl_agent.act(state, epsilon=epsilon)
-        chosen_node_name = self.node_names[action_idx_from_student]
+        # 3. 获取DRL Q值
+        q_values = self.drl_agent.get_q_values(state)
         
-        # 获取"老师"（性能预测器）的建议 - 用于奖励计算，不用于决策
-        estimated_makespans = self._get_estimated_makespans(task_to_schedule, simulation)
-        best_node_from_teacher = min(estimated_makespans, key=lambda n: estimated_makespans[n].value)
-        teacher_makespan = estimated_makespans[best_node_from_teacher].value
-        student_makespan = estimated_makespans[chosen_node_name].value
+        # 4. 获取RAG建议
+        rag_suggestions = self._get_rag_suggestions([task_to_schedule], simulation)
         
-        # 实现真正的R_RAG动态差分奖励机制
-        # 奖励 = 老师最优选择的预测makespan - Agent自己探索的预测makespan
-        # 这个差值明确告诉Agent它的探索方向是对是错
-        raw_reward = teacher_makespan - student_makespan
-        
-        # 智能归一化：根据任务规模动态调整奖励范围
-        task_scale = max(task_to_schedule.computation_size, 1.0)
-        normalized_reward = raw_reward / task_scale
-        
-        # 使用sigmoid函数稳定奖励信号，避免极端值
-        stable_reward = 2.0 / (1.0 + np.exp(-normalized_reward * 5.0)) - 1.0
-        
-        # 动态奖励缩放：根据训练进度调整奖励强度
-        reward_scaling = 1.0 + training_progress * 2.0  # 训练后期加强学习信号
-        scaled_reward = stable_reward * reward_scaling
-        
-        # 获取下一个状态用于学习
-        next_state = self._extract_features(task_to_schedule, simulation)
-        
-        # 计算任务完成率作为辅助奖励信号
-        completion_ratio = len(simulation.completed_tasks) / len(simulation.workflow.tasks)
-        completion_bonus = 0.05 * completion_ratio if completion_ratio > 0.8 else 0.0
-        
-        # 紧急任务奖励：接近deadline时给予额外激励
-        deadline_urgency = min(simulation.current_step / max(simulation.total_steps, 100), 1.0)
-        urgency_bonus = 0.02 * deadline_urgency * completion_ratio
-        
-        # 探索奖励：鼓励探索新的调度策略
-        exploration_bonus = 0.01 * np.random.random() if epsilon > 0.1 else 0.0
-        
-        # 最终奖励 = 主奖励 + 各种辅助奖励
-        final_reward = scaled_reward + completion_bonus + urgency_bonus + exploration_bonus
-        
-        # 立即反馈给Agent进行强化学习
-        self.drl_agent.store_transition(
-            state=state,
-            action=action_idx_from_student,
-            reward=final_reward,
-            next_state=next_state,
-            done=len(simulation.workflow.tasks) == len(simulation.completed_tasks)
+        # 5. 增强RAG建议
+        current_loads = self._get_current_loads(simulation)
+        enhanced_rag = self.rag_fusion_fix.enhance_rag_suggestions(
+            rag_suggestions, self.node_names, current_loads
         )
         
-        # 自适应学习频率：根据训练进度调整学习频率
-        learn_frequency = max(5, int(20 * (1 - training_progress)))  # 从20递减到5
-        if len(simulation.completed_tasks) % learn_frequency == 0:
-            self.drl_agent.replay(batch_size=min(64, 16 + int(training_progress * 48)))
+        # 6. 动态融合决策
+        training_progress = min(1.0, self.episode_count / self.training_fix.total_episodes)
+        fusion_result = self.rag_fusion_fix.dynamic_fusion(
+            q_values, enhanced_rag, current_loads, training_progress
+        )
+        self.debug_info['fusion_history'].append(fusion_result)
         
-        # 记录详细的奖励信息用于调试和分析
-        if len(simulation.completed_tasks) % 10 == 0:
-            logger.info(f"R_RAG Decision: Task={task_to_schedule.id}, "
-                       f"Teacher={best_node_from_teacher}(makespan={teacher_makespan:.2f}), "
-                       f"Student={chosen_node_name}(makespan={student_makespan:.2f}), "
-                       f"RawReward={raw_reward:.3f}, Scaled={scaled_reward:.3f}, "
-                       f"FinalReward={final_reward:.3f}, Epsilon={epsilon:.2f}, "
-                       f"Completion={completion_ratio:.2f}")
+        # 7. 选择动作
+        if random.random() < epsilon:
+            # 探索模式
+            action_idx = random.randint(0, len(self.node_names) - 1)
+        else:
+            # 利用模式
+            action_idx = fusion_result['index']
         
-        return {chosen_node_name: task_to_schedule}
+        chosen_node = self.node_names[action_idx]
+        
+        # 8. 计算奖励
+        teacher_makespan = self._get_teacher_makespan([task_to_schedule], simulation)
+        student_makespan = self._get_student_makespan([task_to_schedule], simulation, chosen_node)
+        
+        # 使用修复后的奖励函数
+        reward = self.drl_agent.compute_reward(
+            teacher_makespan, student_makespan,
+            task_scale=task_to_schedule.computation_size,
+            simulation=simulation,
+            task=task_to_schedule,
+            chosen_node=chosen_node
+        )
+        
+        self.total_reward += reward
+        self.debug_info['reward_history'].append(reward)
+        
+        # 9. 记录调试信息
+        self.rag_fusion_fix.debug_fusion_info(task_to_schedule.id, fusion_result)
+        
+        # 10. 存储经验
+        next_state = self._extract_features([task_to_schedule], simulation)  # 简化处理
+        self.drl_agent.store_transition(state, action_idx, reward, next_state, False)
+        
+        # 11. 学习更新
+        if self.episode_count % 5 == 0:  # 每5步学习一次
+            loss = self.drl_agent.replay(training_progress)
+            if loss is not None:
+                logger.info(f"Episode {self.episode_count}, Loss: {loss:.4f}")
+        
+        # 12. 动态目标网络更新
+        if self.training_fix.dynamic_target_update(self.episode_count):
+            self.drl_agent.update_target_network()
+            logger.info(f"Updated target network at episode {self.episode_count}")
+        
+        # 13. 记录训练调试信息
+        lr = self.training_fix.adaptive_learning_rate(self.episode_count)
+        should_update_target = self.training_fix.dynamic_target_update(self.episode_count)
+        self.training_fix.debug_training_info(self.episode_count, epsilon, lr, should_update_target)
+        
+        # 返回调度决策（保持与原始接口一致）
+        return {chosen_node: task_to_schedule}
 
+    def _get_rag_suggestions(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> List[Dict]:
+        """
+        获取RAG建议
+        
+        Args:
+            ready_tasks: 就绪任务列表
+            simulation: 仿真环境
+        
+        Returns:
+            RAG建议列表
+        """
+        if not ready_tasks:
+            return []
+        
+        task = ready_tasks[0]
+        
+        # 构建查询
+        query = {
+            'task_id': task.id,
+            'computation_size': task.computation_size,
+            'memory_size': getattr(task, 'memory_size', 0),
+            'workflow_type': getattr(simulation.workflow, 'type', 'unknown'),
+            'current_step': simulation.current_step,
+            'total_steps': simulation.total_steps
+        }
+        
+        # 从RAG知识库获取建议
+        suggestions = self.rag.query(query, k=5)  # 获取前5个建议
+        
+        # 转换为标准格式
+        formatted_suggestions = []
+        for suggestion in suggestions:
+            formatted_suggestions.append({
+                'node': suggestion.get('node', 'unknown'),
+                'score': suggestion.get('score', 0.0),
+                'similarity': suggestion.get('similarity', 0.0)
+            })
+        
+        return formatted_suggestions
+    
+    def _get_current_loads(self, simulation: 'WassWrenchSimulator') -> Dict[str, float]:
+        """
+        获取当前节点负载情况
+        
+        Args:
+            simulation: 仿真环境
+        
+        Returns:
+            节点负载字典
+        """
+        loads = {}
+        for node_name in self.node_names:
+            node = simulation.platform.get_node(node_name)
+            if hasattr(node, 'busy_time'):
+                # 计算节点利用率
+                total_time = simulation.current_step
+                busy_time = node.busy_time
+                loads[node_name] = busy_time / max(total_time, 1.0)
+            else:
+                loads[node_name] = 0.0  # 默认值
+        
+        return loads
+    
+    def _get_teacher_makespan(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> float:
+        """
+        获取老师（预测器）建议的makespan
+        
+        Args:
+            ready_tasks: 就绪任务列表
+            simulation: 仿真环境
+        
+        Returns:
+            最优makespan
+        """
+        if not ready_tasks:
+            return 0.0
+        
+        task = ready_tasks[0]
+        
+        # 获取所有节点的预测makespan
+        estimated_makespans = self._get_estimated_makespans(task, simulation)
+        
+        # 找到最优makespan
+        best_makespan = min(makespan.value for makespan in estimated_makespans.values())
+        
+        return best_makespan
+    
+    def _get_student_makespan(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator', chosen_node: str) -> float:
+        """
+        获取学生（Agent）选择的makespan
+        
+        Args:
+            ready_tasks: 就绪任务列表
+            simulation: 仿真环境
+            chosen_node: 选择的节点
+        
+        Returns:
+            选择的makespan
+        """
+        if not ready_tasks:
+            return 0.0
+        
+        task = ready_tasks[0]
+        
+        # 获取所有节点的预测makespan
+        estimated_makespans = self._get_estimated_makespans(task, simulation)
+        
+        # 获取选择节点的makespan
+        chosen_makespan = estimated_makespans[chosen_node].value
+        
+        return chosen_makespan
+    
+    def end_episode(self, final_makespan: float):
+        """
+        结束一个回合，更新统计信息
+        
+        Args:
+            final_makespan: 最终makespan
+        """
+        self.episode_count += 1
+        self.makespan_history.append(final_makespan)
+        
+        # 计算性能指标（makespan越小越好）
+        if len(self.makespan_history) > 1:
+            baseline_makespan = self.makespan_history[0]
+            performance_improvement = (baseline_makespan - final_makespan) / baseline_makespan
+            self.performance_history.append(performance_improvement)
+        
+        # 记录回合统计
+        avg_reward = self.total_reward / max(1, len(self.debug_info['reward_history']))
+        logger.info(f"Episode {self.episode_count} completed. "
+                   f"Final makespan: {final_makespan:.2f}, "
+                   f"Average reward: {avg_reward:.4f}")
+        
+        # 重置回合统计
+        self.total_reward = 0.0
+        self.debug_info = {
+            'reward_history': [],
+            'fusion_history': [],
+            'epsilon_history': []
+        }
+    
     def fit_scaler_vectorizer(self, features_list: List[Dict]):
         """Fits the scaler and vectorizer on a list of feature dictionaries."""
         if not features_list:
             logger.warning("Feature list is empty. Cannot fit scaler/vectorizer.")
             return
+        
+        # 提取特征值
+        feature_values = []
+        for features in features_list:
+            values = list(features.values())
+            feature_values.append(values)
+        
+        # 转换为numpy数组
+        feature_array = np.array(feature_values)
+        
+        # 拟合标准化器
+        self.scaler.fit(feature_array)
+        
+        # 拟合向量化器
+        self.vectorizer.fit(features_list)
         self.scaler.fit(self.vectorizer.fit_transform(features_list))
         logger.info("Scaler and Vectorizer for RAG have been fitted.")
 

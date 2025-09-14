@@ -1,0 +1,417 @@
+{
+  "system_performance": {
+    "makespan": 70.0,
+    "avg_waiting_time": 15.0,
+    "avg_turnaround_time": 50.0,
+    "throughput": 1.4285714285714286,
+    "resource_utilization": {
+      "CPU": 0.8,
+      "Memory": 0.75,
+      "GPU": 0.7,
+      "Network": 0.65
+    },
+    "load_balance": 0.9568965517241379,
+    "energy_efficiency": 0.019704433497536946,
+    "cost_efficiency": 0.009852216748768473,
+    "fairness": 0.9284139098714187,
+    "reliability": 0.95
+  },
+  "workflow_quality": {
+    "scheduling_length": 60.0,
+    "critical_path_ratio": 0.65,
+    "parallel_efficiency": 0.016666666666666666,
+    "data_locality_score": 0.8,
+    "communication_overhead": 0.25,
+    "deadline_satisfaction_rate": 0.85,
+    "priority_violation_rate": 0.15,
+    "workflow_completion_rate": 0.9
+  },
+  "training_process": {
+    "episode_count": 10,
+    "convergence_speed": 1.0,
+    "stability_score": 0.30977103556453,
+    "exploration_efficiency": NaN,
+    "learning_curve": [
+      -3.4098659206063937,
+      -5.451150673894748,
+      -0.9879773624016266,
+      0.18781947236052365,
+      1.263173329350365,
+      1.971461336902471,
+      4.00965002229583,
+      5.689902919493793,
+      7.2017401232842975,
+      9.585898606073307
+    ],
+    "reward_distribution": {
+      "mean": 2.006065185285782,
+      "std": 4.469895943971856,
+      "min": -5.451150673894748,
+      "max": 9.585898606073307,
+      "median": 1.617317333126418
+    },
+    "loss_curve": [
+      9.371682384768233,
+      9.449531757306671,
+      8.264414845334272,
+      8.04564156479415,
+      6.812892673233103,
+      6.491151282566281,
+      5.453389827374874,
+      4.127205244390663,
+      4.117253884128088,
+      2.489208199755913
+    ],
+    "q_value_curve": [
+      -7.0078192179908205,
+      -4.539140880007052,
+      -4.694041790397144,
+      -1.0017903284387513,
+      -0.46092391150241974,
+      0.3829860060390373,
+      1.7897686318946857,
+      3.3396230417354804,
+      6.887178158005401,
+      8.869442801428905
+    ]
+  },
+  "baseline_comparison": {
+    "baseline_makespan": 85.0,
+    "improvement_ratio": 0.17647058823529413,
+    "speedup_ratio": 1.2142857142857142,
+    "efficiency_ratio": 1.1333333333333333,
+    "scalability_score": 1.0,
+    "robustness_score": 1.0,
+    "adaptability_score": 0.5
+  },
+  "comprehensive_report": {
+    "timestamp": 1757849977.2464201,
+    "system_performance": {
+      "resource_utilization": {
+        "GPU": {
+          "mean": 0.7,
+          "std": 0.0,
+          "min": 0.7,
+          "max": 0.7,
+          "latest": 0.7,
+          "trend": "stable"
+        },
+        "CPU": {
+          "mean": 0.8,
+          "std": 0.0,
+          "min": 0.8,
+          "max": 0.8,
+          "latest": 0.8,
+          "trend": "stable"
+        },
+        "Memory": {
+          "mean": 0.75,
+          "std": 0.0,
+          "min": 0.75,
+          "max": 0.75,
+          "latest": 0.75,
+          "trend": "stable"
+        },
+        "Network": {
+          "mean": 0.65,
+          "std": 0.0,
+          "min": 0.65,
+          "max": 0.65,
+          "latest": 0.65,
+          "trend": "stable"
+        }
+      },
+      "makespan": {
+        "mean": 70.0,
+        "std": 0.0,
+        "min": 70.0,
+        "max": 70.0,
+        "latest": 70.0,
+        "trend": "stable"
+      },
+      "cost_efficiency": {
+        "mean": 0.009852216748768473,
+        "std": 0.0,
+        "min": 0.009852216748768473,
+        "max": 0.009852216748768473,
+        "latest": 0.009852216748768473,
+        "trend": "stable"
+      },
+      "fairness": {
+        "mean": 0.9284139098714187,
+        "std": 0.0,
+        "min": 0.9284139098714187,
+        "max": 0.9284139098714187,
+        "latest": 0.9284139098714187,
+        "trend": "stable"
+      },
+      "reliability": {
+        "mean": 0.95,
+        "std": 0.0,
+        "min": 0.95,
+        "max": 0.95,
+        "latest": 0.95,
+        "trend": "stable"
+      },
+      "load_balance": {
+        "mean": 0.9568965517241379,
+        "std": 0.0,
+        "min": 0.9568965517241379,
+        "max": 0.9568965517241379,
+        "latest": 0.9568965517241379,
+        "trend": "stable"
+      },
+      "avg_waiting_time": {
+        "mean": 15.0,
+        "std": 0.0,
+        "min": 15.0,
+        "max": 15.0,
+        "latest": 15.0,
+        "trend": "stable"
+      },
+      "energy_efficiency": {
+        "mean": 0.019704433497536946,
+        "std": 0.0,
+        "min": 0.019704433497536946,
+        "max": 0.019704433497536946,
+        "latest": 0.019704433497536946,
+        "trend": "stable"
+      },
+      "throughput": {
+        "mean": 1.4285714285714286,
+        "std": 0.0,
+        "min": 1.4285714285714286,
+        "max": 1.4285714285714286,
+        "latest": 1.4285714285714286,
+        "trend": "stable"
+      },
+      "avg_turnaround_time": {
+        "mean": 50.0,
+        "std": 0.0,
+        "min": 50.0,
+        "max": 50.0,
+        "latest": 50.0,
+        "trend": "stable"
+      }
+    },
+    "workflow_quality": {
+      "data_locality_score": {
+        "mean": 0.8,
+        "std": 0.0,
+        "min": 0.8,
+        "max": 0.8,
+        "latest": 0.8,
+        "trend": "stable"
+      },
+      "workflow_completion_rate": {
+        "mean": 0.9,
+        "std": 0.0,
+        "min": 0.9,
+        "max": 0.9,
+        "latest": 0.9,
+        "trend": "stable"
+      },
+      "scheduling_length": {
+        "mean": 60.0,
+        "std": 0.0,
+        "min": 60.0,
+        "max": 60.0,
+        "latest": 60.0,
+        "trend": "stable"
+      },
+      "communication_overhead": {
+        "mean": 0.25,
+        "std": 0.0,
+        "min": 0.25,
+        "max": 0.25,
+        "latest": 0.25,
+        "trend": "stable"
+      },
+      "deadline_satisfaction_rate": {
+        "mean": 0.85,
+        "std": 0.0,
+        "min": 0.85,
+        "max": 0.85,
+        "latest": 0.85,
+        "trend": "stable"
+      },
+      "parallel_efficiency": {
+        "mean": 0.016666666666666666,
+        "std": 0.0,
+        "min": 0.016666666666666666,
+        "max": 0.016666666666666666,
+        "latest": 0.016666666666666666,
+        "trend": "stable"
+      },
+      "critical_path_ratio": {
+        "mean": 0.65,
+        "std": 0.0,
+        "min": 0.65,
+        "max": 0.65,
+        "latest": 0.65,
+        "trend": "stable"
+      },
+      "priority_violation_rate": {
+        "mean": 0.15,
+        "std": 0.0,
+        "min": 0.15,
+        "max": 0.15,
+        "latest": 0.15,
+        "trend": "stable"
+      }
+    },
+    "training_process": {
+      "exploration_efficiency": {
+        "mean": NaN,
+        "std": NaN,
+        "min": NaN,
+        "max": NaN,
+        "latest": NaN,
+        "trend": "stable"
+      },
+      "q_value_curve": {
+        "length": 10,
+        "trend": "increasing"
+      },
+      "stability_score": {
+        "mean": 0.30977103556453,
+        "std": 0.0,
+        "min": 0.30977103556453,
+        "max": 0.30977103556453,
+        "latest": 0.30977103556453,
+        "trend": "stable"
+      },
+      "loss_curve": {
+        "length": 10,
+        "trend": "stable"
+      },
+      "convergence_speed": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "latest": 1.0,
+        "trend": "stable"
+      },
+      "learning_curve": {
+        "length": 10,
+        "trend": "increasing"
+      },
+      "reward_distribution": {
+        "min": {
+          "mean": -5.451150673894748,
+          "std": 0.0,
+          "min": -5.451150673894748,
+          "max": -5.451150673894748,
+          "latest": -5.451150673894748,
+          "trend": "stable"
+        },
+        "median": {
+          "mean": 1.617317333126418,
+          "std": 0.0,
+          "min": 1.617317333126418,
+          "max": 1.617317333126418,
+          "latest": 1.617317333126418,
+          "trend": "stable"
+        },
+        "std": {
+          "mean": 4.469895943971856,
+          "std": 0.0,
+          "min": 4.469895943971856,
+          "max": 4.469895943971856,
+          "latest": 4.469895943971856,
+          "trend": "stable"
+        },
+        "max": {
+          "mean": 9.585898606073307,
+          "std": 0.0,
+          "min": 9.585898606073307,
+          "max": 9.585898606073307,
+          "latest": 9.585898606073307,
+          "trend": "stable"
+        },
+        "mean": {
+          "mean": 2.006065185285782,
+          "std": 0.0,
+          "min": 2.006065185285782,
+          "max": 2.006065185285782,
+          "latest": 2.006065185285782,
+          "trend": "stable"
+        }
+      },
+      "episode_count": {
+        "mean": 10.0,
+        "std": 0.0,
+        "min": 10.0,
+        "max": 10.0,
+        "latest": 10.0,
+        "trend": "stable"
+      }
+    },
+    "baseline_comparison": {
+      "adaptability_score": {
+        "mean": 0.5,
+        "std": 0.0,
+        "min": 0.5,
+        "max": 0.5,
+        "latest": 0.5,
+        "trend": "stable"
+      },
+      "improvement_ratio": {
+        "mean": 0.17647058823529413,
+        "std": 0.0,
+        "min": 0.17647058823529413,
+        "max": 0.17647058823529413,
+        "latest": 0.17647058823529413,
+        "trend": "stable"
+      },
+      "speedup_ratio": {
+        "mean": 1.2142857142857142,
+        "std": 0.0,
+        "min": 1.2142857142857142,
+        "max": 1.2142857142857142,
+        "latest": 1.2142857142857142,
+        "trend": "stable"
+      },
+      "efficiency_ratio": {
+        "mean": 1.1333333333333333,
+        "std": 0.0,
+        "min": 1.1333333333333333,
+        "max": 1.1333333333333333,
+        "latest": 1.1333333333333333,
+        "trend": "stable"
+      },
+      "baseline_makespan": {
+        "mean": 85.0,
+        "std": 0.0,
+        "min": 85.0,
+        "max": 85.0,
+        "latest": 85.0,
+        "trend": "stable"
+      },
+      "robustness_score": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "latest": 1.0,
+        "trend": "stable"
+      },
+      "scalability_score": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "latest": 1.0,
+        "trend": "stable"
+      }
+    },
+    "overall_score": NaN,
+    "recommendations": [
+      "\u80fd\u6548\u8f83\u4f4e\uff0c\u5efa\u8bae\u8003\u8651\u8282\u80fd\u8c03\u5ea6\u7b56\u7565",
+      "\u5e76\u884c\u6548\u7387\u4e0d\u8db3\uff0c\u5efa\u8bae\u4f18\u5316\u4efb\u52a1\u5e76\u884c\u6267\u884c\u7b56\u7565",
+      "\u622a\u6b62\u65f6\u95f4\u6ee1\u8db3\u7387\u4f4e\uff0c\u5efa\u8bae\u6539\u8fdb\u4f18\u5148\u7ea7\u8c03\u5ea6\u7b56\u7565",
+      "\u8bad\u7ec3\u4e0d\u7a33\u5b9a\uff0c\u5efa\u8bae\u589e\u52a0\u6b63\u5219\u5316\u6216\u8c03\u6574\u6279\u5927\u5c0f"
+    ]
+  }
+}

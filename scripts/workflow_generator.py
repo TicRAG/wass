@@ -102,7 +102,13 @@ class WorkflowPattern:
         for i in range(diff_tasks):
             task_id = f"diff_{i}"
             # 随机选择两个预处理的输出作为输入
-            deps = random.sample(tasks[:preprocess_tasks], 2)
+            # 确保有足够的任务可供选择
+            num_deps = min(2, preprocess_tasks)
+            if num_deps > 0:
+                deps = random.sample(tasks[:preprocess_tasks], num_deps)
+            else:
+                deps = []
+            
             input_files = [dep.output_files[0] for dep in deps]
             output_file = f"diff_{i}.fits"
             

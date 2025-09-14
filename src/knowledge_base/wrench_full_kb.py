@@ -47,17 +47,41 @@ class WRENCHRAGKnowledgeBase:
         key = f"{case.workflow_id}:{case.task_id}"
         self.case_index.setdefault(key, []).append(idx)
 
-    def retrieve_similar_cases(self, workflow_embedding: np.ndarray, task_features: np.ndarray, k: int = 5) -> List[Tuple[WRENCHKnowledgeCase, float]]:
+    def retrieve_similar_cases(self, workflow_embedding: np.ndarray, task_features: np.ndarray, k: int = 5, sort_by_makespan: bool = True) -> List[Tuple[WRENCHKnowledgeCase, float]]:
+        """
+        检索相似案例，可选择按makespan排序
+        
+        Args:
+            workflow_embedding: 工作流嵌入向量
+            task_features: 任务特征向量
+            k: 返回的案例数量
+            sort_by_makespan: 是否按makespan排序（从低到高）
+            
+        Returns:
+            相似案例列表，按相似度或makespan排序
+        """
         if not self.cases:
             return []
+        
+        # 计算相似度
         sims = []
         for c in self.cases:
             wf_sim = self._cosine(workflow_embedding, c.workflow_embedding)
             task_sim = self._cosine(task_features, c.task_features)
             score = 0.7 * wf_sim + 0.3 * task_sim
             sims.append((c, score))
+        
+        # 按相似度排序
         sims.sort(key=lambda x: x[1], reverse=True)
-        return sims[:k]
+        
+        # 获取top_k案例
+        top_cases = sims[:k]
+        
+        # 如果需要按makespan排序
+        if sort_by_makespan:
+            top_cases.sort(key=lambda x: x[0].workflow_makespan)
+        
+        return top_cases
 
     def _cosine(self, a: np.ndarray, b: np.ndarray) -> float:
         na = np.linalg.norm(a)

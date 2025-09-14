@@ -155,6 +155,40 @@ class WASSHeuristicScheduler(WRENCHScheduler):
         exec_time = task.get_flops() / (capacity * 1e9)
         return load + exec_time
     
+    def predict_makespan(self, task, available_nodes, node_capacities, node_loads):
+        """预测任务在给定节点配置下的makespan"""
+        try:
+            # 简化的makespan预测：基于任务大小和节点负载
+            task_flops = float(getattr(task, 'get_flops', lambda: 1e9)())
+            
+            # 计算平均节点性能
+            total_capacity = sum(node_capacities.get(node, 1.0) for node in available_nodes)
+            total_load = sum(node_loads.get(node, 0.0) for node in available_nodes)
+            avg_capacity = total_capacity / len(available_nodes) if available_nodes else 1.0
+            avg_load = total_load / len(available_nodes) if available_nodes else 0.0
+            
+            # 基础执行时间
+            base_time = task_flops / (avg_capacity * 1e9)
+            
+            # 考虑负载影响
+            load_factor = 1.0 + avg_load / max(avg_capacity, 0.1)
+            
+            # 考虑任务依赖（简化处理）
+            try:
+                children_count = len(getattr(task, 'get_children', lambda: [])())
+                dependency_factor = 1.0 + 0.1 * children_count  # 每个子任务增加10%的时间
+            except Exception:
+                dependency_factor = 1.0
+            
+            # 预测的makespan
+            predicted_makespan = base_time * load_factor * dependency_factor
+            
+            return predicted_makespan
+            
+        except Exception as e:
+            print(f"预测makespan失败: {e}")
+            return 100.0  # 默认值
+    
     def _calculate_drt(self, task, node):
         """计算数据就绪时间 - 考虑数据传输开销"""
         total_transfer_time = 0.0
@@ -495,65 +529,132 @@ class WASSRAGScheduler(WRENCHScheduler):
         self._create_default_knowledge_base()
     
     def _create_default_knowledge_base(self):
-        """创建默认的RAG知识库"""
-        # 基于节点性能和任务特征的简单启发式规则
+        """创建默认的RAG知识库（增强负载均衡案例）"""
+        # 基于节点性能和任务特征的增强启发式规则，重点考虑负载均衡
         default_cases = [
-            # 小任务优先分配到高容量节点
-            {'task_flops': 1e9, 'chosen_node': 'ComputeHost4', 'scheduler_type': 'heuristic', 
-             'task_execution_time': 0.25, 'workflow_makespan': 5.0, 'node_capacity': 4.0,
-             'performance_ratio': 0.8, 'total_workflow_flops': 5e9, 'workflow_size': 5},
+            # 小任务优先分配到负载低的节点（不一定是最高容量节点）
+            {'task_flops': 1e9, 'chosen_node': 'ComputeHost1', 'scheduler_type': 'heuristic', 
+             'task_execution_time': 0.5, 'workflow_makespan': 4.5, 'node_capacity': 2.0,
+             'performance_ratio': 0.9, 'total_workflow_flops': 5e9, 'workflow_size': 5,
+             'load_balance_factor': 0.8, 'node_load': 0.2},
             
-            # 中等任务分配到中等容量节点
+            # 中等任务分配到中等容量且负载适中的节点
             {'task_flops': 5e9, 'chosen_node': 'ComputeHost2', 'scheduler_type': 'heuristic',
-             'task_execution_time': 1.67, 'workflow_makespan': 10.0, 'node_capacity': 3.0,
-             'performance_ratio': 0.9, 'total_workflow_flops': 20e9, 'workflow_size': 10},
+             'task_execution_time': 1.67, 'workflow_makespan': 9.5, 'node_capacity': 3.0,
+             'performance_ratio': 0.85, 'total_workflow_flops': 20e9, 'workflow_size': 10,
+             'load_balance_factor': 0.75, 'node_load': 0.4},
             
-            # 大任务分配到高容量节点
+            # 大任务分配到高容量节点，但要考虑负载均衡
             {'task_flops': 10e9, 'chosen_node': 'ComputeHost4', 'scheduler_type': 'heuristic',
-             'task_execution_time': 2.5, 'workflow_makespan': 15.0, 'node_capacity': 4.0,
-             'performance_ratio': 0.85, 'total_workflow_flops': 50e9, 'workflow_size': 15},
+             'task_execution_time': 2.5, 'workflow_makespan': 14.0, 'node_capacity': 4.0,
+             'performance_ratio': 0.9, 'total_workflow_flops': 50e9, 'workflow_size': 15,
+             'load_balance_factor': 0.7, 'node_load': 0.3},
             
-            # 考虑负载均衡的案例
-            {'task_flops': 3e9, 'chosen_node': 'ComputeHost1', 'scheduler_type': 'heuristic',
-             'task_execution_time': 1.5, 'workflow_makespan': 8.0, 'node_capacity': 2.0,
-             'performance_ratio': 0.75, 'total_workflow_flops': 15e9, 'workflow_size': 8},
+            # 负载均衡案例：优先选择负载低的节点
+            {'task_flops': 3e9, 'chosen_node': 'ComputeHost3', 'scheduler_type': 'heuristic',
+             'task_execution_time': 1.2, 'workflow_makespan': 7.5, 'node_capacity': 2.5,
+             'performance_ratio': 0.88, 'total_workflow_flops': 15e9, 'workflow_size': 8,
+             'load_balance_factor': 0.95, 'node_load': 0.1},
             
-            # 更多多样化案例
-            {'task_flops': 7e9, 'chosen_node': 'ComputeHost3', 'scheduler_type': 'heuristic',
-             'task_execution_time': 2.8, 'workflow_makespan': 12.0, 'node_capacity': 2.5,
-             'performance_ratio': 0.82, 'total_workflow_flops': 30e9, 'workflow_size': 12}
+            # 高负载情况下选择空闲节点
+            {'task_flops': 7e9, 'chosen_node': 'ComputeHost1', 'scheduler_type': 'heuristic',
+             'task_execution_time': 3.5, 'workflow_makespan': 11.0, 'node_capacity': 2.0,
+             'performance_ratio': 0.82, 'total_workflow_flops': 30e9, 'workflow_size': 12,
+             'load_balance_factor': 0.9, 'node_load': 0.05},
+            
+            # 新增：负载均衡优先案例
+            {'task_flops': 2e9, 'chosen_node': 'ComputeHost2', 'scheduler_type': 'load_balance',
+             'task_execution_time': 0.67, 'workflow_makespan': 6.0, 'node_capacity': 3.0,
+             'performance_ratio': 0.87, 'total_workflow_flops': 12e9, 'workflow_size': 6,
+             'load_balance_factor': 0.92, 'node_load': 0.15},
+            
+            # 新增：避免高负载节点
+            {'task_flops': 4e9, 'chosen_node': 'ComputeHost3', 'scheduler_type': 'load_balance',
+             'task_execution_time': 1.6, 'workflow_makespan': 8.5, 'node_capacity': 2.5,
+             'performance_ratio': 0.83, 'total_workflow_flops': 18e9, 'workflow_size': 9,
+             'load_balance_factor': 0.88, 'node_load': 0.12},
+            
+            # 新增：大任务在高负载环境下选择次优容量但低负载的节点
+            {'task_flops': 8e9, 'chosen_node': 'ComputeHost3', 'scheduler_type': 'load_balance',
+             'task_execution_time': 3.2, 'workflow_makespan': 12.5, 'node_capacity': 2.5,
+             'performance_ratio': 0.8, 'total_workflow_flops': 40e9, 'workflow_size': 14,
+             'load_balance_factor': 0.85, 'node_load': 0.18},
+            
+            # 新增：中等任务在均衡环境下的分配
+            {'task_flops': 6e9, 'chosen_node': 'ComputeHost4', 'scheduler_type': 'balanced',
+             'task_execution_time': 1.5, 'workflow_makespan': 10.0, 'node_capacity': 4.0,
+             'performance_ratio': 0.92, 'total_workflow_flops': 25e9, 'workflow_size': 11,
+             'load_balance_factor': 0.8, 'node_load': 0.25},
+            
+            # 新增：小任务在高容量但高负载节点 vs 低容量低负载节点的选择
+            {'task_flops': 1.5e9, 'chosen_node': 'ComputeHost1', 'scheduler_type': 'balanced',
+             'task_execution_time': 0.75, 'workflow_makespan': 5.5, 'node_capacity': 2.0,
+             'performance_ratio': 0.86, 'total_workflow_flops': 8e9, 'workflow_size': 7,
+             'load_balance_factor': 0.93, 'node_load': 0.08}
         ]
         
-        # 添加一些随机变化以增加多样性
+        # 添加更多多样化案例，重点考虑负载均衡
         import random
         random.seed(42)  # 确保可重现
         
-        for _ in range(20):  # 生成20个额外案例
+        # 生成负载均衡导向的案例
+        for _ in range(30):  # 生成30个额外案例
             base_case = random.choice(default_cases)
             variation = base_case.copy()
             
             # 添加一些随机变化
-            variation['task_flops'] *= random.uniform(0.8, 1.2)
-            variation['total_workflow_flops'] *= random.uniform(0.9, 1.1)
-            variation['workflow_size'] = max(3, int(variation['workflow_size'] * random.uniform(0.8, 1.2)))
+            variation['task_flops'] *= random.uniform(0.7, 1.3)
+            variation['total_workflow_flops'] *= random.uniform(0.8, 1.2)
+            variation['workflow_size'] = max(3, int(variation['workflow_size'] * random.uniform(0.7, 1.3)))
             
-            # 根据任务大小选择合适的节点
+            # 根据负载均衡原则选择节点
+            node_loads = {
+                'ComputeHost1': random.uniform(0.0, 0.8),
+                'ComputeHost2': random.uniform(0.0, 0.8),
+                'ComputeHost3': random.uniform(0.0, 0.8),
+                'ComputeHost4': random.uniform(0.0, 0.8)
+            }
+            
+            # 选择负载最低的节点，但考虑任务大小
             if variation['task_flops'] < 3e9:
-                variation['chosen_node'] = random.choice(['ComputeHost1', 'ComputeHost2'])
+                # 小任务：优先选择负载低的节点
+                sorted_nodes = sorted(node_loads.keys(), key=lambda x: node_loads[x])
+                variation['chosen_node'] = sorted_nodes[0]
             elif variation['task_flops'] < 7e9:
-                variation['chosen_node'] = random.choice(['ComputeHost2', 'ComputeHost3'])
+                # 中等任务：在负载较低的节点中选择容量适中的
+                low_load_nodes = [n for n in node_loads.keys() if node_loads[n] < 0.5]
+                if low_load_nodes:
+                    medium_capacity_nodes = [n for n in low_load_nodes if n in ['ComputeHost2', 'ComputeHost3']]
+                    if medium_capacity_nodes:
+                        variation['chosen_node'] = random.choice(medium_capacity_nodes)
+                    else:
+                        variation['chosen_node'] = random.choice(low_load_nodes)
+                else:
+                    variation['chosen_node'] = 'ComputeHost2'
             else:
-                variation['chosen_node'] = random.choice(['ComputeHost3', 'ComputeHost4'])
+                # 大任务：在高容量节点中选择负载较低的
+                high_capacity_nodes = ['ComputeHost3', 'ComputeHost4']
+                low_load_high_cap = [n for n in high_capacity_nodes if node_loads[n] < 0.6]
+                if low_load_high_cap:
+                    variation['chosen_node'] = random.choice(low_load_high_cap)
+                else:
+                    # 如果高容量节点都负载高，选择负载最低的
+                    sorted_nodes = sorted(high_capacity_nodes, key=lambda x: node_loads[x])
+                    variation['chosen_node'] = sorted_nodes[0]
+            
+            # 更新负载均衡因子
+            variation['load_balance_factor'] = 1.0 - node_loads[variation['chosen_node']]
+            variation['node_load'] = node_loads[variation['chosen_node']]
             
             self.knowledge_base.append(variation)
         
         # 添加原始默认案例
         self.knowledge_base.extend(default_cases)
         
-        print(f"✅ 默认RAG知识库已创建: {len(self.knowledge_base)} 个案例")
+        print(f"✅ 增强默认RAG知识库已创建: {len(self.knowledge_base)} 个案例（重点考虑负载均衡）")
     
     def schedule_task(self, task, available_nodes, node_capacities, node_loads, compute_service):
-        """基于RAG知识库增强的调度决策 - 优化版本"""
+        """基于RAG知识库增强的调度决策 - 优化版本（重点解决负载均衡问题）"""
         try:
             # 首先使用DRL进行基础调度决策
             drl_node = self.drl_scheduler.schedule_task(
@@ -579,16 +680,22 @@ class WASSRAGScheduler(WRENCHScheduler):
                 avg_load = np.mean([node_loads.get(node, 0) for node in available_nodes])
                 max_load = max([node_loads.get(node, 0) for node in available_nodes])
                 
+                # 计算负载均衡指标
+                load_variance = np.var([node_loads.get(node, 0) for node in available_nodes])
+                load_std = np.sqrt(load_variance)
+                
             except Exception as e:
                 task_flops = 1e9
                 task_memory = 1024
                 total_workflow_flops = task_flops
                 avg_load = 0
                 max_load = 0
+                load_variance = 0
+                load_std = 0
             
-            # 增强的相似度匹配 - 降低阈值以获取更多匹配
+            # 增强的相似度匹配 - 进一步降低阈值以获取更多匹配
             best_matches = []
-            min_similarity_threshold = 0.5  # 从0.7降低到0.5
+            min_similarity_threshold = 0.01  # 从0.05进一步降低到0.01，极大增加匹配机会
             
             for case in self.knowledge_base:
                 # 多维特征相似度计算
@@ -613,12 +720,23 @@ class WASSRAGScheduler(WRENCHScheduler):
             rag_scores = []
             match_node_scores = {}
             if best_matches:
-                best_matches.sort(key=lambda x: x['similarity'], reverse=True)
+                # 按makespan排序，选择makespan最低的案例
+                best_matches.sort(key=lambda x: float(x['case'].get('makespan', float('inf'))))
                 top_matches = best_matches[:8]
                 for match in top_matches:
                     node = match['suggested_node']
                     match_node_scores.setdefault(node, 0.0)
-                    match_node_scores[node] += match['similarity']
+                    # 综合考虑相似度和makespan（makespan越低，权重越高）
+                    makespan = float(match['case'].get('makespan', 100.0))
+                    makespan_weight = 1.0 / (1.0 + makespan / 100.0)  # 归一化makespan权重
+                    match_node_scores[node] += match['similarity'] * makespan_weight
+                    
+                    # 负载均衡调整：如果节点负载过高，极大幅降低其得分
+                    node_load = node_loads.get(node, 0.0)
+                    if node_load > avg_load * 1.05:  # 进一步降低阈值，从1.1倍改为1.05倍
+                        load_penalty = 0.01  # 降低99%的得分（从90%进一步增强到99%）
+                        match_node_scores[node] *= load_penalty
+                        
             for node in available_nodes:
                 rag_scores.append(match_node_scores.get(node, 0.0))
 
@@ -644,13 +762,58 @@ class WASSRAGScheduler(WRENCHScheduler):
                         for node in available_nodes:
                             cap = node_capacities.get(node, 1.0)
                             load = node_loads.get(node, 0.0)
-                            q_values.append(cap - load)
+                            # 极强增强负载均衡考虑
+                            load_balance_factor = 1.0 / (1.0 + 20.0 * load)  # 极强增强负载均衡因子
+                            q_values.append(cap * load_balance_factor)
                     load_vals = [node_loads.get(n, 0.0) for n in available_nodes]
                     progress = 0.5  # TODO: 使用真实训练进度
-                    fusion = fuse_decision(q_values, rag_scores, load_vals, progress)
+                    
+                    # 计算makespan预测（基于历史案例和当前状态）
+                    makespan_predictions = []
+                    baseline_makespan = None
+                    
+                    # 获取基准makespan（HEFT算法预测）
+                    try:
+                        heft_scheduler = HEFTScheduler()
+                        heft_prediction = heft_scheduler.predict_makespan(task, available_nodes, node_capacities, node_loads)
+                        if heft_prediction > 0:
+                            baseline_makespan = heft_prediction
+                    except Exception as e:
+                        print(f"获取HEFT基准makespan失败: {e}")
+                    
+                    # 为每个节点预测makespan
+                    for node in available_nodes:
+                        predicted_makespan = baseline_makespan or 100.0  # 默认值
+                        
+                        # 基于当前负载和容量调整预测
+                        node_load = node_loads.get(node, 0.0)
+                        node_capacity = node_capacities.get(node, 1.0)
+                        load_factor = 1.0 + node_load / max(node_capacity, 0.1)
+                        predicted_makespan *= load_factor
+                        
+                        # 基于RAG匹配度调整预测（匹配度越高，预测makespan越低）
+                        rag_score = match_node_scores.get(node, 0.0)
+                        if rag_score > 0:
+                            rag_factor = 1.0 - 0.5 * rag_score  # 最高可减少50%的makespan
+                            predicted_makespan *= rag_factor
+                        
+                        makespan_predictions.append(predicted_makespan)
+                    
+                    # 增强负载均衡权重，加入makespan预测
+                    fusion = fuse_decision(
+                        q_values, 
+                        rag_scores, 
+                        load_vals, 
+                        progress, 
+                        rag_confidence_threshold=0.0001,  # 进一步降低阈值
+                        makespan_predictions=makespan_predictions,
+                        baseline_makespan=baseline_makespan
+                    )
                     fused_idx = fusion['index']
                     fused_node = available_nodes[fused_idx]
-                    print(f"🔀 融合决策: {fused_node} (α={fusion['alpha']:.2f}, β={fusion['beta']:.2f}, γ={fusion['gamma']:.2f})")
+                    print(f"🔀 融合决策: {fused_node} (α={fusion['alpha']:.2f}, β={fusion['beta']:.2f}, γ={fusion['gamma']:.2f}, δ={fusion.get('delta', 0.0):.2f})")
+                    
+                    # 记录融合决策的详细信息
                     try:
                         import json, os
                         os.makedirs('results', exist_ok=True)
@@ -660,10 +823,18 @@ class WASSRAGScheduler(WRENCHScheduler):
                                 'alpha': fusion['alpha'],
                                 'beta': fusion['beta'],
                                 'gamma': fusion['gamma'],
+                                'delta': fusion.get('delta', 0.0),
                                 'q_norm': fusion['q_norm'],
                                 'rag_norm': fusion['rag_norm'],
                                 'load_pref': fusion['load_pref'],
-                                'fused': fusion['fused']
+                                'makespan_scores': fusion.get('makespan_scores', []),
+                                'fused': fusion['fused'],
+                                'load_variance': load_variance,
+                                'load_std': load_std,
+                                'avg_load': avg_load,
+                                'max_load': max_load,
+                                'makespan_predictions': makespan_predictions,
+                                'baseline_makespan': baseline_makespan
                             }
                             fdbg.write(json.dumps(record, ensure_ascii=False) + '\n')
                     except Exception as le:
@@ -672,16 +843,51 @@ class WASSRAGScheduler(WRENCHScheduler):
                 except Exception as fe:
                     print(f"融合失败，回退RAG/DRL: {fe}")
 
-            # 无融合或失败：回退之前逻辑的简单优先策略
+            # 无融合或失败：使用增强的负载均衡策略
             if match_node_scores:
-                # 选择累积相似度最高的节点
-                best_node = max(match_node_scores, key=lambda n: match_node_scores[n])
-                if best_node in available_nodes:
+                # 结合相似度和负载均衡选择节点
+                best_node = None
+                best_score = -float('inf')
+                
+                for node in available_nodes:
+                    # 基础得分：RAG相似度
+                    node_score = match_node_scores.get(node, 0.0)
+                    
+                    # 负载均衡调整
+                    node_load = node_loads.get(node, 0.0)
+                    load_balance_factor = 1.0 / (1.0 + 20.0 * load)  # 极强增强负载均衡因子
+                    
+                    # 节点容量考虑
+                    node_capacity = node_capacities.get(node, 1.0)
+                    
+                    # 综合得分
+                    combined_score = node_score * load_balance_factor * node_capacity
+                    
+                    if combined_score > best_score:
+                        best_score = combined_score
+                        best_node = node
+                
+                if best_node:
                     return best_node
             
-            # 如果没有足够的匹配，回退到DRL节点
-            print("⚠️ 无足够RAG匹配案例，回退到DRL决策")
-            return drl_node
+            # 如果没有足够的匹配，使用增强的启发式策略
+            print("⚠️ 无足够RAG匹配案例，使用增强启发式策略")
+            best_node = None
+            best_score = -float('inf')
+            
+            for node in available_nodes:
+                capacity = node_capacities.get(node, 1.0)
+                load = node_loads.get(node, 0.0)
+                
+                # 极强增强负载均衡因子
+                load_balance_factor = 1.0 / (1.0 + 20.0 * load)  # 极强增强负载均衡因子
+                score = capacity * load_balance_factor
+                
+                if score > best_score:
+                    best_score = score
+                    best_node = node
+            
+            return best_node if best_node else available_nodes[0]
 
         except Exception as e:
             print(f"⚠️ RAG调度失败: {e}，尝试回退")

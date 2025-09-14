@@ -1,0 +1,329 @@
+{
+  "timestamp": 1757849501.3421366,
+  "system_performance": {
+    "reliability": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "latest": 1.0,
+      "trend": "stable"
+    },
+    "load_balance": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "latest": 1.0,
+      "trend": "stable"
+    },
+    "energy_efficiency": {
+      "mean": 0.0001743749238436419,
+      "std": 0.0,
+      "min": 0.0001743749238436419,
+      "max": 0.0001743749238436419,
+      "latest": 0.0001743749238436419,
+      "trend": "stable"
+    },
+    "resource_utilization": {
+      "Memory": {
+        "mean": 0.8628642741736614,
+        "std": 0.0,
+        "min": 0.8628642741736614,
+        "max": 0.8628642741736614,
+        "latest": 0.8628642741736614,
+        "trend": "stable"
+      },
+      "CPU": {
+        "mean": 0.8489677338617321,
+        "std": 0.0,
+        "min": 0.8489677338617321,
+        "max": 0.8489677338617321,
+        "latest": 0.8489677338617321,
+        "trend": "stable"
+      },
+      "GPU": {
+        "mean": 0.8198861365389191,
+        "std": 0.0,
+        "min": 0.8198861365389191,
+        "max": 0.8198861365389191,
+        "latest": 0.8198861365389191,
+        "trend": "stable"
+      },
+      "Network": {
+        "mean": 0.6619357144166996,
+        "std": 0.0,
+        "min": 0.6619357144166996,
+        "max": 0.6619357144166996,
+        "latest": 0.6619357144166996,
+        "trend": "stable"
+      }
+    },
+    "cost_efficiency": {
+      "mean": 8.718746192182095e-05,
+      "std": 0.0,
+      "min": 8.718746192182095e-05,
+      "max": 8.718746192182095e-05,
+      "latest": 8.718746192182095e-05,
+      "trend": "stable"
+    },
+    "avg_waiting_time": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "latest": 0.0,
+      "trend": "stable"
+    },
+    "throughput": {
+      "mean": 0.013922328711112769,
+      "std": 0.0,
+      "min": 0.013922328711112769,
+      "max": 0.013922328711112769,
+      "latest": 0.013922328711112769,
+      "trend": "stable"
+    },
+    "avg_turnaround_time": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "latest": 0.0,
+      "trend": "stable"
+    },
+    "makespan": {
+      "mean": 71.82706433312427,
+      "std": 0.0,
+      "min": 71.82706433312427,
+      "max": 71.82706433312427,
+      "latest": 71.82706433312427,
+      "trend": "stable"
+    },
+    "fairness": {
+      "mean": 0.9086091037558874,
+      "std": 0.0,
+      "min": 0.9086091037558874,
+      "max": 0.9086091037558874,
+      "latest": 0.9086091037558874,
+      "trend": "stable"
+    }
+  },
+  "workflow_quality": {
+    "deadline_satisfaction_rate": {
+      "mean": 0.9663585543671563,
+      "std": 0.0,
+      "min": 0.9663585543671563,
+      "max": 0.9663585543671563,
+      "latest": 0.9663585543671563,
+      "trend": "stable"
+    },
+    "priority_violation_rate": {
+      "mean": 0.07766031409657975,
+      "std": 0.0,
+      "min": 0.07766031409657975,
+      "max": 0.07766031409657975,
+      "latest": 0.07766031409657975,
+      "trend": "stable"
+    },
+    "data_locality_score": {
+      "mean": 0.9057000247046046,
+      "std": 0.0,
+      "min": 0.9057000247046046,
+      "max": 0.9057000247046046,
+      "latest": 0.9057000247046046,
+      "trend": "stable"
+    },
+    "scheduling_length": {
+      "mean": 53.21643000775555,
+      "std": 0.0,
+      "min": 53.21643000775555,
+      "max": 53.21643000775555,
+      "latest": 53.21643000775555,
+      "trend": "stable"
+    },
+    "critical_path_ratio": {
+      "mean": 0.8941236207621592,
+      "std": 0.0,
+      "min": 0.8941236207621592,
+      "max": 0.8941236207621592,
+      "latest": 0.8941236207621592,
+      "trend": "stable"
+    },
+    "parallel_efficiency": {
+      "mean": 0.018791189109345817,
+      "std": 0.0,
+      "min": 0.018791189109345817,
+      "max": 0.018791189109345817,
+      "latest": 0.018791189109345817,
+      "trend": "stable"
+    },
+    "workflow_completion_rate": {
+      "mean": 0.8542576387657067,
+      "std": 0.0,
+      "min": 0.8542576387657067,
+      "max": 0.8542576387657067,
+      "latest": 0.8542576387657067,
+      "trend": "stable"
+    },
+    "communication_overhead": {
+      "mean": 7.919712873720634,
+      "std": 0.0,
+      "min": 7.919712873720634,
+      "max": 7.919712873720634,
+      "latest": 7.919712873720634,
+      "trend": "stable"
+    }
+  },
+  "training_process": {
+    "exploration_efficiency": {
+      "mean": NaN,
+      "std": NaN,
+      "min": NaN,
+      "max": NaN,
+      "latest": NaN,
+      "trend": "stable"
+    },
+    "convergence_speed": {
+      "mean": 0.5,
+      "std": 0.0,
+      "min": 0.5,
+      "max": 0.5,
+      "latest": 0.5,
+      "trend": "stable"
+    },
+    "reward_distribution": {
+      "mean": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "latest": 0.0,
+        "trend": "stable"
+      },
+      "std": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "latest": 0.0,
+        "trend": "stable"
+      },
+      "min": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "latest": 0.0,
+        "trend": "stable"
+      },
+      "max": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "latest": 0.0,
+        "trend": "stable"
+      },
+      "median": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "latest": 0.0,
+        "trend": "stable"
+      }
+    },
+    "q_value_curve": {
+      "length": 0,
+      "trend": "stable"
+    },
+    "learning_curve": {
+      "length": 10,
+      "trend": "stable"
+    },
+    "episode_count": {
+      "mean": 10.0,
+      "std": 0.0,
+      "min": 10.0,
+      "max": 10.0,
+      "latest": 10.0,
+      "trend": "stable"
+    },
+    "loss_curve": {
+      "length": 0,
+      "trend": "stable"
+    },
+    "stability_score": {
+      "mean": 0.0,
+      "std": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "latest": 0.0,
+      "trend": "stable"
+    }
+  },
+  "baseline_comparison": {
+    "baseline_makespan": {
+      "mean": 105.0,
+      "std": 0.0,
+      "min": 105.0,
+      "max": 105.0,
+      "latest": 105.0,
+      "trend": "stable"
+    },
+    "improvement_ratio": {
+      "mean": 0.9904761904761905,
+      "std": 0.0,
+      "min": 0.9904761904761905,
+      "max": 0.9904761904761905,
+      "latest": 0.9904761904761905,
+      "trend": "stable"
+    },
+    "robustness_score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "latest": 1.0,
+      "trend": "stable"
+    },
+    "speedup_ratio": {
+      "mean": 105.0,
+      "std": 0.0,
+      "min": 105.0,
+      "max": 105.0,
+      "latest": 105.0,
+      "trend": "stable"
+    },
+    "adaptability_score": {
+      "mean": 0.5,
+      "std": 0.0,
+      "min": 0.5,
+      "max": 0.5,
+      "latest": 0.5,
+      "trend": "stable"
+    },
+    "efficiency_ratio": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "latest": 1.0,
+      "trend": "stable"
+    },
+    "scalability_score": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "latest": 1.0,
+      "trend": "stable"
+    }
+  },
+  "overall_score": NaN,
+  "recommendations": [
+    "能效较低，建议考虑节能调度策略",
+    "并行效率不足，建议优化任务并行执行策略",
+    "训练不稳定，建议增加正则化或调整批大小"
+  ]
+}

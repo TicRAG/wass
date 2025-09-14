@@ -442,3 +442,217 @@ def extract_gnn_features(self, task, simulation):
 ## 结论
 
 WASS-RAG当前的性能问题主要源于奖励函数设计、RAG融合机制、训练策略和状态表示等多个方面。通过系统性的改进方案，我们预期可以显著提升WASS-RAG的性能，使其成为真正有效的智能调度器。改进方案将分阶段实施，确保每个阶段都能取得可衡量的进展。
+
+## 详细问题分析
+
+### 1. **模拟环境过于简化，与真实环境差异巨大**
+
+在`improved_drl_trainer.py`中的`create_mock_environment`方法创建了一个高度简化的模拟环境：
+
+```python
+def create_mock_environment(self) -> Tuple[EnvironmentState, List[TaskState], List[NodeState]]:
+    """创建模拟训练环境"""
+    # 创建节点状态
+    node_states = []
+    for i in range(4):
+        node_states.append(NodeState(
+            id=f"ComputeHost{i+1}",
+            speed=2.0 + i * 0.5,  # 不同的处理速度
+            current_load=random.uniform(0, 0.5),
+            available_time=random.uniform(0, 10),
+            data_availability={f"task_{j}": random.random() for j in range(20)}
+        ))
+```
+
+**问题**：
+- 节点速度设置过于简单（2.0 + i * 0.5），与`platform.xml`中配置的真实节点性能（2Gf, 3Gf, 2.5Gf, 4Gf）不匹配
+- 任务依赖关系随机生成，没有考虑真实的工作流结构
+- 数据传输开销完全忽略，而真实环境中网络延迟和带宽限制对调度性能影响巨大
+
+### 2. **状态特征提取不完整**
+
+在`extract_state_features`方法中，状态向量只包含24维特征：
+
+```python
+def extract_state_features(self, 
+                         current_task: TaskState, 
+                         node_states: List[NodeState],
+                         environment: EnvironmentState) -> np.ndarray:
+    """提取状态特征"""
+    features = []
+    
+    # 任务特征
+    features.extend([
+        current_task.computation_size / 1e10,  # 归一化
+        len(current_task.parents),
+        len(current_task.children),
+        float(current_task.is_critical_path),
+        current_task.data_locality_score
+    ])
+```
+
+**问题**：
+- 缺少关键特征：数据传输时间、任务优先级、资源竞争情况
+- 特征归一化方式不合理（如`current_time / 1000.0`），可能导致特征值范围差异过大
+- 没有考虑任务间的数据依赖关系强度
+
+### 3. **奖励函数设计存在问题**
+
+在`reward.py`中的奖励函数权重分配不合理：
+
+```python
+WEIGHTS = {
+    'cpp': 0.25,  # 降低关键路径进度权重
+    'lb': 0.15,   # 降低负载均衡权重
+    'pu': 0.10,   # 降低并行利用率权重
+    'qd': 0.10,   # 降低队列延迟惩罚权重
+    'makespan': 0.40,  # 新增：总体makespan预测权重
+}
+```
+
+**问题**：
+- makespan权重过高（0.40），导致其他重要因素被忽视
+- 奖励计算中的makespan预测不准确：
+  ```python
+  predicted_makespan = total_makespan * (1.0 + (len(current_tasks) / len(task_states)))
+  ```
+  这种线性预测过于简单，没有考虑任务依赖和资源约束
+
+### 4. **训练过程设计不合理**
+
+在`train_episode`方法中：
+
+```python
+while current_tasks and step_count < 50:  # 限制最大步数
+    # 选择当前任务（简化：按顺序）
+    current_task = current_tasks[0]
+```
+
+**问题**：
+- 任务调度顺序过于简化（按顺序选择），没有考虑真实的任务依赖关系
+- 最大步数限制为50，对于复杂工作流可能不够
+- 没有实现真正的任务调度策略，只是按顺序执行
+
+### 5. **经验回放和目标网络更新策略问题**
+
+在`ImprovedDQNAgent`类中：
+
+```python
+def replay(self):
+    """经验回放训练，加入makespan预测奖励"""
+    if len(self.memory) < self.batch_size:
+        return None
+    
+    # 采样经验
+    batch = random.sample(self.memory, self.batch_size)
+```
+
+**问题**：
+- 经验回放没有考虑时序相关性，随机采样可能破坏重要的时序信息
+- 目标网络更新频率（每10步）可能不适合所有训练阶段
+- 没有实现优先经验回放，重要经验可能被忽略
+
+### 6. **RAG融合决策权重不平衡**
+
+在`hybrid_fusion.py`中：
+
+```python
+def fuse_decision(q_values: np.ndarray, 
+                 rag_scores: np.ndarray, 
+                 load_values: np.ndarray,
+                 progress: float,
+                 makespan_prediction: float) -> np.ndarray:
+    # 归一化
+    q_norm = (q_values - q_values.min()) / (q_values.max() - q_values.min() + 1e-8)
+    rag_norm = (rag_scores - rag_scores.min()) / (rag_scores.max() - rag_scores.min() + 1e-8)
+    
+    # 动态权重调整
+    alpha = 0.03 + 0.015 * progress  # DRL权重
+    beta = 0.03 - 0.015 * progress   # RAG权重
+    gamma = 0.70                     # 负载均衡权重
+    delta = 0.24                     # makespan预测权重
+```
+
+**问题**：
+- DRL和RAG权重过小（alpha和beta最大只有0.045），而负载均衡权重过大（0.70）
+- makespan预测权重固定为0.24，没有根据任务进度动态调整
+- 权重总和归一化可能导致重要决策因素被稀释
+
+## 修复进度
+
+### 修复进度
+
+### 已修复问题：
+1. **模拟环境过于简化** ✅ **已完成**
+   - **修复内容**:
+     - 更新了`create_mock_environment`方法，使用与platform.xml一致的真实节点配置
+     - 添加了节点核心数和磁盘速度信息
+     - 改进了任务依赖关系生成逻辑，使其更符合实际工作流
+     - 添加了任务数据大小信息
+     - 实现了关键路径长度估算算法
+     - 添加了网络带宽和延迟信息
+     - 优化了初始节点负载和可用时间设置
+   - **修复日期**: 2023-11-01
+
+2. **状态特征提取不完整** ✅ **已完成**
+   - **修复内容**:
+     - 大幅扩展状态特征维度，从原来的12维增加到42维
+     - 改进特征归一化方法，使用对数归一化和相对归一化
+     - 添加数据传输时间特征，包括传输时间估算、数据局部性差异等
+     - 增加节点核心数和磁盘速度特征
+     - 添加环境特征，如网络带宽、延迟、负载标准差等
+     - 增加关键路径进度特征
+     - 更新simulate_step方法，考虑数据传输开销
+     - 更新DQN网络初始化，适应新的特征维度
+   - **修复日期**: 2023-11-01
+
+3. **奖励函数设计存在问题** ✅ **已完成**
+   - **修复内容**:
+     - 重新平衡奖励权重，降低makespan权重(0.40→0.25)和cpp权重(0.25→0.20)
+     - 新增resource(0.10)和data_locality(0.10)权重项
+     - 更新StepContext类添加资源利用率和数据局部性信息
+     - 改进compute_step_reward函数，添加资源利用率和数据局部性奖励计算
+     - 改进makespan预测方法，考虑当前进度与预期进度的差异
+     - 使用sigmoid函数代替tanh，使奖励分布更平滑
+     - 改进compute_final_reward函数，实现更稳定的makespan归一化
+     - 添加基于基准makespan的归一化方法
+     - 更新improved_drl_trainer.py中调用compute_final_reward的部分
+   - **修复日期**: 2023-11-01
+
+4. **DQN网络结构简单** ✅ **已完成**
+   - **修复内容**:
+     - 创建了新的AdvancedDQN类，采用更深的网络结构(4层隐藏层[512,256,128,64])
+     - 添加了LayerNorm和动态dropout机制，提高网络泛化能力
+     - 实现了注意力机制模块，增强关键特征提取能力
+     - 采用Dueling DQN架构，分离价值流和优势流，提高学习效率
+     - 更新了ImprovedDQNAgent类，支持网络类型选择和性能监控
+     - 改进了训练过程，实现Double DQN、SmoothL1Loss损失函数、动态梯度裁剪和指数衰减探索率
+     - 添加了get_performance_stats方法，提供详细的训练性能统计信息
+   - **修复日期**: 2023-11-02
+
+5. **训练过程设计不合理** ✅ **已完成**
+   - **修复内容**:
+     - 实现课程学习策略，将训练过程分为4个阶段，从简单到复杂逐步增加难度
+     - 添加启发式算法指导，集成先验知识加速学习过程
+     - 实现自适应学习率调度，根据训练进度动态调整学习率
+     - 添加性能监控和阶段自动推进机制，确保每个阶段充分学习后再进入下一阶段
+     - 改进训练循环，集成课程学习和启发式指导，提高训练效率和稳定性
+   - **修复日期**: 2023-11-02
+
+### 待修复问题列表：
+
+5. **缺乏有效的探索策略** - 未开始
+   - **问题描述**: 当前DRL智能体主要依赖ε-贪婪策略进行探索，缺乏针对工作流调度特点的多样化探索机制
+   - **影响**: 限制了解空间的充分探索，可能导致智能体陷入局部最优解
+   - **建议修复方案**:
+     - 实现基于不确定性的探索策略，如Bootstrap DQN或Noisy Nets
+     - 添加针对工作流调度的特定探索策略，如基于任务关键性的有向探索
+     - 实现探索-利用平衡的自适应调整机制
+
+6. **评估指标不全面** - 未开始
+   - **问题描述**: 当前评估主要关注makespan，缺乏对系统资源利用率、能效、公平性等多维度的评估
+   - **影响**: 无法全面评估DRL调度策略的综合性能，可能忽略某些重要方面
+   - **建议修复方案**:
+     - 扩展评估指标体系，包括资源利用率、能效、公平性等
+     - 实现多目标优化框架，平衡不同性能指标
+     - 添加针对不同应用场景的定制化评估机制
