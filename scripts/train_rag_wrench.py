@@ -47,46 +47,8 @@ def load_config(cfg_path: str) -> Dict:
                             cfg[key] = value
     return cfg
 
-@dataclass
-class WRENCHKnowledgeCase:
-    """基于WRENCH的知识案例"""
-    # 工作流特征
-    workflow_id: str
-    task_count: int
-    dependency_ratio: float
-    critical_path_length: int
-    workflow_embedding: np.ndarray
-    
-    # 任务特征
-    task_id: str
-    task_flops: float
-    task_input_files: int
-    task_output_files: int
-    task_dependencies: int
-    task_children: int
-    task_features: np.ndarray
-    
-    # 节点特征
-    available_nodes: List[str]
-    node_capacities: Dict[str, float]
-    node_loads: Dict[str, float]
-    node_features: np.ndarray
-    
-    # 调度决策和结果
-    scheduler_type: str
-    chosen_node: str
-    action_taken: int
-    
-    # 性能结果
-    task_execution_time: float
-    task_wait_time: float
-    workflow_makespan: float
-    node_utilization: Dict[str, float]
-    
-    # 元数据
-    simulation_time: float
-    platform_config: str
-    metadata: Dict[str, Any]
+from src.knowledge_base.wrench_full_kb import WRENCHKnowledgeCase, WRENCHRAGKnowledgeBase
+from src.knowledge_base.json_kb import JSONKnowledgeBase, KnowledgeCase as JSONKnowledgeCase
 
 class WRENCHWorkflowEmbedder:
     """基于WRENCH的工作流嵌入器"""
@@ -168,126 +130,6 @@ class WRENCHWorkflowEmbedder:
         
         return np.array(features[:12], dtype=np.float32)
 
-class WRENCHRAGKnowledgeBase:
-    """基于WRENCH的RAG知识库"""
-    
-    def __init__(self, embedding_dim: int = 64):
-        self.cases: List[WRENCHKnowledgeCase] = []
-        self.embedder = WRENCHWorkflowEmbedder(embedding_dim)
-        self.case_index = {}
-    
-    def add_case(self, case: WRENCHKnowledgeCase):
-        """添加知识案例"""
-        self.cases.append(case)
-    
-    def build_index(self):
-        """构建检索索引"""
-        if not self.cases:
-            return
-        
-        print(f"构建检索索引，共 {len(self.cases)} 个案例...")
-        
-        # 提取所有工作流嵌入
-        embeddings = np.array([case.workflow_embedding for case in self.cases])
-        
-        # 使用简单的k-means聚类
-        n_clusters = min(20, len(self.cases))
-        cluster_centers = self._simple_kmeans(embeddings, n_clusters)
-        
-        # 为每个案例分配到最近的聚类
-        self.case_index = {i: [] for i in range(n_clusters)}
-        
-        for i, case in enumerate(self.cases):
-            distances = [np.linalg.norm(case.workflow_embedding - center) 
-                        for center in cluster_centers]
-            cluster_id = np.argmin(distances)
-            self.case_index[cluster_id].append(i)
-        
-        print(f"索引构建完成：{n_clusters} 个聚类")
-        for i, cases in self.case_index.items():
-            print(f"  聚类 {i}: {len(cases)} 个案例")
-    
-    def _simple_kmeans(self, data: np.ndarray, k: int, max_iters: int = 50) -> np.ndarray:
-        """简单的K-means实现"""
-        n, d = data.shape
-        if n < k:
-            return data
-        
-        centroids = data[np.random.choice(n, k, replace=False)]
-        
-        for _ in range(max_iters):
-            # 分配点到最近的聚类中心
-            distances = np.sqrt(((data - centroids[:, np.newaxis])**2).sum(axis=2))
-            assignments = np.argmin(distances, axis=0)
-            
-            # 更新聚类中心
-            new_centroids = np.array([data[assignments == i].mean(axis=0) 
-                                    if np.any(assignments == i) else centroids[i]
-                                    for i in range(k)])
-            
-            # 检查收敛
-            if np.allclose(centroids, new_centroids):
-                break
-            
-            centroids = new_centroids
-        
-        return centroids
-    
-    def retrieve_similar_cases(self, query_embedding: np.ndarray, 
-                             query_task_features: np.ndarray,
-                             k: int = 5) -> List[Tuple[WRENCHKnowledgeCase, float]]:
-        """检索相似案例"""
-        if not self.cases:
-            return []
-        
-        similarities = []
-        for case in self.cases:
-            # 工作流相似度
-            workflow_sim = self._cosine_similarity(query_embedding, case.workflow_embedding)
-            
-            # 任务相似度
-            task_sim = self._cosine_similarity(query_task_features, case.task_features)
-            
-            # 综合相似度
-            total_sim = 0.7 * workflow_sim + 0.3 * task_sim
-            similarities.append((case, total_sim))
-        
-        # 排序并返回top-k
-        similarities.sort(key=lambda x: x[1], reverse=True)
-        return similarities[:k]
-    
-    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
-        """计算余弦相似度"""
-        norm_a = np.linalg.norm(a)
-        norm_b = np.linalg.norm(b)
-        if norm_a == 0 or norm_b == 0:
-            return 0.0
-        return np.dot(a, b) / (norm_a * norm_b)
-    
-    def save(self, path: str):
-        """保存知识库"""
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(path, 'wb') as f:
-            pickle.dump({
-                'cases': self.cases,
-                'case_index': self.case_index,
-                'embedding_dim': self.embedder.embedding_dim
-            }, f)
-        
-        print(f"知识库已保存到 {path}")
-    
-    @classmethod
-    def load(cls, path: str) -> 'WRENCHRAGKnowledgeBase':
-        """加载知识库"""
-        with open(path, 'rb') as f:
-            data = pickle.load(f)
-        
-        kb = cls(data['embedding_dim'])
-        kb.cases = data['cases']
-        kb.case_index = data['case_index']
-        
-        return kb
 
 class WRENCHRAGTrainer:
     """基于WRENCH的RAG训练器"""
@@ -542,6 +384,25 @@ class WRENCHRAGTrainer:
     def save_knowledge_base(self, path: str = "data/wrench_rag_knowledge_base.pkl"):
         """保存知识库"""
         self.knowledge_base.save(path)
+        # 构建 JSON 全量高质量知识库
+        json_full = JSONKnowledgeBase()
+        for i, c in enumerate(self.knowledge_base.cases):
+            json_full.add_case(JSONKnowledgeCase(
+                workflow_id=c.workflow_id,
+                task_id=c.task_id,
+                scheduler_type=c.scheduler_type,
+                chosen_node=c.chosen_node,
+                task_execution_time=c.task_execution_time,
+                workflow_makespan=c.workflow_makespan,
+                task_features=list(map(float, c.task_features[:32])) if c.task_features is not None else None,
+                workflow_embedding=list(map(float, c.workflow_embedding[:64])) if c.workflow_embedding is not None else None,
+                quality_score=None
+            ))
+        json_full.compute_quality_scores()
+        json_full.quality_filter(top_p=0.5)
+        json_path_full = path.replace('.pkl', '_filtered.json')
+        json_full.save_json(json_path_full)
+        print(f"📄 过滤后高质量 JSON 知识库保存: {json_path_full}")
         
         # 也保存为JSON格式便于查看
         json_path = path.replace('.pkl', '.json')

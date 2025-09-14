@@ -21,10 +21,16 @@ import torch.optim as optim
 from collections import deque, namedtuple
 import yaml
 
-# 添加项目路径
+# 先添加项目路径再导入本地包
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+from src.drl.reward import compute_step_reward, compute_final_reward, StepContext, EpisodeStats  # noqa: E402
+
+# 确保结果目录存在（冒烟运行可能尚未创建）
+Path('results').mkdir(exist_ok=True)
 
 @dataclass
 class TaskState:
@@ -55,86 +61,13 @@ class EnvironmentState:
     critical_path_length: float
 
 class DenseRewardCalculator:
-    """密集奖励计算器"""
-    
-    def __init__(self, 
-                 data_locality_weight: float = 0.3,
-                 waiting_time_weight: float = 0.2,
-                 critical_path_weight: float = 0.4,
-                 final_makespan_weight: float = 0.1):
-        self.data_locality_weight = data_locality_weight
-        self.waiting_time_weight = waiting_time_weight
-        self.critical_path_weight = critical_path_weight
-        self.final_makespan_weight = final_makespan_weight
-    
-    def calculate_step_reward(self, 
-                            task: TaskState, 
-                            chosen_node: NodeState,
-                            all_nodes: List[NodeState],
-                            environment: EnvironmentState) -> float:
-        """计算单步奖励"""
-        
-        # 1. 数据局部性奖励
-        data_locality_reward = self._calculate_data_locality_reward(task, chosen_node)
-        
-        # 2. 等待时间惩罚
-        waiting_time_penalty = self._calculate_waiting_time_penalty(task, chosen_node, all_nodes)
-        
-        # 3. 关键路径奖励
-        critical_path_reward = self._calculate_critical_path_reward(task, chosen_node, environment)
-        
-        # 4. 负载均衡奖励
-        load_balance_reward = self._calculate_load_balance_reward(chosen_node, all_nodes)
-        
-        # 组合奖励
-        total_reward = (
-            self.data_locality_weight * data_locality_reward +
-            self.waiting_time_weight * (-waiting_time_penalty) +
-            self.critical_path_weight * critical_path_reward +
-            0.1 * load_balance_reward  # 较小权重的负载均衡
-        )
-        
-        return total_reward
-    
-    def _calculate_data_locality_reward(self, task: TaskState, chosen_node: NodeState) -> float:
-        """计算数据局部性奖励"""
-        # 如果任务数据已在选定节点上，给予正奖励
-        data_score = task.data_locality_score * chosen_node.data_availability.get(task.id, 0.0)
-        return min(data_score, 1.0)  # 限制在[0,1]范围内
-    
-    def _calculate_waiting_time_penalty(self, task: TaskState, chosen_node: NodeState, all_nodes: List[NodeState]) -> float:
-        """计算等待时间惩罚"""
-        # 计算在所选节点上的相对等待时间
-        min_available_time = min(node.available_time for node in all_nodes)
-        relative_waiting_time = (chosen_node.available_time - min_available_time) / max(1.0, min_available_time)
-        return min(relative_waiting_time, 2.0)  # 限制惩罚上限
-    
-    def _calculate_critical_path_reward(self, task: TaskState, chosen_node: NodeState, environment: EnvironmentState) -> float:
-        """计算关键路径奖励"""
-        if not task.is_critical_path:
-            return 0.0
-        
-        # 关键路径任务选择最快节点应该得到更高奖励
-        execution_time = task.computation_size / chosen_node.speed
-        optimal_execution_time = task.computation_size / max(node.speed for node in environment.node_states)
-        
-        # 奖励与执行时间的改进成正比
-        improvement_ratio = optimal_execution_time / execution_time
-        return min(improvement_ratio, 2.0) - 1.0  # 归一化到[-1,1]
-    
-    def _calculate_load_balance_reward(self, chosen_node: NodeState, all_nodes: List[NodeState]) -> float:
-        """计算负载均衡奖励"""
-        avg_load = np.mean([node.current_load for node in all_nodes])
-        load_deviation = abs(chosen_node.current_load - avg_load) / max(avg_load, 1.0)
-        return max(0.0, 1.0 - load_deviation)  # 负载越接近平均值奖励越高
-    
+    """(Deprecated soon) 保留旧接口以防兼容问题，但内部委托到新 shaping。"""
+    def calculate_step_reward(self, task: TaskState, chosen_node: NodeState, all_nodes: List[NodeState], environment: EnvironmentState) -> float:
+        # 旧接口保持但现在直接返回0（避免误用），真实奖励在训练循环外部构造 StepContext
+        return 0.0
     def calculate_final_reward(self, final_makespan: float, baseline_makespan: float) -> float:
-        """计算最终奖励"""
-        if baseline_makespan <= 0:
-            return 0.0
-        
-        improvement = (baseline_makespan - final_makespan) / baseline_makespan
-        return improvement * 10.0  # 放大最终奖励信号
+        stats = EpisodeStats(makespan=final_makespan)
+        return compute_final_reward(stats)
 
 class ImprovedDQN(nn.Module):
     """改进的DQN网络"""
@@ -280,6 +213,13 @@ class WRENCHDRLTrainer:
         self.reward_calculator = DenseRewardCalculator()
         self.agent = None
         self.training_history = []
+        # 新增：读取扩展训练/日志配置
+        self.drl_cfg = self.config.get('drl', {})
+        self.checkpoint_cfg = self.config.get('checkpoint', {})
+        self.logging_cfg = self.config.get('logging', {})
+        Path(self.checkpoint_cfg.get('dir', 'models/checkpoints/')).mkdir(parents=True, exist_ok=True)
+        Path(self.logging_cfg.get('metrics_file', 'results/training_metrics.jsonl')).parent.mkdir(parents=True, exist_ok=True)
+        self.best_makespan = float('inf')
     
     def create_mock_environment(self) -> Tuple[EnvironmentState, List[TaskState], List[NodeState]]:
         """创建模拟训练环境"""
@@ -361,12 +301,7 @@ class WRENCHDRLTrainer:
         
         # 计算执行时间
         execution_time = task.computation_size / chosen_node.speed
-        
-        # 计算步骤奖励
-        step_reward = self.reward_calculator.calculate_step_reward(
-            task, chosen_node, node_states, environment
-        )
-        
+        # 奖励不在此计算（外部根据更新后的全局信息构造 StepContext）
         # 更新环境
         new_environment = EnvironmentState(
             current_time=environment.current_time + execution_time,
@@ -382,8 +317,7 @@ class WRENCHDRLTrainer:
         
         # 检查是否结束
         done = len(new_environment.pending_tasks) == 0
-        
-        return step_reward, new_environment, done
+        return 0.0, new_environment, done
     
     def train_episode(self) -> Dict[str, float]:
         """训练一个episode"""
@@ -394,7 +328,20 @@ class WRENCHDRLTrainer:
         step_count = 0
         
         current_tasks = task_states.copy()
-        
+
+        reward_debug_path = self.logging_cfg.get('reward_debug', 'results/reward_debug.log')
+        debug_file = None
+        try:
+            debug_file = open(reward_debug_path, 'a')
+        except Exception:
+            debug_file = None
+
+        # 准备增强型 StepContext 统计
+        total_cp_tasks = sum(1 for t in task_states if t.is_critical_path) or 1
+        baseline_avg_wait = np.mean([n.available_time for n in node_states]) or 1.0
+        completed_ids = set()
+        task_map = {t.id: t for t in task_states}
+
         while current_tasks and step_count < 50:  # 限制最大步数
             # 选择当前任务（简化：按顺序）
             current_task = current_tasks[0]
@@ -406,9 +353,27 @@ class WRENCHDRLTrainer:
             action = self.agent.act(state, training=True)
             
             # 执行动作
-            step_reward, new_environment, done = self.simulate_step(
+            _, new_environment, done = self.simulate_step(
                 current_task, action, node_states, environment
             )
+            # 更新完成集
+            completed_ids.add(current_task.id)
+
+            # 构造增强 StepContext
+            try:
+                completed_cp = sum(1 for cid in completed_ids if task_map[cid].is_critical_path)
+                ctx = StepContext(
+                    completed_critical_path_tasks=completed_cp,
+                    total_critical_path_tasks=total_cp_tasks,
+                    node_busy_times={n.id: n.current_load for n in node_states},
+                    ready_task_count=len(current_tasks)-1,  # 去掉当前即将调度的
+                    total_nodes=len(node_states),
+                    avg_queue_wait=np.mean([n.available_time for n in node_states]),
+                    queue_wait_baseline=baseline_avg_wait
+                )
+                step_reward, _metrics = compute_step_reward(ctx, debug_writer=debug_file)
+            except Exception:
+                step_reward = 0.0
             
             # 提取下一状态特征
             if len(current_tasks) > 1:
@@ -433,12 +398,19 @@ class WRENCHDRLTrainer:
             
             if done:
                 break
-        
-        # 计算最终奖励
-        baseline_makespan = 200.0  # 基准makespan
-        final_reward = self.reward_calculator.calculate_final_reward(total_makespan, baseline_makespan)
+
+        # 计算最终奖励 (新 makespan 稀疏奖励)
+        final_reward = compute_final_reward(EpisodeStats(makespan=total_makespan))
         total_reward += final_reward
-        
+        # 可选：将最终奖励写入最后一个 transition（可在未来扩展）
+
+        if debug_file:
+            try:
+                debug_file.write(f"FINAL\tmakespan={total_makespan:.4f}\treward={final_reward:.4f}\n")
+                debug_file.close()
+            except Exception:
+                pass
+
         return {
             'total_reward': total_reward,
             'makespan': total_makespan,
@@ -448,7 +420,7 @@ class WRENCHDRLTrainer:
     
     def train(self, episodes: int = 1000) -> Dict[str, Any]:
         """训练DRL智能体"""
-        print(f"🚀 开始改进的DRL训练: {episodes} episodes")
+        print(f"🚀 开始改进的DRL训练: {episodes} episodes (配置 episodes={self.drl_cfg.get('episodes', episodes)})")
         
         # 初始化智能体
         state_dim = 5 + 4 * 4 + 3  # 任务特征 + 节点特征 + 环境特征
@@ -464,6 +436,16 @@ class WRENCHDRLTrainer:
         best_makespan = float('inf')
         recent_rewards = deque(maxlen=100)
         
+        log_interval = self.drl_cfg.get('log_interval', 50)
+        eval_interval = self.drl_cfg.get('eval_interval', 100)
+        checkpoint_interval = self.drl_cfg.get('checkpoint_interval', 100)
+        rolling_window = self.drl_cfg.get('rolling_window', 100)
+        metrics_path = self.logging_cfg.get('metrics_file', 'results/training_metrics.jsonl')
+        ckpt_dir = Path(self.checkpoint_cfg.get('dir', 'models/checkpoints/'))
+        keep_last = self.checkpoint_cfg.get('keep_last', 5)
+        save_best = self.checkpoint_cfg.get('save_best', True)
+        kept_ckpts = []
+
         for episode in range(episodes):
             episode_results = self.train_episode()
             self.training_history.append(episode_results)
@@ -474,12 +456,45 @@ class WRENCHDRLTrainer:
                 best_makespan = episode_results['makespan']
             
             # 打印进度
-            if episode % 50 == 0:
+            if episode % log_interval == 0:
                 avg_reward = np.mean(recent_rewards) if recent_rewards else 0
                 print(f"Episode {episode}: "
                       f"平均奖励={avg_reward:.3f}, "
                       f"Makespan={episode_results['makespan']:.2f}, "
                       f"ε={episode_results['epsilon']:.3f}")
+            # 写入流式指标日志
+            try:
+                with open(metrics_path, 'a') as mf:
+                    mf.write(json.dumps({
+                        'episode': episode,
+                        'reward': episode_results['total_reward'],
+                        'makespan': episode_results['makespan'],
+                        'epsilon': episode_results['epsilon'],
+                        'timestamp': time.time()
+                    }) + '\n')
+            except Exception as e:
+                print(f"⚠️ 写入指标日志失败: {e}")
+
+            # 检查点保存
+            if checkpoint_interval and episode % checkpoint_interval == 0 and episode > 0:
+                ckpt_path = ckpt_dir / f"episode_{episode}.pth"
+                self.save_model(str(ckpt_path))
+                kept_ckpts.append(ckpt_path)
+                # 控制数量
+                if len(kept_ckpts) > keep_last:
+                    old = kept_ckpts.pop(0)
+                    try:
+                        old.unlink()
+                    except Exception:
+                        pass
+            # 保存最佳
+            if save_best and episode_results['makespan'] < self.best_makespan:
+                self.best_makespan = episode_results['makespan']
+                best_path = ckpt_dir / 'best_model.pth'
+                self.save_model(str(best_path))
+            # 评估钩子占位
+            if eval_interval and episode % eval_interval == 0 and episode > 0:
+                pass  # 可在此接入验证环境
         
         # 训练完成统计
         final_avg_reward = np.mean([h['total_reward'] for h in self.training_history[-100:]])
@@ -492,12 +507,11 @@ class WRENCHDRLTrainer:
             'best_makespan': best_makespan,
             'training_history': self.training_history
         }
-        
-        print(f"✅ DRL训练完成!")
+        print(f"✅ DRL训练完成! (新奖励框架集成)")
         print(f"   最终平均奖励: {final_avg_reward:.3f}")
         print(f"   最终平均Makespan: {final_avg_makespan:.2f}s")
         print(f"   最佳Makespan: {best_makespan:.2f}s")
-        
+
         return training_summary
     
     def save_model(self, model_path: str):

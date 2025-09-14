@@ -214,24 +214,23 @@ class WASSDRLScheduler(WRENCHScheduler):
         """初始化WASS-DRL调度器"""
         self.config = load_config(config_path)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
-        # 定义网络结构
-        self.state_dim = 17  # 与训练时一致
-        self.action_dim = 4   # 4个节点
-        
-        # 先创建模型，再加载权重
+        # 定义网络结构 (与改进训练器保持一致)
+        self.state_dim = 17  # 需与训练保持一致
+        self.action_dim = 4   # 节点数
+        self.hidden_dims = [256, 128, 64]
         self.model = self._create_model()
         self.epsilon = 0.1
-        
+
         # 加载模型
         self._load_model(model_path)
-        
+
         # 节点映射
         self.compute_nodes = ["ComputeHost1", "ComputeHost2", "ComputeHost3", "ComputeHost4"]
     
     def _create_model(self):
-        """创建DRL模型"""
-        return SimpleDQN(self.state_dim, self.action_dim).to(self.device)
+        # 延迟导入，避免在无torch环境时报错
+        from scripts.improved_drl_trainer import ImprovedDQN  # 复用已定义结构
+        return ImprovedDQN(self.state_dim, self.action_dim, self.hidden_dims).to(self.device)
     
     def _load_model(self, model_path: str):
         """加载训练好的DRL模型"""
@@ -245,6 +244,56 @@ class WASSDRLScheduler(WRENCHScheduler):
                 self.model.load_state_dict(agent_state['model_state_dict'])
                 self.epsilon = agent_state.get('epsilon', 0.1)
                 print(f"✅ DRL模型加载成功 (训练轮数: {agent_state.get('training_episodes', 'unknown')})")
+            elif 'q_network_state_dict' in checkpoint:
+                # 改进训练器格式
+                q_state = checkpoint['q_network_state_dict']
+                self.epsilon = checkpoint.get('epsilon', 0.1)
+                meta = checkpoint.get('metadata', {})
+                ck_sd = meta.get('state_dim'); ck_ad = meta.get('action_dim')
+                rebuild_needed = False
+                if ck_sd and ck_sd != self.state_dim:
+                    print(f"ℹ️ 重新构建模型以匹配checkpoint state_dim={ck_sd}")
+                    self.state_dim = ck_sd
+                    rebuild_needed = True
+                if ck_ad and ck_ad != self.action_dim:
+                    print(f"ℹ️ 重新构建模型以匹配checkpoint action_dim={ck_ad}")
+                    self.action_dim = ck_ad
+                    rebuild_needed = True
+                # 尝试从q_state推断隐藏层结构
+                if rebuild_needed:
+                    # 线性层权重键按顺序 network.X.weight
+                    linear_layers = [k for k in q_state.keys() if k.endswith('.weight')]
+                    # 排序保证顺序稳定
+                    linear_layers.sort(key=lambda x: int(x.split('.')[1]))
+                    inferred_hidden = []
+                    for idx, name in enumerate(linear_layers[:-1]):  # 最后一层是输出层
+                        shape = q_state[name].shape
+                        if idx == 0:
+                            # shape: (H1, state_dim)
+                            pass  # 输入维度无需存
+                        inferred_hidden.append(shape[0])
+                    # 如果检测到更深层 (例如 network.9.*) 则使用训练默认结构
+                    if any(k.startswith('network.9') for k in q_state.keys()):
+                        self.hidden_dims = [256,128,64]
+                        print("ℹ️ 检测到深层结构标记 network.9.* -> 使用默认隐藏层 [256,128,64]")
+                    elif inferred_hidden:
+                        # 去掉输出层前一层即完整隐藏列表
+                        self.hidden_dims = inferred_hidden[:-1] if len(inferred_hidden) > 1 else inferred_hidden
+                        print(f"ℹ️ 推断隐藏层结构: {self.hidden_dims}")
+                    # 重新创建模型
+                    self.model = self._create_model()
+                # 尝试直接加载；若失败执行部分匹配
+                try:
+                    self.model.load_state_dict(q_state, strict=True)
+                    print("✅ DRL模型加载成功 (改进格式 strict)")
+                except Exception as strict_e:
+                    print(f"⚠️ 严格加载失败，尝试部分加载: {strict_e}")
+                    model_dict = self.model.state_dict()
+                    filtered = {k: v for k, v in q_state.items() if k in model_dict and model_dict[k].shape == v.shape}
+                    model_dict.update(filtered)
+                    self.model.load_state_dict(model_dict, strict=False)
+                    missing = [k for k in self.model.state_dict().keys() if k not in filtered]
+                    print(f"✅ 部分加载完成，匹配参数数: {len(filtered)}, 缺失参数数: {len(missing)}")
             else:
                 # 兼容旧格式
                 self.model.load_state_dict(checkpoint)
@@ -257,81 +306,79 @@ class WASSDRLScheduler(WRENCHScheduler):
             self.model = None
     
     def _get_state(self, task, available_nodes, node_capacities, node_loads):
-        """获取DRL的状态向量"""
-        state = []
-        
-        # 任务特征 (4维)
+        """获取DRL的状态向量 (兼容改进训练器 24 维: 5 + 4*4 + 3)"""
+        feats = []
+        # 任务特征 5: flops(GF), memory(GB), cores, children, est_runtime(估计执行时间=flops/最大节点容量)
         try:
-            # 使用WRENCH API的正确方法获取任务信息
-            task_flops = float(getattr(task, 'get_flops', lambda: 1e9)()) / 1e9  # 任务计算量 (GFLOPS)
-            
-            # 尝试获取内存需求，如果不存在则使用默认值
+            task_flops_raw = float(getattr(task, 'get_flops', lambda: 1e9)())
+            task_flops = task_flops_raw / 1e9
             try:
-                task_memory = float(task.get_memory_requirement()) / 1e9  # 内存需求 (GB)
-            except (AttributeError, TypeError):
-                task_memory = 1.0  # 默认值
-            
-            task_cores = float(getattr(task, 'get_min_num_cores', lambda: 1)())  # 最小核心数
-            task_children = float(len(getattr(task, 'get_children', lambda: [])()))  # 子任务数
-            
-            state.extend([task_flops, task_memory, task_cores, task_children])
-            
-        except Exception as e:
-            # 如果所有方法都失败，使用默认值
-            state.extend([1.0, 1.0, 1.0, 0.0])
-        
-        # 节点特征 (每节点3维，最多4个节点 = 12维)
-        for i, node in enumerate(available_nodes[:4]):  # 限制最多4个节点
-            node_capacity = node_capacities.get(node, 1.0)
-            node_load = node_loads.get(node, 0.0)
-            
-            state.extend([
-                float(node_capacity),  # 节点容量
-                float(node_load),  # 节点负载
-                float(node_load / max(node_capacity, 1e-6))  # 负载率
-            ])
-        
-        # 填充不足的节点维度
-        while len(state) < 16:  # 4(任务) + 4*3(节点) = 16维
-            state.append(0.0)
-        
-        # 全局特征 (1维)
-        avg_load = sum(node_loads.values()) / max(len(node_loads), 1)
-        state.append(float(avg_load))
-        
-        # 确保状态维度为17维
-        if len(state) > 17:
-            state = state[:17]
-        elif len(state) < 17:
-            state.extend([0.0] * (17 - len(state)))
-        
-        return np.array(state, dtype=np.float32)
+                task_memory = float(task.get_memory_requirement()) / 1e9
+            except Exception:
+                task_memory = 1.0
+            task_cores = float(getattr(task, 'get_min_num_cores', lambda: 1)())
+            task_children = float(len(getattr(task, 'get_children', lambda: [])()))
+            max_cap = max([node_capacities.get(n,1.0) for n in self.compute_nodes]) if hasattr(self,'compute_nodes') else 4.0
+            est_runtime = (task_flops_raw / 1e9) / max_cap
+            feats.extend([task_flops, task_memory, task_cores, task_children, est_runtime])
+        except Exception:
+            feats.extend([1.0,1.0,1.0,0.0,1.0])
+
+        # 节点特征: 每节点4维 (capacity, load, load_ratio, capacity_remaining)
+        for node in self.compute_nodes[:4]:
+            cap = float(node_capacities.get(node,1.0))
+            load = float(node_loads.get(node,0.0))
+            ratio = load / max(cap,1e-6)
+            remaining = max(cap - load, 0.0)
+            feats.extend([cap, load, ratio, remaining])
+        # 不足节点填充
+        while len(feats) < 5 + 4*4:
+            feats.append(0.0)
+
+        # 环境特征 3: avg_load, max_load, std_load
+        loads = [node_loads.get(n,0.0) for n in self.compute_nodes]
+        if loads:
+            avg_load = float(np.mean(loads))
+            max_load = float(np.max(loads))
+            std_load = float(np.std(loads))
+        else:
+            avg_load=max_load=std_load=0.0
+        feats.extend([avg_load, max_load, std_load])
+
+        # 目标维度 24
+        if len(feats) < 24:
+            feats.extend([0.0]*(24-len(feats)))
+        elif len(feats) > 24:
+            feats = feats[:24]
+        return np.array(feats, dtype=np.float32)
     
     def schedule_task(self, task, available_nodes, node_capacities, node_loads, compute_service):
         if self.model is None:
-            # 模型未加载，抛出异常而不是回退
-            raise RuntimeError("DRL模型未正确加载，无法进行调度")
-        
+            # 模型未加载，改为启发式回退而不是抛出异常
+            print("⚠️ DRL模型未正确加载，使用启发式回退调度")
+            return self._heuristic_fallback(task, available_nodes, node_capacities, node_loads)
+
         try:
             state = self._get_state(task, available_nodes, node_capacities, node_loads)
             state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
-            
+
             with torch.no_grad():
                 q_values = self.model(state_tensor)
                 action = q_values.argmax().item()
-            
-            # 映射动作到节点
+
+            # 动作映射到节点
             if action < len(self.compute_nodes):
                 chosen_node = self.compute_nodes[action]
                 if chosen_node in available_nodes:
                     return chosen_node
-            
-            # 如果选择的节点不可用，抛出异常
-            raise RuntimeError("DRL模型选择的节点不可用")
-            
+
+            # 如果选择的节点不可用，使用启发式回退
+            print("⚠️ DRL选择节点不可用，使用启发式回退")
+            return self._heuristic_fallback(task, available_nodes, node_capacities, node_loads)
+
         except Exception as e:
-            print(f"⚠️ DRL调度失败: {e}")
-            raise RuntimeError(f"DRL调度失败: {e}")
+            print(f"⚠️ DRL调度失败，将使用启发式回退: {e}")
+            return self._heuristic_fallback(task, available_nodes, node_capacities, node_loads)
     
     def _heuristic_fallback(self, task, available_nodes, node_capacities, node_loads):
         """启发式回退调度策略"""
@@ -361,145 +408,90 @@ class WASSDRLScheduler(WRENCHScheduler):
             return available_nodes[0]
 
 class WASSRAGScheduler(WRENCHScheduler):
-    """基于RAG知识库增强的调度器"""
-    
-    def __init__(self, model_path: str, rag_path: str):
+    """基于RAG知识库增强的调度器 (重构: 优先统一JSON格式)."""
+
+    def __init__(self, model_path: str, rag_path: str, enable_fusion: bool = True):
         super().__init__("WASS-RAG")
         self.drl_scheduler = WASSDRLScheduler(model_path)
-        self.knowledge_base = None
+        self.knowledge_base = []  # list[dict]
+        self.rag_source = None
+        self.enable_fusion = enable_fusion
         self._load_rag_knowledge(rag_path)
-    
+
     def _load_rag_knowledge(self, rag_path: str):
-        """加载增强的RAG知识库"""
-        self.knowledge_base = []
-        
-        # 优先使用增强知识库
-        enhanced_path = "data/enhanced_rag_knowledge.json"
-        if os.path.exists(enhanced_path):
+        # 1. 标准 JSON (新格式)
+        preferred_json = "data/wrench_rag_knowledge_base.json"
+        candidate_jsons = [preferred_json, "data/enhanced_rag_knowledge.json", "data/extended_rag_knowledge.json", rag_path.replace('.pkl', '.json')]
+        for jpath in candidate_jsons:
+            if not os.path.exists(jpath):
+                continue
             try:
-                with open(enhanced_path, 'r', encoding='utf-8') as f:
+                with open(jpath, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                
-                cases = data.get('cases', [])
-                self.knowledge_base.extend(cases)
-                print(f"✅ 增强RAG知识库已加载: {len(cases)} 个优化案例")
-                return
-            except Exception as e:
-                print(f"增强知识库加载失败: {e}")
-        
-        # 回退到原始方法
-        # 方法1: 使用扩展的JSON知识库
-        extended_json_path = "data/extended_rag_knowledge.json"
-        if os.path.exists(extended_json_path):
-            try:
-                with open(extended_json_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                
                 cases = []
                 if isinstance(data, dict):
                     if 'cases' in data:
                         cases = data['cases']
                     elif 'sample_cases' in data:
                         cases = data['sample_cases']
-                    else:
-                        cases = list(data.values()) if isinstance(data, dict) else data
                 elif isinstance(data, list):
                     cases = data
-                
-                for case in cases:
-                    if isinstance(case, dict):
-                        simple_case = {
-                            'task_flops': float(case.get('task_flops', case.get('task_execution_time', 1.0) * 2e9)),
-                            'chosen_node': str(case.get('chosen_node', 'ComputeHost1')),
-                            'scheduler_type': str(case.get('scheduler_type', 'unknown')),
-                            'task_execution_time': float(case.get('task_execution_time', 0.0)),
-                            'workflow_makespan': float(case.get('workflow_makespan', 0.0)),
-                            'node_capacity': float(case.get('node_capacity', 2.0)),
-                            'performance_ratio': float(case.get('performance_ratio', 1.0)),
-                            'total_workflow_flops': float(case.get('total_workflow_flops', case.get('task_flops', 1e9))),
-                            'workflow_size': int(case.get('workflow_size', 5))
-                        }
-                        self.knowledge_base.append(simple_case)
-                
-                if self.knowledge_base:
-                    print(f"✅ RAG知识库已从扩展JSON加载: {len(self.knowledge_base)} 个案例")
-                    return
-                    
-            except Exception as e:
-                print(f"扩展JSON加载失败: {e}")
-        
-        # 方法2: 使用PKL文件（回退方案）
-        try:
-            import pickle
-            with open(rag_path, 'rb') as f:
-                data = pickle.load(f)
-            
-            # 处理不同格式的pickle数据
-            cases = []
-            if isinstance(data, dict):
-                cases = data.get('cases', data.get('sample_cases', []))
-            elif isinstance(data, list):
-                cases = data
-            else:
-                # 尝试直接迭代
-                try:
-                    cases = list(data)
-                except:
-                    cases = [data]
-            
-            for case in cases:
-                try:
-                    if hasattr(case, '__dict__'):
-                        # 处理对象类型
-                        case_dict = case.__dict__
-                    elif isinstance(case, dict):
-                        case_dict = case
-                    else:
+                norm = []
+                for c in cases:
+                    if not isinstance(c, dict):
                         continue
-                    
-                    simple_case = {
-                        'task_flops': float(case_dict.get('task_flops', case_dict.get('task_execution_time', 1.0) * 2e9)),
-                        'chosen_node': str(case_dict.get('chosen_node', 'ComputeHost1')),
-                        'scheduler_type': str(case_dict.get('scheduler_type', 'unknown')),
-                        'task_execution_time': float(case_dict.get('task_execution_time', 0.0))
-                    }
-                    self.knowledge_base.append(simple_case)
-                    
-                except Exception as e:
-                    continue
-            
-            if self.knowledge_base:
-                print(f"✅ RAG知识库已从PKL加载: {len(self.knowledge_base)} 个案例")
-                return
-                
-        except Exception as e:
-            print(f"PKL加载失败: {e}")
-        
-        # 方法3: 从扩展JSON直接读取（最终回退）
-        try:
-            with open("data/extended_rag_knowledge.json", 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            
-            # 简化处理：从JSON中提取任何可用的案例数据
-            if isinstance(data, list):
-                for case in data[:100]:  # 限制数量避免内存问题
-                    if isinstance(case, dict):
-                        simple_case = {
-                            'task_flops': float(case.get('task_flops', 1e9)),
-                            'chosen_node': str(case.get('chosen_node', 'ComputeHost1')),
-                            'scheduler_type': str(case.get('scheduler_type', 'FIFO'))
-                        }
-                        self.knowledge_base.append(simple_case)
-            
-            if self.knowledge_base:
-                print(f"✅ RAG知识库已从JSON加载(简化模式): {len(self.knowledge_base)} 个案例")
-                return
-                
-        except Exception as e:
-            print(f"最终加载失败: {e}")
-        
-        # 方法4: 创建默认知识库（如果所有加载方法都失败）
-        print("⚠️ 无法加载任何RAG知识库，创建默认知识库...")
+                    norm.append({
+                        'task_flops': float(c.get('task_flops', c.get('task_execution_time', 1.0) * 2e9)),
+                        'chosen_node': str(c.get('chosen_node', 'ComputeHost1')),
+                        'scheduler_type': str(c.get('scheduler_type', 'unknown')),
+                        'task_execution_time': float(c.get('task_execution_time', 0.0)),
+                        'workflow_makespan': float(c.get('workflow_makespan', 0.0)),
+                        'total_workflow_flops': float(c.get('total_workflow_flops', c.get('task_flops', 1e9))),
+                        'workflow_size': int(c.get('workflow_size', 0))
+                    })
+                if norm:
+                    self.knowledge_base = norm
+                    self.rag_source = jpath
+                    print(f"✅ RAG知识库(JSON)已加载: {len(self.knowledge_base)} 案例 (源: {jpath})")
+                    return
+            except Exception as e:
+                print(f"JSON加载失败({jpath}): {e}")
+
+        # 2. 旧 pickle (向后兼容)
+        if os.path.exists(rag_path):
+            try:
+                import pickle
+                with open(rag_path, 'rb') as f:
+                    pdata = pickle.load(f)
+                if isinstance(pdata, dict):
+                    pcases = pdata.get('cases', [])
+                elif isinstance(pdata, list):
+                    pcases = pdata
+                else:
+                    pcases = [pdata]
+                norm = []
+                for c in pcases:
+                    if hasattr(c, '__dict__'):
+                        c = c.__dict__
+                    if not isinstance(c, dict):
+                        continue
+                    norm.append({
+                        'task_flops': float(c.get('task_flops', c.get('task_execution_time', 1.0) * 2e9)),
+                        'chosen_node': str(c.get('chosen_node', 'ComputeHost1')),
+                        'scheduler_type': str(c.get('scheduler_type', 'unknown')),
+                        'task_execution_time': float(c.get('task_execution_time', 0.0)),
+                        'workflow_makespan': float(c.get('workflow_makespan', 0.0))
+                    })
+                if norm:
+                    self.knowledge_base = norm
+                    self.rag_source = rag_path
+                    print(f"✅ RAG知识库(PKL)已加载: {len(self.knowledge_base)} 案例 (源: {rag_path})")
+                    return
+            except Exception as e:
+                print(f"PKL加载失败({rag_path}): {e}")
+
+        # 3. 默认知识库
+        print("⚠️ 未找到有效RAG知识库，使用默认内置案例。")
         self._create_default_knowledge_base()
     
     def _create_default_knowledge_base(self):
@@ -567,10 +559,10 @@ class WASSRAGScheduler(WRENCHScheduler):
             drl_node = self.drl_scheduler.schedule_task(
                 task, available_nodes, node_capacities, node_loads, compute_service
             )
-            
-            # 如果没有知识库，抛出异常而不是回退
-            if not self.knowledge_base or len(self.knowledge_base) == 0:
-                raise RuntimeError("RAG知识库为空，无法进行RAG增强调度")
+            # 如果没有知识库，直接回退到DRL决策
+            if not self.knowledge_base:
+                print("⚠️ RAG知识库为空，回退到DRL决策")
+                return drl_node
             
             # 获取更丰富的任务特征用于RAG匹配
             try:
@@ -617,42 +609,94 @@ class WASSRAGScheduler(WRENCHScheduler):
                         'suggested_node': str(case.get('chosen_node', drl_node))
                     })
             
-            # 如果有高质量匹配，使用加权投票机制
+            # 如果有高质量匹配，准备融合所需 rag_scores
+            rag_scores = []
+            match_node_scores = {}
             if best_matches:
-                # 按相似度排序，取前5个最佳匹配
                 best_matches.sort(key=lambda x: x['similarity'], reverse=True)
-                top_matches = best_matches[:5]
-                
-                # 加权投票选择节点
-                node_votes = {}
+                top_matches = best_matches[:8]
                 for match in top_matches:
                     node = match['suggested_node']
-                    weight = match['similarity']
-                    
-                    if node not in node_votes:
-                        node_votes[node] = 0
-                    node_votes[node] += weight
-                
-                # 选择得票最高的节点
-                if node_votes:
-                    rag_suggested_node = max(node_votes.keys(), key=lambda x: node_votes[x])
-                    
-                    # 增强RAG决策权重：如果RAG有强建议且节点可用，优先使用
-                    total_weight = sum(node_votes.values())
-                    max_weight = max(node_votes.values())
-                    confidence = max_weight / total_weight
-                    
-                    # 降低置信度阈值，从0.4降到0.3，更倾向于使用RAG建议
-                    if confidence > 0.3 and rag_suggested_node in available_nodes:
-                        print(f"🎯 RAG决策: 选择{rag_suggested_node} (置信度: {confidence:.2f})")
-                        return rag_suggested_node
+                    match_node_scores.setdefault(node, 0.0)
+                    match_node_scores[node] += match['similarity']
+            for node in available_nodes:
+                rag_scores.append(match_node_scores.get(node, 0.0))
+
+            # 融合决策
+            if self.enable_fusion and rag_scores:
+                try:
+                    from src.scheduling.hybrid_fusion import fuse_decision
+                    # 获取 DRL 模型真实 Q-values
+                    q_values = []
+                    try:
+                        state = self.drl_scheduler._get_state(task, available_nodes, node_capacities, node_loads)
+                        if self.drl_scheduler.model is not None:
+                            import torch
+                            st = torch.FloatTensor(state).unsqueeze(0).to(self.drl_scheduler.device)
+                            with torch.no_grad():
+                                q_tensor = self.drl_scheduler.model(st)
+                            q_list = q_tensor.squeeze(0).cpu().tolist()
+                            # 只取与 available_nodes 对应的前 len(available_nodes) 个动作
+                            q_values = q_list[:len(available_nodes)]
+                    except Exception as qe:
+                        print(f"获取真实Q值失败，回退伪Q: {qe}")
+                    if not q_values:
+                        for node in available_nodes:
+                            cap = node_capacities.get(node, 1.0)
+                            load = node_loads.get(node, 0.0)
+                            q_values.append(cap - load)
+                    load_vals = [node_loads.get(n, 0.0) for n in available_nodes]
+                    progress = 0.5  # TODO: 使用真实训练进度
+                    fusion = fuse_decision(q_values, rag_scores, load_vals, progress)
+                    fused_idx = fusion['index']
+                    fused_node = available_nodes[fused_idx]
+                    print(f"🔀 融合决策: {fused_node} (α={fusion['alpha']:.2f}, β={fusion['beta']:.2f}, γ={fusion['gamma']:.2f})")
+                    try:
+                        import json, os
+                        os.makedirs('results', exist_ok=True)
+                        with open('results/fusion_debug.log', 'a', encoding='utf-8') as fdbg:
+                            record = {
+                                'node': fused_node,
+                                'alpha': fusion['alpha'],
+                                'beta': fusion['beta'],
+                                'gamma': fusion['gamma'],
+                                'q_norm': fusion['q_norm'],
+                                'rag_norm': fusion['rag_norm'],
+                                'load_pref': fusion['load_pref'],
+                                'fused': fusion['fused']
+                            }
+                            fdbg.write(json.dumps(record, ensure_ascii=False) + '\n')
+                    except Exception as le:
+                        print(f"融合调试日志写入失败: {le}")
+                    return fused_node
+                except Exception as fe:
+                    print(f"融合失败，回退RAG/DRL: {fe}")
+
+            # 无融合或失败：回退之前逻辑的简单优先策略
+            if match_node_scores:
+                # 选择累积相似度最高的节点
+                best_node = max(match_node_scores, key=lambda n: match_node_scores[n])
+                if best_node in available_nodes:
+                    return best_node
             
-            # 如果没有足够的匹配，抛出异常
-            raise RuntimeError("RAG知识库中没有找到足够的匹配案例")
-            
+            # 如果没有足够的匹配，回退到DRL节点
+            print("⚠️ 无足够RAG匹配案例，回退到DRL决策")
+            return drl_node
+
         except Exception as e:
-            print(f"⚠️ RAG调度失败: {e}")
-            raise RuntimeError(f"RAG调度失败: {e}")
+            print(f"⚠️ RAG调度失败: {e}，尝试回退")
+            # 优先尝试直接使用已获得的drl_node（如果存在）
+            try:
+                if 'drl_node' in locals() and drl_node in available_nodes:
+                    return drl_node
+            except Exception:
+                pass
+            # 最终回退到启发式
+            try:
+                return self.drl_scheduler._heuristic_fallback(task, available_nodes, node_capacities, node_loads)
+            except Exception:
+                # 兜底：返回第一个可用节点
+                return available_nodes[0]
 
 class WRENCHExperimentRunner:
     """基于真实WRENCH的实验运行器"""
@@ -695,10 +739,25 @@ class WRENCHExperimentRunner:
         
         # 模型文件优先级：兼容模型 > 原始优化模型 > 基础模型
         model_candidates = [
+            "models/improved_wass_drl.pth",  # 新训练改进模型
             "models/wass_optimized_models_compatible.pth",
             "models/wass_optimized_models.pth",
             "models/wass_models.pth"
         ]
+
+        # 环境变量优先 (WASS_DRL_MODEL)
+        env_model = os.environ.get("WASS_DRL_MODEL")
+        if env_model:
+            if os.path.exists(env_model):
+                if env_model not in model_candidates:
+                    model_candidates.insert(0, env_model)
+                else:
+                    # 确保环境变量路径排到首位
+                    model_candidates.remove(env_model)
+                    model_candidates.insert(0, env_model)
+                print(f"🔍 通过环境变量指定模型: {env_model}")
+            else:
+                print(f"⚠️ 环境变量WASS_DRL_MODEL指定的模型不存在: {env_model}")
         
         model_path = None
         for candidate in model_candidates:

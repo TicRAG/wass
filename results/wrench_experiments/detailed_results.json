@@ -76,8 +76,8 @@
       "experiment_metadata": {
         "experiment_id": 1,
         "workflow_size": 5,
-        "execution_time": 8.106231689453125e-05,
-        "timestamp": "2025-09-14T12:13:15.843506"
+        "execution_time": 6.818771362304688e-05,
+        "timestamp": "2025-09-14T16:24:59.883912"
       }
     },
     {
@@ -139,8 +139,8 @@
       "experiment_metadata": {
         "experiment_id": 2,
         "workflow_size": 5,
-        "execution_time": 5.984306335449219e-05,
-        "timestamp": "2025-09-14T12:13:15.843594"
+        "execution_time": 3.790855407714844e-05,
+        "timestamp": "2025-09-14T16:24:59.883976"
       }
     },
     {
@@ -202,8 +202,8 @@
       "experiment_metadata": {
         "experiment_id": 3,
         "workflow_size": 5,
-        "execution_time": 0.0001010894775390625,
-        "timestamp": "2025-09-14T12:13:15.843706"
+        "execution_time": 4.1961669921875e-05,
+        "timestamp": "2025-09-14T16:24:59.884025"
       }
     },
     {
@@ -211,62 +211,62 @@
       "workflow_id": "workflow_5_4",
       "task_count": 5,
       "dependency_count": 4,
-      "makespan": 7.0012059088791965,
+      "makespan": 11.201929454206715,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_3": 2.483488923262498,
-        "task_1": 0.6208912265498154,
-        "task_2": 2.2860234277228604,
-        "task_0": 1.3312618397378664,
-        "task_4": 0.2795404916061557
+        "task_3": 3.9735822772199967,
+        "task_1": 0.9934259624797047,
+        "task_2": 3.6576374843565764,
+        "task_0": 2.1300189435805863,
+        "task_4": 0.4472647865698491
       },
       "scheduling_decisions": [
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.483488923262498,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9735822772199967,
           "start_time": 0.0,
-          "end_time": 2.483488923262498
+          "end_time": 3.9735822772199967
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6208912265498154,
-          "start_time": 2.483488923262498,
-          "end_time": 3.1043801498123136
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.9934259624797047,
+          "start_time": 3.973582277219997,
+          "end_time": 4.967008239699702
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.2860234277228604,
-          "start_time": 3.104380149812314,
-          "end_time": 5.390403577535174
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.6576374843565764,
+          "start_time": 4.967008239699703,
+          "end_time": 8.624645724056279
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.3312618397378664,
-          "start_time": 5.390403577535174,
-          "end_time": 6.721665417273041
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.1300189435805863,
+          "start_time": 8.624645724056279,
+          "end_time": 10.754664667636865
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.2795404916061557,
-          "start_time": 6.721665417273041,
-          "end_time": 7.0012059088791965
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.4472647865698491,
+          "start_time": 10.754664667636865,
+          "end_time": 11.201929454206715
         }
       ],
       "experiment_metadata": {
         "experiment_id": 4,
         "workflow_size": 5,
-        "execution_time": 0.0010161399841308594,
-        "timestamp": "2025-09-14T12:13:15.844733"
+        "execution_time": 0.002228260040283203,
+        "timestamp": "2025-09-14T16:24:59.886260"
       }
     },
     {
@@ -274,62 +274,62 @@
       "workflow_id": "workflow_5_5",
       "task_count": 5,
       "dependency_count": 4,
-      "makespan": 4.769512350985359,
+      "makespan": 11.201929454206713,
       "cpu_utilization": {
-        "ComputeHost1": 0.26035836826024455,
-        "ComputeHost2": 0.07814649130699325,
-        "ComputeHost3": 0.44659050796682276,
-        "ComputeHost4": 1.0
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_4": 0.37272065547487426,
-        "task_3": 2.483488923262498,
-        "task_1": 1.2417824530996309,
+        "task_4": 0.4472647865698491,
+        "task_3": 3.9735822772199967,
+        "task_1": 0.9934259624797047,
         "task_0": 2.1300189435805863,
-        "task_2": 2.2860234277228604
+        "task_2": 3.6576374843565764
       },
       "scheduling_decisions": [
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.37272065547487426,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.4472647865698491,
           "start_time": 0.0,
-          "end_time": 0.37272065547487426
+          "end_time": 0.4472647865698491
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.483488923262498,
-          "start_time": 0.0,
-          "end_time": 2.483488923262498
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9735822772199967,
+          "start_time": 0.4472647865698489,
+          "end_time": 4.420847063789846
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.2417824530996309,
-          "start_time": 0.0,
-          "end_time": 1.2417824530996309
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.9934259624797047,
+          "start_time": 4.420847063789846,
+          "end_time": 5.414273026269551
         },
         {
           "task_id": "task_0",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.1300189435805863,
-          "start_time": 0.0,
-          "end_time": 2.1300189435805863
+          "start_time": 5.4142730262695515,
+          "end_time": 7.544291969850137
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.2860234277228604,
-          "start_time": 2.4834889232624984,
-          "end_time": 4.769512350985359
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.6576374843565764,
+          "start_time": 7.5442919698501365,
+          "end_time": 11.201929454206713
         }
       ],
       "experiment_metadata": {
         "experiment_id": 5,
         "workflow_size": 5,
-        "execution_time": 0.0006520748138427734,
-        "timestamp": "2025-09-14T12:13:15.845405"
+        "execution_time": 0.003679513931274414,
+        "timestamp": "2025-09-14T16:24:59.889957"
       }
     },
     {
@@ -391,8 +391,8 @@
       "experiment_metadata": {
         "experiment_id": 6,
         "workflow_size": 5,
-        "execution_time": 0.00010347366333007812,
-        "timestamp": "2025-09-14T12:13:15.845524"
+        "execution_time": 4.744529724121094e-05,
+        "timestamp": "2025-09-14T16:24:59.890021"
       }
     },
     {
@@ -454,8 +454,8 @@
       "experiment_metadata": {
         "experiment_id": 7,
         "workflow_size": 5,
-        "execution_time": 5.078315734863281e-05,
-        "timestamp": "2025-09-14T12:13:15.845587"
+        "execution_time": 3.62396240234375e-05,
+        "timestamp": "2025-09-14T16:24:59.890064"
       }
     },
     {
@@ -517,8 +517,8 @@
       "experiment_metadata": {
         "experiment_id": 8,
         "workflow_size": 5,
-        "execution_time": 5.936622619628906e-05,
-        "timestamp": "2025-09-14T12:13:15.845655"
+        "execution_time": 4.291534423828125e-05,
+        "timestamp": "2025-09-14T16:24:59.890113"
       }
     },
     {
@@ -526,91 +526,21 @@
       "workflow_id": "workflow_5_9",
       "task_count": 5,
       "dependency_count": 4,
-      "makespan": 8.56690745003868,
+      "makespan": 13.70705192006189,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
-      },
-      "task_execution_times": {
-        "task_0": 2.147871346729899,
-        "task_2": 2.325856058848837,
-        "task_4": 2.209126658336382,
-        "task_3": 1.4303832733474857,
-        "task_1": 0.45367011277607633
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.147871346729899,
-          "start_time": 0.0,
-          "end_time": 2.147871346729899
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.325856058848837,
-          "start_time": 2.1478713467298984,
-          "end_time": 4.473727405578735
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.209126658336382,
-          "start_time": 4.473727405578735,
-          "end_time": 6.6828540639151175
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4303832733474857,
-          "start_time": 6.6828540639151175,
-          "end_time": 8.113237337262603
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.45367011277607633,
-          "start_time": 8.113237337262603,
-          "end_time": 8.56690745003868
-        }
-      ],
-      "experiment_metadata": {
-        "experiment_id": 9,
-        "workflow_size": 5,
-        "execution_time": 0.0005056858062744141,
-        "timestamp": "2025-09-14T12:13:15.846168"
-      }
-    },
-    {
-      "scheduler_name": "WASS-RAG",
-      "workflow_id": "workflow_5_10",
-      "task_count": 5,
-      "dependency_count": 4,
-      "makespan": 5.725207392123815,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.10565442302292645,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.7921080244925289
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_1": 0.6048934837014351,
         "task_0": 3.4365941547678385,
-        "task_2": 2.325856058848837,
+        "task_2": 3.721369694158139,
+        "task_4": 3.534602653338212,
         "task_3": 2.2886132373559773,
-        "task_4": 2.209126658336382
+        "task_1": 0.7258721804417221
       },
       "scheduling_decisions": [
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6048934837014351,
-          "start_time": 0.0,
-          "end_time": 0.6048934837014351
-        },
         {
           "task_id": "task_0",
           "chosen_node": "ComputeHost3",
@@ -620,31 +550,101 @@
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.325856058848837,
-          "start_time": 0.0,
-          "end_time": 2.325856058848837
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.721369694158139,
+          "start_time": 3.436594154767838,
+          "end_time": 7.157963848925977
+        },
+        {
+          "task_id": "task_4",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.534602653338212,
+          "start_time": 7.157963848925977,
+          "end_time": 10.692566502264189
         },
         {
           "task_id": "task_3",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.2886132373559773,
-          "start_time": 3.436594154767838,
-          "end_time": 5.725207392123815
+          "start_time": 10.692566502264189,
+          "end_time": 12.981179739620167
+        },
+        {
+          "task_id": "task_1",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.7258721804417221,
+          "start_time": 12.981179739620167,
+          "end_time": 13.70705192006189
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 9,
+        "workflow_size": 5,
+        "execution_time": 0.0006017684936523438,
+        "timestamp": "2025-09-14T16:24:59.890721"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_5_10",
+      "task_count": 5,
+      "dependency_count": 4,
+      "makespan": 13.70705192006189,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
+      },
+      "task_execution_times": {
+        "task_1": 0.7258721804417221,
+        "task_0": 3.4365941547678385,
+        "task_2": 3.721369694158139,
+        "task_3": 2.2886132373559773,
+        "task_4": 3.534602653338212
+      },
+      "scheduling_decisions": [
+        {
+          "task_id": "task_1",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.7258721804417221,
+          "start_time": 0.0,
+          "end_time": 0.7258721804417221
+        },
+        {
+          "task_id": "task_0",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.4365941547678385,
+          "start_time": 0.7258721804417223,
+          "end_time": 4.162466335209561
+        },
+        {
+          "task_id": "task_2",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.721369694158139,
+          "start_time": 4.162466335209561,
+          "end_time": 7.8838360293677
+        },
+        {
+          "task_id": "task_3",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.2886132373559773,
+          "start_time": 7.883836029367701,
+          "end_time": 10.172449266723678
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.209126658336382,
-          "start_time": 2.325856058848837,
-          "end_time": 4.534982717185219
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.534602653338212,
+          "start_time": 10.172449266723678,
+          "end_time": 13.70705192006189
         }
       ],
       "experiment_metadata": {
         "experiment_id": 10,
         "workflow_size": 5,
-        "execution_time": 0.0005178451538085938,
-        "timestamp": "2025-09-14T12:13:15.846701"
+        "execution_time": 0.0034155845642089844,
+        "timestamp": "2025-09-14T16:24:59.894149"
       }
     },
     {
@@ -706,8 +706,8 @@
       "experiment_metadata": {
         "experiment_id": 11,
         "workflow_size": 5,
-        "execution_time": 4.935264587402344e-05,
-        "timestamp": "2025-09-14T12:13:15.846763"
+        "execution_time": 4.839897155761719e-05,
+        "timestamp": "2025-09-14T16:24:59.894212"
       }
     },
     {
@@ -769,8 +769,8 @@
       "experiment_metadata": {
         "experiment_id": 12,
         "workflow_size": 5,
-        "execution_time": 0.00011038780212402344,
-        "timestamp": "2025-09-14T12:13:15.846881"
+        "execution_time": 3.62396240234375e-05,
+        "timestamp": "2025-09-14T16:24:59.894255"
       }
     },
     {
@@ -832,8 +832,8 @@
       "experiment_metadata": {
         "experiment_id": 13,
         "workflow_size": 5,
-        "execution_time": 6.127357482910156e-05,
-        "timestamp": "2025-09-14T12:13:15.846954"
+        "execution_time": 4.482269287109375e-05,
+        "timestamp": "2025-09-14T16:24:59.894305"
       }
     },
     {
@@ -841,62 +841,62 @@
       "workflow_id": "workflow_5_14",
       "task_count": 5,
       "dependency_count": 4,
-      "makespan": 7.510660682690852,
+      "makespan": 12.017057092305361,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_1": 1.6261841897860532,
-        "task_4": 0.9794357308599353,
-        "task_0": 1.7474232423412224,
-        "task_3": 1.1359137133488548,
-        "task_2": 2.021703806354786
+        "task_1": 2.601894703657685,
+        "task_4": 1.5670971693758964,
+        "task_0": 2.7958771877459556,
+        "task_3": 1.8174619413581676,
+        "task_2": 3.2347260901676576
       },
       "scheduling_decisions": [
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.6261841897860532,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.601894703657685,
           "start_time": 0.0,
-          "end_time": 1.6261841897860532
+          "end_time": 2.601894703657685
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.9794357308599353,
-          "start_time": 1.6261841897860534,
-          "end_time": 2.6056199206459887
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.5670971693758964,
+          "start_time": 2.601894703657685,
+          "end_time": 4.1689918730335815
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.7474232423412224,
-          "start_time": 2.6056199206459887,
-          "end_time": 4.353043162987211
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.7958771877459556,
+          "start_time": 4.1689918730335815,
+          "end_time": 6.964869060779537
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.1359137133488548,
-          "start_time": 4.353043162987211,
-          "end_time": 5.488956876336066
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.8174619413581676,
+          "start_time": 6.964869060779536,
+          "end_time": 8.782331002137704
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.021703806354786,
-          "start_time": 5.488956876336066,
-          "end_time": 7.510660682690852
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.2347260901676576,
+          "start_time": 8.782331002137703,
+          "end_time": 12.017057092305361
         }
       ],
       "experiment_metadata": {
         "experiment_id": 14,
         "workflow_size": 5,
-        "execution_time": 0.00034356117248535156,
-        "timestamp": "2025-09-14T12:13:15.847304"
+        "execution_time": 0.0006635189056396484,
+        "timestamp": "2025-09-14T16:24:59.894976"
       }
     },
     {
@@ -904,10 +904,10 @@
       "workflow_id": "workflow_5_15",
       "task_count": 5,
       "dependency_count": 4,
-      "makespan": 9.221179904559406,
+      "makespan": 12.017057092305361,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
-        "ComputeHost2": 0.25266806206686704,
+        "ComputeHost2": 0.0,
         "ComputeHost3": 1.0,
         "ComputeHost4": 0.0
       },
@@ -916,7 +916,7 @@
         "task_2": 3.2347260901676576,
         "task_1": 2.601894703657685,
         "task_3": 1.8174619413581676,
-        "task_0": 2.329897656454963
+        "task_0": 2.7958771877459556
       },
       "scheduling_decisions": [
         {
@@ -949,17 +949,17 @@
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.329897656454963,
-          "start_time": 0.0,
-          "end_time": 2.329897656454963
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.7958771877459556,
+          "start_time": 9.221179904559406,
+          "end_time": 12.017057092305361
         }
       ],
       "experiment_metadata": {
         "experiment_id": 15,
         "workflow_size": 5,
-        "execution_time": 0.0005819797515869141,
-        "timestamp": "2025-09-14T12:13:15.847898"
+        "execution_time": 0.0028486251831054688,
+        "timestamp": "2025-09-14T16:24:59.897837"
       }
     },
     {
@@ -1061,8 +1061,8 @@
       "experiment_metadata": {
         "experiment_id": 16,
         "workflow_size": 10,
-        "execution_time": 0.00010180473327636719,
-        "timestamp": "2025-09-14T12:13:15.848020"
+        "execution_time": 7.510185241699219e-05,
+        "timestamp": "2025-09-14T16:24:59.897928"
       }
     },
     {
@@ -1164,8 +1164,8 @@
       "experiment_metadata": {
         "experiment_id": 17,
         "workflow_size": 10,
-        "execution_time": 0.0001285076141357422,
-        "timestamp": "2025-09-14T12:13:15.848158"
+        "execution_time": 6.604194641113281e-05,
+        "timestamp": "2025-09-14T16:24:59.898002"
       }
     },
     {
@@ -1267,8 +1267,8 @@
       "experiment_metadata": {
         "experiment_id": 18,
         "workflow_size": 10,
-        "execution_time": 9.894371032714844e-05,
-        "timestamp": "2025-09-14T12:13:15.848267"
+        "execution_time": 7.486343383789062e-05,
+        "timestamp": "2025-09-14T16:24:59.898083"
       }
     },
     {
@@ -1276,102 +1276,102 @@
       "workflow_id": "workflow_10_19",
       "task_count": 10,
       "dependency_count": 8,
-      "makespan": 13.447415421656869,
+      "makespan": 21.51586467465099,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_4": 0.8814351692933541,
-        "task_3": 0.9666010488492448,
-        "task_8": 2.4423885579707814,
-        "task_6": 1.4130458476541556,
-        "task_5": 0.8257438556699895,
-        "task_2": 1.9585011797578245,
-        "task_0": 0.811399207106723,
-        "task_7": 1.2657929564657808,
-        "task_9": 0.6420336454485156,
-        "task_1": 2.240473953440499
+        "task_4": 1.4102962708693665,
+        "task_3": 1.5465616781587916,
+        "task_8": 3.90782169275325,
+        "task_6": 2.260873356246649,
+        "task_5": 1.3211901690719834,
+        "task_2": 3.133601887612519,
+        "task_0": 1.2982387313707566,
+        "task_7": 2.0252687303452492,
+        "task_9": 1.027253832717625,
+        "task_1": 3.584758325504799
       },
       "scheduling_decisions": [
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.8814351692933541,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.4102962708693665,
           "start_time": 0.0,
-          "end_time": 0.8814351692933541
+          "end_time": 1.4102962708693665
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.9666010488492448,
-          "start_time": 0.8814351692933541,
-          "end_time": 1.8480362181425989
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.5465616781587916,
+          "start_time": 1.4102962708693665,
+          "end_time": 2.956857949028158
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4423885579707814,
-          "start_time": 1.848036218142599,
-          "end_time": 4.2904247761133805
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.90782169275325,
+          "start_time": 2.956857949028158,
+          "end_time": 6.864679641781408
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4130458476541556,
-          "start_time": 4.290424776113381,
-          "end_time": 5.7034706237675366
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.260873356246649,
+          "start_time": 6.864679641781408,
+          "end_time": 9.125552998028057
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.8257438556699895,
-          "start_time": 5.7034706237675366,
-          "end_time": 6.529214479437526
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.3211901690719834,
+          "start_time": 9.125552998028057,
+          "end_time": 10.44674316710004
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.9585011797578245,
-          "start_time": 6.529214479437526,
-          "end_time": 8.48771565919535
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.133601887612519,
+          "start_time": 10.44674316710004,
+          "end_time": 13.58034505471256
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.811399207106723,
-          "start_time": 8.48771565919535,
-          "end_time": 9.299114866302073
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.2982387313707566,
+          "start_time": 13.58034505471256,
+          "end_time": 14.878583786083317
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.2657929564657808,
-          "start_time": 9.299114866302073,
-          "end_time": 10.564907822767854
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.0252687303452492,
+          "start_time": 14.878583786083315,
+          "end_time": 16.903852516428564
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6420336454485156,
-          "start_time": 10.564907822767854,
-          "end_time": 11.20694146821637
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.027253832717625,
+          "start_time": 16.903852516428564,
+          "end_time": 17.93110634914619
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.240473953440499,
-          "start_time": 11.20694146821637,
-          "end_time": 13.447415421656869
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.584758325504799,
+          "start_time": 17.93110634914619,
+          "end_time": 21.51586467465099
         }
       ],
       "experiment_metadata": {
         "experiment_id": 19,
         "workflow_size": 10,
-        "execution_time": 0.0008234977722167969,
-        "timestamp": "2025-09-14T12:13:15.849098"
+        "execution_time": 0.0011687278747558594,
+        "timestamp": "2025-09-14T16:24:59.899257"
       }
     },
     {
@@ -1379,102 +1379,102 @@
       "workflow_id": "workflow_10_20",
       "task_count": 10,
       "dependency_count": 8,
-      "makespan": 6.321223755037164,
+      "makespan": 21.51586467465099,
       "cpu_utilization": {
-        "ComputeHost1": 1.0,
-        "ComputeHost2": 0.4131059123263725,
-        "ComputeHost3": 0.9227174975577807,
-        "ComputeHost4": 0.7408158123938691
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_5": 1.651487711339979,
+        "task_5": 1.3211901690719834,
         "task_6": 2.260873356246649,
-        "task_0": 1.622798414213446,
-        "task_4": 1.7628703385867082,
+        "task_0": 1.2982387313707566,
+        "task_4": 1.4102962708693665,
         "task_7": 2.0252687303452492,
-        "task_8": 2.4423885579707814,
-        "task_2": 2.611334906343766,
+        "task_8": 3.90782169275325,
+        "task_2": 3.133601887612519,
         "task_3": 1.5465616781587916,
-        "task_9": 1.2840672908970312,
-        "task_1": 2.240473953440499
+        "task_9": 1.027253832717625,
+        "task_1": 3.584758325504799
       },
       "scheduling_decisions": [
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.651487711339979,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.3211901690719834,
           "start_time": 0.0,
-          "end_time": 1.651487711339979
+          "end_time": 1.3211901690719834
         },
         {
           "task_id": "task_6",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.260873356246649,
-          "start_time": 0.0,
-          "end_time": 2.260873356246649
+          "start_time": 1.3211901690719836,
+          "end_time": 3.582063525318633
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.622798414213446,
-          "start_time": 1.651487711339979,
-          "end_time": 3.274286125553425
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.2982387313707566,
+          "start_time": 3.582063525318633,
+          "end_time": 4.880302256689389
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.7628703385867082,
-          "start_time": 3.2742861255534246,
-          "end_time": 5.037156464140133
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.4102962708693665,
+          "start_time": 4.880302256689389,
+          "end_time": 6.290598527558756
         },
         {
           "task_id": "task_7",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.0252687303452492,
-          "start_time": 2.2608733562466488,
-          "end_time": 4.286142086591898
+          "start_time": 6.290598527558755,
+          "end_time": 8.315867257904005
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4423885579707814,
-          "start_time": 0.0,
-          "end_time": 2.4423885579707814
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.90782169275325,
+          "start_time": 8.315867257904005,
+          "end_time": 12.223688950657255
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.611334906343766,
-          "start_time": 0.0,
-          "end_time": 2.611334906343766
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.133601887612519,
+          "start_time": 12.223688950657255,
+          "end_time": 15.357290838269774
         },
         {
           "task_id": "task_3",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.5465616781587916,
-          "start_time": 4.286142086591898,
-          "end_time": 5.83270376475069
+          "start_time": 15.357290838269773,
+          "end_time": 16.903852516428564
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.2840672908970312,
-          "start_time": 5.037156464140133,
-          "end_time": 6.321223755037164
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.027253832717625,
+          "start_time": 16.903852516428564,
+          "end_time": 17.93110634914619
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.240473953440499,
-          "start_time": 2.4423885579707814,
-          "end_time": 4.6828625114112805
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.584758325504799,
+          "start_time": 17.93110634914619,
+          "end_time": 21.51586467465099
         }
       ],
       "experiment_metadata": {
         "experiment_id": 20,
         "workflow_size": 10,
-        "execution_time": 0.0010426044464111328,
-        "timestamp": "2025-09-14T12:13:15.850156"
+        "execution_time": 0.0064966678619384766,
+        "timestamp": "2025-09-14T16:24:59.905769"
       }
     },
     {
@@ -1576,8 +1576,8 @@
       "experiment_metadata": {
         "experiment_id": 21,
         "workflow_size": 10,
-        "execution_time": 0.00024127960205078125,
-        "timestamp": "2025-09-14T12:13:15.850412"
+        "execution_time": 8.177757263183594e-05,
+        "timestamp": "2025-09-14T16:24:59.905865"
       }
     },
     {
@@ -1679,8 +1679,8 @@
       "experiment_metadata": {
         "experiment_id": 22,
         "workflow_size": 10,
-        "execution_time": 6.961822509765625e-05,
-        "timestamp": "2025-09-14T12:13:15.850491"
+        "execution_time": 0.0001628398895263672,
+        "timestamp": "2025-09-14T16:24:59.906036"
       }
     },
     {
@@ -1782,8 +1782,8 @@
       "experiment_metadata": {
         "experiment_id": 23,
         "workflow_size": 10,
-        "execution_time": 7.486343383789062e-05,
-        "timestamp": "2025-09-14T12:13:15.850572"
+        "execution_time": 8.225440979003906e-05,
+        "timestamp": "2025-09-14T16:24:59.906146"
       }
     },
     {
@@ -1791,102 +1791,102 @@
       "workflow_id": "workflow_10_24",
       "task_count": 10,
       "dependency_count": 8,
-      "makespan": 14.107062560106144,
+      "makespan": 22.571300096169832,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_5": 2.1346880995893844,
-        "task_4": 0.9113814083473039,
-        "task_3": 1.9659523151153298,
-        "task_1": 0.7917910109750902,
-        "task_7": 0.32661368554894055,
-        "task_9": 0.34903339145822004,
-        "task_2": 0.9746396131408646,
-        "task_6": 1.9653008052241787,
-        "task_0": 2.400280608285995,
-        "task_8": 2.287381622420839
+        "task_5": 3.415500959343015,
+        "task_4": 1.4582102533556862,
+        "task_3": 3.1455237041845274,
+        "task_1": 1.2668656175601443,
+        "task_7": 0.5225818968783048,
+        "task_9": 0.5584534263331521,
+        "task_2": 1.5594233810253835,
+        "task_6": 3.144481288358686,
+        "task_0": 3.840448973257592,
+        "task_8": 3.659810595873343
       },
       "scheduling_decisions": [
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.1346880995893844,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.415500959343015,
           "start_time": 0.0,
-          "end_time": 2.1346880995893844
+          "end_time": 3.415500959343015
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.9113814083473039,
-          "start_time": 2.1346880995893844,
-          "end_time": 3.0460695079366884
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.4582102533556862,
+          "start_time": 3.4155009593430155,
+          "end_time": 4.8737112126987014
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.9659523151153298,
-          "start_time": 3.0460695079366884,
-          "end_time": 5.012021823052018
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.1455237041845274,
+          "start_time": 4.873711212698701,
+          "end_time": 8.019234916883228
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.7917910109750902,
-          "start_time": 5.012021823052018,
-          "end_time": 5.8038128340271085
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.2668656175601443,
+          "start_time": 8.019234916883228,
+          "end_time": 9.286100534443372
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.32661368554894055,
-          "start_time": 5.8038128340271085,
-          "end_time": 6.130426519576049
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5225818968783048,
+          "start_time": 9.286100534443372,
+          "end_time": 9.808682431321678
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.34903339145822004,
-          "start_time": 6.130426519576049,
-          "end_time": 6.479459911034269
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5584534263331521,
+          "start_time": 9.808682431321678,
+          "end_time": 10.36713585765483
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.9746396131408646,
-          "start_time": 6.479459911034269,
-          "end_time": 7.454099524175133
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.5594233810253835,
+          "start_time": 10.36713585765483,
+          "end_time": 11.926559238680213
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.9653008052241787,
-          "start_time": 7.454099524175132,
-          "end_time": 9.419400329399311
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.144481288358686,
+          "start_time": 11.926559238680213,
+          "end_time": 15.0710405270389
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.400280608285995,
-          "start_time": 9.419400329399311,
-          "end_time": 11.819680937685305
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.840448973257592,
+          "start_time": 15.071040527038898,
+          "end_time": 18.91148950029649
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.287381622420839,
-          "start_time": 11.819680937685305,
-          "end_time": 14.107062560106144
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.659810595873343,
+          "start_time": 18.91148950029649,
+          "end_time": 22.571300096169832
         }
       ],
       "experiment_metadata": {
         "experiment_id": 24,
         "workflow_size": 10,
-        "execution_time": 0.0006103515625,
-        "timestamp": "2025-09-14T12:13:15.851188"
+        "execution_time": 0.0015125274658203125,
+        "timestamp": "2025-09-14T16:24:59.907667"
       }
     },
     {
@@ -1894,102 +1894,102 @@
       "workflow_id": "workflow_10_25",
       "task_count": 10,
       "dependency_count": 8,
-      "makespan": 6.142533596462226,
+      "makespan": 22.571300096169832,
       "cpu_utilization": {
-        "ComputeHost1": 0.5545504611658392,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.8099140626977915,
-        "ComputeHost4": 0.7631480002659945
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_3": 2.6212697534871063,
+        "task_3": 3.1455237041845274,
         "task_2": 1.5594233810253835,
-        "task_9": 0.46537785527762676,
-        "task_4": 1.8227628166946077,
-        "task_6": 2.6204010736322383,
-        "task_7": 0.435484914065254,
-        "task_0": 2.400280608285995,
-        "task_8": 2.287381622420839,
+        "task_9": 0.5584534263331521,
+        "task_4": 1.4582102533556862,
+        "task_6": 3.144481288358686,
+        "task_7": 0.5225818968783048,
+        "task_0": 3.840448973257592,
+        "task_8": 3.659810595873343,
         "task_5": 3.415500959343015,
-        "task_1": 1.5835820219501804
+        "task_1": 1.2668656175601443
       },
       "scheduling_decisions": [
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6212697534871063,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.1455237041845274,
           "start_time": 0.0,
-          "end_time": 2.6212697534871063
+          "end_time": 3.1455237041845274
         },
         {
           "task_id": "task_2",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.5594233810253835,
-          "start_time": 0.0,
-          "end_time": 1.5594233810253835
+          "start_time": 3.1455237041845274,
+          "end_time": 4.704947085209911
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.46537785527762676,
-          "start_time": 2.6212697534871063,
-          "end_time": 3.086647608764733
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5584534263331521,
+          "start_time": 4.704947085209911,
+          "end_time": 5.263400511543063
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.8227628166946077,
-          "start_time": 0.0,
-          "end_time": 1.8227628166946077
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.4582102533556862,
+          "start_time": 5.263400511543063,
+          "end_time": 6.721610764898749
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6204010736322383,
-          "start_time": 3.086647608764733,
-          "end_time": 5.707048682396971
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.144481288358686,
+          "start_time": 6.72161076489875,
+          "end_time": 9.866092053257436
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.435484914065254,
-          "start_time": 5.707048682396971,
-          "end_time": 6.142533596462226
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5225818968783048,
+          "start_time": 9.866092053257436,
+          "end_time": 10.388673950135741
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.400280608285995,
-          "start_time": 0.0,
-          "end_time": 2.400280608285995
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.840448973257592,
+          "start_time": 10.388673950135741,
+          "end_time": 14.229122923393334
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.287381622420839,
-          "start_time": 2.4002806082859953,
-          "end_time": 4.6876622307068345
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.659810595873343,
+          "start_time": 14.229122923393334,
+          "end_time": 17.888933519266676
         },
         {
           "task_id": "task_5",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.415500959343015,
-          "start_time": 1.559423381025383,
-          "end_time": 4.974924340368398
+          "start_time": 17.888933519266676,
+          "end_time": 21.30443447860969
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.5835820219501804,
-          "start_time": 1.8227628166946077,
-          "end_time": 3.406344838644788
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.2668656175601443,
+          "start_time": 21.30443447860969,
+          "end_time": 22.571300096169832
         }
       ],
       "experiment_metadata": {
         "experiment_id": 25,
         "workflow_size": 10,
-        "execution_time": 0.001010894775390625,
-        "timestamp": "2025-09-14T12:13:15.852212"
+        "execution_time": 0.007300615310668945,
+        "timestamp": "2025-09-14T16:24:59.914983"
       }
     },
     {
@@ -2091,8 +2091,8 @@
       "experiment_metadata": {
         "experiment_id": 26,
         "workflow_size": 10,
-        "execution_time": 0.000110626220703125,
-        "timestamp": "2025-09-14T12:13:15.852336"
+        "execution_time": 8.58306884765625e-05,
+        "timestamp": "2025-09-14T16:24:59.915086"
       }
     },
     {
@@ -2194,8 +2194,8 @@
       "experiment_metadata": {
         "experiment_id": 27,
         "workflow_size": 10,
-        "execution_time": 7.963180541992188e-05,
-        "timestamp": "2025-09-14T12:13:15.852428"
+        "execution_time": 6.4849853515625e-05,
+        "timestamp": "2025-09-14T16:24:59.915159"
       }
     },
     {
@@ -2297,8 +2297,8 @@
       "experiment_metadata": {
         "experiment_id": 28,
         "workflow_size": 10,
-        "execution_time": 8.177757263183594e-05,
-        "timestamp": "2025-09-14T12:13:15.852517"
+        "execution_time": 7.43865966796875e-05,
+        "timestamp": "2025-09-14T16:24:59.915239"
       }
     },
     {
@@ -2306,102 +2306,102 @@
       "workflow_id": "workflow_10_29",
       "task_count": 10,
       "dependency_count": 8,
-      "makespan": 15.272938350456355,
+      "makespan": 24.43670136073017,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_9": 2.44949449466632,
-        "task_7": 0.6845270664999253,
-        "task_5": 1.4422828474432248,
-        "task_4": 0.33136665267876186,
-        "task_0": 2.045265462272425,
-        "task_2": 2.2113647254055158,
-        "task_8": 2.0440222991639647,
-        "task_1": 2.039188909703191,
-        "task_3": 1.490302989122891,
-        "task_6": 0.5351229035001357
+        "task_9": 3.919191191466112,
+        "task_7": 1.0952433063998805,
+        "task_5": 2.3076525559091596,
+        "task_4": 0.5301866442860189,
+        "task_0": 3.27242473963588,
+        "task_2": 3.538183560648825,
+        "task_8": 3.2704356786623436,
+        "task_1": 3.262702255525106,
+        "task_3": 2.3844847825966253,
+        "task_6": 0.8561966456002171
       },
       "scheduling_decisions": [
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.44949449466632,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.919191191466112,
           "start_time": 0.0,
-          "end_time": 2.44949449466632
+          "end_time": 3.919191191466112
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6845270664999253,
-          "start_time": 2.44949449466632,
-          "end_time": 3.134021561166245
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.0952433063998805,
+          "start_time": 3.919191191466112,
+          "end_time": 5.0144344978659925
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4422828474432248,
-          "start_time": 3.1340215611662456,
-          "end_time": 4.57630440860947
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.3076525559091596,
+          "start_time": 5.0144344978659925,
+          "end_time": 7.322087053775152
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.33136665267876186,
-          "start_time": 4.57630440860947,
-          "end_time": 4.907671061288232
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5301866442860189,
+          "start_time": 7.322087053775152,
+          "end_time": 7.852273698061171
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.045265462272425,
-          "start_time": 4.907671061288232,
-          "end_time": 6.952936523560657
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.27242473963588,
+          "start_time": 7.85227369806117,
+          "end_time": 11.12469843769705
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.2113647254055158,
-          "start_time": 6.952936523560656,
-          "end_time": 9.164301248966172
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.538183560648825,
+          "start_time": 11.12469843769705,
+          "end_time": 14.662881998345876
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.0440222991639647,
-          "start_time": 9.164301248966172,
-          "end_time": 11.208323548130137
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.2704356786623436,
+          "start_time": 14.662881998345876,
+          "end_time": 17.93331767700822
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.039188909703191,
-          "start_time": 11.208323548130135,
-          "end_time": 13.247512457833327
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.262702255525106,
+          "start_time": 17.93331767700822,
+          "end_time": 21.196019932533325
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.490302989122891,
-          "start_time": 13.247512457833327,
-          "end_time": 14.737815446956219
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.3844847825966253,
+          "start_time": 21.196019932533325,
+          "end_time": 23.58050471512995
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5351229035001357,
-          "start_time": 14.737815446956219,
-          "end_time": 15.272938350456355
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8561966456002171,
+          "start_time": 23.58050471512995,
+          "end_time": 24.43670136073017
         }
       ],
       "experiment_metadata": {
         "experiment_id": 29,
         "workflow_size": 10,
-        "execution_time": 0.0006275177001953125,
-        "timestamp": "2025-09-14T12:13:15.853151"
+        "execution_time": 0.001310110092163086,
+        "timestamp": "2025-09-14T16:24:59.916661"
       }
     },
     {
@@ -2409,23 +2409,23 @@
       "workflow_id": "workflow_10_30",
       "task_count": 10,
       "dependency_count": 8,
-      "makespan": 14.497700012329116,
+      "makespan": 24.43670136073017,
       "cpu_utilization": {
-        "ComputeHost1": 0.16825427053433964,
-        "ComputeHost2": 0.030475330790121782,
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.32148956152411445
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
         "task_1": 3.262702255525106,
         "task_5": 2.3076525559091596,
-        "task_9": 2.44949449466632,
-        "task_6": 1.0702458070002714,
+        "task_9": 3.919191191466112,
+        "task_6": 0.8561966456002171,
         "task_8": 3.2704356786623436,
-        "task_7": 1.3690541329998507,
+        "task_7": 1.0952433063998805,
         "task_3": 2.3844847825966253,
-        "task_4": 0.44182220357168245,
-        "task_2": 2.2113647254055158,
+        "task_4": 0.5301866442860189,
+        "task_2": 3.538183560648825,
         "task_0": 3.27242473963588
       },
       "scheduling_decisions": [
@@ -2445,66 +2445,66 @@
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.44949449466632,
-          "start_time": 0.0,
-          "end_time": 2.44949449466632
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.919191191466112,
+          "start_time": 5.570354811434266,
+          "end_time": 9.489546002900378
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.0702458070002714,
-          "start_time": 0.0,
-          "end_time": 1.0702458070002714
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8561966456002171,
+          "start_time": 9.489546002900378,
+          "end_time": 10.345742648500595
         },
         {
           "task_id": "task_8",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.2704356786623436,
-          "start_time": 5.570354811434266,
-          "end_time": 8.840790490096609
+          "start_time": 10.345742648500595,
+          "end_time": 13.616178327162938
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.3690541329998507,
-          "start_time": 1.0702458070002716,
-          "end_time": 2.4392999400001223
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.0952433063998805,
+          "start_time": 13.616178327162938,
+          "end_time": 14.711421633562818
         },
         {
           "task_id": "task_3",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.3844847825966253,
-          "start_time": 8.840790490096609,
-          "end_time": 11.225275272693235
+          "start_time": 14.711421633562818,
+          "end_time": 17.095906416159444
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.44182220357168245,
-          "start_time": 0.0,
-          "end_time": 0.44182220357168245
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5301866442860189,
+          "start_time": 17.095906416159444,
+          "end_time": 17.626093060445463
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.2113647254055158,
-          "start_time": 2.44949449466632,
-          "end_time": 4.660859220071836
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.538183560648825,
+          "start_time": 17.626093060445463,
+          "end_time": 21.164276621094288
         },
         {
           "task_id": "task_0",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.27242473963588,
-          "start_time": 11.225275272693235,
-          "end_time": 14.497700012329116
+          "start_time": 21.164276621094288,
+          "end_time": 24.43670136073017
         }
       ],
       "experiment_metadata": {
         "experiment_id": 30,
         "workflow_size": 10,
-        "execution_time": 0.0011365413665771484,
-        "timestamp": "2025-09-14T12:13:15.854301"
+        "execution_time": 0.007520198822021484,
+        "timestamp": "2025-09-14T16:24:59.924198"
       }
     },
     {
@@ -2646,8 +2646,8 @@
       "experiment_metadata": {
         "experiment_id": 31,
         "workflow_size": 15,
-        "execution_time": 0.00010061264038085938,
-        "timestamp": "2025-09-14T12:13:15.854417"
+        "execution_time": 0.0001289844512939453,
+        "timestamp": "2025-09-14T16:24:59.924349"
       }
     },
     {
@@ -2789,8 +2789,8 @@
       "experiment_metadata": {
         "experiment_id": 32,
         "workflow_size": 15,
-        "execution_time": 0.00010919570922851562,
-        "timestamp": "2025-09-14T12:13:15.854535"
+        "execution_time": 0.0001227855682373047,
+        "timestamp": "2025-09-14T16:24:59.924481"
       }
     },
     {
@@ -2932,8 +2932,8 @@
       "experiment_metadata": {
         "experiment_id": 33,
         "workflow_size": 15,
-        "execution_time": 0.00012111663818359375,
-        "timestamp": "2025-09-14T12:13:15.854663"
+        "execution_time": 0.00011897087097167969,
+        "timestamp": "2025-09-14T16:24:59.924609"
       }
     },
     {
@@ -2941,142 +2941,142 @@
       "workflow_id": "workflow_15_34",
       "task_count": 15,
       "dependency_count": 12,
-      "makespan": 16.005672538974952,
+      "makespan": 25.609076062359932,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_8": 0.4674284041041751,
-        "task_9": 2.0246238640226055,
-        "task_7": 0.3771295652680411,
-        "task_12": 0.4762557408913761,
-        "task_14": 0.5332589914093769,
-        "task_3": 0.6127580033632188,
-        "task_4": 0.5743735148658438,
-        "task_0": 1.0847068435864944,
-        "task_5": 0.43222557044372656,
-        "task_11": 1.9595244765885007,
-        "task_13": 2.45485709136243,
-        "task_1": 1.7520128807598938,
-        "task_6": 1.4954103194241568,
-        "task_10": 1.1221469761176444,
-        "task_2": 0.6389602967674716
+        "task_8": 0.7478854465666801,
+        "task_9": 3.239398182436169,
+        "task_7": 0.6034073044288657,
+        "task_12": 0.7620091854262018,
+        "task_14": 0.8532143862550031,
+        "task_3": 0.98041280538115,
+        "task_4": 0.91899762378535,
+        "task_0": 1.735530949738391,
+        "task_5": 0.6915609127099624,
+        "task_11": 3.1352391625416014,
+        "task_13": 3.927771346179888,
+        "task_1": 2.8032206092158303,
+        "task_6": 2.392656511078651,
+        "task_10": 1.795435161788231,
+        "task_2": 1.0223364748279544
       },
       "scheduling_decisions": [
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.4674284041041751,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.7478854465666801,
           "start_time": 0.0,
-          "end_time": 0.4674284041041751
+          "end_time": 0.7478854465666801
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.0246238640226055,
-          "start_time": 0.46742840410417497,
-          "end_time": 2.4920522681267805
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.239398182436169,
+          "start_time": 0.7478854465666802,
+          "end_time": 3.987283629002849
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.3771295652680411,
-          "start_time": 2.4920522681267805,
-          "end_time": 2.869181833394822
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6034073044288657,
+          "start_time": 3.9872836290028486,
+          "end_time": 4.5906909334317145
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.4762557408913761,
-          "start_time": 2.869181833394822,
-          "end_time": 3.3454375742861977
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.7620091854262018,
+          "start_time": 4.5906909334317145,
+          "end_time": 5.352700118857916
         },
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5332589914093769,
-          "start_time": 3.3454375742861977,
-          "end_time": 3.8786965656955745
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8532143862550031,
+          "start_time": 5.352700118857916,
+          "end_time": 6.205914505112919
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6127580033632188,
-          "start_time": 3.878696565695574,
-          "end_time": 4.491454569058793
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.98041280538115,
+          "start_time": 6.20591450511292,
+          "end_time": 7.18632731049407
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5743735148658438,
-          "start_time": 4.491454569058793,
-          "end_time": 5.065828083924637
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.91899762378535,
+          "start_time": 7.18632731049407,
+          "end_time": 8.10532493427942
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.0847068435864944,
-          "start_time": 5.065828083924637,
-          "end_time": 6.150534927511131
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.735530949738391,
+          "start_time": 8.10532493427942,
+          "end_time": 9.840855884017811
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.43222557044372656,
-          "start_time": 6.150534927511131,
-          "end_time": 6.582760497954858
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6915609127099624,
+          "start_time": 9.840855884017811,
+          "end_time": 10.532416796727773
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.9595244765885007,
-          "start_time": 6.582760497954858,
-          "end_time": 8.542284974543358
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.1352391625416014,
+          "start_time": 10.532416796727773,
+          "end_time": 13.667655959269375
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.45485709136243,
-          "start_time": 8.542284974543357,
-          "end_time": 10.997142065905788
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.927771346179888,
+          "start_time": 13.667655959269375,
+          "end_time": 17.595427305449263
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.7520128807598938,
-          "start_time": 10.997142065905788,
-          "end_time": 12.749154946665682
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.8032206092158303,
+          "start_time": 17.595427305449263,
+          "end_time": 20.398647914665094
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4954103194241568,
-          "start_time": 12.749154946665682,
-          "end_time": 14.244565266089838
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.392656511078651,
+          "start_time": 20.398647914665094,
+          "end_time": 22.791304425743746
         },
         {
           "task_id": "task_10",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.1221469761176444,
-          "start_time": 14.244565266089838,
-          "end_time": 15.366712242207482
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.795435161788231,
+          "start_time": 22.791304425743746,
+          "end_time": 24.586739587531977
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6389602967674716,
-          "start_time": 15.36671224220748,
-          "end_time": 16.005672538974952
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.0223364748279544,
+          "start_time": 24.586739587531977,
+          "end_time": 25.609076062359932
         }
       ],
       "experiment_metadata": {
         "experiment_id": 34,
         "workflow_size": 15,
-        "execution_time": 0.0009710788726806641,
-        "timestamp": "2025-09-14T12:13:15.855641"
+        "execution_time": 0.0019309520721435547,
+        "timestamp": "2025-09-14T16:24:59.926547"
       }
     },
     {
@@ -3084,28 +3084,28 @@
       "workflow_id": "workflow_15_35",
       "task_count": 15,
       "dependency_count": 12,
-      "makespan": 9.163020805041441,
+      "makespan": 25.60907606235993,
       "cpu_utilization": {
-        "ComputeHost1": 0.5149722687757753,
-        "ComputeHost2": 0.7951637717624207,
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.2679091473863927
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
         "task_6": 2.392656511078651,
         "task_9": 3.239398182436169,
         "task_0": 1.735530949738391,
-        "task_11": 2.612699302118001,
-        "task_4": 1.1487470297316875,
-        "task_12": 0.6350076545218348,
-        "task_3": 1.2255160067264377,
-        "task_2": 1.2779205935349431,
-        "task_14": 1.0665179828187539,
-        "task_5": 0.5763007605916354,
-        "task_1": 2.3360171743465252,
-        "task_7": 0.502839420357388,
-        "task_8": 0.6232378721389001,
-        "task_13": 2.45485709136243,
+        "task_11": 3.1352391625416014,
+        "task_4": 0.91899762378535,
+        "task_12": 0.7620091854262018,
+        "task_3": 0.98041280538115,
+        "task_2": 1.0223364748279544,
+        "task_14": 0.8532143862550031,
+        "task_5": 0.6915609127099624,
+        "task_1": 2.8032206092158303,
+        "task_7": 0.6034073044288657,
+        "task_8": 0.7478854465666801,
+        "task_13": 3.927771346179888,
         "task_10": 1.795435161788231
       },
       "scheduling_decisions": [
@@ -3132,94 +3132,94 @@
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.612699302118001,
-          "start_time": 0.0,
-          "end_time": 2.612699302118001
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.1352391625416014,
+          "start_time": 7.367585643253211,
+          "end_time": 10.502824805794813
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.1487470297316875,
-          "start_time": 0.0,
-          "end_time": 1.1487470297316875
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.91899762378535,
+          "start_time": 10.502824805794813,
+          "end_time": 11.421822429580162
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6350076545218348,
-          "start_time": 2.612699302118001,
-          "end_time": 3.2477069566398358
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.7620091854262018,
+          "start_time": 11.421822429580162,
+          "end_time": 12.183831615006364
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.2255160067264377,
-          "start_time": 1.1487470297316877,
-          "end_time": 2.3742630364581254
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.98041280538115,
+          "start_time": 12.183831615006364,
+          "end_time": 13.164244420387513
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.2779205935349431,
-          "start_time": 2.3742630364581254,
-          "end_time": 3.6521836299930683
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.0223364748279544,
+          "start_time": 13.164244420387513,
+          "end_time": 14.186580895215467
         },
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.0665179828187539,
-          "start_time": 3.6521836299930683,
-          "end_time": 4.718701612811822
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8532143862550031,
+          "start_time": 14.186580895215467,
+          "end_time": 15.03979528147047
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5763007605916354,
-          "start_time": 3.2477069566398358,
-          "end_time": 3.824007717231471
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6915609127099624,
+          "start_time": 15.03979528147047,
+          "end_time": 15.731356194180432
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.3360171743465252,
-          "start_time": 3.824007717231471,
-          "end_time": 6.160024891577996
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.8032206092158303,
+          "start_time": 15.731356194180432,
+          "end_time": 18.534576803396263
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.502839420357388,
-          "start_time": 6.160024891577996,
-          "end_time": 6.662864311935384
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6034073044288657,
+          "start_time": 18.534576803396263,
+          "end_time": 19.13798410782513
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6232378721389001,
-          "start_time": 6.662864311935384,
-          "end_time": 7.286102184074284
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.7478854465666801,
+          "start_time": 19.13798410782513,
+          "end_time": 19.88586955439181
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.45485709136243,
-          "start_time": 0.0,
-          "end_time": 2.45485709136243
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.927771346179888,
+          "start_time": 19.88586955439181,
+          "end_time": 23.8136409005717
         },
         {
           "task_id": "task_10",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.795435161788231,
-          "start_time": 7.36758564325321,
-          "end_time": 9.163020805041441
+          "start_time": 23.8136409005717,
+          "end_time": 25.60907606235993
         }
       ],
       "experiment_metadata": {
         "experiment_id": 35,
         "workflow_size": 15,
-        "execution_time": 0.0017807483673095703,
-        "timestamp": "2025-09-14T12:13:15.857437"
+        "execution_time": 0.011339664459228516,
+        "timestamp": "2025-09-14T16:24:59.937905"
       }
     },
     {
@@ -3361,8 +3361,8 @@
       "experiment_metadata": {
         "experiment_id": 36,
         "workflow_size": 15,
-        "execution_time": 0.00010156631469726562,
-        "timestamp": "2025-09-14T12:13:15.857553"
+        "execution_time": 0.00010800361633300781,
+        "timestamp": "2025-09-14T16:24:59.938033"
       }
     },
     {
@@ -3504,8 +3504,8 @@
       "experiment_metadata": {
         "experiment_id": 37,
         "workflow_size": 15,
-        "execution_time": 0.00010442733764648438,
-        "timestamp": "2025-09-14T12:13:15.857665"
+        "execution_time": 9.632110595703125e-05,
+        "timestamp": "2025-09-14T16:24:59.938138"
       }
     },
     {
@@ -3647,8 +3647,8 @@
       "experiment_metadata": {
         "experiment_id": 38,
         "workflow_size": 15,
-        "execution_time": 0.0001163482666015625,
-        "timestamp": "2025-09-14T12:13:15.857788"
+        "execution_time": 0.00011968612670898438,
+        "timestamp": "2025-09-14T16:24:59.938265"
       }
     },
     {
@@ -3656,142 +3656,142 @@
       "workflow_id": "workflow_15_39",
       "task_count": 15,
       "dependency_count": 12,
-      "makespan": 24.412787481654533,
+      "makespan": 39.06045997064725,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_0": 0.4671448758149025,
-        "task_11": 2.0021194263748514,
-        "task_12": 1.1901172845096364,
-        "task_8": 2.4265025754033047,
-        "task_2": 2.3524813611288846,
-        "task_7": 1.7339210283340827,
-        "task_13": 1.2019062043448574,
-        "task_6": 0.4109972477054733,
-        "task_9": 1.6549048437051033,
-        "task_10": 1.1909379069395676,
-        "task_14": 2.069061990521651,
-        "task_3": 1.4981348719895935,
-        "task_1": 1.712033074300516,
-        "task_4": 2.3437479286916254,
-        "task_5": 2.158776861890486
+        "task_0": 0.747431801303844,
+        "task_11": 3.2033910821997624,
+        "task_12": 1.9041876552154182,
+        "task_8": 3.8824041206452873,
+        "task_2": 3.7639701778062156,
+        "task_7": 2.774273645334532,
+        "task_13": 1.923049926951772,
+        "task_6": 0.6575955963287573,
+        "task_9": 2.647847749928165,
+        "task_10": 1.9055006511033081,
+        "task_14": 3.3104991848346415,
+        "task_3": 2.3970157951833495,
+        "task_1": 2.7392529188808257,
+        "task_4": 3.7499966859066007,
+        "task_5": 3.454042979024778
       },
       "scheduling_decisions": [
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.4671448758149025,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.747431801303844,
           "start_time": 0.0,
-          "end_time": 0.4671448758149025
+          "end_time": 0.747431801303844
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.0021194263748514,
-          "start_time": 0.4671448758149026,
-          "end_time": 2.469264302189754
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.2033910821997624,
+          "start_time": 0.7474318013038439,
+          "end_time": 3.9508228835036063
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.1901172845096364,
-          "start_time": 2.469264302189754,
-          "end_time": 3.65938158669939
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.9041876552154182,
+          "start_time": 3.9508228835036068,
+          "end_time": 5.855010538719025
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4265025754033047,
-          "start_time": 3.65938158669939,
-          "end_time": 6.085884162102695
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.8824041206452873,
+          "start_time": 5.855010538719025,
+          "end_time": 9.737414659364312
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.3524813611288846,
-          "start_time": 6.085884162102696,
-          "end_time": 8.43836552323158
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.7639701778062156,
+          "start_time": 9.737414659364312,
+          "end_time": 13.501384837170527
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.7339210283340827,
-          "start_time": 8.43836552323158,
-          "end_time": 10.172286551565662
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.774273645334532,
+          "start_time": 13.501384837170527,
+          "end_time": 16.275658482505058
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.2019062043448574,
-          "start_time": 10.172286551565662,
-          "end_time": 11.374192755910519
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.923049926951772,
+          "start_time": 16.275658482505058,
+          "end_time": 18.19870840945683
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.4109972477054733,
-          "start_time": 11.374192755910519,
-          "end_time": 11.785190003615993
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6575955963287573,
+          "start_time": 18.19870840945683,
+          "end_time": 18.85630400578559
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.6549048437051033,
-          "start_time": 11.785190003615991,
-          "end_time": 13.440094847321095
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.647847749928165,
+          "start_time": 18.85630400578559,
+          "end_time": 21.504151755713753
         },
         {
           "task_id": "task_10",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.1909379069395676,
-          "start_time": 13.440094847321095,
-          "end_time": 14.631032754260662
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.9055006511033081,
+          "start_time": 21.50415175571375,
+          "end_time": 23.40965240681706
         },
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.069061990521651,
-          "start_time": 14.631032754260662,
-          "end_time": 16.700094744782312
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.3104991848346415,
+          "start_time": 23.40965240681706,
+          "end_time": 26.7201515916517
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4981348719895935,
-          "start_time": 16.700094744782312,
-          "end_time": 18.198229616771904
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.3970157951833495,
+          "start_time": 26.7201515916517,
+          "end_time": 29.11716738683505
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.712033074300516,
-          "start_time": 18.198229616771904,
-          "end_time": 19.910262691072422
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.7392529188808257,
+          "start_time": 29.11716738683505,
+          "end_time": 31.856420305715876
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.3437479286916254,
-          "start_time": 19.91026269107242,
-          "end_time": 22.254010619764045
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.7499966859066007,
+          "start_time": 31.856420305715872,
+          "end_time": 35.606416991622474
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.158776861890486,
-          "start_time": 22.254010619764045,
-          "end_time": 24.412787481654533
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.454042979024778,
+          "start_time": 35.606416991622474,
+          "end_time": 39.06045997064725
         }
       ],
       "experiment_metadata": {
         "experiment_id": 39,
         "workflow_size": 15,
-        "execution_time": 0.0008211135864257812,
-        "timestamp": "2025-09-14T12:13:15.858617"
+        "execution_time": 0.00177001953125,
+        "timestamp": "2025-09-14T16:24:59.940041"
       }
     },
     {
@@ -3799,26 +3799,26 @@
       "workflow_id": "workflow_15_40",
       "task_count": 15,
       "dependency_count": 12,
-      "makespan": 20.745535024441196,
+      "makespan": 39.06045997064725,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
-        "ComputeHost2": 0.277913374038354,
+        "ComputeHost2": 0.0,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.34333806560458535
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_0": 0.62285983441987,
+        "task_0": 0.747431801303844,
         "task_3": 2.3970157951833495,
-        "task_6": 0.5479963302739644,
-        "task_7": 2.3118947044454434,
-        "task_8": 2.4265025754033047,
-        "task_4": 2.3437479286916254,
+        "task_6": 0.6575955963287573,
+        "task_7": 2.774273645334532,
+        "task_8": 3.8824041206452873,
+        "task_4": 3.7499966859066007,
         "task_11": 3.2033910821997624,
-        "task_1": 2.2827107657340213,
+        "task_1": 2.7392529188808257,
         "task_5": 3.454042979024778,
         "task_14": 3.3104991848346415,
         "task_9": 2.647847749928165,
-        "task_2": 2.3524813611288846,
+        "task_2": 3.7639701778062156,
         "task_13": 1.923049926951772,
         "task_12": 1.9041876552154182,
         "task_10": 1.9055006511033081
@@ -3826,115 +3826,115 @@
       "scheduling_decisions": [
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.62285983441987,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.747431801303844,
           "start_time": 0.0,
-          "end_time": 0.62285983441987
+          "end_time": 0.747431801303844
         },
         {
           "task_id": "task_3",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.3970157951833495,
-          "start_time": 0.0,
-          "end_time": 2.3970157951833495
+          "start_time": 0.7474318013038439,
+          "end_time": 3.1444475964871934
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5479963302739644,
-          "start_time": 0.62285983441987,
-          "end_time": 1.1708561646938345
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6575955963287573,
+          "start_time": 3.1444475964871934,
+          "end_time": 3.8020431928159506
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.3118947044454434,
-          "start_time": 1.1708561646938347,
-          "end_time": 3.482750869139278
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.774273645334532,
+          "start_time": 3.8020431928159506,
+          "end_time": 6.576316838150483
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4265025754033047,
-          "start_time": 0.0,
-          "end_time": 2.4265025754033047
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.8824041206452873,
+          "start_time": 6.576316838150483,
+          "end_time": 10.45872095879577
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.3437479286916254,
-          "start_time": 2.4265025754033047,
-          "end_time": 4.77025050409493
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.7499966859066007,
+          "start_time": 10.45872095879577,
+          "end_time": 14.20871764470237
         },
         {
           "task_id": "task_11",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.2033910821997624,
-          "start_time": 2.397015795183349,
-          "end_time": 5.6004068773831115
+          "start_time": 14.208717644702372,
+          "end_time": 17.412108726902133
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2827107657340213,
-          "start_time": 3.4827508691392777,
-          "end_time": 5.765461634873299
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.7392529188808257,
+          "start_time": 17.412108726902133,
+          "end_time": 20.15136164578296
         },
         {
           "task_id": "task_5",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.454042979024778,
-          "start_time": 5.600406877383111,
-          "end_time": 9.054449856407889
+          "start_time": 20.15136164578296,
+          "end_time": 23.605404624807736
         },
         {
           "task_id": "task_14",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.3104991848346415,
-          "start_time": 9.054449856407889,
-          "end_time": 12.36494904124253
+          "start_time": 23.605404624807736,
+          "end_time": 26.915903809642376
         },
         {
           "task_id": "task_9",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.647847749928165,
-          "start_time": 12.36494904124253,
-          "end_time": 15.012796791170695
+          "start_time": 26.915903809642376,
+          "end_time": 29.56375155957054
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.3524813611288846,
-          "start_time": 4.77025050409493,
-          "end_time": 7.122731865223814
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.7639701778062156,
+          "start_time": 29.56375155957054,
+          "end_time": 33.327721737376756
         },
         {
           "task_id": "task_13",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.923049926951772,
-          "start_time": 15.012796791170693,
-          "end_time": 16.935846718122466
+          "start_time": 33.327721737376756,
+          "end_time": 35.250771664328525
         },
         {
           "task_id": "task_12",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.9041876552154182,
-          "start_time": 16.93584671812247,
-          "end_time": 18.840034373337886
+          "start_time": 35.250771664328525,
+          "end_time": 37.15495931954394
         },
         {
           "task_id": "task_10",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.9055006511033081,
-          "start_time": 18.840034373337886,
-          "end_time": 20.745535024441196
+          "start_time": 37.15495931954394,
+          "end_time": 39.06045997064725
         }
       ],
       "experiment_metadata": {
         "experiment_id": 40,
         "workflow_size": 15,
-        "execution_time": 0.00159454345703125,
-        "timestamp": "2025-09-14T12:13:15.860224"
+        "execution_time": 0.011509180068969727,
+        "timestamp": "2025-09-14T16:24:59.951565"
       }
     },
     {
@@ -4076,8 +4076,8 @@
       "experiment_metadata": {
         "experiment_id": 41,
         "workflow_size": 15,
-        "execution_time": 0.00010132789611816406,
-        "timestamp": "2025-09-14T12:13:15.860340"
+        "execution_time": 0.00010824203491210938,
+        "timestamp": "2025-09-14T16:24:59.951690"
       }
     },
     {
@@ -4219,8 +4219,8 @@
       "experiment_metadata": {
         "experiment_id": 42,
         "workflow_size": 15,
-        "execution_time": 9.703636169433594e-05,
-        "timestamp": "2025-09-14T12:13:15.860445"
+        "execution_time": 9.918212890625e-05,
+        "timestamp": "2025-09-14T16:24:59.951797"
       }
     },
     {
@@ -4362,8 +4362,8 @@
       "experiment_metadata": {
         "experiment_id": 43,
         "workflow_size": 15,
-        "execution_time": 0.00017189979553222656,
-        "timestamp": "2025-09-14T12:13:15.860626"
+        "execution_time": 0.00011897087097167969,
+        "timestamp": "2025-09-14T16:24:59.951922"
       }
     },
     {
@@ -4371,195 +4371,31 @@
       "workflow_id": "workflow_15_44",
       "task_count": 15,
       "dependency_count": 12,
-      "makespan": 19.535880149011007,
+      "makespan": 31.257408238417607,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
-      },
-      "task_execution_times": {
-        "task_14": 1.4078147549427213,
-        "task_11": 2.3782356699561844,
-        "task_7": 0.9337132019751627,
-        "task_6": 2.0912067389435465,
-        "task_0": 0.6845205039527769,
-        "task_13": 0.36531889676472645,
-        "task_4": 1.5721883112444182,
-        "task_12": 1.3015613846987943,
-        "task_5": 1.9600037229946934,
-        "task_9": 1.8260405142103393,
-        "task_10": 0.5525954880187505,
-        "task_8": 1.7191108906966992,
-        "task_2": 1.287637632240092,
-        "task_1": 0.2538933903859323,
-        "task_3": 1.2020390479861671
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4078147549427213,
-          "start_time": 0.0,
-          "end_time": 1.4078147549427213
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.3782356699561844,
-          "start_time": 1.4078147549427213,
-          "end_time": 3.7860504248989058
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.9337132019751627,
-          "start_time": 3.7860504248989058,
-          "end_time": 4.719763626874069
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.0912067389435465,
-          "start_time": 4.7197636268740695,
-          "end_time": 6.8109703658176155
-        },
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6845205039527769,
-          "start_time": 6.8109703658176155,
-          "end_time": 7.495490869770393
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.36531889676472645,
-          "start_time": 7.495490869770393,
-          "end_time": 7.8608097665351195
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.5721883112444182,
-          "start_time": 7.860809766535119,
-          "end_time": 9.432998077779537
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.3015613846987943,
-          "start_time": 9.432998077779537,
-          "end_time": 10.734559462478332
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.9600037229946934,
-          "start_time": 10.734559462478332,
-          "end_time": 12.694563185473026
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.8260405142103393,
-          "start_time": 12.694563185473026,
-          "end_time": 14.520603699683365
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5525954880187505,
-          "start_time": 14.520603699683365,
-          "end_time": 15.073199187702116
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.7191108906966992,
-          "start_time": 15.073199187702114,
-          "end_time": 16.792310078398813
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.287637632240092,
-          "start_time": 16.792310078398813,
-          "end_time": 18.079947710638905
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.2538933903859323,
-          "start_time": 18.079947710638905,
-          "end_time": 18.333841101024838
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.2020390479861671,
-          "start_time": 18.333841101024838,
-          "end_time": 19.535880149011007
-        }
-      ],
-      "experiment_metadata": {
-        "experiment_id": 44,
-        "workflow_size": 15,
-        "execution_time": 0.0008902549743652344,
-        "timestamp": "2025-09-14T12:13:15.861528"
-      }
-    },
-    {
-      "scheduler_name": "WASS-RAG",
-      "workflow_id": "workflow_15_45",
-      "task_count": 15,
-      "dependency_count": 12,
-      "makespan": 15.673857715249444,
-      "cpu_utilization": {
-        "ComputeHost1": 0.15785724413816896,
-        "ComputeHost2": 0.5209836256281147,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.15173263105753132
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_11": 2.3782356699561844,
-        "task_0": 1.3690410079055537,
-        "task_1": 0.3385245205145764,
         "task_14": 2.2525036079083542,
-        "task_12": 2.082498215518071,
-        "task_9": 2.4347206856137857,
+        "task_11": 3.805177071929895,
         "task_7": 1.4939411231602604,
-        "task_10": 1.105190976037501,
-        "task_8": 2.2921478542622653,
-        "task_13": 0.48709186235296864,
-        "task_4": 2.515501297991069,
-        "task_3": 1.9232624767778674,
-        "task_5": 2.6133382973262576,
         "task_6": 3.3459307823096744,
-        "task_2": 2.0602202115841473
+        "task_0": 1.095232806324443,
+        "task_13": 0.5845102348235623,
+        "task_4": 2.515501297991069,
+        "task_12": 2.082498215518071,
+        "task_5": 3.136005956791509,
+        "task_9": 2.9216648227365427,
+        "task_10": 0.8841527808300007,
+        "task_8": 2.750577425114719,
+        "task_2": 2.0602202115841473,
+        "task_1": 0.4062294246174916,
+        "task_3": 1.9232624767778674
       },
       "scheduling_decisions": [
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.3782356699561844,
-          "start_time": 0.0,
-          "end_time": 2.3782356699561844
-        },
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.3690410079055537,
-          "start_time": 0.0,
-          "end_time": 1.3690410079055537
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.3385245205145764,
-          "start_time": 0.0,
-          "end_time": 0.3385245205145764
-        },
         {
           "task_id": "task_14",
           "chosen_node": "ComputeHost3",
@@ -4568,88 +4404,252 @@
           "end_time": 2.2525036079083542
         },
         {
-          "task_id": "task_12",
+          "task_id": "task_11",
           "chosen_node": "ComputeHost3",
-          "execution_time": 2.082498215518071,
-          "start_time": 2.2525036079083547,
-          "end_time": 4.335001823426426
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.4347206856137857,
-          "start_time": 0.3385245205145764,
-          "end_time": 2.773245206128362
+          "execution_time": 3.805177071929895,
+          "start_time": 2.2525036079083542,
+          "end_time": 6.057680679838249
         },
         {
           "task_id": "task_7",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.4939411231602604,
-          "start_time": 4.335001823426426,
-          "end_time": 5.828942946586686
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.105190976037501,
-          "start_time": 1.3690410079055537,
-          "end_time": 2.4742319839430547
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2921478542622653,
-          "start_time": 2.7732452061283626,
-          "end_time": 5.065393060390628
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.48709186235296864,
-          "start_time": 5.065393060390628,
-          "end_time": 5.552484922743597
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost3",
-          "execution_time": 2.515501297991069,
-          "start_time": 5.828942946586686,
-          "end_time": 8.344444244577755
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost3",
-          "execution_time": 1.9232624767778674,
-          "start_time": 8.344444244577755,
-          "end_time": 10.267706721355623
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6133382973262576,
-          "start_time": 5.552484922743596,
-          "end_time": 8.165823220069854
+          "start_time": 6.057680679838249,
+          "end_time": 7.551621802998509
         },
         {
           "task_id": "task_6",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.3459307823096744,
-          "start_time": 10.267706721355623,
-          "end_time": 13.613637503665297
+          "start_time": 7.551621802998509,
+          "end_time": 10.897552585308183
+        },
+        {
+          "task_id": "task_0",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.095232806324443,
+          "start_time": 10.897552585308183,
+          "end_time": 11.992785391632626
+        },
+        {
+          "task_id": "task_13",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5845102348235623,
+          "start_time": 11.992785391632626,
+          "end_time": 12.57729562645619
+        },
+        {
+          "task_id": "task_4",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.515501297991069,
+          "start_time": 12.57729562645619,
+          "end_time": 15.092796924447258
+        },
+        {
+          "task_id": "task_12",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.082498215518071,
+          "start_time": 15.092796924447256,
+          "end_time": 17.17529513996533
+        },
+        {
+          "task_id": "task_5",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.136005956791509,
+          "start_time": 17.17529513996533,
+          "end_time": 20.311301096756836
+        },
+        {
+          "task_id": "task_9",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.9216648227365427,
+          "start_time": 20.311301096756836,
+          "end_time": 23.232965919493378
+        },
+        {
+          "task_id": "task_10",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8841527808300007,
+          "start_time": 23.232965919493378,
+          "end_time": 24.117118700323378
+        },
+        {
+          "task_id": "task_8",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.750577425114719,
+          "start_time": 24.117118700323378,
+          "end_time": 26.867696125438098
         },
         {
           "task_id": "task_2",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.0602202115841473,
-          "start_time": 13.613637503665297,
-          "end_time": 15.673857715249444
+          "start_time": 26.867696125438098,
+          "end_time": 28.927916337022246
+        },
+        {
+          "task_id": "task_1",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.4062294246174916,
+          "start_time": 28.927916337022246,
+          "end_time": 29.33414576163974
+        },
+        {
+          "task_id": "task_3",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.9232624767778674,
+          "start_time": 29.33414576163974,
+          "end_time": 31.257408238417607
+        }
+      ],
+      "experiment_metadata": {
+        "experiment_id": 44,
+        "workflow_size": 15,
+        "execution_time": 0.0020017623901367188,
+        "timestamp": "2025-09-14T16:24:59.953934"
+      }
+    },
+    {
+      "scheduler_name": "WASS-RAG",
+      "workflow_id": "workflow_15_45",
+      "task_count": 15,
+      "dependency_count": 12,
+      "makespan": 31.25740823841761,
+      "cpu_utilization": {
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
+      },
+      "task_execution_times": {
+        "task_11": 3.805177071929895,
+        "task_0": 1.095232806324443,
+        "task_1": 0.4062294246174916,
+        "task_14": 2.2525036079083542,
+        "task_12": 2.082498215518071,
+        "task_9": 2.9216648227365427,
+        "task_7": 1.4939411231602604,
+        "task_10": 0.8841527808300007,
+        "task_8": 2.750577425114719,
+        "task_13": 0.5845102348235623,
+        "task_4": 2.515501297991069,
+        "task_3": 1.9232624767778674,
+        "task_5": 3.136005956791509,
+        "task_6": 3.3459307823096744,
+        "task_2": 2.0602202115841473
+      },
+      "scheduling_decisions": [
+        {
+          "task_id": "task_11",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.805177071929895,
+          "start_time": 0.0,
+          "end_time": 3.805177071929895
+        },
+        {
+          "task_id": "task_0",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.095232806324443,
+          "start_time": 3.8051770719298954,
+          "end_time": 4.900409878254338
+        },
+        {
+          "task_id": "task_1",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.4062294246174916,
+          "start_time": 4.900409878254338,
+          "end_time": 5.30663930287183
+        },
+        {
+          "task_id": "task_14",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.2525036079083542,
+          "start_time": 5.306639302871831,
+          "end_time": 7.559142910780185
+        },
+        {
+          "task_id": "task_12",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.082498215518071,
+          "start_time": 7.559142910780186,
+          "end_time": 9.641641126298257
+        },
+        {
+          "task_id": "task_9",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.9216648227365427,
+          "start_time": 9.641641126298257,
+          "end_time": 12.563305949034799
+        },
+        {
+          "task_id": "task_7",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.4939411231602604,
+          "start_time": 12.563305949034799,
+          "end_time": 14.057247072195059
+        },
+        {
+          "task_id": "task_10",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8841527808300007,
+          "start_time": 14.057247072195059,
+          "end_time": 14.94139985302506
+        },
+        {
+          "task_id": "task_8",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.750577425114719,
+          "start_time": 14.94139985302506,
+          "end_time": 17.691977278139777
+        },
+        {
+          "task_id": "task_13",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5845102348235623,
+          "start_time": 17.691977278139777,
+          "end_time": 18.27648751296334
+        },
+        {
+          "task_id": "task_4",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.515501297991069,
+          "start_time": 18.27648751296334,
+          "end_time": 20.791988810954408
+        },
+        {
+          "task_id": "task_3",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.9232624767778674,
+          "start_time": 20.791988810954408,
+          "end_time": 22.715251287732276
+        },
+        {
+          "task_id": "task_5",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.136005956791509,
+          "start_time": 22.71525128773228,
+          "end_time": 25.851257244523786
+        },
+        {
+          "task_id": "task_6",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.3459307823096744,
+          "start_time": 25.851257244523786,
+          "end_time": 29.197188026833462
+        },
+        {
+          "task_id": "task_2",
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.0602202115841473,
+          "start_time": 29.197188026833462,
+          "end_time": 31.25740823841761
         }
       ],
       "experiment_metadata": {
         "experiment_id": 45,
         "workflow_size": 15,
-        "execution_time": 0.0014712810516357422,
-        "timestamp": "2025-09-14T12:13:15.863013"
+        "execution_time": 0.009109973907470703,
+        "timestamp": "2025-09-14T16:24:59.963059"
       }
     },
     {
@@ -4831,8 +4831,8 @@
       "experiment_metadata": {
         "experiment_id": 46,
         "workflow_size": 20,
-        "execution_time": 0.00039649009704589844,
-        "timestamp": "2025-09-14T12:13:15.863426"
+        "execution_time": 0.0001385211944580078,
+        "timestamp": "2025-09-14T16:24:59.963213"
       }
     },
     {
@@ -5014,8 +5014,8 @@
       "experiment_metadata": {
         "experiment_id": 47,
         "workflow_size": 20,
-        "execution_time": 0.00012946128845214844,
-        "timestamp": "2025-09-14T12:13:15.863569"
+        "execution_time": 0.0001277923583984375,
+        "timestamp": "2025-09-14T16:24:59.963349"
       }
     },
     {
@@ -5197,8 +5197,8 @@
       "experiment_metadata": {
         "experiment_id": 48,
         "workflow_size": 20,
-        "execution_time": 0.0001475811004638672,
-        "timestamp": "2025-09-14T12:13:15.863723"
+        "execution_time": 0.0001735687255859375,
+        "timestamp": "2025-09-14T16:24:59.963529"
       }
     },
     {
@@ -5206,182 +5206,182 @@
       "workflow_id": "workflow_20_49",
       "task_count": 20,
       "dependency_count": 16,
-      "makespan": 25.932786551960994,
+      "makespan": 41.49245848313758,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_19": 0.5654525543072522,
-        "task_2": 0.26613439082872714,
-        "task_17": 2.036315952515267,
-        "task_8": 2.483934027262275,
-        "task_15": 0.7424832162098816,
-        "task_4": 2.324986289754723,
-        "task_7": 0.38425094644134544,
-        "task_16": 2.1681684303815327,
-        "task_10": 0.8234295901747332,
-        "task_18": 1.213018812051486,
-        "task_11": 1.175805012010012,
-        "task_0": 2.0049008503899994,
-        "task_12": 0.6230035323099196,
-        "task_3": 0.8063048159139816,
-        "task_13": 0.7190132719521323,
-        "task_6": 1.5455613188217154,
-        "task_14": 1.5840171038177335,
-        "task_5": 2.1553131669839676,
-        "task_1": 1.3872960868422997,
-        "task_9": 0.9233971829920107
+        "task_19": 0.9047240868916034,
+        "task_2": 0.4258150253259634,
+        "task_17": 3.258105524024428,
+        "task_8": 3.9742944436196406,
+        "task_15": 1.1879731459358105,
+        "task_4": 3.719978063607557,
+        "task_7": 0.6148015143061527,
+        "task_16": 3.4690694886104523,
+        "task_10": 1.3174873442795731,
+        "task_18": 1.9408300992823777,
+        "task_11": 1.8812880192160195,
+        "task_0": 3.2078413606239993,
+        "task_12": 0.9968056516958713,
+        "task_3": 1.2900877054623707,
+        "task_13": 1.1504212351234115,
+        "task_6": 2.4728981101147447,
+        "task_14": 2.534427366108374,
+        "task_5": 3.4485010671743486,
+        "task_1": 2.2196737389476797,
+        "task_9": 1.477435492787217
       },
       "scheduling_decisions": [
         {
           "task_id": "task_19",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5654525543072522,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.9047240868916034,
           "start_time": 0.0,
-          "end_time": 0.5654525543072522
+          "end_time": 0.9047240868916034
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.26613439082872714,
-          "start_time": 0.5654525543072522,
-          "end_time": 0.8315869451359793
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.4258150253259634,
+          "start_time": 0.9047240868916033,
+          "end_time": 1.3305391122175667
         },
         {
           "task_id": "task_17",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.036315952515267,
-          "start_time": 0.8315869451359794,
-          "end_time": 2.8679028976512466
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.258105524024428,
+          "start_time": 1.3305391122175667,
+          "end_time": 4.588644636241995
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.483934027262275,
-          "start_time": 2.867902897651247,
-          "end_time": 5.351836924913522
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9742944436196406,
+          "start_time": 4.588644636241995,
+          "end_time": 8.562939079861636
         },
         {
           "task_id": "task_15",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.7424832162098816,
-          "start_time": 5.351836924913522,
-          "end_time": 6.094320141123404
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.1879731459358105,
+          "start_time": 8.562939079861636,
+          "end_time": 9.750912225797446
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.324986289754723,
-          "start_time": 6.094320141123404,
-          "end_time": 8.419306430878127
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.719978063607557,
+          "start_time": 9.750912225797446,
+          "end_time": 13.470890289405002
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.38425094644134544,
-          "start_time": 8.419306430878127,
-          "end_time": 8.803557377319471
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6148015143061527,
+          "start_time": 13.470890289405002,
+          "end_time": 14.085691803711155
         },
         {
           "task_id": "task_16",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.1681684303815327,
-          "start_time": 8.803557377319471,
-          "end_time": 10.971725807701004
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.4690694886104523,
+          "start_time": 14.085691803711155,
+          "end_time": 17.554761292321608
         },
         {
           "task_id": "task_10",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.8234295901747332,
-          "start_time": 10.971725807701004,
-          "end_time": 11.795155397875737
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.3174873442795731,
+          "start_time": 17.554761292321608,
+          "end_time": 18.87224863660118
         },
         {
           "task_id": "task_18",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.213018812051486,
-          "start_time": 11.795155397875737,
-          "end_time": 13.008174209927223
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.9408300992823777,
+          "start_time": 18.87224863660118,
+          "end_time": 20.813078735883558
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.175805012010012,
-          "start_time": 13.008174209927223,
-          "end_time": 14.183979221937236
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.8812880192160195,
+          "start_time": 20.813078735883558,
+          "end_time": 22.694366755099576
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.0049008503899994,
-          "start_time": 14.183979221937237,
-          "end_time": 16.188880072327237
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.2078413606239993,
+          "start_time": 22.694366755099576,
+          "end_time": 25.902208115723575
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6230035323099196,
-          "start_time": 16.188880072327237,
-          "end_time": 16.811883604637156
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.9968056516958713,
+          "start_time": 25.902208115723575,
+          "end_time": 26.899013767419447
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.8063048159139816,
-          "start_time": 16.811883604637156,
-          "end_time": 17.61818842055114
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.2900877054623707,
+          "start_time": 26.899013767419447,
+          "end_time": 28.189101472881816
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.7190132719521323,
-          "start_time": 17.61818842055114,
-          "end_time": 18.33720169250327
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.1504212351234115,
+          "start_time": 28.189101472881816,
+          "end_time": 29.339522708005227
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.5455613188217154,
-          "start_time": 18.33720169250327,
-          "end_time": 19.882763011324986
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.4728981101147447,
+          "start_time": 29.339522708005227,
+          "end_time": 31.81242081811997
         },
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.5840171038177335,
-          "start_time": 19.882763011324986,
-          "end_time": 21.46678011514272
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.534427366108374,
+          "start_time": 31.812420818119968,
+          "end_time": 34.34684818422834
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.1553131669839676,
-          "start_time": 21.46678011514272,
-          "end_time": 23.622093282126684
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.4485010671743486,
+          "start_time": 34.34684818422834,
+          "end_time": 37.79534925140269
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.3872960868422997,
-          "start_time": 23.622093282126684,
-          "end_time": 25.009389368968982
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.2196737389476797,
+          "start_time": 37.79534925140269,
+          "end_time": 40.01502299035037
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.9233971829920107,
-          "start_time": 25.009389368968982,
-          "end_time": 25.932786551960994
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.477435492787217,
+          "start_time": 40.01502299035037,
+          "end_time": 41.49245848313758
         }
       ],
       "experiment_metadata": {
         "experiment_id": 49,
         "workflow_size": 20,
-        "execution_time": 0.0011196136474609375,
-        "timestamp": "2025-09-14T12:13:15.864851"
+        "execution_time": 0.009958028793334961,
+        "timestamp": "2025-09-14T16:24:59.973497"
       }
     },
     {
@@ -5389,182 +5389,182 @@
       "workflow_id": "workflow_20_50",
       "task_count": 20,
       "dependency_count": 16,
-      "makespan": 24.43263477410242,
+      "makespan": 41.49245848313759,
       "cpu_utilization": {
-        "ComputeHost1": 0.4259126542811473,
-        "ComputeHost2": 0.035492711191860704,
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.19682364843083783
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_13": 1.4380265439042645,
+        "task_13": 1.1504212351234115,
         "task_5": 3.4485010671743486,
         "task_14": 2.534427366108374,
         "task_6": 2.4728981101147447,
         "task_0": 3.2078413606239993,
-        "task_9": 1.8467943659840214,
-        "task_7": 0.5123345952551273,
+        "task_9": 1.477435492787217,
+        "task_7": 0.6148015143061527,
         "task_18": 1.9408300992823777,
-        "task_19": 1.1309051086145043,
-        "task_15": 1.4849664324197631,
-        "task_2": 0.35484585443830285,
+        "task_19": 0.9047240868916034,
+        "task_15": 1.1879731459358105,
+        "task_2": 0.4258150253259634,
         "task_17": 3.258105524024428,
-        "task_8": 2.483934027262275,
+        "task_8": 3.9742944436196406,
         "task_16": 3.4690694886104523,
         "task_1": 2.2196737389476797,
-        "task_3": 1.6126096318279632,
-        "task_10": 1.6468591803494663,
+        "task_3": 1.2900877054623707,
+        "task_10": 1.3174873442795731,
         "task_11": 1.8812880192160195,
-        "task_4": 2.324986289754723,
-        "task_12": 1.2460070646198391
+        "task_4": 3.719978063607557,
+        "task_12": 0.9968056516958713
       },
       "scheduling_decisions": [
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.4380265439042645,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.1504212351234115,
           "start_time": 0.0,
-          "end_time": 1.4380265439042645
+          "end_time": 1.1504212351234115
         },
         {
           "task_id": "task_5",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.4485010671743486,
-          "start_time": 0.0,
-          "end_time": 3.4485010671743486
+          "start_time": 1.1504212351234115,
+          "end_time": 4.59892230229776
         },
         {
           "task_id": "task_14",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.534427366108374,
-          "start_time": 3.448501067174349,
-          "end_time": 5.982928433282723
+          "start_time": 4.59892230229776,
+          "end_time": 7.133349668406134
         },
         {
           "task_id": "task_6",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.4728981101147447,
-          "start_time": 5.982928433282723,
-          "end_time": 8.455826543397468
+          "start_time": 7.133349668406133,
+          "end_time": 9.606247778520878
         },
         {
           "task_id": "task_0",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.2078413606239993,
-          "start_time": 8.455826543397468,
-          "end_time": 11.663667904021466
+          "start_time": 9.606247778520878,
+          "end_time": 12.814089139144876
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.8467943659840214,
-          "start_time": 1.4380265439042645,
-          "end_time": 3.284820909888286
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.477435492787217,
+          "start_time": 12.814089139144876,
+          "end_time": 14.291524631932093
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5123345952551273,
-          "start_time": 0.0,
-          "end_time": 0.5123345952551273
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6148015143061527,
+          "start_time": 14.291524631932093,
+          "end_time": 14.906326146238246
         },
         {
           "task_id": "task_18",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.9408300992823777,
-          "start_time": 11.663667904021466,
-          "end_time": 13.604498003303844
+          "start_time": 14.906326146238245,
+          "end_time": 16.847156245520623
         },
         {
           "task_id": "task_19",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.1309051086145043,
-          "start_time": 3.2848209098882855,
-          "end_time": 4.41572601850279
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.9047240868916034,
+          "start_time": 16.847156245520623,
+          "end_time": 17.751880332412227
         },
         {
           "task_id": "task_15",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.4849664324197631,
-          "start_time": 4.41572601850279,
-          "end_time": 5.900692450922553
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.1879731459358105,
+          "start_time": 17.751880332412227,
+          "end_time": 18.939853478348038
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.35484585443830285,
-          "start_time": 0.5123345952551273,
-          "end_time": 0.8671804496934301
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.4258150253259634,
+          "start_time": 18.939853478348038,
+          "end_time": 19.365668503674
         },
         {
           "task_id": "task_17",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.258105524024428,
-          "start_time": 13.604498003303844,
-          "end_time": 16.86260352732827
+          "start_time": 19.365668503674,
+          "end_time": 22.62377402769843
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.483934027262275,
-          "start_time": 0.0,
-          "end_time": 2.483934027262275
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9742944436196406,
+          "start_time": 22.62377402769843,
+          "end_time": 26.598068471318072
         },
         {
           "task_id": "task_16",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.4690694886104523,
-          "start_time": 16.86260352732827,
-          "end_time": 20.331673015938723
+          "start_time": 26.598068471318072,
+          "end_time": 30.067137959928523
         },
         {
           "task_id": "task_1",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.2196737389476797,
-          "start_time": 20.331673015938723,
-          "end_time": 22.551346754886403
+          "start_time": 30.06713795992852,
+          "end_time": 32.2868116988762
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.6126096318279632,
-          "start_time": 5.900692450922553,
-          "end_time": 7.513302082750516
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.2900877054623707,
+          "start_time": 32.2868116988762,
+          "end_time": 33.57689940433857
         },
         {
           "task_id": "task_10",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.6468591803494663,
-          "start_time": 7.513302082750517,
-          "end_time": 9.160161263099983
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.3174873442795731,
+          "start_time": 33.57689940433857,
+          "end_time": 34.89438674861814
         },
         {
           "task_id": "task_11",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.8812880192160195,
-          "start_time": 22.551346754886403,
-          "end_time": 24.43263477410242
+          "start_time": 34.89438674861814,
+          "end_time": 36.77567476783416
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.324986289754723,
-          "start_time": 2.483934027262275,
-          "end_time": 4.808920317016998
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.719978063607557,
+          "start_time": 36.77567476783416,
+          "end_time": 40.49565283144172
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.2460070646198391,
-          "start_time": 9.160161263099983,
-          "end_time": 10.406168327719822
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.9968056516958713,
+          "start_time": 40.49565283144172,
+          "end_time": 41.49245848313759
         }
       ],
       "experiment_metadata": {
         "experiment_id": 50,
         "workflow_size": 20,
-        "execution_time": 0.001798868179321289,
-        "timestamp": "2025-09-14T12:13:15.866664"
+        "execution_time": 0.014533281326293945,
+        "timestamp": "2025-09-14T16:24:59.988077"
       }
     },
     {
@@ -5746,8 +5746,8 @@
       "experiment_metadata": {
         "experiment_id": 51,
         "workflow_size": 20,
-        "execution_time": 0.0001289844512939453,
-        "timestamp": "2025-09-14T12:13:15.866808"
+        "execution_time": 0.0002079010009765625,
+        "timestamp": "2025-09-14T16:24:59.988313"
       }
     },
     {
@@ -5929,8 +5929,8 @@
       "experiment_metadata": {
         "experiment_id": 52,
         "workflow_size": 20,
-        "execution_time": 0.0001685619354248047,
-        "timestamp": "2025-09-14T12:13:15.866985"
+        "execution_time": 0.00014901161193847656,
+        "timestamp": "2025-09-14T16:24:59.988474"
       }
     },
     {
@@ -6112,8 +6112,8 @@
       "experiment_metadata": {
         "experiment_id": 53,
         "workflow_size": 20,
-        "execution_time": 0.0001990795135498047,
-        "timestamp": "2025-09-14T12:13:15.867193"
+        "execution_time": 0.0004649162292480469,
+        "timestamp": "2025-09-14T16:24:59.988947"
       }
     },
     {
@@ -6121,182 +6121,182 @@
       "workflow_id": "workflow_20_54",
       "task_count": 20,
       "dependency_count": 16,
-      "makespan": 28.118611703178445,
+      "makespan": 44.989778725085515,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_9": 2.106848425655817,
-        "task_13": 2.4607502947437316,
-        "task_15": 1.6325453081712995,
-        "task_1": 0.5480761615743868,
-        "task_11": 1.9437379853710937,
-        "task_18": 0.6449043376494512,
-        "task_4": 2.4467445875491936,
-        "task_16": 1.4977278476343052,
-        "task_5": 0.9659115336168109,
-        "task_6": 1.5108492484992468,
-        "task_2": 1.8217713389602532,
-        "task_19": 1.2732564965558602,
-        "task_17": 1.3118164439090945,
-        "task_12": 0.5474149743970314,
-        "task_14": 1.903901916795051,
-        "task_7": 1.2463332149829947,
-        "task_0": 1.3355537906094561,
-        "task_8": 0.8905330521527846,
-        "task_3": 1.6938783796957018,
-        "task_10": 0.3360563646548873
+        "task_9": 3.3709574810493073,
+        "task_13": 3.9372004715899704,
+        "task_15": 2.6120724930740793,
+        "task_1": 0.8769218585190187,
+        "task_11": 3.10998077659375,
+        "task_18": 1.031846940239122,
+        "task_4": 3.9147913400787093,
+        "task_16": 2.3963645562148885,
+        "task_5": 1.5454584537868974,
+        "task_6": 2.417358797598795,
+        "task_2": 2.9148341423364053,
+        "task_19": 2.0372103944893762,
+        "task_17": 2.0989063102545513,
+        "task_12": 0.87586395903525,
+        "task_14": 3.0462430668720817,
+        "task_7": 1.9941331439727914,
+        "task_0": 2.13688606497513,
+        "task_8": 1.4248528834444554,
+        "task_3": 2.710205407513123,
+        "task_10": 0.5376901834478197
       },
       "scheduling_decisions": [
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.106848425655817,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.3709574810493073,
           "start_time": 0.0,
-          "end_time": 2.106848425655817
+          "end_time": 3.3709574810493073
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4607502947437316,
-          "start_time": 2.1068484256558166,
-          "end_time": 4.567598720399548
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9372004715899704,
+          "start_time": 3.370957481049307,
+          "end_time": 7.308157952639277
         },
         {
           "task_id": "task_15",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.6325453081712995,
-          "start_time": 4.567598720399548,
-          "end_time": 6.200144028570848
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.6120724930740793,
+          "start_time": 7.308157952639277,
+          "end_time": 9.920230445713356
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5480761615743868,
-          "start_time": 6.200144028570848,
-          "end_time": 6.7482201901452346
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8769218585190187,
+          "start_time": 9.920230445713356,
+          "end_time": 10.797152304232375
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.9437379853710937,
-          "start_time": 6.7482201901452346,
-          "end_time": 8.691958175516328
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.10998077659375,
+          "start_time": 10.797152304232375,
+          "end_time": 13.907133080826124
         },
         {
           "task_id": "task_18",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6449043376494512,
-          "start_time": 8.691958175516328,
-          "end_time": 9.33686251316578
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.031846940239122,
+          "start_time": 13.907133080826124,
+          "end_time": 14.938980021065246
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4467445875491936,
-          "start_time": 9.33686251316578,
-          "end_time": 11.783607100714974
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9147913400787093,
+          "start_time": 14.938980021065246,
+          "end_time": 18.853771361143956
         },
         {
           "task_id": "task_16",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4977278476343052,
-          "start_time": 11.783607100714974,
-          "end_time": 13.28133494834928
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.3963645562148885,
+          "start_time": 18.853771361143956,
+          "end_time": 21.250135917358843
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.9659115336168109,
-          "start_time": 13.28133494834928,
-          "end_time": 14.24724648196609
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.5454584537868974,
+          "start_time": 21.250135917358843,
+          "end_time": 22.79559437114574
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.5108492484992468,
-          "start_time": 14.24724648196609,
-          "end_time": 15.758095730465337
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.417358797598795,
+          "start_time": 22.79559437114574,
+          "end_time": 25.212953168744534
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.8217713389602532,
-          "start_time": 15.758095730465335,
-          "end_time": 17.57986706942559
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.9148341423364053,
+          "start_time": 25.212953168744534,
+          "end_time": 28.12778731108094
         },
         {
           "task_id": "task_19",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.2732564965558602,
-          "start_time": 17.57986706942559,
-          "end_time": 18.85312356598145
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.0372103944893762,
+          "start_time": 28.127787311080937,
+          "end_time": 30.164997705570315
         },
         {
           "task_id": "task_17",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.3118164439090945,
-          "start_time": 18.85312356598145,
-          "end_time": 20.164940009890543
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.0989063102545513,
+          "start_time": 30.16499770557031,
+          "end_time": 32.26390401582486
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5474149743970314,
-          "start_time": 20.164940009890543,
-          "end_time": 20.712354984287575
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.87586395903525,
+          "start_time": 32.26390401582486,
+          "end_time": 33.13976797486011
         },
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.903901916795051,
-          "start_time": 20.712354984287575,
-          "end_time": 22.616256901082625
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.0462430668720817,
+          "start_time": 33.13976797486011,
+          "end_time": 36.18601104173219
         },
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.2463332149829947,
-          "start_time": 22.616256901082625,
-          "end_time": 23.86259011606562
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.9941331439727914,
+          "start_time": 36.18601104173219,
+          "end_time": 38.18014418570498
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.3355537906094561,
-          "start_time": 23.86259011606562,
-          "end_time": 25.198143906675075
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.13688606497513,
+          "start_time": 38.18014418570498,
+          "end_time": 40.31703025068011
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.8905330521527846,
-          "start_time": 25.198143906675075,
-          "end_time": 26.088676958827858
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.4248528834444554,
+          "start_time": 40.31703025068011,
+          "end_time": 41.74188313412457
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.6938783796957018,
-          "start_time": 26.088676958827858,
-          "end_time": 27.782555338523558
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.710205407513123,
+          "start_time": 41.74188313412457,
+          "end_time": 44.45208854163769
         },
         {
           "task_id": "task_10",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.3360563646548873,
-          "start_time": 27.782555338523558,
-          "end_time": 28.118611703178445
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5376901834478197,
+          "start_time": 44.45208854163769,
+          "end_time": 44.989778725085515
         }
       ],
       "experiment_metadata": {
         "experiment_id": 54,
         "workflow_size": 20,
-        "execution_time": 0.0014111995697021484,
-        "timestamp": "2025-09-14T12:13:15.868616"
+        "execution_time": 0.0025327205657958984,
+        "timestamp": "2025-09-14T16:24:59.991582"
       }
     },
     {
@@ -6304,182 +6304,182 @@
       "workflow_id": "workflow_20_55",
       "task_count": 20,
       "dependency_count": 16,
-      "makespan": 20.609347695415817,
+      "makespan": 44.989778725085515,
       "cpu_utilization": {
-        "ComputeHost1": 0.2553140996654501,
-        "ComputeHost2": 0.49811351620731265,
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.23811985487461643
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_14": 2.538535889060068,
+        "task_14": 3.0462430668720817,
         "task_5": 1.5454584537868974,
         "task_7": 1.9941331439727914,
         "task_15": 2.6120724930740793,
-        "task_1": 1.0961523231487735,
-        "task_4": 2.4467445875491936,
-        "task_12": 1.0948299487940627,
-        "task_11": 2.591650647161458,
+        "task_1": 0.8769218585190187,
+        "task_4": 3.9147913400787093,
+        "task_12": 0.87586395903525,
+        "task_11": 3.10998077659375,
         "task_19": 2.0372103944893762,
-        "task_8": 1.781066104305569,
+        "task_8": 1.4248528834444554,
         "task_16": 2.3963645562148885,
-        "task_18": 1.2898086752989024,
+        "task_18": 1.031846940239122,
         "task_9": 3.3709574810493073,
         "task_0": 2.13688606497513,
         "task_6": 2.417358797598795,
         "task_17": 2.0989063102545513,
-        "task_10": 0.4480751528731831,
-        "task_2": 2.4290284519470045,
-        "task_13": 2.4607502947437316,
-        "task_3": 2.2585045062609357
+        "task_10": 0.5376901834478197,
+        "task_2": 2.9148341423364053,
+        "task_13": 3.9372004715899704,
+        "task_3": 2.710205407513123
       },
       "scheduling_decisions": [
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.538535889060068,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.0462430668720817,
           "start_time": 0.0,
-          "end_time": 2.538535889060068
+          "end_time": 3.0462430668720817
         },
         {
           "task_id": "task_5",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.5454584537868974,
-          "start_time": 0.0,
-          "end_time": 1.5454584537868974
+          "start_time": 3.046243066872082,
+          "end_time": 4.5917015206589795
         },
         {
           "task_id": "task_7",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.9941331439727914,
-          "start_time": 1.5454584537868972,
-          "end_time": 3.5395915977596886
+          "start_time": 4.5917015206589795,
+          "end_time": 6.585834664631771
         },
         {
           "task_id": "task_15",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.6120724930740793,
-          "start_time": 3.539591597759688,
-          "end_time": 6.151664090833767
+          "start_time": 6.585834664631772,
+          "end_time": 9.19790715770585
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.0961523231487735,
-          "start_time": 0.0,
-          "end_time": 1.0961523231487735
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.8769218585190187,
+          "start_time": 9.19790715770585,
+          "end_time": 10.07482901622487
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4467445875491936,
-          "start_time": 0.0,
-          "end_time": 2.4467445875491936
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9147913400787093,
+          "start_time": 10.07482901622487,
+          "end_time": 13.989620356303579
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.0948299487940627,
-          "start_time": 1.0961523231487735,
-          "end_time": 2.1909822719428362
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.87586395903525,
+          "start_time": 13.989620356303579,
+          "end_time": 14.86548431533883
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.591650647161458,
-          "start_time": 2.5385358890600678,
-          "end_time": 5.130186536221526
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.10998077659375,
+          "start_time": 14.865484315338831,
+          "end_time": 17.97546509193258
         },
         {
           "task_id": "task_19",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.0372103944893762,
-          "start_time": 6.151664090833767,
-          "end_time": 8.188874485323144
+          "start_time": 17.975465091932577,
+          "end_time": 20.012675486421955
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.781066104305569,
-          "start_time": 2.1909822719428362,
-          "end_time": 3.9720483762484053
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.4248528834444554,
+          "start_time": 20.012675486421955,
+          "end_time": 21.43752836986641
         },
         {
           "task_id": "task_16",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.3963645562148885,
-          "start_time": 8.188874485323144,
-          "end_time": 10.585239041538031
+          "start_time": 21.43752836986641,
+          "end_time": 23.833892926081298
         },
         {
           "task_id": "task_18",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.2898086752989024,
-          "start_time": 3.9720483762484053,
-          "end_time": 5.261857051547308
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.031846940239122,
+          "start_time": 23.833892926081298,
+          "end_time": 24.865739866320418
         },
         {
           "task_id": "task_9",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.3709574810493073,
-          "start_time": 10.585239041538031,
-          "end_time": 13.956196522587339
+          "start_time": 24.865739866320418,
+          "end_time": 28.236697347369724
         },
         {
           "task_id": "task_0",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.13688606497513,
-          "start_time": 13.95619652258734,
-          "end_time": 16.09308258756247
+          "start_time": 28.236697347369724,
+          "end_time": 30.373583412344853
         },
         {
           "task_id": "task_6",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.417358797598795,
-          "start_time": 16.09308258756247,
-          "end_time": 18.510441385161265
+          "start_time": 30.373583412344857,
+          "end_time": 32.79094220994365
         },
         {
           "task_id": "task_17",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.0989063102545513,
-          "start_time": 18.510441385161265,
-          "end_time": 20.609347695415817
+          "start_time": 32.79094220994365,
+          "end_time": 34.8898485201982
         },
         {
           "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.4480751528731831,
-          "start_time": 5.130186536221526,
-          "end_time": 5.578261689094709
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5376901834478197,
+          "start_time": 34.8898485201982,
+          "end_time": 35.42753870364602
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.4290284519470045,
-          "start_time": 5.578261689094708,
-          "end_time": 8.007290141041713
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.9148341423364053,
+          "start_time": 35.42753870364602,
+          "end_time": 38.342372845982425
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.4607502947437316,
-          "start_time": 2.446744587549193,
-          "end_time": 4.907494882292925
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9372004715899704,
+          "start_time": 38.342372845982425,
+          "end_time": 42.27957331757239
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2585045062609357,
-          "start_time": 8.007290141041713,
-          "end_time": 10.265794647302648
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.710205407513123,
+          "start_time": 42.27957331757239,
+          "end_time": 44.989778725085515
         }
       ],
       "experiment_metadata": {
         "experiment_id": 55,
         "workflow_size": 20,
-        "execution_time": 0.0023844242095947266,
-        "timestamp": "2025-09-14T12:13:15.871017"
+        "execution_time": 0.013461112976074219,
+        "timestamp": "2025-09-14T16:25:00.005092"
       }
     },
     {
@@ -6661,8 +6661,8 @@
       "experiment_metadata": {
         "experiment_id": 56,
         "workflow_size": 20,
-        "execution_time": 0.0001461505889892578,
-        "timestamp": "2025-09-14T12:13:15.871181"
+        "execution_time": 0.0001537799835205078,
+        "timestamp": "2025-09-14T16:25:00.005271"
       }
     },
     {
@@ -6844,8 +6844,8 @@
       "experiment_metadata": {
         "experiment_id": 57,
         "workflow_size": 20,
-        "execution_time": 0.00016760826110839844,
-        "timestamp": "2025-09-14T12:13:15.871358"
+        "execution_time": 0.00013566017150878906,
+        "timestamp": "2025-09-14T16:25:00.005416"
       }
     },
     {
@@ -7027,8 +7027,8 @@
       "experiment_metadata": {
         "experiment_id": 58,
         "workflow_size": 20,
-        "execution_time": 0.00018644332885742188,
-        "timestamp": "2025-09-14T12:13:15.871554"
+        "execution_time": 0.0001704692840576172,
+        "timestamp": "2025-09-14T16:25:00.005593"
       }
     },
     {
@@ -7036,182 +7036,182 @@
       "workflow_id": "workflow_20_59",
       "task_count": 20,
       "dependency_count": 16,
-      "makespan": 26.73924687331715,
+      "makespan": 42.78279499730745,
       "cpu_utilization": {
         "ComputeHost1": 0.0,
         "ComputeHost2": 0.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 1.0
+        "ComputeHost3": 1.0,
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_7": 1.128854694692824,
-        "task_14": 2.287030130917779,
-        "task_19": 1.0060988913054891,
-        "task_15": 0.6616735396070371,
-        "task_0": 2.332738235797881,
-        "task_5": 1.2806296493636207,
-        "task_9": 2.447034603994819,
-        "task_1": 1.421121350642353,
-        "task_12": 0.43073922107172613,
-        "task_10": 1.986999753452997,
-        "task_17": 0.7041991703954594,
-        "task_13": 1.8933049883584638,
-        "task_8": 1.0864461949362874,
-        "task_6": 1.6345144416597,
-        "task_2": 1.4328521982461724,
-        "task_3": 0.3936149170876719,
-        "task_11": 0.2559625237764614,
-        "task_18": 2.23313065457757,
-        "task_4": 1.7698315302007943,
-        "task_16": 0.3524701832320459
+        "task_7": 1.8061675115085183,
+        "task_14": 3.6592482094684464,
+        "task_19": 1.6097582260887826,
+        "task_15": 1.0586776633712593,
+        "task_0": 3.73238117727661,
+        "task_5": 2.049007438981793,
+        "task_9": 3.9152553663917105,
+        "task_1": 2.273794161027765,
+        "task_12": 0.6891827537147618,
+        "task_10": 3.1791996055247953,
+        "task_17": 1.126718672632735,
+        "task_13": 3.029287981373542,
+        "task_8": 1.73831391189806,
+        "task_6": 2.61522310665552,
+        "task_2": 2.292563517193876,
+        "task_3": 0.629783867340275,
+        "task_11": 0.40954003804233824,
+        "task_18": 3.573009047324112,
+        "task_4": 2.8317304483212706,
+        "task_16": 0.5639522931712734
       },
       "scheduling_decisions": [
         {
           "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.128854694692824,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.8061675115085183,
           "start_time": 0.0,
-          "end_time": 1.128854694692824
+          "end_time": 1.8061675115085183
         },
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.287030130917779,
-          "start_time": 1.1288546946928242,
-          "end_time": 3.415884825610603
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.6592482094684464,
+          "start_time": 1.806167511508518,
+          "end_time": 5.4654157209769645
         },
         {
           "task_id": "task_19",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.0060988913054891,
-          "start_time": 3.4158848256106027,
-          "end_time": 4.421983716916092
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.6097582260887826,
+          "start_time": 5.4654157209769645,
+          "end_time": 7.075173947065747
         },
         {
           "task_id": "task_15",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6616735396070371,
-          "start_time": 4.421983716916092,
-          "end_time": 5.083657256523129
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.0586776633712593,
+          "start_time": 7.075173947065746,
+          "end_time": 8.133851610437006
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.332738235797881,
-          "start_time": 5.083657256523129,
-          "end_time": 7.41639549232101
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.73238117727661,
+          "start_time": 8.133851610437006,
+          "end_time": 11.866232787713615
         },
         {
           "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.2806296493636207,
-          "start_time": 7.416395492321009,
-          "end_time": 8.69702514168463
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.049007438981793,
+          "start_time": 11.866232787713615,
+          "end_time": 13.915240226695408
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.447034603994819,
-          "start_time": 8.69702514168463,
-          "end_time": 11.14405974567945
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9152553663917105,
+          "start_time": 13.915240226695408,
+          "end_time": 17.830495593087118
         },
         {
           "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.421121350642353,
-          "start_time": 11.14405974567945,
-          "end_time": 12.565181096321803
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.273794161027765,
+          "start_time": 17.830495593087118,
+          "end_time": 20.104289754114884
         },
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.43073922107172613,
-          "start_time": 12.565181096321803,
-          "end_time": 12.995920317393528
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6891827537147618,
+          "start_time": 20.104289754114884,
+          "end_time": 20.793472507829645
         },
         {
           "task_id": "task_10",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.986999753452997,
-          "start_time": 12.995920317393528,
-          "end_time": 14.982920070846525
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.1791996055247953,
+          "start_time": 20.793472507829648,
+          "end_time": 23.97267211335444
         },
         {
           "task_id": "task_17",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.7041991703954594,
-          "start_time": 14.982920070846525,
-          "end_time": 15.687119241241984
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.126718672632735,
+          "start_time": 23.97267211335444,
+          "end_time": 25.099390785987175
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.8933049883584638,
-          "start_time": 15.687119241241982,
-          "end_time": 17.580424229600446
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.029287981373542,
+          "start_time": 25.099390785987175,
+          "end_time": 28.128678767360718
         },
         {
           "task_id": "task_8",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.0864461949362874,
-          "start_time": 17.580424229600446,
-          "end_time": 18.666870424536732
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.73831391189806,
+          "start_time": 28.128678767360718,
+          "end_time": 29.86699267925878
         },
         {
           "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.6345144416597,
-          "start_time": 18.666870424536732,
-          "end_time": 20.301384866196432
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.61522310665552,
+          "start_time": 29.86699267925878,
+          "end_time": 32.4822157859143
         },
         {
           "task_id": "task_2",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.4328521982461724,
-          "start_time": 20.301384866196432,
-          "end_time": 21.734237064442606
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.292563517193876,
+          "start_time": 32.4822157859143,
+          "end_time": 34.774779303108176
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.3936149170876719,
-          "start_time": 21.734237064442606,
-          "end_time": 22.127851981530277
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.629783867340275,
+          "start_time": 34.774779303108176,
+          "end_time": 35.40456317044845
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.2559625237764614,
-          "start_time": 22.127851981530277,
-          "end_time": 22.383814505306738
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.40954003804233824,
+          "start_time": 35.40456317044845,
+          "end_time": 35.814103208490785
         },
         {
           "task_id": "task_18",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.23313065457757,
-          "start_time": 22.383814505306738,
-          "end_time": 24.61694515988431
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.573009047324112,
+          "start_time": 35.814103208490785,
+          "end_time": 39.3871122558149
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.7698315302007943,
-          "start_time": 24.61694515988431,
-          "end_time": 26.386776690085103
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.8317304483212706,
+          "start_time": 39.3871122558149,
+          "end_time": 42.21884270413617
         },
         {
           "task_id": "task_16",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.3524701832320459,
-          "start_time": 26.386776690085103,
-          "end_time": 26.73924687331715
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5639522931712734,
+          "start_time": 42.21884270413617,
+          "end_time": 42.78279499730745
         }
       ],
       "experiment_metadata": {
         "experiment_id": 59,
         "workflow_size": 20,
-        "execution_time": 0.0012311935424804688,
-        "timestamp": "2025-09-14T12:13:15.872795"
+        "execution_time": 0.0023386478424072266,
+        "timestamp": "2025-09-14T16:25:00.007940"
       }
     },
     {
@@ -7219,182 +7219,182 @@
       "workflow_id": "workflow_20_60",
       "task_count": 20,
       "dependency_count": 16,
-      "makespan": 17.56402747887911,
+      "makespan": 42.78279499730744,
       "cpu_utilization": {
-        "ComputeHost1": 0.15553069609404446,
-        "ComputeHost2": 0.3868454711278533,
+        "ComputeHost1": 0.0,
+        "ComputeHost2": 0.0,
         "ComputeHost3": 1.0,
-        "ComputeHost4": 0.5294875356162644
+        "ComputeHost4": 0.0
       },
       "task_execution_times": {
-        "task_12": 0.5743189614289682,
+        "task_12": 0.6891827537147618,
         "task_5": 2.049007438981793,
-        "task_3": 0.5248198894502292,
+        "task_3": 0.629783867340275,
         "task_6": 2.61522310665552,
         "task_1": 2.273794161027765,
-        "task_18": 2.23313065457757,
-        "task_11": 0.34128336503528184,
-        "task_15": 1.3233470792140742,
+        "task_18": 3.573009047324112,
+        "task_11": 0.40954003804233824,
+        "task_15": 1.0586776633712593,
         "task_10": 3.1791996055247953,
         "task_8": 1.73831391189806,
         "task_2": 2.292563517193876,
-        "task_17": 1.4083983407909189,
-        "task_4": 2.359775373601059,
+        "task_17": 1.126718672632735,
+        "task_4": 2.8317304483212706,
         "task_19": 1.6097582260887826,
         "task_7": 1.8061675115085183,
-        "task_16": 0.46996024430939454,
-        "task_9": 2.447034603994819,
-        "task_14": 2.287030130917779,
-        "task_0": 2.332738235797881,
-        "task_13": 2.524406651144618
+        "task_16": 0.5639522931712734,
+        "task_9": 3.9152553663917105,
+        "task_14": 3.6592482094684464,
+        "task_0": 3.73238117727661,
+        "task_13": 3.029287981373542
       },
       "scheduling_decisions": [
         {
           "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5743189614289682,
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.6891827537147618,
           "start_time": 0.0,
-          "end_time": 0.5743189614289682
+          "end_time": 0.6891827537147618
         },
         {
           "task_id": "task_5",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.049007438981793,
-          "start_time": 0.0,
-          "end_time": 2.049007438981793
+          "start_time": 0.6891827537147619,
+          "end_time": 2.738190192696555
         },
         {
           "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5248198894502292,
-          "start_time": 0.5743189614289681,
-          "end_time": 1.0991388508791973
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.629783867340275,
+          "start_time": 2.738190192696555,
+          "end_time": 3.36797406003683
         },
         {
           "task_id": "task_6",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.61522310665552,
-          "start_time": 2.049007438981793,
-          "end_time": 4.664230545637313
+          "start_time": 3.3679740600368295,
+          "end_time": 5.983197166692349
         },
         {
           "task_id": "task_1",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.273794161027765,
-          "start_time": 4.664230545637313,
-          "end_time": 6.938024706665078
+          "start_time": 5.98319716669235,
+          "end_time": 8.256991327720115
         },
         {
           "task_id": "task_18",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.23313065457757,
-          "start_time": 0.0,
-          "end_time": 2.23313065457757
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.573009047324112,
+          "start_time": 8.256991327720115,
+          "end_time": 11.830000375044227
         },
         {
           "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.34128336503528184,
-          "start_time": 1.0991388508791973,
-          "end_time": 1.440422215914479
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.40954003804233824,
+          "start_time": 11.830000375044227,
+          "end_time": 12.239540413086566
         },
         {
           "task_id": "task_15",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.3233470792140742,
-          "start_time": 0.0,
-          "end_time": 1.3233470792140742
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.0586776633712593,
+          "start_time": 12.239540413086566,
+          "end_time": 13.298218076457825
         },
         {
           "task_id": "task_10",
           "chosen_node": "ComputeHost3",
           "execution_time": 3.1791996055247953,
-          "start_time": 6.938024706665077,
-          "end_time": 10.117224312189872
+          "start_time": 13.298218076457827,
+          "end_time": 16.477417681982622
         },
         {
           "task_id": "task_8",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.73831391189806,
-          "start_time": 10.117224312189872,
-          "end_time": 11.855538224087933
+          "start_time": 16.477417681982622,
+          "end_time": 18.215731593880683
         },
         {
           "task_id": "task_2",
           "chosen_node": "ComputeHost3",
           "execution_time": 2.292563517193876,
-          "start_time": 11.855538224087933,
-          "end_time": 14.14810174128181
+          "start_time": 18.215731593880683,
+          "end_time": 20.50829511107456
         },
         {
           "task_id": "task_17",
-          "chosen_node": "ComputeHost1",
-          "execution_time": 1.4083983407909189,
-          "start_time": 1.3233470792140742,
-          "end_time": 2.731745420004993
+          "chosen_node": "ComputeHost3",
+          "execution_time": 1.126718672632735,
+          "start_time": 20.50829511107456,
+          "end_time": 21.635013783707294
         },
         {
           "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.359775373601059,
-          "start_time": 1.440422215914479,
-          "end_time": 3.800197589515538
+          "chosen_node": "ComputeHost3",
+          "execution_time": 2.8317304483212706,
+          "start_time": 21.635013783707294,
+          "end_time": 24.466744232028564
         },
         {
           "task_id": "task_19",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.6097582260887826,
-          "start_time": 14.14810174128181,
-          "end_time": 15.757859967370592
+          "start_time": 24.466744232028564,
+          "end_time": 26.076502458117346
         },
         {
           "task_id": "task_7",
           "chosen_node": "ComputeHost3",
           "execution_time": 1.8061675115085183,
-          "start_time": 15.757859967370594,
-          "end_time": 17.56402747887911
+          "start_time": 26.076502458117346,
+          "end_time": 27.882669969625866
         },
         {
           "task_id": "task_16",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.46996024430939454,
-          "start_time": 3.8001975895155384,
-          "end_time": 4.270157833824933
+          "chosen_node": "ComputeHost3",
+          "execution_time": 0.5639522931712734,
+          "start_time": 27.882669969625866,
+          "end_time": 28.44662226279714
         },
         {
           "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.447034603994819,
-          "start_time": 2.23313065457757,
-          "end_time": 4.680165258572389
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.9152553663917105,
+          "start_time": 28.446622262797135,
+          "end_time": 32.36187762918885
         },
         {
           "task_id": "task_14",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.287030130917779,
-          "start_time": 4.680165258572389,
-          "end_time": 6.967195389490168
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.6592482094684464,
+          "start_time": 32.36187762918885,
+          "end_time": 36.02112583865729
         },
         {
           "task_id": "task_0",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.332738235797881,
-          "start_time": 6.967195389490168,
-          "end_time": 9.29993362528805
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.73238117727661,
+          "start_time": 36.02112583865729,
+          "end_time": 39.7535070159339
         },
         {
           "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.524406651144618,
-          "start_time": 4.270157833824933,
-          "end_time": 6.794564484969551
+          "chosen_node": "ComputeHost3",
+          "execution_time": 3.029287981373542,
+          "start_time": 39.7535070159339,
+          "end_time": 42.78279499730744
         }
       ],
       "experiment_metadata": {
         "experiment_id": 60,
         "workflow_size": 20,
-        "execution_time": 0.001922607421875,
-        "timestamp": "2025-09-14T12:13:15.874734"
+        "execution_time": 0.013903141021728516,
+        "timestamp": "2025-09-14T16:25:00.021859"
       }
     }
   ]
