@@ -78,6 +78,7 @@ class AdvancedDQN(nn.Module):
         
         if hidden_dims is None:
             hidden_dims = [512, 256, 128, 64]  # 更深的网络结构
+        self.hidden_dims = hidden_dims
         
         # 特征提取层
         feature_layers = []
@@ -440,10 +441,10 @@ class ImprovedDQNAgent:
         
         # 采样经验
         batch = random.sample(self.memory, self.batch_size)
-        states = torch.FloatTensor([e.state for e in batch]).to(self.device)
+        states = torch.FloatTensor(np.array([e.state for e in batch])).to(self.device)
         actions = torch.LongTensor([e.action for e in batch]).to(self.device)
         rewards = torch.FloatTensor([e.reward for e in batch]).to(self.device)
-        next_states = torch.FloatTensor([e.next_state for e in batch]).to(self.device)
+        next_states = torch.FloatTensor(np.array([e.next_state for e in batch])).to(self.device)
         dones = torch.BoolTensor([e.done for e in batch]).to(self.device)
         
         # 计算Q值
@@ -583,9 +584,9 @@ class WRENCHDRLTrainer:
         
         # 课程学习相关参数
         self.curriculum_stages = [
-            {"name": "简单场景", "tasks": 5, "nodes": 2, "complexity": 0.2, "episodes": 200},
-            {"name": "中等场景", "tasks": 10, "nodes": 3, "complexity": 0.5, "episodes": 300},
-            {"name": "复杂场景", "tasks": 15, "nodes": 4, "complexity": 0.8, "episodes": 300},
+            {"name": "入门场景", "tasks": 5, "nodes": 4, "complexity": 0.3, "episodes": 300},
+            {"name": "中级场景", "tasks": 10, "nodes": 4, "complexity": 0.6, "episodes": 400},
+            {"name": "高级场景", "tasks": 15, "nodes": 4, "complexity": 0.8, "episodes": 300},
             {"name": "真实场景", "tasks": 20, "nodes": 4, "complexity": 1.0, "episodes": 200}
         ]
         self.current_stage = 0
@@ -864,19 +865,9 @@ class WRENCHDRLTrainer:
         
         # 检查当前阶段是否完成足够的训练轮数
         curriculum = self.curriculum_stages[self.current_stage]
-        if self.stage_episodes_completed < curriculum["episodes"]:
-            return False
-        
-        # 检查性能是否达到要求（最近20个episode的平均makespan是否稳定）
-        if len(self.stage_performance_history) >= 20:
-            recent_performance = self.stage_performance_history[-20:]
-            avg_makespan = sum(p["makespan"] for p in recent_performance) / len(recent_performance)
-            std_makespan = np.std([p["makespan"] for p in recent_performance])
-            
-            # 如果标准差小于平均值的10%，认为性能稳定
-            if std_makespan < 0.1 * avg_makespan:
-                print(f"🎓 课程阶段 {self.current_stage+1} ({curriculum['name']}) 性能稳定，准备进入下一阶段")
-                return True
+        if self.stage_episodes_completed >= curriculum["episodes"]:
+            print(f"🎓 完成阶段 {self.current_stage+1} 的 {self.stage_episodes_completed} episodes, 准备进入下一阶段")
+            return True
         
         return False
     
@@ -948,7 +939,7 @@ class WRENCHDRLTrainer:
             max_path = max(max_path, path_length)
         
         return max_path
-    
+
     def extract_state_features(self, 
                              current_task: TaskState, 
                              node_states: List[NodeState],
@@ -1465,8 +1456,27 @@ class WRENCHDRLTrainer:
             json.dump(self.training_history, f, indent=2)
         print(f"📊 训练历史已保存: {history_path}")
 
+def set_seed(seed_value=42):
+    """Set seed for reproducibility."""
+    random.seed(seed_value)
+    np.random.seed(seed_value)
+    torch.manual_seed(seed_value)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed_value)
+
 def main():
+    # Set seed for reproducibility
+    set_seed(42)
+
     import argparse
+
+    # Set seed for reproducibility
+    random.seed(42)
+    np.random.seed(42)
+    torch.manual_seed(42)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(42)
+
     
     parser = argparse.ArgumentParser(description='WASS-RAG 改进DRL训练器 (集成多样化探索策略)')
     parser.add_argument('--config', default='configs/experiment.yaml', help='配置文件路径')

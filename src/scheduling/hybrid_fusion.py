@@ -50,8 +50,8 @@ def fuse_decision(q_values: List[float], rag_scores: List[float], load_values: L
     max_load = max(load_values) if load_values else 1.0
     load_norm_raw = [lv / max_load if max_load > 0 else 0.0 for lv in load_values]
     
-    # 使用极强的指数变换增强负载均衡效果
-    load_pref = [math.exp(-16.0 * lv) for lv in load_norm_raw]  # 增强系数从8.0提高到16.0，使高负载节点得分极低
+    # 使用较缓和的指数变换，保留负载影响但不过分主导
+    load_pref = [math.exp(-4.0 * lv) for lv in load_norm_raw]  # 增强系数从16.0缓和到4.0
 
     # 计算makespan预测得分（如果提供）
     makespan_scores = [0.0] * n
@@ -64,11 +64,11 @@ def fuse_decision(q_values: List[float], rag_scores: List[float], load_values: L
 
     progress = max(0.0, min(1.0, progress))
     
-    # 调整权重分配：负载均衡权重占绝对主导地位，但加入makespan预测权重
-    alpha = 0.03 + 0.015 * progress  # DRL权重极低
-    beta = 0.03 - 0.015 * progress   # RAG权重极低
-    gamma = 0.70  # 负载均衡权重占主导地位
-    delta = 0.24  # makespan预测权重
+    # 重新平衡权重，给予RAG和DRL更多话语权
+    alpha = 0.25 - 0.1 * progress  # DRL权重
+    beta = 0.35 + 0.1 * progress   # RAG权重，随训练进度增加
+    gamma = 0.20  # 负载均衡权重
+    delta = 0.20  # makespan预测权重
     
     # 确保权重总和为1
     total_weight = alpha + beta + gamma + delta

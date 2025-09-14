@@ -39,9 +39,10 @@ class EnhancedWorkflowConfig:
 class EnhancedRAGKnowledgeBaseGenerator:
     """增强的RAG知识库生成器"""
     
-    def __init__(self, output_dir: str = "data"):
+    def __init__(self, output_dir: str = "data", kb_output_filename: str = "enhanced_rag_kb.json"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
+        self.kb_output_filename = kb_output_filename
         
         # 初始化工作流和平台生成器
         self.workflow_generator = WorkflowGenerator()
@@ -2143,12 +2144,18 @@ class EnhancedRAGKnowledgeBaseGenerator:
     
     def save_knowledge_base(self, kb: WRENCHRAGKnowledgeBase, filename: str = "enhanced_rag_kb.json"):
         """保存知识库到文件"""
-        output_path = self.output_dir / filename
+        output_path = Path(self.kb_output_filename)
         
         # 转换为可序列化的格式
         serializable_cases = []
         for case in kb.cases:
             case_dict = asdict(case)
+            # 强制转换flops为标准float，并检查数值
+            original_flops = case_dict['task_flops']
+            if original_flops > 1e15: # A simple sanity check for huge numbers
+                print(f"[KB GEN DEBUG] Suspiciously large flops value found before saving: {original_flops}")
+            case_dict['task_flops'] = float(original_flops)
+
             # 转换numpy数组为列表
             case_dict['workflow_embedding'] = case_dict['workflow_embedding'].tolist()
             case_dict['task_features'] = case_dict['task_features'].tolist()
@@ -2193,19 +2200,42 @@ class EnhancedRAGKnowledgeBaseGenerator:
         return kb
 
 def main():
-    """主函数：生成增强的RAG知识库"""
-    logger.info("Starting enhanced RAG knowledge base generation...")
+    parser = argparse.ArgumentParser(description='WASS-RAG 工作流生成器')
+    parser.add_argument('--pattern', choices=['montage', 'ligo', 'cybershake', 'comm_intensive', 'all'], 
+                       default='all', help='工作流模式')
+    parser.add_argument('--tasks', nargs='+', type=int, 
+                       help='任务数量列表，例如：--tasks 50 100 200')
+    parser.add_argument('--output', default='data/workflows', 
+                       help='输出目录')
+    parser.add_argument('--kb_output', default='data/wrench_rag_knowledge_base.json', 
+                       help='知识库输出文件路径')
+    parser.add_argument('--ccr', type=float, default=1.0,
+                       help='通信计算比 (Communication to Computation Ratio)，默认为1.0')
     
-    # 创建生成器
-    generator = EnhancedRAGKnowledgeBaseGenerator()
+    args = parser.parse_args() # This line is now correct
     
-    # 生成知识库
-    kb = generator.generate_enhanced_knowledge_base(num_cases=5000)
+    generator = EnhancedRAGKnowledgeBaseGenerator(args.output, kb_output_filename=args.kb_output) # Use args.kb_output for KB filename
     
-    # 保存知识库
-    generator.save_knowledge_base(kb)
-    
-    logger.info("Enhanced RAG knowledge base generation completed!")
+    if args.pattern == 'all':
+        print("🌟 生成完整工作流集合...")
+        kb = generator.generate_enhanced_knowledge_base(num_cases=5000)
+        generator.save_knowledge_base(kb, filename=args.kb_output) # Use args.kb_output for KB filename
+        
+        # ... rest of the code ...
+        print(f"
+📋 工作流摘要已保存: {summary_path}")
+        print(f"🎉 总计生成 {sum(len(files) for files in generated_files.values())} 个工作流文件")
+        
+    else:
+        if not args.tasks:
+            args.tasks = [50, 100, 200]  # 默认规模
+            
+        print(f"🚀 生成 {args.pattern} 模式工作流...")
+        files = generator.generate_workflow_set(args.pattern, args.tasks)
+        
+        print(f"✅ 完成! 生成了 {len(files)} 个工作流文件")
+        for file_path in files:
+            print(f"  - {file_path}")
 
 if __name__ == "__main__":
     main()

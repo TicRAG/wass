@@ -32,13 +32,13 @@ class EpisodeStats:
     rolling_std_makespan: float | None = None
 
 WEIGHTS = {
-    'cpp': 0.20,      # 关键路径进度权重
-    'lb': 0.15,       # 负载均衡权重
-    'pu': 0.10,       # 并行利用率权重
-    'qd': 0.10,       # 队列延迟惩罚权重
-    'makespan': 0.25, # 总体makespan预测权重
-    'resource': 0.10, # 资源利用率权重
-    'data_locality': 0.10, # 数据局部性权重
+    'cpp': 0.30,      # 关键路径进度权重 (提高)
+    'lb': 0.25,       # 负载均衡权重 (提高)
+    'pu': 0.05,       # 并行利用率权重 (降低)
+    'qd': 0.05,       # 队列延迟惩罚权重 (降低)
+    'makespan': 0.15, # 总体makespan预测权重 (降低)
+    'resource': 0.05, # 资源利用率权重 (降低)
+    'data_locality': 0.15, # 数据局部性权重 (提高)
 }
 
 def _safe_div(a: float, b: float, default: float = 0.0) -> float:
@@ -173,84 +173,70 @@ def compute_step_reward(
     return shaped, metrics
 
 def compute_final_reward(
-    makespan: float, 
-    stats: EpisodeStats, 
+    makespan: float,
+    stats: EpisodeStats,
     temperature: float = 0.75,
     debug_writer: Optional[TextIO] = None,
     baseline_makespan: float = None
 ) -> Tuple[float, Dict[str, float]]:
     """
-    计算最终奖励，改进版：更稳定的makespan归一化
+    计算最终奖励，改进版：使用对数缩放和更稳定的基准比较
     
     Args:
         makespan: 完成工作流的总时间
         stats: 回合统计信息
-        temperature: 温度参数，用于奖励缩放
-        debug_writer: 调试信息写入器
-        baseline_makespan: 基准makespan（如HEFT算法的结果）
-    
+        temperature: 温度参数
+        debug_writer: 调试日志写入器
+        baseline_makespan: 基准makespan (例如 HEFT)
+
     Returns:
         奖励值和指标字典
     """
-    # 确保makespan是合理的值，防止异常大的值
     if makespan <= 0:
-        return 0.0, {'makespan': makespan, 'reward': 0.0}
-    
-    # 使用滚动统计信息进行归一化
-    if stats.rolling_mean_makespan is not None and stats.rolling_std_makespan and stats.rolling_std_makespan > 0:
-        # 使用对数变换处理大范围值，但添加偏移量避免负值
-        log_makespan = math.log(makespan + 1.0)
-        log_mean = math.log(stats.rolling_mean_makespan + 1.0)
-        log_std = max(stats.rolling_std_makespan, 1e-6)  # 避免除以零
+        return -1.0, {'makespan': makespan, 'reward': -1.0} # Punish invalid makespan
+
+    reward = 0.0
+    # 优先使用滚动统计信息进行归一化 (Z-score)
+    if stats.rolling_mean_makespan and stats.rolling_std_makespan and stats.rolling_std_makespan > 1e-6:
+        z_score = (stats.rolling_mean_makespan - makespan) / stats.rolling_std_makespan
+        # 将Z-score映射到[-1, 1]
+        reward = math.tanh(z_score)
+    # 其次，使用与基准的对数比率
+    elif baseline_makespan and baseline_makespan > 0:
+        # 使用对数比率来处理量级差异
+        # log(baseline / makespan) = log(baseline) - log(makespan)
+        # 如果 makespan < baseline, ratio > 1, log(ratio) > 0 (positive reward)
+        # 如果 makespan > baseline, ratio < 1, log(ratio) < 0 (negative reward)
+        log_ratio = math.log(baseline_makespan / makespan)
         
-        # 计算Z分数
-        z_score = (log_mean - log_makespan) / log_std
-        
-        # 使用tanh函数将Z分数映射到[-1, 1]范围
-        # 限制Z分数的影响范围，避免极端值
-        z_score_clipped = max(-3.0, min(3.0, z_score))
-        reward = math.tanh(z_score_clipped)
+        # 使用tanh将对数比率平滑地映射到[-1, 1]
+        # 乘以一个系数来调整敏感度，比如0.5
+        reward = math.tanh(log_ratio * 0.5)
     else:
-        # 如果没有历史统计信息，使用基于基准的归一化
-        if baseline_makespan is not None and baseline_makespan > 0:
-            # 计算相对于基准的改进程度
-            improvement = (baseline_makespan - makespan) / baseline_makespan
-            # 使用tanh函数进行归一化，限制在[-1, 1]范围内
-            reward = math.tanh(improvement * 2.0)
-        else:
-            # 如果没有基准，使用对数变换并限制范围
-            log_makespan = math.log(max(makespan, 1.0))
-            # 假设合理范围在1到1000之间，映射到[-1, 1]
-            reward = 1.0 - 2.0 * min(1.0, max(0.0, (log_makespan - 0.0) / (math.log(1000.0) - 0.0)))
-    
-    # 应用温度缩放
-    if temperature > 0:
-        reward = reward / temperature
-    
-    # 确保奖励在合理范围内
-    reward = max(-1.0, min(1.0, reward))
-    
+        # 如果没有任何参考，给予一个基于makespan绝对值的惩罚
+        # 使用log来降低其绝对值大小的影响
+        reward = -math.tanh(math.log1p(makespan / 1e9)) # 假设makespan在1e9级别
+
+    # 确保奖励在[-1, 1]范围内
+    final_reward = max(-1.0, min(1.0, reward))
+
     metrics = {
         'makespan': makespan,
-        'log_makespan': math.log(makespan + 1.0) if makespan > 0 else 0.0,
-        'reward': reward,
+        'reward': final_reward,
         'baseline_makespan': baseline_makespan,
     }
-    
-    if stats.rolling_mean_makespan is not None:
-        metrics['makespan_mean'] = stats.rolling_mean_makespan
-        metrics['makespan_std'] = stats.rolling_std_makespan
-        metrics['z_score'] = z_score if 'z_score' in locals() else 0.0
     
     if debug_writer:
         try:
             debug_writer.write(
-                f"makespan={makespan:.2f}\tlog_makespan={metrics['log_makespan']:.4f}\t"
-                f"reward={reward:.5f}\tbaseline={baseline_makespan if baseline_makespan else 'N/A'}\n"
+                f"FINAL_REWARD: makespan={makespan:.2f}\t"
+                f"baseline={baseline_makespan if baseline_makespan else 'N/A'}\t"
+                f"reward={final_reward:.5f}\n"
             )
         except Exception:
             pass
-    return reward, metrics
+            
+    return final_reward, metrics
 
 __all__ = [
     'StepContext', 'EpisodeStats', 'compute_step_reward', 'compute_final_reward'

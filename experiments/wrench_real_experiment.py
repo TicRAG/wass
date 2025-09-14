@@ -18,6 +18,7 @@ from dataclasses import dataclass, asdict
 from typing import List, Dict, Any, Tuple
 import yaml
 from datetime import datetime
+import networkx as nx
 
 # 确保能导入WRENCH
 try:
@@ -105,6 +106,31 @@ class HEFTScheduler(WRENCHScheduler):
                 best_node = node
         
         return best_node or available_nodes[0]
+
+    def predict_makespan(self, task, available_nodes, node_capacities, node_loads):
+        """预测任务在给定节点配置下的makespan (从WASS-Heuristic复制而来)"""
+        try:
+            task_flops = float(getattr(task, 'get_flops', lambda: 1e9)())
+            
+            total_capacity = sum(node_capacities.get(node, 1.0) for node in available_nodes)
+            total_load = sum(node_loads.get(node, 0.0) for node in available_nodes)
+            avg_capacity = total_capacity / len(available_nodes) if available_nodes else 1.0
+            avg_load = total_load / len(available_nodes) if available_nodes else 0.0
+            
+            base_time = task_flops / (avg_capacity * 1e9)
+            load_factor = 1.0 + avg_load / max(avg_capacity, 0.1)
+            
+            try:
+                children_count = len(getattr(task, 'get_children', lambda: [])())
+                dependency_factor = 1.0 + 0.1 * children_count
+            except Exception:
+                dependency_factor = 1.0
+            
+            predicted_makespan = base_time * load_factor * dependency_factor
+            return predicted_makespan
+        except Exception as e:
+            print(f"预测makespan失败: {e}")
+            return 100.0
 
 class WASSHeuristicScheduler(WRENCHScheduler):
     """WASS启发式调度器 - 在HEFT基础上考虑数据局部性"""
@@ -249,9 +275,9 @@ class WASSDRLScheduler(WRENCHScheduler):
         self.config = load_config(config_path)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # 定义网络结构 (与改进训练器保持一致)
-        self.state_dim = 17  # 需与训练保持一致
+        self.state_dim = 32  # 需与训练保持一致
         self.action_dim = 4   # 节点数
-        self.hidden_dims = [256, 128, 64]
+        self.hidden_dims = [512, 256, 128, 64] # AdvancedDQN's default
         self.model = self._create_model()
         self.epsilon = 0.1
 
@@ -263,76 +289,37 @@ class WASSDRLScheduler(WRENCHScheduler):
     
     def _create_model(self):
         # 延迟导入，避免在无torch环境时报错
-        from scripts.improved_drl_trainer import ImprovedDQN  # 复用已定义结构
-        return ImprovedDQN(self.state_dim, self.action_dim, self.hidden_dims).to(self.device)
+        from scripts.improved_drl_trainer import AdvancedDQN
+        return AdvancedDQN(self.state_dim, self.action_dim, self.hidden_dims).to(self.device)
     
     def _load_model(self, model_path: str):
-        """加载训练好的DRL模型"""
+        """加载训练好的DRL模型, 手动处理尺寸不匹配的层"""
         try:
-            # 修复PyTorch 2.6兼容性问题
             checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
             
-            # 检查模型格式
-            if 'drl_agent' in checkpoint:
-                agent_state = checkpoint['drl_agent']
-                self.model.load_state_dict(agent_state['model_state_dict'])
-                self.epsilon = agent_state.get('epsilon', 0.1)
-                print(f"✅ DRL模型加载成功 (训练轮数: {agent_state.get('training_episodes', 'unknown')})")
-            elif 'q_network_state_dict' in checkpoint:
-                # 改进训练器格式
-                q_state = checkpoint['q_network_state_dict']
-                self.epsilon = checkpoint.get('epsilon', 0.1)
-                meta = checkpoint.get('metadata', {})
-                ck_sd = meta.get('state_dim'); ck_ad = meta.get('action_dim')
-                rebuild_needed = False
-                if ck_sd and ck_sd != self.state_dim:
-                    print(f"ℹ️ 重新构建模型以匹配checkpoint state_dim={ck_sd}")
-                    self.state_dim = ck_sd
-                    rebuild_needed = True
-                if ck_ad and ck_ad != self.action_dim:
-                    print(f"ℹ️ 重新构建模型以匹配checkpoint action_dim={ck_ad}")
-                    self.action_dim = ck_ad
-                    rebuild_needed = True
-                # 尝试从q_state推断隐藏层结构
-                if rebuild_needed:
-                    # 线性层权重键按顺序 network.X.weight
-                    linear_layers = [k for k in q_state.keys() if k.endswith('.weight')]
-                    # 排序保证顺序稳定
-                    linear_layers.sort(key=lambda x: int(x.split('.')[1]))
-                    inferred_hidden = []
-                    for idx, name in enumerate(linear_layers[:-1]):  # 最后一层是输出层
-                        shape = q_state[name].shape
-                        if idx == 0:
-                            # shape: (H1, state_dim)
-                            pass  # 输入维度无需存
-                        inferred_hidden.append(shape[0])
-                    # 如果检测到更深层 (例如 network.9.*) 则使用训练默认结构
-                    if any(k.startswith('network.9') for k in q_state.keys()):
-                        self.hidden_dims = [256,128,64]
-                        print("ℹ️ 检测到深层结构标记 network.9.* -> 使用默认隐藏层 [256,128,64]")
-                    elif inferred_hidden:
-                        # 去掉输出层前一层即完整隐藏列表
-                        self.hidden_dims = inferred_hidden[:-1] if len(inferred_hidden) > 1 else inferred_hidden
-                        print(f"ℹ️ 推断隐藏层结构: {self.hidden_dims}")
-                    # 重新创建模型
-                    self.model = self._create_model()
-                # 尝试直接加载；若失败执行部分匹配
-                try:
-                    self.model.load_state_dict(q_state, strict=True)
-                    print("✅ DRL模型加载成功 (改进格式 strict)")
-                except Exception as strict_e:
-                    print(f"⚠️ 严格加载失败，尝试部分加载: {strict_e}")
-                    model_dict = self.model.state_dict()
-                    filtered = {k: v for k, v in q_state.items() if k in model_dict and model_dict[k].shape == v.shape}
-                    model_dict.update(filtered)
-                    self.model.load_state_dict(model_dict, strict=False)
-                    missing = [k for k in self.model.state_dict().keys() if k not in filtered]
-                    print(f"✅ 部分加载完成，匹配参数数: {len(filtered)}, 缺失参数数: {len(missing)}")
-            else:
-                # 兼容旧格式
-                self.model.load_state_dict(checkpoint)
-                print("✅ DRL模型加载成功 (旧格式)")
-                
+            source_state_dict = checkpoint.get('q_network_state_dict', checkpoint)
+            target_state_dict = self.model.state_dict()
+
+            # Create a new state dict for loading
+            new_state_dict = {}
+            loaded_keys = []
+            mismatched_keys = []
+
+            for name, param in source_state_dict.items():
+                if name in target_state_dict:
+                    if target_state_dict[name].shape == param.shape:
+                        new_state_dict[name] = param
+                        loaded_keys.append(name)
+                    else:
+                        mismatched_keys.append(name)
+            
+            # Load the filtered state dict
+            self.model.load_state_dict(new_state_dict, strict=False)
+            
+            print(f"✅ DRL model partially loaded. Matched layers: {len(loaded_keys)}. Mismatched layers (ignored): {len(mismatched_keys)}.")
+            if mismatched_keys:
+                print(f"   - Mismatched layers were: {mismatched_keys}")
+
             self.model.eval()
             
         except Exception as e:
@@ -340,51 +327,69 @@ class WASSDRLScheduler(WRENCHScheduler):
             self.model = None
     
     def _get_state(self, task, available_nodes, node_capacities, node_loads):
-        """获取DRL的状态向量 (兼容改进训练器 24 维: 5 + 4*4 + 3)"""
-        feats = []
-        # 任务特征 5: flops(GF), memory(GB), cores, children, est_runtime(估计执行时间=flops/最大节点容量)
+        """获取DRL的状态向量 (兼容改进训练器 32 维)
+        
+        注意：此函数在实验环境中运行，许多在训练时可用的详细状态不可用。
+        因此，我们使用可用的数据进行估算，并为不可用的特征使用合理的默认值或0填充。
+        """
+        features = []
+        
+        # 任务特征 (5维)
         try:
-            task_flops_raw = float(getattr(task, 'get_flops', lambda: 1e9)())
-            task_flops = task_flops_raw / 1e9
-            try:
-                task_memory = float(task.get_memory_requirement()) / 1e9
-            except Exception:
-                task_memory = 1.0
-            task_cores = float(getattr(task, 'get_min_num_cores', lambda: 1)())
-            task_children = float(len(getattr(task, 'get_children', lambda: [])()))
-            max_cap = max([node_capacities.get(n,1.0) for n in self.compute_nodes]) if hasattr(self,'compute_nodes') else 4.0
-            est_runtime = (task_flops_raw / 1e9) / max_cap
-            feats.extend([task_flops, task_memory, task_cores, task_children, est_runtime])
+            task_flops = float(getattr(task, 'get_flops', lambda: 1e9)())
+            # 实验环境的MockTask没有父/子任务信息，用0填充
+            parents_count = 0
+            children_count = len(getattr(task, 'get_children', lambda: [])())
         except Exception:
-            feats.extend([1.0,1.0,1.0,0.0,1.0])
+            task_flops = 1e9
+            parents_count = 0
+            children_count = 0
 
-        # 节点特征: 每节点4维 (capacity, load, load_ratio, capacity_remaining)
-        for node in self.compute_nodes[:4]:
-            cap = float(node_capacities.get(node,1.0))
-            load = float(node_loads.get(node,0.0))
-            ratio = load / max(cap,1e-6)
-            remaining = max(cap - load, 0.0)
-            feats.extend([cap, load, ratio, remaining])
-        # 不足节点填充
-        while len(feats) < 5 + 4*4:
-            feats.append(0.0)
+        features.append(np.log1p(task_flops / 1e9) / 10.0)  # 1. 计算大小 (log normalized)
+        features.append(parents_count / 5.0)              # 2. 父任务数 (normalized)
+        features.append(children_count / 5.0)             # 3. 子任务数 (normalized)
+        features.append(0.0)                              # 4. 是否在关键路径 (不可用)
+        features.append(0.0)                              # 5. 数据局部性分数 (不可用)
 
-        # 环境特征 3: avg_load, max_load, std_load
-        loads = [node_loads.get(n,0.0) for n in self.compute_nodes]
-        if loads:
-            avg_load = float(np.mean(loads))
-            max_load = float(np.max(loads))
-            std_load = float(np.std(loads))
-        else:
-            avg_load=max_load=std_load=0.0
-        feats.extend([avg_load, max_load, std_load])
+        # 节点特征 (16维 = 4 nodes * 4 features)
+        max_speed = max(node_capacities.values()) if node_capacities else 4.0
+        
+        # 确保我们总是为4个节点生成特征
+        for i in range(4):
+            node_id = f"ComputeHost{i+1}"
+            if node_id in self.compute_nodes and node_id in node_capacities:
+                speed = node_capacities.get(node_id, 0.0)
+                load = node_loads.get(node_id, 0.0)
+                features.append(speed / max_speed)  # 1. 节点速度 (normalized)
+                features.append(load)               # 2. 节点当前负载
+                features.append(load / speed if speed > 0 else 0.0) # 3. 可用时间 (用 负载/速度 估算)
+                features.append(0.0)                # 4. 数据可用性 (不可用)
+            else:
+                features.extend([0.0, 0.0, 0.0, 0.0]) # 填充缺失的节点
 
-        # 目标维度 24
-        if len(feats) < 24:
-            feats.extend([0.0]*(24-len(feats)))
-        elif len(feats) > 24:
-            feats = feats[:24]
-        return np.array(feats, dtype=np.float32)
+        # 环境特征 (6维)
+        features.append(0.5)  # 1. 工作流进度 (模拟值)
+        features.append(0.0)  # 2. 当前时间 (不可用)
+        features.append(0.5)  # 3. 待处理任务数 (模拟值)
+        
+        loads = [node_loads.get(f"ComputeHost{i+1}", 0.0) for i in range(4)]
+        features.append(np.mean(loads))  # 4. 平均节点负载
+        features.append(np.std(loads))   # 5. 节点负载标准差
+        features.append(0.5)  # 6. 关键路径进度 (模拟值)
+
+        # 数据传输特征 (5维) - 全部模拟为0，因为实验环境中无此信息
+        features.extend([0.0] * 5)
+        
+        final_features = np.array(features, dtype=np.float32)
+        
+        # 最终维度检查，确保为32维
+        if final_features.shape[0] != 32:
+            padded_features = np.zeros(32, dtype=np.float32)
+            copy_len = min(len(final_features), 32)
+            padded_features[:copy_len] = final_features[:copy_len]
+            return padded_features
+            
+        return final_features
     
     def schedule_task(self, task, available_nodes, node_capacities, node_loads, compute_service):
         if self.model is None:
@@ -474,13 +479,29 @@ class WASSRAGScheduler(WRENCHScheduler):
                 for c in cases:
                     if not isinstance(c, dict):
                         continue
+                    
+                    task_flops = 0.0
+                    if 'task_features' in c and c['task_features']:
+                        task_flops = float(c['task_features'][0]) * 1e9
+                    elif 'task_flops' in c:
+                        task_flops = float(c['task_flops'])
+                    else:
+                        task_flops = float(c.get('task_execution_time', 1.0)) * 2e9  # Fallback
+
+                    total_workflow_flops = 0.0
+                    if 'workflow_embedding' in c and len(c['workflow_embedding']) > 3:
+                        # Heuristic: Assume the 4th element is total flops based on observation
+                        total_workflow_flops = float(c['workflow_embedding'][3])
+                    else:
+                        total_workflow_flops = float(c.get('total_workflow_flops', task_flops))
+
                     norm.append({
-                        'task_flops': float(c.get('task_flops', c.get('task_execution_time', 1.0) * 2e9)),
+                        'task_flops': task_flops,
                         'chosen_node': str(c.get('chosen_node', 'ComputeHost1')),
                         'scheduler_type': str(c.get('scheduler_type', 'unknown')),
                         'task_execution_time': float(c.get('task_execution_time', 0.0)),
                         'workflow_makespan': float(c.get('workflow_makespan', 0.0)),
-                        'total_workflow_flops': float(c.get('total_workflow_flops', c.get('task_flops', 1e9))),
+                        'total_workflow_flops': total_workflow_flops,
                         'workflow_size': int(c.get('workflow_size', 0))
                     })
                 if norm:
@@ -695,19 +716,16 @@ class WASSRAGScheduler(WRENCHScheduler):
             
             # 增强的相似度匹配 - 进一步降低阈值以获取更多匹配
             best_matches = []
-            min_similarity_threshold = 0.01  # 从0.05进一步降低到0.01，极大增加匹配机会
+            min_similarity_threshold = 0.01
             
             for case in self.knowledge_base:
-                # 多维特征相似度计算
                 case_flops = float(case.get('task_flops', 1e9))
-                case_workflow_flops = float(case.get('total_workflow_flops', case_flops))
                 
                 # 计算归一化距离
                 flops_distance = abs(task_flops - case_flops) / max(task_flops, case_flops, 1e-6)
-                workflow_distance = abs(total_workflow_flops - case_workflow_flops) / max(total_workflow_flops, case_workflow_flops, 1e-6)
                 
-                # 综合相似度
-                similarity = 1.0 - (flops_distance * 0.6 + workflow_distance * 0.4)
+                # 综合相似度 (已移除损坏的 workflow_distance)
+                similarity = 1.0 - flops_distance
                 
                 if similarity >= min_similarity_threshold:
                     best_matches.append({
@@ -754,8 +772,12 @@ class WASSRAGScheduler(WRENCHScheduler):
                             with torch.no_grad():
                                 q_tensor = self.drl_scheduler.model(st)
                             q_list = q_tensor.squeeze(0).cpu().tolist()
-                            # 只取与 available_nodes 对应的前 len(available_nodes) 个动作
-                            q_values = q_list[:len(available_nodes)]
+                            # 兼容性补丁：如果模型输出的动作空间比可用节点少，用平均值填充
+                            q_values = q_list
+                            while len(q_values) < len(available_nodes):
+                                q_values.append(np.mean(q_values) if q_values else 0.0)
+                            # 确保最终长度一致
+                            q_values = q_values[:len(available_nodes)]
                     except Exception as qe:
                         print(f"获取真实Q值失败，回退伪Q: {qe}")
                     if not q_values:
@@ -805,7 +827,7 @@ class WASSRAGScheduler(WRENCHScheduler):
                         rag_scores, 
                         load_vals, 
                         progress, 
-                        rag_confidence_threshold=0.0001,  # 进一步降低阈值
+                        rag_confidence_threshold=0.00001,  # 大幅降低阈值以激活RAG
                         makespan_predictions=makespan_predictions,
                         baseline_makespan=baseline_makespan
                     )
@@ -1109,103 +1131,106 @@ class WRENCHExperimentRunner:
         return workflow
     
     def _simulate_wrench_execution(self, scheduler, workflow: Dict, workflow_size: int) -> Dict:
-        """模拟WRENCH执行（简化实现）"""
-        # 模拟节点负载
-        node_loads = {node: 0.0 for node in self.compute_nodes}
-        
-        # 模拟任务执行
-        task_times = {}
+        """
+        模拟WRENCH执行（修复版），正确处理任务依赖和调度。
+        """
+        import networkx as nx
+
+        # 1. 构建任务图
+        g = nx.DiGraph()
+        task_map = {t['id']: t for t in workflow['tasks']}
+        for task_id in task_map:
+            g.add_node(task_id)
+        for dep in workflow.get('dependencies', []):
+            g.add_edge(dep['from'], dep['to'])
+
+        # 2. 初始化状态
+        node_finish_times = {node: 0.0 for node in self.compute_nodes}
+        task_finish_times = {}
         decisions = []
         
-        # 按拓扑顺序执行任务（简化处理）
-        task_order = list(range(workflow_size))
+        completed_tasks = set()
         
-        # 随机打乱任务顺序（模拟真实调度）
-        random.shuffle(task_order)
-        
-        total_makespan = 0.0
-        
-        for task_id in task_order:
-            task = workflow['tasks'][task_id]
+        # 3. 主模拟循环
+        for _ in range(workflow_size):
+            # 找出当前就绪的任务 (没有未完成的父任务)
+            ready_tasks_ids = []
+            for task_id in g.nodes:
+                if task_id in completed_tasks:
+                    continue
+                
+                parents = list(g.predecessors(task_id))
+                if all(p in completed_tasks for p in parents):
+                    ready_tasks_ids.append(task_id)
             
-            # 获取可用节点
-            available_nodes = list(self.compute_nodes)
+            if not ready_tasks_ids:
+                if len(completed_tasks) < workflow_size:
+                     break
+                continue
+
+            ready_tasks_ids.sort()
+            task_to_schedule_id = ready_tasks_ids[0]
             
-            # 使用调度器选择节点
-            try:
-                # 创建模拟任务对象
-                class MockTask:
-                    def __init__(self, flops, memory, cores):
-                        self._flops = flops
-                        self._memory = memory
-                        self._cores = cores
-                    
-                    def get_flops(self):
-                        return self._flops
-                    
-                    def get_memory_requirement(self):
-                        return self._memory * 1024 * 1024 * 1024  # 转换为字节
-                    
-                    def get_min_num_cores(self):
-                        return self._cores
-                    
-                    def get_input_files(self):
-                        return []  # 简化处理
-                    
-                    def get_output_files(self):
-                        return []  # 简化处理
-                
-                mock_task = MockTask(task['flops'], task['memory'], task['cores'])
-                
-                # 调用调度器
-                chosen_node = scheduler.schedule_task(
-                    mock_task, available_nodes, self.node_capacities, node_loads, None
-                )
-                
-                # 计算执行时间
-                capacity = self.node_capacities[chosen_node]
-                exec_time = task['flops'] / (capacity * 1e9)
-                
-                # 更新节点负载
-                node_loads[chosen_node] += exec_time
-                
-                # 记录任务执行时间
-                task_times[f"task_{task_id}"] = exec_time
-                
-                # 记录调度决策
-                decisions.append({
-                    'task_id': f"task_{task_id}",
-                    'chosen_node': chosen_node,
-                    'execution_time': exec_time,
-                    'start_time': node_loads[chosen_node] - exec_time,
-                    'end_time': node_loads[chosen_node]
-                })
-                
-                # 更新总makespan
-                total_makespan = max(total_makespan, node_loads[chosen_node])
-                
-            except Exception as e:
-                print(f"      ⚠️ 任务调度失败: {e}")
-                # 使用默认节点
-                chosen_node = self.compute_nodes[0]
-                exec_time = task['flops'] / (self.node_capacities[chosen_node] * 1e9)
-                node_loads[chosen_node] += exec_time
-                task_times[f"task_{task_id}"] = exec_time
-                total_makespan = max(total_makespan, node_loads[chosen_node])
+            task_data = task_map[task_to_schedule_id]
+
+            class MockTask:
+                def __init__(self, task_dict, parents):
+                    self._task_dict = task_dict
+                    self._parents = parents
+                def get_id(self): return self._task_dict['id']
+                def get_flops(self): return self._task_dict['flops']
+                def get_parents(self): return self._parents
+                def get_input_files(self): return []
+                def get_output_files(self): return []
+
+            mock_task = MockTask(task_data, list(g.predecessors(task_to_schedule_id)))
+
+            data_ready_time = 0.0
+            for parent_id in g.predecessors(task_to_schedule_id):
+                data_ready_time = max(data_ready_time, task_finish_times.get(parent_id, 0.0))
+
+            node_available_times = node_finish_times.copy()
+
+            chosen_node = scheduler.schedule_task(
+                mock_task, self.compute_nodes, self.node_capacities, node_available_times, None
+            )
+
+            node_ready_time = node_finish_times.get(chosen_node, 0.0)
+            start_time = max(data_ready_time, node_ready_time)
+            
+            capacity = self.node_capacities[chosen_node]
+            exec_time = task_data['flops'] / (capacity * 1e9)
+            finish_time = start_time + exec_time
+
+            node_finish_times[chosen_node] = finish_time
+            task_finish_times[task_to_schedule_id] = finish_time
+            completed_tasks.add(task_to_schedule_id)
+
+            decisions.append({
+                'task_id': task_to_schedule_id,
+                'chosen_node': chosen_node,
+                'execution_time': exec_time,
+                'start_time': start_time,
+                'end_time': finish_time
+            })
+
+        final_makespan = max(task_finish_times.values()) if task_finish_times else 0.0
         
-        # 计算CPU利用率
         cpu_utilization = {}
+        total_busy_time = {node: 0.0 for node in self.compute_nodes}
+        for decision in decisions:
+            total_busy_time[decision['chosen_node']] += decision['execution_time']
+            
         for node in self.compute_nodes:
-            if total_makespan > 0:
-                utilization = node_loads[node] / total_makespan
-                cpu_utilization[node] = min(utilization, 1.0)
+            if final_makespan > 0:
+                cpu_utilization[node] = total_busy_time[node] / final_makespan
             else:
                 cpu_utilization[node] = 0.0
-        
+
         return {
-            'makespan': total_makespan,
+            'makespan': final_makespan,
             'cpu_utilization': cpu_utilization,
-            'task_times': task_times,
+            'task_times': {d['task_id']: d['execution_time'] for d in decisions},
             'decisions': decisions
         }
     
