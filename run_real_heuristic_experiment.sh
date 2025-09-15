@@ -1,319 +1,210 @@
 #!/bin/bash
-# 使用真实HEFT和WASS-Heuristic案例的WASS-RAG实验脚本
+# ==============================================================================
+#                 WASS-RAG 全流程训练与实验脚本
+#
+# 该脚本实现了 "学习者-导师" 思想下的三阶段训练流程，并最终进行性能评估。
+# 流程:
+# 1. 阶段一: 知识库播种 - 从启发式算法的运行结果中提取经验。
+# 2. 阶段二: 性能预测器训练 (导师) - 训练一个能预测调度性能的导师模型。
+# 3. 阶段三: DRL智能体训练 (学习者) - 在导师的指导下训练DRL决策模型。
+# 4. 最终评估: 使用新训练的模型和知识库进行对比实验。
+#
+# ==============================================================================
 
-set -e  # 遇到错误立即退出
+set -e # 遇到错误立即退出
 
-# 颜色定义
+# --- 配置区 ---
+# 定义所有关键文件路径，方便管理
+KB_SEED_DATA="data/heuristic_only_real_cases.json"
+MAIN_KB_JSON="data/real_heuristic_kb.json"
+PREDICTOR_MODEL="models/performance_predictor.pth"
+DRL_MODEL="models/improved_wass_drl.pth"
+DRL_CONFIG="configs/drl.yaml"
+PREDICTOR_CONFIG="configs/predictor.yaml" # 假设预测器有自己的配置文件
+EXPERIMENT_CONFIG="configs/real_heuristic_experiment.yaml"
+PLATFORM_FILE="test_platform.xml"
+
+# --- 颜色和日志函数 ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# 日志函数
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
+# --- 阶段函数定义 ---
 
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# 检查Python环境
-check_environment() {
-    log_info "检查Python环境..."
+# 阶段一: 知识库播种
+stage_1_seed_knowledge_base() {
+    log_info "--- [阶段一] 开始：知识库播种 ---"
     
-    if ! python -c "import torch" 2>/dev/null; then
-        log_error "PyTorch未安装"
-        exit 1
-    fi
-    
-    log_success "Python环境检查通过"
-}
-
-# 步骤1: 提取真实HEFT和WASS-Heuristic案例
-extract_real_cases() {
-    log_info "第1步: 从实验结果中提取真实HEFT和WASS-Heuristic案例..."
-    
+    log_info "步骤 1/2: 从历史运行中提取启发式算法案例..."
     if python scripts/extract_real_heuristic_cases.py; then
-        log_success "真实案例提取完成"
-        
-        # 检查输出文件
-        if [[ -f "data/heuristic_only_real_cases.json" ]]; then
-            cases=$(python -c "import json; data=json.load(open('data/heuristic_only_real_cases.json')); print(len(data))")
-            log_info "提取了 $cases 个真实案例"
-        fi
+        log_success "案例提取完成，数据保存在: ${KB_SEED_DATA}"
     else
-        log_error "真实案例提取失败"
+        log_error "案例提取失败"
         exit 1
     fi
-}
 
-# 步骤2: 更新RAG知识库
-update_rag_kb() {
-    log_info "第2步: 使用真实案例更新RAG知识库..."
-    
+    log_info "步骤 2/2: 将案例更新并构建到主知识库..."
     if python scripts/update_rag_with_real_cases.py; then
-        log_success "RAG知识库更新完成"
-        
-        # 检查输出文件
-        if [[ -f "data/real_heuristic_kb.json" ]]; then
-            cases=$(python -c "import json; data=json.load(open('data/real_heuristic_kb.json')); print(len(data['cases']))")
-            log_info "知识库包含 $cases 个真实案例"
-        fi
+        log_success "主知识库构建完成: ${MAIN_KB_JSON}"
     else
-        log_error "RAG知识库更新失败"
+        log_error "主知识库构建失败"
         exit 1
     fi
+    log_success "--- [阶段一] 完成 ---"
 }
 
-# =================================================================
-# 新增步骤: 训练DRL模型
-# =================================================================
-train_drl_model() {
-    log_info "第3步: 训练适应当前环境的DRL模型..."
+# 阶段二: 训练性能预测器 (导师)
+stage_2_train_predictor() {
+    log_info "--- [阶段二] 开始：训练性能预测器 (导师) ---"
     
-    # 确保DRL配置文件存在
-    if [[ ! -f "configs/drl.yaml" ]]; then
-        log_error "DRL配置文件 configs/drl.yaml 不存在!"
+    # 确保阶段一的产出存在
+    if [[ ! -f "$MAIN_KB_JSON" ]]; then
+        log_error "找不到主知识库文件: ${MAIN_KB_JSON}，请先执行阶段一"
         exit 1
     fi
 
-    # 运行改进版的DRL训练器
-    if python scripts/improved_drl_trainer.py --config configs/drl.yaml; then
-        log_success "DRL模型训练完成"
-        
-        # 检查输出模型文件
-        if [[ -f "models/improved_wass_drl.pth" ]]; then
-            log_info "新的DRL模型已保存到 models/improved_wass_drl.pth"
-        fi
-    else
-        log_error "DRL模型训练失败"
+    # 确保预测器的配置文件存在
+    if [[ ! -f "$PREDICTOR_CONFIG" ]]; then
+        log_error "找不到性能预测器的配置文件: ${PREDICTOR_CONFIG}"
+        log_error "请创建一个名为 predictor.yaml 的配置文件在 configs/ 目录下。"
         exit 1
     fi
-}
-# =================================================================
-
-# 步骤4: 重新训练RAG模型 (原步骤3)
-retrain_rag() {
-    log_info "第4步: 使用真实案例重新训练RAG模型..."
     
-    if python scripts/train_rag_wrench.py configs/rag.yaml; then
-        log_success "RAG模型重新训练完成"
-        
-        # 检查输出文件
-        if [[ -f "data/wrench_rag_knowledge_base.json" ]]; then
-            cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(len(data['cases']))")
-            log_info "训练后的RAG知识库包含 $cases 个案例"
-        fi
+    log_info "使用 ${MAIN_KB_JSON} 中的数据训练性能预测器..."
+    
+    # 修复：使用正确的命令行参数调用训练脚本
+    # 它需要一个配置文件，而不是 --output-model 参数
+    if python scripts/train_predictor_from_kb.py --kb-path "${MAIN_KB_JSON}" "${PREDICTOR_CONFIG}"; then
+        log_success "性能预测器训练完成，模型已根据 ${PREDICTOR_CONFIG} 中的配置保存"
     else
-        log_warning "RAG模型重新训练失败，但继续执行后续步骤"
+        log_error "性能预测器训练失败"
+        exit 1
     fi
+    log_success "--- [阶段二] 完成 ---"
+}
+# 阶段三: 训练DRL智能体 (学习者)
+stage_3_train_drl_agent() {
+    log_info "--- [阶段三] 开始：训练DRL智能体 (学习者) ---"
+    
+    # 确保配置文件存在
+    if [[ ! -f "$DRL_CONFIG" ]]; then
+        log_error "找不到DRL配置文件: ${DRL_CONFIG}"
+        exit 1
+    fi
+
+    log_info "确保DRL训练配置与实验环境一致..."
+    # 临时修改配置文件，使其指向正确的知识库和平台
+    # 创建备份
+    cp "${DRL_CONFIG}" "${DRL_CONFIG}.bak"
+    
+    # 使用 sed 命令进行修改 (兼容macOS和Linux)
+    sed -i.sedbak "s|platform_file:.*|platform_file: \"${PLATFORM_FILE}\"|" "${DRL_CONFIG}"
+    # 假设DRL配置中有一个 knowledge_base -> path 的字段
+    sed -i.sedbak "s|path:.*knowledge_base.json|path: \"${MAIN_KB_JSON}\"|" "${DRL_CONFIG}"
+    rm -f "${DRL_CONFIG}.sedbak" # 清理sed产生的备份
+
+    log_info "配置文件已临时更新，开始使用 improved_drl_trainer.py 进行训练..."
+    if python scripts/improved_drl_trainer.py --config "${DRL_CONFIG}"; then
+        log_success "DRL智能体训练完成，模型保存在: ${DRL_MODEL}"
+    else
+        log_error "DRL智能体训练失败"
+        # 恢复原始配置文件
+        mv "${DRL_CONFIG}.bak" "${DRL_CONFIG}"
+        exit 1
+    fi
+    
+    # 训练成功后，恢复原始配置文件
+    mv "${DRL_CONFIG}.bak" "${DRL_CONFIG}"
+    log_info "原始DRL配置文件已恢复"
+    log_success "--- [阶段三] 完成 ---"
 }
 
-# 步骤5: 运行对比实验 (原步骤4)
-run_comparison_experiments() {
-    log_info "第5步: 运行使用真实案例的对比实验..."
-    
-    # 创建实验配置
-    cat > configs/real_heuristic_experiment.yaml << EOF
-# 真实案例实验配置
-experiment:
-  name: "real_heuristic_comparison"
-  description: "使用真实HEFT和WASS-Heuristic案例的对比实验"
+# 最终评估: 运行对比实验
+final_stage_run_experiments() {
+    log_info "--- [最终评估] 开始：运行对比实验 ---"
 
-# 调度器配置
-schedulers:
-  - "HEFT"
-  - "WASS-Heuristic"
-  - "WASS-DRL"
-  - "WASS-RAG"
+    # 确保训练好的DRL模型存在
+    if [[ ! -f "$DRL_MODEL" ]]; then
+        log_error "找不到训练好的DRL模型: ${DRL_MODEL}，请先执行阶段三"
+        exit 1
+    fi
 
-# 实验规模
-experiment_scale:
-  num_workflows: 50
-  workflow_sizes: [5, 10, 15, 20, 25]
-  platforms: ["test_platform.xml"]
-
-# RAG配置
-rag:
-  knowledge_base_path: "data/real_heuristic_kb.json"
-  retriever: "wrench_similarity"
-  top_k: 5
-  fusion: "weighted"
-
-# 评估配置
-evaluation:
-  metrics: ["makespan", "cpu_utilization", "load_balance"]
-  output_dir: "results/real_heuristic_experiments"
-  generate_charts: true
-EOF
-    
     # 运行实验
-    if python experiments/wrench_real_experiment.py configs/real_heuristic_experiment.yaml; then
+    if python experiments/wrench_real_experiment.py; then
         log_success "对比实验运行完成"
-        
-        # 检查输出文件
-        if [[ -f "results/real_heuristic_experiments/experiment_results.json" ]]; then
-            log_info "实验结果已保存到 results/real_heuristic_experiments/"
-        fi
     else
         log_error "对比实验运行失败"
         exit 1
     fi
-}
 
-# 步骤6: 生成结果摘要 (原步骤5)
-generate_summary() {
-    log_info "第6步: 生成实验结果摘要..."
-    
-    # 创建结果分析脚本
-    cat > analyze_real_results.py << 'EOF'
-import json
-import os
-import numpy as np
-
-# 加载实验结果
-results_path = "results/real_heuristic_experiments/experiment_results.json"
-if not os.path.exists(results_path):
-    print("实验结果文件不存在")
-    exit(1)
-
-with open(results_path, 'r') as f:
-    results = json.load(f)
-
-# 分析结果
-scheduler_results = {}
-for experiment in results.get("results", []):
-    scheduler = experiment.get("scheduler", "unknown")
-    makespan = experiment.get("makespan", 0)
-    
-    if scheduler not in scheduler_results:
-        scheduler_results[scheduler] = []
-    scheduler_results[scheduler].append(makespan)
-
-# 计算平均性能
-print("=== 使用真实案例的实验结果摘要 ===")
-print()
-print("调度器性能对比:")
-print("-" * 40)
-
-for scheduler, makespans in scheduler_results.items():
-    avg_makespan = np.mean(makespans)
-    std_makespan = np.std(makespans)
-    count = len(makespans)
-    
-    print(f"{scheduler:15} | 平均: {avg_makespan:8.2f}s | 标准差: {std_makespan:6.2f}s | 样本: {count:3d}")
-
-print()
-print("基于真实HEFT和WASS-Heuristic案例的RAG知识库已部署完成!")
-EOF
-    
-    if python analyze_real_results.py; then
-        rm analyze_real_results.py
-        log_success "结果摘要生成完成"
+    log_info "生成最终结果摘要..."
+    # 调用一个独立的分析脚本，如果存在的话
+    if [[ -f "analyze_real_results.py" ]]; then
+        python analyze_real_results.py
     else
-        log_error "结果摘要生成失败"
+        log_warning "未找到结果分析脚本 analyze_real_results.py，跳过摘要生成。"
     fi
+    
+    log_success "--- [最终评估] 完成 ---"
 }
 
-# 显示最终摘要
-show_final_summary() {
-    log_info "=============== 真实案例实验完成摘要 ==============="
-    
-    echo -e "${GREEN}知识库更新:${NC}"
-    if [[ -f "data/real_heuristic_kb.json" ]]; then
-        cases=$(python -c "import json; data=json.load(open('data/real_heuristic_kb.json')); print(len(data['cases']))")
-        heft_cases=$(python -c "import json; data=json.load(open('data/real_heuristic_kb.json')); print(len([c for c in data['cases'] if c.get('scheduler_type') == 'HEFT']))")
-        wass_cases=$(python -c "import json; data=json.load(open('data/real_heuristic_kb.json')); print(len([c for c in data['cases'] if c.get('scheduler_type') == 'WASS-Heuristic']))")
-        echo "  • 总案例数: $cases 个"
-        echo "  • HEFT案例: $heft_cases 个"
-        echo "  • WASS-Heuristic案例: $wass_cases 个"
-    fi
-    
-    echo -e "${GREEN}模型训练:${NC}"
-    if [[ -f "models/improved_wass_drl.pth" ]]; then
-        echo "  • DRL模型: models/improved_wass_drl.pth (已重新训练)"
-    fi
-    if [[ -f "data/wrench_rag_knowledge_base.json" ]]; then
-        cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(len(data['cases']))")
-        echo "  • RAG知识库: $cases 个案例"
-    fi
-    
-    echo -e "${GREEN}实验结果:${NC}"
-    if [[ -f "results/real_heuristic_experiments/experiment_results.json" ]]; then
-        echo "  • 实验数据: results/real_heuristic_experiments/"
-    fi
-    
-    log_success "使用真实案例的WASS-RAG实验流程执行完成! 🎉"
-}
 
-# 主函数
+# --- 主函数 ---
 main() {
-    log_info "开始 使用真实HEFT和WASS-Heuristic案例的WASS-RAG实验流程..."
-    log_info "预计用时: 30-60分钟 (包含DRL模型训练)"
+    log_info "启动 WASS-RAG 全流程训练与实验..."
+    log_info "预计总用时: 30-60分钟"
     echo
-    
-    # 记录开始时间
+
     start_time=$(date +%s)
     
-    # 执行各个步骤
-    check_environment
-    extract_real_cases
-    update_rag_kb
-    train_drl_model  # <--- 调用新增的DRL训练函数
-    retrain_rag
-    run_comparison_experiments
-    generate_summary
+    # 依次执行所有阶段
+    stage_1_seed_knowledge_base
+    echo
+    stage_2_train_predictor
+    echo
+    stage_3_train_drl_agent
+    echo
+    final_stage_run_experiments
     
-    # 计算总用时
     end_time=$(date +%s)
     duration=$((end_time - start_time))
     minutes=$((duration / 60))
     seconds=$((duration % 60))
     
     echo
-    log_info "总执行时间: ${minutes}分${seconds}秒"
-    
-    # 显示结果摘要
-    show_final_summary
+    log_success "🎉 WASS-RAG 全流程执行完毕! 总耗时: ${minutes}分${seconds}秒"
 }
 
-# 检查命令行参数
+# --- 脚本入口 ---
+# 允许单独执行某个阶段，方便调试
 if [[ $# -gt 0 ]]; then
     case $1 in
-        "extract")
-            extract_real_cases
+        "stage1")
+            stage_1_seed_knowledge_base
             ;;
-        "update")
-            update_rag_kb
+        "stage2")
+            stage_2_train_predictor
             ;;
-        "train_drl") # <--- 新增的单独执行选项
-            train_drl_model
+        "stage3")
+            stage_3_train_drl_agent
             ;;
-        "retrain")
-            retrain_rag
-            ;;
-        "experiments")
-            run_comparison_experiments
-            ;;
-        "summary")
-            generate_summary
+        "eval")
+            final_stage_run_experiments
             ;;
         *)
-            echo "用法: $0 [extract|update|train_drl|retrain|experiments|summary]"
-            echo "无参数运行完整流程"
+            echo "用法: $0 [stage1|stage2|stage3|eval]"
+            echo "无参数则运行完整流程"
             exit 1
             ;;
     esac
 else
+    # 默认运行完整流程
     main
 fi
