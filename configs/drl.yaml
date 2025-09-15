@@ -1,6 +1,5 @@
 drl:
-  # WRENCH环境配置
-  environment: "wrench"
+  # 训练配置
   episodes: 1000  # 扩展再训练规模
   max_steps: 50    # 与训练脚本上限保持一致
   

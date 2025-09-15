@@ -287,7 +287,7 @@ class WASSDRLScheduler(WRENCHScheduler):
         self.config = load_config(config_path)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # 定义网络结构 (与改进训练器保持一致)
-        self.state_dim = 32  # 需与训练保持一致
+        self.state_dim = 24  # 需与训练保持一致
         self.action_dim = 4   # 节点数
         self.hidden_dims = [512, 256, 128, 64] # AdvancedDQN's default
         self.model = self._create_model()
@@ -339,7 +339,7 @@ class WASSDRLScheduler(WRENCHScheduler):
             self.model = None
     
     def _get_state(self, task, available_nodes, node_capacities, node_loads):
-        """获取DRL的状态向量 (兼容改进训练器 32 维)
+        """获取DRL的状态向量 (兼容改进训练器 24 维)
         
         注意：此函数在实验环境中运行，许多在训练时可用的详细状态不可用。
         因此，我们使用可用的数据进行估算，并为不可用的特征使用合理的默认值或0填充。
@@ -395,9 +395,9 @@ class WASSDRLScheduler(WRENCHScheduler):
         final_features = np.array(features, dtype=np.float32)
         
         # 最终维度检查，确保为32维
-        if final_features.shape[0] != 32:
-            padded_features = np.zeros(32, dtype=np.float32)
-            copy_len = min(len(final_features), 32)
+        if final_features.shape[0] != 24:
+            padded_features = np.zeros(24, dtype=np.float32)
+            copy_len = min(len(final_features), 24)
             padded_features[:copy_len] = final_features[:copy_len]
             return padded_features
             

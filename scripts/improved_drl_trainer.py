@@ -1256,21 +1256,31 @@ class WRENCHDRLTrainer:
         action_dim = curriculum["nodes"]  # 根据当前课程阶段的节点数设置动作维度
         
         # 获取DRL配置参数
-        drl_config = self.config.get('drl', {})
+        drl_config = self.config.get('drl', {}).copy()
+        
+        # 只提取ImprovedDQNAgent接受的参数
+        agent_params = {
+            'state_dim': state_dim,
+            'action_dim': action_dim,
+            'learning_rate': drl_config.get('learning_rate', 0.001),
+            'epsilon_start': drl_config.get('epsilon_start', 1.0),
+            'epsilon_end': drl_config.get('epsilon_end', 0.1),
+            'epsilon_decay': drl_config.get('epsilon_decay', 0.995),
+            'gamma': drl_config.get('gamma', 0.99),
+            'memory_size': drl_config.get('memory_size', 10000),
+            'batch_size': drl_config.get('batch_size', 64),
+            'target_update_freq': drl_config.get('target_update_freq', 100),
+            'network_type': "advanced",  # 使用高级网络
+            'hidden_dims': [512, 256, 128, 64],  # 更深的网络结构
+            'exploration_strategy': "adaptive",  # 使用自适应探索策略
+            'use_ucb': True,  # 启用UCB探索
+            'ucb_c': 2.0,  # UCB置信度参数
+            'use_boltzmann': True,  # 启用玻尔兹曼探索
+            'boltzmann_tau': 1.0,  # 初始温度参数
+        }
         
         # 使用高级网络架构和多样化探索策略
-        self.agent = ImprovedDQNAgent(
-            state_dim=state_dim,
-            action_dim=action_dim,
-            network_type="advanced",  # 使用高级网络
-            hidden_dims=[512, 256, 128, 64],  # 更深的网络结构
-            exploration_strategy="adaptive",  # 使用自适应探索策略
-            use_ucb=True,  # 启用UCB探索
-            ucb_c=2.0,  # UCB置信度参数
-            use_boltzmann=True,  # 启用玻尔兹曼探索
-            boltzmann_tau=1.0,  # 初始温度参数
-            **drl_config
-        )
+        self.agent = ImprovedDQNAgent(**agent_params)
         
         # 训练循环
         best_makespan = float('inf')

@@ -75,9 +75,36 @@ update_rag_kb() {
     fi
 }
 
-# 步骤3: 重新训练RAG模型
+# =================================================================
+# 新增步骤: 训练DRL模型
+# =================================================================
+train_drl_model() {
+    log_info "第3步: 训练适应当前环境的DRL模型..."
+    
+    # 确保DRL配置文件存在
+    if [[ ! -f "configs/drl.yaml" ]]; then
+        log_error "DRL配置文件 configs/drl.yaml 不存在!"
+        exit 1
+    fi
+
+    # 运行改进版的DRL训练器
+    if python scripts/improved_drl_trainer.py --config configs/drl.yaml; then
+        log_success "DRL模型训练完成"
+        
+        # 检查输出模型文件
+        if [[ -f "models/improved_wass_drl.pth" ]]; then
+            log_info "新的DRL模型已保存到 models/improved_wass_drl.pth"
+        fi
+    else
+        log_error "DRL模型训练失败"
+        exit 1
+    fi
+}
+# =================================================================
+
+# 步骤4: 重新训练RAG模型 (原步骤3)
 retrain_rag() {
-    log_info "第3步: 使用真实案例重新训练RAG模型..."
+    log_info "第4步: 使用真实案例重新训练RAG模型..."
     
     if python scripts/train_rag_wrench.py configs/rag.yaml; then
         log_success "RAG模型重新训练完成"
@@ -92,9 +119,9 @@ retrain_rag() {
     fi
 }
 
-# 步骤4: 运行对比实验
+# 步骤5: 运行对比实验 (原步骤4)
 run_comparison_experiments() {
-    log_info "第4步: 运行使用真实案例的对比实验..."
+    log_info "第5步: 运行使用真实案例的对比实验..."
     
     # 创建实验配置
     cat > configs/real_heuristic_experiment.yaml << EOF
@@ -144,9 +171,9 @@ EOF
     fi
 }
 
-# 步骤5: 生成结果摘要
+# 步骤6: 生成结果摘要 (原步骤5)
 generate_summary() {
-    log_info "第5步: 生成实验结果摘要..."
+    log_info "第6步: 生成实验结果摘要..."
     
     # 创建结果分析脚本
     cat > analyze_real_results.py << 'EOF'
@@ -213,6 +240,9 @@ show_final_summary() {
     fi
     
     echo -e "${GREEN}模型训练:${NC}"
+    if [[ -f "models/improved_wass_drl.pth" ]]; then
+        echo "  • DRL模型: models/improved_wass_drl.pth (已重新训练)"
+    fi
     if [[ -f "data/wrench_rag_knowledge_base.json" ]]; then
         cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(len(data['cases']))")
         echo "  • RAG知识库: $cases 个案例"
@@ -229,7 +259,7 @@ show_final_summary() {
 # 主函数
 main() {
     log_info "开始 使用真实HEFT和WASS-Heuristic案例的WASS-RAG实验流程..."
-    log_info "预计用时: 15-30分钟"
+    log_info "预计用时: 30-60分钟 (包含DRL模型训练)"
     echo
     
     # 记录开始时间
@@ -239,6 +269,7 @@ main() {
     check_environment
     extract_real_cases
     update_rag_kb
+    train_drl_model  # <--- 调用新增的DRL训练函数
     retrain_rag
     run_comparison_experiments
     generate_summary
@@ -265,6 +296,9 @@ if [[ $# -gt 0 ]]; then
         "update")
             update_rag_kb
             ;;
+        "train_drl") # <--- 新增的单独执行选项
+            train_drl_model
+            ;;
         "retrain")
             retrain_rag
             ;;
@@ -275,7 +309,7 @@ if [[ $# -gt 0 ]]; then
             generate_summary
             ;;
         *)
-            echo "用法: $0 [extract|update|retrain|experiments|summary]"
+            echo "用法: $0 [extract|update|train_drl|retrain|experiments|summary]"
             echo "无参数运行完整流程"
             exit 1
             ;;
