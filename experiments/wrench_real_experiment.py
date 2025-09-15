@@ -856,7 +856,7 @@ class WRENCHExperimentRunner:
                 else:
                     print(f"  不存在: {candidate} (绝对路径: {abs_candidate})")
         
-        rag_path = "data/wrench_rag_knowledge_base.pkl"
+        rag_path = "data/wrench_rag_knowledge_base.json"
         
         if model_path:
             print(f"📁 使用模型文件: {model_path}")

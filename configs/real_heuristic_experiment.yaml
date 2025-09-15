@@ -1,0 +1,30 @@
+# 真实案例实验配置
+experiment:
+  name: "real_heuristic_comparison"
+  description: "使用真实HEFT和WASS-Heuristic案例的对比实验"
+
+# 调度器配置
+schedulers:
+  - "HEFT"
+  - "WASS-Heuristic"
+  - "WASS-DRL"
+  - "WASS-RAG"
+
+# 实验规模
+experiment_scale:
+  num_workflows: 50
+  workflow_sizes: [5, 10, 15, 20, 25]
+  platforms: ["test_platform.xml"]
+
+# RAG配置
+rag:
+  knowledge_base_path: "data/real_heuristic_kb.json"
+  retriever: "wrench_similarity"
+  top_k: 5
+  fusion: "weighted"
+
+# 评估配置
+evaluation:
+  metrics: ["makespan", "cpu_utilization", "load_balance"]
+  output_dir: "results/real_heuristic_experiments"
+  generate_charts: true

@@ -102,11 +102,12 @@ def update_rag_config(kb_path: str):
     with open(config_path, 'r') as f:
         lines = f.readlines()
     
-    # 更新知识库路径
+    # 更新知识库路径，保持正确的缩进
     new_lines = []
     for line in lines:
         if "knowledge_base_path:" in line:
-            new_lines.append(f"knowledge_base_path: {kb_path}\n")
+            # 保持缩进，确保在rag块内
+            new_lines.append(f"  knowledge_base_path: {kb_path}\n")
         else:
             new_lines.append(line)
     
