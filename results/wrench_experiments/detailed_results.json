@@ -76,8 +76,8 @@
       "experiment_metadata": {
         "experiment_id": 1,
         "workflow_size": 5,
-        "execution_time": 0.00021576881408691406,
-        "timestamp": "2025-09-15T16:12:25.117003"
+        "execution_time": 0.0001723766326904297,
+        "timestamp": "2025-09-15T17:53:45.973155"
       }
     },
     {
@@ -139,8 +139,8 @@
       "experiment_metadata": {
         "experiment_id": 2,
         "workflow_size": 5,
-        "execution_time": 8.845329284667969e-05,
-        "timestamp": "2025-09-15T16:12:25.117173"
+        "execution_time": 0.00010609626770019531,
+        "timestamp": "2025-09-15T17:53:45.973320"
       }
     },
     {
@@ -202,8 +202,8 @@
       "experiment_metadata": {
         "experiment_id": 3,
         "workflow_size": 5,
-        "execution_time": 8.869171142578125e-05,
-        "timestamp": "2025-09-15T16:12:25.117313"
+        "execution_time": 0.00010561943054199219,
+        "timestamp": "2025-09-15T17:53:45.973475"
       }
     },
     {
@@ -218,8 +218,8 @@
       "experiment_metadata": {
         "experiment_id": 4,
         "workflow_size": 5,
-        "execution_time": 3.647804260253906e-05,
-        "timestamp": "2025-09-15T16:12:25.117398",
+        "execution_time": 6.937980651855469e-05,
+        "timestamp": "2025-09-15T17:53:45.973762",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -235,8 +235,8 @@
       "experiment_metadata": {
         "experiment_id": 5,
         "workflow_size": 5,
-        "execution_time": 6.842613220214844e-05,
-        "timestamp": "2025-09-15T16:12:25.117743",
+        "execution_time": 3.457069396972656e-05,
+        "timestamp": "2025-09-15T17:53:45.973858",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -299,8 +299,8 @@
       "experiment_metadata": {
         "experiment_id": 6,
         "workflow_size": 5,
-        "execution_time": 8.273124694824219e-05,
-        "timestamp": "2025-09-15T16:12:25.117880"
+        "execution_time": 8.487701416015625e-05,
+        "timestamp": "2025-09-15T17:53:45.974145"
       }
     },
     {
@@ -362,8 +362,8 @@
       "experiment_metadata": {
         "experiment_id": 7,
         "workflow_size": 5,
-        "execution_time": 6.771087646484375e-05,
-        "timestamp": "2025-09-15T16:12:25.118094"
+        "execution_time": 6.079673767089844e-05,
+        "timestamp": "2025-09-15T17:53:45.974235"
       }
     },
     {
@@ -425,8 +425,8 @@
       "experiment_metadata": {
         "experiment_id": 8,
         "workflow_size": 5,
-        "execution_time": 7.43865966796875e-05,
-        "timestamp": "2025-09-15T16:12:25.118207"
+        "execution_time": 6.961822509765625e-05,
+        "timestamp": "2025-09-15T17:53:45.974319"
       }
     },
     {
@@ -441,8 +441,8 @@
       "experiment_metadata": {
         "experiment_id": 9,
         "workflow_size": 5,
-        "execution_time": 2.4557113647460938e-05,
-        "timestamp": "2025-09-15T16:12:25.118267",
+        "execution_time": 2.5987625122070312e-05,
+        "timestamp": "2025-09-15T17:53:45.974374",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -458,8 +458,8 @@
       "experiment_metadata": {
         "experiment_id": 10,
         "workflow_size": 5,
-        "execution_time": 2.4318695068359375e-05,
-        "timestamp": "2025-09-15T16:12:25.118330",
+        "execution_time": 2.0742416381835938e-05,
+        "timestamp": "2025-09-15T17:53:45.974414",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -522,8 +522,8 @@
       "experiment_metadata": {
         "experiment_id": 11,
         "workflow_size": 5,
-        "execution_time": 6.0558319091796875e-05,
-        "timestamp": "2025-09-15T16:12:25.118430"
+        "execution_time": 7.891654968261719e-05,
+        "timestamp": "2025-09-15T17:53:45.974537"
       }
     },
     {
@@ -585,8 +585,8 @@
       "experiment_metadata": {
         "experiment_id": 12,
         "workflow_size": 5,
-        "execution_time": 8.082389831542969e-05,
-        "timestamp": "2025-09-15T16:12:25.118557"
+        "execution_time": 7.343292236328125e-05,
+        "timestamp": "2025-09-15T17:53:45.974640"
       }
     },
     {
@@ -648,8 +648,8 @@
       "experiment_metadata": {
         "experiment_id": 13,
         "workflow_size": 5,
-        "execution_time": 7.462501525878906e-05,
-        "timestamp": "2025-09-15T16:12:25.118659"
+        "execution_time": 7.2479248046875e-05,
+        "timestamp": "2025-09-15T17:53:45.974751"
       }
     },
     {
@@ -664,8 +664,8 @@
       "experiment_metadata": {
         "experiment_id": 14,
         "workflow_size": 5,
-        "execution_time": 2.0742416381835938e-05,
-        "timestamp": "2025-09-15T16:12:25.118705",
+        "execution_time": 2.5510787963867188e-05,
+        "timestamp": "2025-09-15T17:53:45.974802",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -681,8 +681,8 @@
       "experiment_metadata": {
         "experiment_id": 15,
         "workflow_size": 5,
-        "execution_time": 2.1696090698242188e-05,
-        "timestamp": "2025-09-15T16:12:25.118757",
+        "execution_time": 3.743171691894531e-05,
+        "timestamp": "2025-09-15T17:53:45.974896",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -785,8 +785,8 @@
       "experiment_metadata": {
         "experiment_id": 16,
         "workflow_size": 10,
-        "execution_time": 0.00011610984802246094,
-        "timestamp": "2025-09-15T16:12:25.118916"
+        "execution_time": 0.00011706352233886719,
+        "timestamp": "2025-09-15T17:53:45.975058"
       }
     },
     {
@@ -888,8 +888,8 @@
       "experiment_metadata": {
         "experiment_id": 17,
         "workflow_size": 10,
-        "execution_time": 0.00010752677917480469,
-        "timestamp": "2025-09-15T16:12:25.119060"
+        "execution_time": 0.00011992454528808594,
+        "timestamp": "2025-09-15T17:53:45.975202"
       }
     },
     {
@@ -991,8 +991,8 @@
       "experiment_metadata": {
         "experiment_id": 18,
         "workflow_size": 10,
-        "execution_time": 0.0001590251922607422,
-        "timestamp": "2025-09-15T16:12:25.119265"
+        "execution_time": 0.00012874603271484375,
+        "timestamp": "2025-09-15T17:53:45.975398"
       }
     },
     {
@@ -1007,8 +1007,8 @@
       "experiment_metadata": {
         "experiment_id": 19,
         "workflow_size": 10,
-        "execution_time": 3.0279159545898438e-05,
-        "timestamp": "2025-09-15T16:12:25.119322",
+        "execution_time": 4.482269287109375e-05,
+        "timestamp": "2025-09-15T17:53:45.975526",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -1024,8 +1024,8 @@
       "experiment_metadata": {
         "experiment_id": 20,
         "workflow_size": 10,
-        "execution_time": 3.0994415283203125e-05,
-        "timestamp": "2025-09-15T16:12:25.119384",
+        "execution_time": 3.981590270996094e-05,
+        "timestamp": "2025-09-15T17:53:45.975634",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -1128,8 +1128,8 @@
       "experiment_metadata": {
         "experiment_id": 21,
         "workflow_size": 10,
-        "execution_time": 0.00011420249938964844,
-        "timestamp": "2025-09-15T16:12:25.119515"
+        "execution_time": 0.0001270771026611328,
+        "timestamp": "2025-09-15T17:53:45.975861"
       }
     },
     {
@@ -1231,8 +1231,8 @@
       "experiment_metadata": {
         "experiment_id": 22,
         "workflow_size": 10,
-        "execution_time": 0.00013017654418945312,
-        "timestamp": "2025-09-15T16:12:25.119690"
+        "execution_time": 0.00013518333435058594,
+        "timestamp": "2025-09-15T17:53:45.976026"
       }
     },
     {
@@ -1334,8 +1334,8 @@
       "experiment_metadata": {
         "experiment_id": 23,
         "workflow_size": 10,
-        "execution_time": 0.0001437664031982422,
-        "timestamp": "2025-09-15T16:12:25.119863"
+        "execution_time": 0.0041103363037109375,
+        "timestamp": "2025-09-15T17:53:45.980209"
       }
     },
     {
@@ -1350,8 +1350,8 @@
       "experiment_metadata": {
         "experiment_id": 24,
         "workflow_size": 10,
-        "execution_time": 3.0279159545898438e-05,
-        "timestamp": "2025-09-15T16:12:25.119932",
+        "execution_time": 6.437301635742188e-05,
+        "timestamp": "2025-09-15T17:53:45.980368",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -1367,8 +1367,8 @@
       "experiment_metadata": {
         "experiment_id": 25,
         "workflow_size": 10,
-        "execution_time": 0.004256248474121094,
-        "timestamp": "2025-09-15T16:12:25.124323",
+        "execution_time": 5.221366882324219e-05,
+        "timestamp": "2025-09-15T17:53:45.980492",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -1471,8 +1471,8 @@
       "experiment_metadata": {
         "experiment_id": 26,
         "workflow_size": 10,
-        "execution_time": 0.00019550323486328125,
-        "timestamp": "2025-09-15T16:12:25.124737"
+        "execution_time": 0.00012493133544921875,
+        "timestamp": "2025-09-15T17:53:45.980664"
       }
     },
     {
@@ -1574,8 +1574,8 @@
       "experiment_metadata": {
         "experiment_id": 27,
         "workflow_size": 10,
-        "execution_time": 0.00010824203491210938,
-        "timestamp": "2025-09-15T16:12:25.124876"
+        "execution_time": 0.00011324882507324219,
+        "timestamp": "2025-09-15T17:53:45.980822"
       }
     },
     {
@@ -1677,8 +1677,8 @@
       "experiment_metadata": {
         "experiment_id": 28,
         "workflow_size": 10,
-        "execution_time": 0.00015425682067871094,
-        "timestamp": "2025-09-15T16:12:25.125068"
+        "execution_time": 0.00011897087097167969,
+        "timestamp": "2025-09-15T17:53:45.980984"
       }
     },
     {
@@ -1693,8 +1693,8 @@
       "experiment_metadata": {
         "experiment_id": 29,
         "workflow_size": 10,
-        "execution_time": 2.9325485229492188e-05,
-        "timestamp": "2025-09-15T16:12:25.125134",
+        "execution_time": 3.719329833984375e-05,
+        "timestamp": "2025-09-15T17:53:45.981056",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -1710,8 +1710,8 @@
       "experiment_metadata": {
         "experiment_id": 30,
         "workflow_size": 10,
-        "execution_time": 2.8848648071289062e-05,
-        "timestamp": "2025-09-15T16:12:25.125191",
+        "execution_time": 3.24249267578125e-05,
+        "timestamp": "2025-09-15T17:53:45.981132",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -1854,8 +1854,8 @@
       "experiment_metadata": {
         "experiment_id": 31,
         "workflow_size": 15,
-        "execution_time": 0.00017023086547851562,
-        "timestamp": "2025-09-15T16:12:25.125402"
+        "execution_time": 0.0001761913299560547,
+        "timestamp": "2025-09-15T17:53:45.981352"
       }
     },
     {
@@ -1997,8 +1997,8 @@
       "experiment_metadata": {
         "experiment_id": 32,
         "workflow_size": 15,
-        "execution_time": 0.00017309188842773438,
-        "timestamp": "2025-09-15T16:12:25.125602"
+        "execution_time": 0.00017023086547851562,
+        "timestamp": "2025-09-15T17:53:45.981559"
       }
     },
     {
@@ -2140,8 +2140,8 @@
       "experiment_metadata": {
         "experiment_id": 33,
         "workflow_size": 15,
-        "execution_time": 0.00019025802612304688,
-        "timestamp": "2025-09-15T16:12:25.125819"
+        "execution_time": 0.00017499923706054688,
+        "timestamp": "2025-09-15T17:53:45.981781"
       }
     },
     {
@@ -2156,8 +2156,8 @@
       "experiment_metadata": {
         "experiment_id": 34,
         "workflow_size": 15,
-        "execution_time": 3.814697265625e-05,
-        "timestamp": "2025-09-15T16:12:25.125883",
+        "execution_time": 4.029273986816406e-05,
+        "timestamp": "2025-09-15T17:53:45.981858",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -2173,8 +2173,8 @@
       "experiment_metadata": {
         "experiment_id": 35,
         "workflow_size": 15,
-        "execution_time": 3.814697265625e-05,
-        "timestamp": "2025-09-15T16:12:25.125983",
+        "execution_time": 3.3855438232421875e-05,
+        "timestamp": "2025-09-15T17:53:45.981920",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -2317,8 +2317,8 @@
       "experiment_metadata": {
         "experiment_id": 36,
         "workflow_size": 15,
-        "execution_time": 0.00017333030700683594,
-        "timestamp": "2025-09-15T16:12:25.126195"
+        "execution_time": 0.00015878677368164062,
+        "timestamp": "2025-09-15T17:53:45.982108"
       }
     },
     {
@@ -2460,8 +2460,8 @@
       "experiment_metadata": {
         "experiment_id": 37,
         "workflow_size": 15,
-        "execution_time": 0.00017905235290527344,
-        "timestamp": "2025-09-15T16:12:25.126415"
+        "execution_time": 0.00022077560424804688,
+        "timestamp": "2025-09-15T17:53:45.982385"
       }
     },
     {
@@ -2603,8 +2603,8 @@
       "experiment_metadata": {
         "experiment_id": 38,
         "workflow_size": 15,
-        "execution_time": 0.0002493858337402344,
-        "timestamp": "2025-09-15T16:12:25.126707"
+        "execution_time": 0.0002682209014892578,
+        "timestamp": "2025-09-15T17:53:45.982730"
       }
     },
     {
@@ -2619,8 +2619,8 @@
       "experiment_metadata": {
         "experiment_id": 39,
         "workflow_size": 15,
-        "execution_time": 4.220008850097656e-05,
-        "timestamp": "2025-09-15T16:12:25.126794",
+        "execution_time": 5.1021575927734375e-05,
+        "timestamp": "2025-09-15T17:53:45.982826",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -2636,8 +2636,8 @@
       "experiment_metadata": {
         "experiment_id": 40,
         "workflow_size": 15,
-        "execution_time": 4.00543212890625e-05,
-        "timestamp": "2025-09-15T16:12:25.126877",
+        "execution_time": 4.482269287109375e-05,
+        "timestamp": "2025-09-15T17:53:45.982899",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -2780,8 +2780,8 @@
       "experiment_metadata": {
         "experiment_id": 41,
         "workflow_size": 15,
-        "execution_time": 0.00021028518676757812,
-        "timestamp": "2025-09-15T16:12:25.127117"
+        "execution_time": 0.00018548965454101562,
+        "timestamp": "2025-09-15T17:53:45.983160"
       }
     },
     {
@@ -2923,8 +2923,8 @@
       "experiment_metadata": {
         "experiment_id": 42,
         "workflow_size": 15,
-        "execution_time": 0.0004889965057373047,
-        "timestamp": "2025-09-15T16:12:25.127647"
+        "execution_time": 0.000392913818359375,
+        "timestamp": "2025-09-15T17:53:45.983597"
       }
     },
     {
@@ -3066,8 +3066,8 @@
       "experiment_metadata": {
         "experiment_id": 43,
         "workflow_size": 15,
-        "execution_time": 0.0002205371856689453,
-        "timestamp": "2025-09-15T16:12:25.127916"
+        "execution_time": 0.00019979476928710938,
+        "timestamp": "2025-09-15T17:53:45.983880"
       }
     },
     {
@@ -3082,8 +3082,8 @@
       "experiment_metadata": {
         "experiment_id": 44,
         "workflow_size": 15,
-        "execution_time": 3.790855407714844e-05,
-        "timestamp": "2025-09-15T16:12:25.127982",
+        "execution_time": 4.9114227294921875e-05,
+        "timestamp": "2025-09-15T17:53:45.984735",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -3099,8 +3099,8 @@
       "experiment_metadata": {
         "experiment_id": 45,
         "workflow_size": 15,
-        "execution_time": 3.552436828613281e-05,
-        "timestamp": "2025-09-15T16:12:25.128046",
+        "execution_time": 4.0531158447265625e-05,
+        "timestamp": "2025-09-15T17:53:45.984824",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -3283,8 +3283,8 @@
       "experiment_metadata": {
         "experiment_id": 46,
         "workflow_size": 20,
-        "execution_time": 0.0003380775451660156,
-        "timestamp": "2025-09-15T16:12:25.128434"
+        "execution_time": 0.00023508071899414062,
+        "timestamp": "2025-09-15T17:53:45.985116"
       }
     },
     {
@@ -3466,8 +3466,8 @@
       "experiment_metadata": {
         "experiment_id": 47,
         "workflow_size": 20,
-        "execution_time": 0.00024199485778808594,
-        "timestamp": "2025-09-15T16:12:25.128784"
+        "execution_time": 0.00023245811462402344,
+        "timestamp": "2025-09-15T17:53:45.985395"
       }
     },
     {
@@ -3649,8 +3649,8 @@
       "experiment_metadata": {
         "experiment_id": 48,
         "workflow_size": 20,
-        "execution_time": 0.0002894401550292969,
-        "timestamp": "2025-09-15T16:12:25.129101"
+        "execution_time": 0.0002684593200683594,
+        "timestamp": "2025-09-15T17:53:45.985738"
       }
     },
     {
@@ -3665,8 +3665,8 @@
       "experiment_metadata": {
         "experiment_id": 49,
         "workflow_size": 20,
-        "execution_time": 0.0001201629638671875,
-        "timestamp": "2025-09-15T16:12:25.129251",
+        "execution_time": 5.745887756347656e-05,
+        "timestamp": "2025-09-15T17:53:45.985859",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -3682,8 +3682,8 @@
       "experiment_metadata": {
         "experiment_id": 50,
         "workflow_size": 20,
-        "execution_time": 7.700920104980469e-05,
-        "timestamp": "2025-09-15T16:12:25.129473",
+        "execution_time": 4.0531158447265625e-05,
+        "timestamp": "2025-09-15T17:53:45.985930",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -3866,8 +3866,8 @@
       "experiment_metadata": {
         "experiment_id": 51,
         "workflow_size": 20,
-        "execution_time": 0.0005850791931152344,
-        "timestamp": "2025-09-15T16:12:25.130216"
+        "execution_time": 0.00024199485778808594,
+        "timestamp": "2025-09-15T17:53:45.986197"
       }
     },
     {
@@ -4049,8 +4049,8 @@
       "experiment_metadata": {
         "experiment_id": 52,
         "workflow_size": 20,
-        "execution_time": 0.0003495216369628906,
-        "timestamp": "2025-09-15T16:12:25.130662"
+        "execution_time": 0.0002627372741699219,
+        "timestamp": "2025-09-15T17:53:45.986502"
       }
     },
     {
@@ -4232,8 +4232,8 @@
       "experiment_metadata": {
         "experiment_id": 53,
         "workflow_size": 20,
-        "execution_time": 0.00030112266540527344,
-        "timestamp": "2025-09-15T16:12:25.131008"
+        "execution_time": 0.0003032684326171875,
+        "timestamp": "2025-09-15T17:53:45.986844"
       }
     },
     {
@@ -4248,8 +4248,8 @@
       "experiment_metadata": {
         "experiment_id": 54,
         "workflow_size": 20,
-        "execution_time": 5.316734313964844e-05,
-        "timestamp": "2025-09-15T16:12:25.131095",
+        "execution_time": 7.081031799316406e-05,
+        "timestamp": "2025-09-15T17:53:45.986976",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -4265,8 +4265,8 @@
       "experiment_metadata": {
         "experiment_id": 55,
         "workflow_size": 20,
-        "execution_time": 4.982948303222656e-05,
-        "timestamp": "2025-09-15T16:12:25.131178",
+        "execution_time": 5.5789947509765625e-05,
+        "timestamp": "2025-09-15T17:53:45.987068",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -4449,8 +4449,8 @@
       "experiment_metadata": {
         "experiment_id": 56,
         "workflow_size": 20,
-        "execution_time": 0.0005671977996826172,
-        "timestamp": "2025-09-15T16:12:25.131810"
+        "execution_time": 0.000701904296875,
+        "timestamp": "2025-09-15T17:53:45.987823"
       }
     },
     {
@@ -4632,8 +4632,8 @@
       "experiment_metadata": {
         "experiment_id": 57,
         "workflow_size": 20,
-        "execution_time": 0.0002803802490234375,
-        "timestamp": "2025-09-15T16:12:25.132146"
+        "execution_time": 0.0004925727844238281,
+        "timestamp": "2025-09-15T17:53:45.988389"
       }
     },
     {
@@ -4815,8 +4815,8 @@
       "experiment_metadata": {
         "experiment_id": 58,
         "workflow_size": 20,
-        "execution_time": 0.0003039836883544922,
-        "timestamp": "2025-09-15T16:12:25.132496"
+        "execution_time": 0.0003294944763183594,
+        "timestamp": "2025-09-15T17:53:45.988787"
       }
     },
     {
@@ -4831,8 +4831,8 @@
       "experiment_metadata": {
         "experiment_id": 59,
         "workflow_size": 20,
-        "execution_time": 0.0003151893615722656,
-        "timestamp": "2025-09-15T16:12:25.132849",
+        "execution_time": 8.654594421386719e-05,
+        "timestamp": "2025-09-15T17:53:45.988921",
         "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
@@ -4848,8 +4848,8 @@
       "experiment_metadata": {
         "experiment_id": 60,
         "workflow_size": 20,
-        "execution_time": 9.679794311523438e-05,
-        "timestamp": "2025-09-15T16:12:25.133056",
+        "execution_time": 6.008148193359375e-05,
+        "timestamp": "2025-09-15T17:53:45.989037",
         "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     }

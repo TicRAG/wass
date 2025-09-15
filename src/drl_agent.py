@@ -5,7 +5,6 @@ import torch.optim as optim
 from typing import Optional, Dict, Any, List
 from collections import deque, namedtuple
 import random
-from src.reward_fix import RewardFix
 
 # From improved_drl_trainer.py
 class AdvancedDQN(nn.Module):

@@ -112,6 +112,7 @@ stage_3_train_drl_agent() {
     rm -f "${DRL_CONFIG}.sedbak" # 清理sed产生的备份
 
     log_info "配置文件已临时更新，开始使用 improved_drl_trainer.py 进行训练..."
+    log_info "scripts/improved_drl_trainer.py --config ${DRL_CONFIG}"
     if python scripts/improved_drl_trainer.py --config "${DRL_CONFIG}"; then
         log_success "DRL智能体训练完成，模型保存在: ${DRL_MODEL}"
     else
