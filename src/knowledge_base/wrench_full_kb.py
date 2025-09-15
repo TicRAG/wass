@@ -2,9 +2,14 @@ from __future__ import annotations
 """Full legacy WRENCH RAG KB structures migrated from training script.
 Minimized to data representation + basic retrieval for modular reuse.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Dict, Any, List, Tuple
 import numpy as np
+import json
+from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class WRENCHKnowledgeCase:
@@ -89,5 +94,56 @@ class WRENCHRAGKnowledgeBase:
         if na == 0 or nb == 0:
             return 0.0
         return float(np.dot(a, b) / (na * nb))
+
+    def save_knowledge_base(self, filename: str):
+        """保存知识库到文件"""
+        output_path = Path(filename)
+        
+        # 转换为可序列化的格式
+        serializable_cases = []
+        for case in self.cases:
+            case_dict = asdict(case)
+            # 转换numpy数组为列表
+            case_dict['workflow_embedding'] = case_dict['workflow_embedding'].tolist()
+            case_dict['task_features'] = case_dict['task_features'].tolist()
+            case_dict['node_features'] = case_dict['node_features'].tolist()
+            serializable_cases.append(case_dict)
+        
+        # 保存到文件
+        with open(output_path, 'w') as f:
+            json.dump({
+                'cases': serializable_cases,
+                'case_index': self.case_index
+            }, f, indent=2)
+        
+        logger.info(f"Knowledge base saved to {output_path}")
+
+    def load_knowledge_base(self, filename: str):
+        """从文件加载知识库"""
+        input_path = Path(filename)
+        
+        if not input_path.exists():
+            logger.warning(f"Knowledge base file {input_path} not found")
+            return
+        
+        with open(input_path, 'r') as f:
+            data = json.load(f)
+        
+        # 清空当前知识库
+        self.cases = []
+        self.case_index = {}
+        
+        # 加载案例
+        for case_dict in data['cases']:
+            # 转换列表为numpy数组
+            case_dict['workflow_embedding'] = np.array(case_dict['workflow_embedding'])
+            case_dict['task_features'] = np.array(case_dict['task_features'])
+            case_dict['node_features'] = np.array(case_dict['node_features'])
+            
+            # 创建案例对象
+            case = WRENCHKnowledgeCase(**case_dict)
+            self.add_case(case)
+        
+        logger.info(f"Knowledge base loaded from {input_path} with {len(self.cases)} cases")
 
 __all__ = ["WRENCHKnowledgeCase", "WRENCHRAGKnowledgeBase"]

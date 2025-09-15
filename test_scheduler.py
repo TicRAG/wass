@@ -129,7 +129,7 @@ def mock_get_logger(*args, **kwargs):
     drl_agent = DQNAgent(state_dim=10, action_dim=3)
     
     # 创建调度器
-    scheduler = WASSRAGScheduler(drl_agent, node_names, predictor)
+    scheduler = WASSRAGScheduler(drl_agent, node_names, predictor, None)
     
     # 测试调度
     for episode in range(5):

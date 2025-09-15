@@ -29,50 +29,50 @@
   "training_process": {
     "episode_count": 10,
     "convergence_speed": 1.0,
-    "stability_score": 0.30977103556453,
+    "stability_score": 0.2256585053399235,
     "exploration_efficiency": NaN,
     "learning_curve": [
-      -3.4098659206063937,
-      -5.451150673894748,
-      -0.9879773624016266,
-      0.18781947236052365,
-      1.263173329350365,
-      1.971461336902471,
-      4.00965002229583,
-      5.689902919493793,
-      7.2017401232842975,
-      9.585898606073307
+      -7.292854785730789,
+      -3.3381276280940018,
+      -3.7254603333599583,
+      -0.5273036769532508,
+      1.5804741583229447,
+      1.0718519837973988,
+      4.327434955031688,
+      7.009553618498075,
+      6.341087102275184,
+      9.241354080579308
     ],
     "reward_distribution": {
-      "mean": 2.006065185285782,
-      "std": 4.469895943971856,
-      "min": -5.451150673894748,
-      "max": 9.585898606073307,
-      "median": 1.617317333126418
+      "mean": 1.46880094743666,
+      "std": 5.040153568698742,
+      "min": -7.292854785730789,
+      "max": 9.241354080579308,
+      "median": 1.3261630710601717
     },
     "loss_curve": [
-      9.371682384768233,
-      9.449531757306671,
-      8.264414845334272,
-      8.04564156479415,
-      6.812892673233103,
-      6.491151282566281,
-      5.453389827374874,
-      4.127205244390663,
-      4.117253884128088,
-      2.489208199755913
+      10.615983568881639,
+      9.697982337769139,
+      7.653214058539237,
+      6.743863973291173,
+      7.475645908476311,
+      5.921639831439978,
+      4.146118149496296,
+      4.81532770448036,
+      3.8658773008399194,
+      3.147717568400841
     ],
     "q_value_curve": [
-      -7.0078192179908205,
-      -4.539140880007052,
-      -4.694041790397144,
-      -1.0017903284387513,
-      -0.46092391150241974,
-      0.3829860060390373,
-      1.7897686318946857,
-      3.3396230417354804,
-      6.887178158005401,
-      8.869442801428905
+      -6.833993001266905,
+      -6.054302713131695,
+      -4.0836767427191125,
+      -3.563826811173183,
+      -1.2988691194466622,
+      2.36851969105106,
+      2.413046872655411,
+      4.002967261371914,
+      5.392043070455831,
+      8.147273490839286
     ]
   },
   "baseline_comparison": {
@@ -85,64 +85,14 @@
     "adaptability_score": 0.5
   },
   "comprehensive_report": {
-    "timestamp": 1757849977.2464201,
+    "timestamp": 1757902010.4865358,
     "system_performance": {
-      "resource_utilization": {
-        "GPU": {
-          "mean": 0.7,
-          "std": 0.0,
-          "min": 0.7,
-          "max": 0.7,
-          "latest": 0.7,
-          "trend": "stable"
-        },
-        "CPU": {
-          "mean": 0.8,
-          "std": 0.0,
-          "min": 0.8,
-          "max": 0.8,
-          "latest": 0.8,
-          "trend": "stable"
-        },
-        "Memory": {
-          "mean": 0.75,
-          "std": 0.0,
-          "min": 0.75,
-          "max": 0.75,
-          "latest": 0.75,
-          "trend": "stable"
-        },
-        "Network": {
-          "mean": 0.65,
-          "std": 0.0,
-          "min": 0.65,
-          "max": 0.65,
-          "latest": 0.65,
-          "trend": "stable"
-        }
-      },
-      "makespan": {
-        "mean": 70.0,
+      "avg_turnaround_time": {
+        "mean": 50.0,
         "std": 0.0,
-        "min": 70.0,
-        "max": 70.0,
-        "latest": 70.0,
-        "trend": "stable"
-      },
-      "cost_efficiency": {
-        "mean": 0.009852216748768473,
-        "std": 0.0,
-        "min": 0.009852216748768473,
-        "max": 0.009852216748768473,
-        "latest": 0.009852216748768473,
-        "trend": "stable"
-      },
-      "fairness": {
-        "mean": 0.9284139098714187,
-        "std": 0.0,
-        "min": 0.9284139098714187,
-        "max": 0.9284139098714187,
-        "latest": 0.9284139098714187,
+        "min": 50.0,
+        "max": 50.0,
+        "latest": 50.0,
         "trend": "stable"
       },
       "reliability": {
@@ -151,22 +101,6 @@
         "min": 0.95,
         "max": 0.95,
         "latest": 0.95,
-        "trend": "stable"
-      },
-      "load_balance": {
-        "mean": 0.9568965517241379,
-        "std": 0.0,
-        "min": 0.9568965517241379,
-        "max": 0.9568965517241379,
-        "latest": 0.9568965517241379,
-        "trend": "stable"
-      },
-      "avg_waiting_time": {
-        "mean": 15.0,
-        "std": 0.0,
-        "min": 15.0,
-        "max": 15.0,
-        "latest": 15.0,
         "trend": "stable"
       },
       "energy_efficiency": {
@@ -185,32 +119,82 @@
         "latest": 1.4285714285714286,
         "trend": "stable"
       },
-      "avg_turnaround_time": {
-        "mean": 50.0,
+      "makespan": {
+        "mean": 70.0,
         "std": 0.0,
-        "min": 50.0,
-        "max": 50.0,
-        "latest": 50.0,
+        "min": 70.0,
+        "max": 70.0,
+        "latest": 70.0,
+        "trend": "stable"
+      },
+      "cost_efficiency": {
+        "mean": 0.009852216748768473,
+        "std": 0.0,
+        "min": 0.009852216748768473,
+        "max": 0.009852216748768473,
+        "latest": 0.009852216748768473,
+        "trend": "stable"
+      },
+      "resource_utilization": {
+        "GPU": {
+          "mean": 0.7,
+          "std": 0.0,
+          "min": 0.7,
+          "max": 0.7,
+          "latest": 0.7,
+          "trend": "stable"
+        },
+        "Memory": {
+          "mean": 0.75,
+          "std": 0.0,
+          "min": 0.75,
+          "max": 0.75,
+          "latest": 0.75,
+          "trend": "stable"
+        },
+        "CPU": {
+          "mean": 0.8,
+          "std": 0.0,
+          "min": 0.8,
+          "max": 0.8,
+          "latest": 0.8,
+          "trend": "stable"
+        },
+        "Network": {
+          "mean": 0.65,
+          "std": 0.0,
+          "min": 0.65,
+          "max": 0.65,
+          "latest": 0.65,
+          "trend": "stable"
+        }
+      },
+      "load_balance": {
+        "mean": 0.9568965517241379,
+        "std": 0.0,
+        "min": 0.9568965517241379,
+        "max": 0.9568965517241379,
+        "latest": 0.9568965517241379,
+        "trend": "stable"
+      },
+      "fairness": {
+        "mean": 0.9284139098714187,
+        "std": 0.0,
+        "min": 0.9284139098714187,
+        "max": 0.9284139098714187,
+        "latest": 0.9284139098714187,
+        "trend": "stable"
+      },
+      "avg_waiting_time": {
+        "mean": 15.0,
+        "std": 0.0,
+        "min": 15.0,
+        "max": 15.0,
+        "latest": 15.0,
         "trend": "stable"
       }
     },
     "workflow_quality": {
-      "data_locality_score": {
-        "mean": 0.8,
-        "std": 0.0,
-        "min": 0.8,
-        "max": 0.8,
-        "latest": 0.8,
-        "trend": "stable"
-      },
-      "workflow_completion_rate": {
-        "mean": 0.9,
-        "std": 0.0,
-        "min": 0.9,
-        "max": 0.9,
-        "latest": 0.9,
-        "trend": "stable"
-      },
       "scheduling_length": {
         "mean": 60.0,
         "std": 0.0,
@@ -227,20 +211,20 @@
         "latest": 0.25,
         "trend": "stable"
       },
-      "deadline_satisfaction_rate": {
-        "mean": 0.85,
+      "data_locality_score": {
+        "mean": 0.8,
         "std": 0.0,
-        "min": 0.85,
-        "max": 0.85,
-        "latest": 0.85,
+        "min": 0.8,
+        "max": 0.8,
+        "latest": 0.8,
         "trend": "stable"
       },
-      "parallel_efficiency": {
-        "mean": 0.016666666666666666,
+      "priority_violation_rate": {
+        "mean": 0.15,
         "std": 0.0,
-        "min": 0.016666666666666666,
-        "max": 0.016666666666666666,
-        "latest": 0.016666666666666666,
+        "min": 0.15,
+        "max": 0.15,
+        "latest": 0.15,
         "trend": "stable"
       },
       "critical_path_ratio": {
@@ -251,16 +235,78 @@
         "latest": 0.65,
         "trend": "stable"
       },
-      "priority_violation_rate": {
-        "mean": 0.15,
+      "parallel_efficiency": {
+        "mean": 0.016666666666666666,
         "std": 0.0,
-        "min": 0.15,
-        "max": 0.15,
-        "latest": 0.15,
+        "min": 0.016666666666666666,
+        "max": 0.016666666666666666,
+        "latest": 0.016666666666666666,
+        "trend": "stable"
+      },
+      "workflow_completion_rate": {
+        "mean": 0.9,
+        "std": 0.0,
+        "min": 0.9,
+        "max": 0.9,
+        "latest": 0.9,
+        "trend": "stable"
+      },
+      "deadline_satisfaction_rate": {
+        "mean": 0.85,
+        "std": 0.0,
+        "min": 0.85,
+        "max": 0.85,
+        "latest": 0.85,
         "trend": "stable"
       }
     },
     "training_process": {
+      "reward_distribution": {
+        "max": {
+          "mean": 9.241354080579308,
+          "std": 0.0,
+          "min": 9.241354080579308,
+          "max": 9.241354080579308,
+          "latest": 9.241354080579308,
+          "trend": "stable"
+        },
+        "median": {
+          "mean": 1.3261630710601717,
+          "std": 0.0,
+          "min": 1.3261630710601717,
+          "max": 1.3261630710601717,
+          "latest": 1.3261630710601717,
+          "trend": "stable"
+        },
+        "std": {
+          "mean": 5.040153568698742,
+          "std": 0.0,
+          "min": 5.040153568698742,
+          "max": 5.040153568698742,
+          "latest": 5.040153568698742,
+          "trend": "stable"
+        },
+        "min": {
+          "mean": -7.292854785730789,
+          "std": 0.0,
+          "min": -7.292854785730789,
+          "max": -7.292854785730789,
+          "latest": -7.292854785730789,
+          "trend": "stable"
+        },
+        "mean": {
+          "mean": 1.46880094743666,
+          "std": 0.0,
+          "min": 1.46880094743666,
+          "max": 1.46880094743666,
+          "latest": 1.46880094743666,
+          "trend": "stable"
+        }
+      },
+      "learning_curve": {
+        "length": 10,
+        "trend": "increasing"
+      },
       "exploration_efficiency": {
         "mean": NaN,
         "std": NaN,
@@ -269,21 +315,29 @@
         "latest": NaN,
         "trend": "stable"
       },
-      "q_value_curve": {
-        "length": 10,
-        "trend": "increasing"
-      },
-      "stability_score": {
-        "mean": 0.30977103556453,
+      "episode_count": {
+        "mean": 10.0,
         "std": 0.0,
-        "min": 0.30977103556453,
-        "max": 0.30977103556453,
-        "latest": 0.30977103556453,
+        "min": 10.0,
+        "max": 10.0,
+        "latest": 10.0,
         "trend": "stable"
       },
       "loss_curve": {
         "length": 10,
         "trend": "stable"
+      },
+      "stability_score": {
+        "mean": 0.2256585053399235,
+        "std": 0.0,
+        "min": 0.2256585053399235,
+        "max": 0.2256585053399235,
+        "latest": 0.2256585053399235,
+        "trend": "stable"
+      },
+      "q_value_curve": {
+        "length": 10,
+        "trend": "increasing"
       },
       "convergence_speed": {
         "mean": 1.0,
@@ -291,60 +345,6 @@
         "min": 1.0,
         "max": 1.0,
         "latest": 1.0,
-        "trend": "stable"
-      },
-      "learning_curve": {
-        "length": 10,
-        "trend": "increasing"
-      },
-      "reward_distribution": {
-        "min": {
-          "mean": -5.451150673894748,
-          "std": 0.0,
-          "min": -5.451150673894748,
-          "max": -5.451150673894748,
-          "latest": -5.451150673894748,
-          "trend": "stable"
-        },
-        "median": {
-          "mean": 1.617317333126418,
-          "std": 0.0,
-          "min": 1.617317333126418,
-          "max": 1.617317333126418,
-          "latest": 1.617317333126418,
-          "trend": "stable"
-        },
-        "std": {
-          "mean": 4.469895943971856,
-          "std": 0.0,
-          "min": 4.469895943971856,
-          "max": 4.469895943971856,
-          "latest": 4.469895943971856,
-          "trend": "stable"
-        },
-        "max": {
-          "mean": 9.585898606073307,
-          "std": 0.0,
-          "min": 9.585898606073307,
-          "max": 9.585898606073307,
-          "latest": 9.585898606073307,
-          "trend": "stable"
-        },
-        "mean": {
-          "mean": 2.006065185285782,
-          "std": 0.0,
-          "min": 2.006065185285782,
-          "max": 2.006065185285782,
-          "latest": 2.006065185285782,
-          "trend": "stable"
-        }
-      },
-      "episode_count": {
-        "mean": 10.0,
-        "std": 0.0,
-        "min": 10.0,
-        "max": 10.0,
-        "latest": 10.0,
         "trend": "stable"
       }
     },
@@ -357,28 +357,20 @@
         "latest": 0.5,
         "trend": "stable"
       },
-      "improvement_ratio": {
-        "mean": 0.17647058823529413,
-        "std": 0.0,
-        "min": 0.17647058823529413,
-        "max": 0.17647058823529413,
-        "latest": 0.17647058823529413,
-        "trend": "stable"
-      },
-      "speedup_ratio": {
-        "mean": 1.2142857142857142,
-        "std": 0.0,
-        "min": 1.2142857142857142,
-        "max": 1.2142857142857142,
-        "latest": 1.2142857142857142,
-        "trend": "stable"
-      },
       "efficiency_ratio": {
         "mean": 1.1333333333333333,
         "std": 0.0,
         "min": 1.1333333333333333,
         "max": 1.1333333333333333,
         "latest": 1.1333333333333333,
+        "trend": "stable"
+      },
+      "scalability_score": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "latest": 1.0,
         "trend": "stable"
       },
       "baseline_makespan": {
@@ -397,12 +389,20 @@
         "latest": 1.0,
         "trend": "stable"
       },
-      "scalability_score": {
-        "mean": 1.0,
+      "speedup_ratio": {
+        "mean": 1.2142857142857142,
         "std": 0.0,
-        "min": 1.0,
-        "max": 1.0,
-        "latest": 1.0,
+        "min": 1.2142857142857142,
+        "max": 1.2142857142857142,
+        "latest": 1.2142857142857142,
+        "trend": "stable"
+      },
+      "improvement_ratio": {
+        "mean": 0.17647058823529413,
+        "std": 0.0,
+        "min": 0.17647058823529413,
+        "max": 0.17647058823529413,
+        "latest": 0.17647058823529413,
         "trend": "stable"
       }
     },

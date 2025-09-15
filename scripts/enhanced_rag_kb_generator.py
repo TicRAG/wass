@@ -10,6 +10,7 @@ import numpy as np
 import random
 import json
 import logging
+import argparse
 from typing import Dict, List, Tuple, Any
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -2220,10 +2221,12 @@ def main():
         print("🌟 生成完整工作流集合...")
         kb = generator.generate_enhanced_knowledge_base(num_cases=5000)
         generator.save_knowledge_base(kb, filename=args.kb_output) # Use args.kb_output for KB filename
-        
-        # ... rest of the code ...
-        print(f"
-📋 工作流摘要已保存: {summary_path}")
+
+        generated_files = generator.workflow_generator.generate_all_scales()
+        summary_path = generator.workflow_generator.generate_summary(generated_files)
+
+        print()
+        print(f"📋 工作流摘要已保存: {summary_path}")
         print(f"🎉 总计生成 {sum(len(files) for files in generated_files.values())} 个工作流文件")
         
     else:

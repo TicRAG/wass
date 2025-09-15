@@ -114,7 +114,7 @@ train_rag() {
         log_success "RAG知识库训练完成"
         # 使用安全的方式验证知识库
         if [[ -f "data/wrench_rag_knowledge_base.json" ]]; then
-            cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(data['metadata']['total_cases'])")
+            cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(len(data['cases']))")
             log_info "知识库包含 $cases 个案例"
         fi
     else
@@ -174,7 +174,7 @@ print('  • 性能预测器: R² = {:.4f}'.format(cp['metadata']['performance_p
     
     echo -e "${GREEN}知识库:${NC}"
     if [[ -f "data/wrench_rag_knowledge_base.json" ]]; then
-        cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(data['metadata']['total_cases'])")
+        cases=$(python -c "import json; data=json.load(open('data/wrench_rag_knowledge_base.json')); print(len(data['cases']))")
         echo "  • RAG知识库: $cases 个案例"
     elif [[ -f "data/wrench_rag_knowledge_base.pkl" ]]; then
         # 使用安全的方式检查pickle文件

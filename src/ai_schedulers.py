@@ -1,5 +1,6 @@
 import logging
 import random
+import os
 from typing import Dict, List
 
 import numpy as np
@@ -17,8 +18,9 @@ from src.utils import get_logger
 from src.reward_fix import RewardFix
 from src.rag_fusion_fix import RAGFusionFix
 from src.training_fix import TrainingFix
+from src.knowledge_base.wrench_full_kb import WRENCHRAGKnowledgeBase, WRENCHKnowledgeCase
 
-logger = get_logger(__name__, logging.INFO)
+logger = get_logger(__name__, logging.DEBUG)
 
 
 class WASSScheduler(Scheduler):
@@ -31,10 +33,11 @@ class WASSScheduler(Scheduler):
 class WASSDRLScheduler(WASSScheduler):
     """WASS-DRL Scheduler."""
 
-    def __init__(self, drl_agent: DQNAgent, node_names: List[str]):
+    def __init__(self, drl_agent: DQNAgent, node_names: List[str], predictor: PerformancePredictor = None):
         self.drl_agent = drl_agent
         self.node_names = node_names
         self.node_map = {name: i for i, name in enumerate(node_names)}
+        self.predictor = predictor  # 添加predictor属性，即使为None
         logger.info(f"Initialized WASSDRLScheduler with {len(node_names)} nodes.")
 
     def schedule(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> SchedulingDecision:
@@ -42,7 +45,7 @@ class WASSDRLScheduler(WASSScheduler):
             return {}
 
         task_to_schedule = ready_tasks[0]  # In the new sim, we schedule one by one
-        state = self._extract_features(task_to_schedule, simulation)
+        state, _ = self._extract_features(task_to_schedule, simulation)
         
         # 使用DRL agent选择动作，启用探索机制
         # 随着训练进行逐步降低epsilon值
@@ -124,7 +127,7 @@ class WASSDRLScheduler(WASSScheduler):
             platform_features
         ]).astype(np.float32)
         
-        return SchedulingState(state_vector)
+        return SchedulingState(state_vector), graph_data
 
     # ---- Embedding Helpers (Placeholders) ----
     def _encode_state(self, simulation: 'WassWrenchSimulator'):
@@ -222,13 +225,14 @@ class WASSDRLScheduler(WASSScheduler):
 class WASSRAGScheduler(WASSDRLScheduler):
     """修复后的WASS-RAG调度器，整合了改进的奖励函数、RAG融合机制和训练策略"""
 
-    def __init__(self, drl_agent: DQNAgent, node_names: List[str], predictor: PerformancePredictor):
+    def __init__(self, drl_agent: DQNAgent, node_names: List[str], predictor: PerformancePredictor, knowledge_base_path: str = None):
+        print("DEBUG: WASSRAGScheduler __init__ called!")
         super().__init__(drl_agent, node_names)
         self.predictor = predictor
         self.scaler = StandardScaler()
         self.vectorizer = DictVectorizer()
         self.reward_alpha = 0.8  # 奖励系数
-        
+
         # 初始化修复组件
         self.reward_fix = RewardFix()
         self.rag_fusion_fix = RAGFusionFix()
@@ -237,6 +241,15 @@ class WASSRAGScheduler(WASSDRLScheduler):
             min_epsilon=0.01,
             total_episodes=2000
         )
+
+        # 初始化RAG知识库
+        self.rag = WRENCHRAGKnowledgeBase(embedding_dim=64)
+        if knowledge_base_path and os.path.exists(knowledge_base_path):
+            print(f"DEBUG: Loading knowledge base from {knowledge_base_path}")
+            self.rag.load_knowledge_base(knowledge_base_path)
+            print(f"DEBUG: Loaded {len(self.rag.cases)} cases from knowledge base")
+        else:
+            print(f"DEBUG: No knowledge base file found at {knowledge_base_path}")
         
         # 训练统计
         self.episode_count = 0
@@ -255,7 +268,7 @@ class WASSRAGScheduler(WASSDRLScheduler):
 
     def schedule(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> SchedulingDecision:
         """
-        修复后的调度方法，整合了改进的奖励函数、RAG融合机制和训练策略
+        优化后的调度方法，修复了训练稳定性问题并增强了RAG性能
         
         Args:
             ready_tasks: 就绪任务列表
@@ -270,18 +283,19 @@ class WASSRAGScheduler(WASSDRLScheduler):
         task_to_schedule = ready_tasks[0]  # 只调度第一个任务
         
         # 1. 获取当前状态
-        state = self._extract_features([task_to_schedule], simulation)
+        state, graph_data = self._extract_features(task_to_schedule, simulation)
         
-        # 2. 自适应epsilon探索
-        recent_performance = self.performance_history[-1] if self.performance_history else None
-        epsilon = self.training_fix.adaptive_epsilon(self.episode_count, recent_performance)
-        self.debug_info['epsilon_history'].append(epsilon)
+        # 2. 优化epsilon策略：使用更保守的探索
+        base_epsilon = 0.1  # 降低基础探索率
+        min_epsilon = 0.01
+        decay_rate = 0.995
+        epsilon = max(min_epsilon, base_epsilon * (decay_rate ** self.episode_count))
         
         # 3. 获取DRL Q值
         q_values = self.drl_agent.get_q_values(state)
         
         # 4. 获取RAG建议
-        rag_suggestions = self._get_rag_suggestions([task_to_schedule], simulation)
+        rag_suggestions = self._get_rag_suggestions([task_to_schedule], simulation, graph_data)
         
         # 5. 增强RAG建议
         current_loads = self._get_current_loads(simulation)
@@ -289,63 +303,72 @@ class WASSRAGScheduler(WASSDRLScheduler):
             rag_suggestions, self.node_names, current_loads
         )
         
-        # 6. 动态融合决策
-        training_progress = min(1.0, self.episode_count / self.training_fix.total_episodes)
+        # 6. 动态融合决策 - 增强RAG权重
+        training_progress = min(1.0, self.episode_count / 1000)  # 缩短训练周期
         fusion_result = self.rag_fusion_fix.dynamic_fusion(
-            q_values, enhanced_rag, current_loads, training_progress
+            q_values, enhanced_rag, current_loads, training_progress, rag_weight_boost=2.0
         )
-        self.debug_info['fusion_history'].append(fusion_result)
         
-        # 7. 选择动作
-        if random.random() < epsilon:
-            # 探索模式
-            action_idx = random.randint(0, len(self.node_names) - 1)
+        # 7. 选择动作 - 优先使用RAG建议
+        if random.random() < epsilon and len(enhanced_rag) > 0:
+            # 探索模式：基于RAG建议的加权随机选择
+            weights = [s['score'] * s['similarity'] for s in enhanced_rag]
+            if sum(weights) > 0:
+                action_idx = random.choices(
+                    range(len(weights)), 
+                    weights=weights, 
+                    k=1
+                )[0]
+            else:
+                action_idx = random.randint(0, len(self.node_names) - 1)
         else:
-            # 利用模式
-            action_idx = fusion_result['index']
+            # 利用模式：优先选择RAG和DRL的共识
+            consensus_actions = []
+            if len(enhanced_rag) > 0:
+                top_rag_idx = max(enhanced_rag, key=lambda x: x['score'])['index']
+                top_drl_idx = np.argmax(q_values)
+                if top_rag_idx == top_drl_idx:
+                    action_idx = top_rag_idx
+                else:
+                    # 加权选择
+                    rag_confidence = max(s['similarity'] for s in enhanced_rag)
+                    drl_confidence = max(q_values) - min(q_values)
+                    if rag_confidence > 0.8 and drl_confidence < 0.5:
+                        action_idx = top_rag_idx
+                    else:
+                        action_idx = top_drl_idx
+            else:
+                action_idx = np.argmax(q_values)
         
         chosen_node = self.node_names[action_idx]
         
-        # 8. 计算奖励
+        # 8. 计算归一化奖励
         teacher_makespan = self._get_teacher_makespan([task_to_schedule], simulation)
         student_makespan = self._get_student_makespan([task_to_schedule], simulation, chosen_node)
         
-        # 使用修复后的奖励函数
-        reward = self.drl_agent.compute_reward(
-            teacher_makespan, student_makespan,
-            task_scale=task_to_schedule.computation_size,
-            simulation=simulation,
-            task=task_to_schedule,
-            chosen_node=chosen_node
+        # 使用归一化奖励
+        reward = self._compute_normalized_reward(
+            teacher_makespan, student_makespan, task_to_schedule.computation_size
         )
         
         self.total_reward += reward
-        self.debug_info['reward_history'].append(reward)
         
-        # 9. 记录调试信息
-        self.rag_fusion_fix.debug_fusion_info(task_to_schedule.id, fusion_result)
+        # 9. 存储经验（降低频率）
+        if self.episode_count % 10 == 0:  # 降低存储频率
+            next_state, _ = self._extract_features(task_to_schedule, simulation)
+            self.drl_agent.store_transition(state, action_idx, reward, next_state, False)
         
-        # 10. 存储经验
-        next_state = self._extract_features([task_to_schedule], simulation)  # 简化处理
-        self.drl_agent.store_transition(state, action_idx, reward, next_state, False)
-        
-        # 11. 学习更新
-        if self.episode_count % 5 == 0:  # 每5步学习一次
+        # 10. 学习更新（提高频率）
+        if self.episode_count % 2 == 0 and len(self.drl_agent.memory) > 32:
             loss = self.drl_agent.replay(training_progress)
-            if loss is not None:
+            if loss is not None and self.episode_count % 50 == 0:
                 logger.info(f"Episode {self.episode_count}, Loss: {loss:.4f}")
         
-        # 12. 动态目标网络更新
-        if self.training_fix.dynamic_target_update(self.episode_count):
+        # 11. 动态目标网络更新（更频繁）
+        if self.episode_count % 100 == 0 and self.episode_count > 0:
             self.drl_agent.update_target_network()
-            logger.info(f"Updated target network at episode {self.episode_count}")
         
-        # 13. 记录训练调试信息
-        lr = self.training_fix.adaptive_learning_rate(self.episode_count)
-        should_update_target = self.training_fix.dynamic_target_update(self.episode_count)
-        self.training_fix.debug_training_info(self.episode_count, epsilon, lr, should_update_target)
-        
-        # 返回调度决策（保持与原始接口一致）
+        # 返回调度决策
         return {chosen_node: task_to_schedule}
 
     def _get_rag_suggestions(self, ready_tasks: List[w.Task], simulation: 'WassWrenchSimulator') -> List[Dict]:
@@ -364,26 +387,32 @@ class WASSRAGScheduler(WASSDRLScheduler):
         
         task = ready_tasks[0]
         
-        # 构建查询
-        query = {
-            'task_id': task.id,
-            'computation_size': task.computation_size,
-            'memory_size': getattr(task, 'memory_size', 0),
-            'workflow_type': getattr(simulation.workflow, 'type', 'unknown'),
-            'current_step': simulation.current_step,
-            'total_steps': simulation.total_steps
-        }
+        # Get graph_data from _extract_features (already done in schedule method)
+        # We need to pass graph_data to _get_rag_suggestions, or re-extract it.
+        # For simplicity, let's re-extract it here for now.
+        # A better approach would be to pass it from schedule to _get_rag_suggestions.
+        # However, _extract_features is called with a single task, so it's fine.
+        state_vector, graph_data = self._extract_features([task], simulation)
+
+        # Extract workflow_embedding and task_features
+        workflow_embedding = self.predictor.get_graph_embedding(graph_data)
+        
+        # task_specific_features are elements 8 to 13 of the state_vector
+        task_features = state_vector[8:13] 
         
         # 从RAG知识库获取建议
-        suggestions = self.rag.query(query, k=5)  # 获取前5个建议
+        # retrieve_similar_cases returns List[Tuple[WRENCHKnowledgeCase, float]]
+        similar_cases = self.rag.retrieve_similar_cases(workflow_embedding, task_features, k=5)
         
         # 转换为标准格式
         formatted_suggestions = []
-        for suggestion in suggestions:
+        for case, similarity_score in similar_cases:
+            # Use inverse makespan as score, higher is better
+            score = 1.0 / case.workflow_makespan if case.workflow_makespan > 0 else 0.0
             formatted_suggestions.append({
-                'node': suggestion.get('node', 'unknown'),
-                'score': suggestion.get('score', 0.0),
-                'similarity': suggestion.get('similarity', 0.0)
+                'node': case.chosen_node,
+                'score': score,
+                'similarity': similarity_score
             })
         
         return formatted_suggestions
@@ -522,13 +551,13 @@ def create_scheduler(name: str, node_names: List[str] = None, drl_agent: DQNAgen
             # 如果没有提供drl_agent，创建一个简单的随机调度器
             from .simple_schedulers import SimpleRandomScheduler
             return SimpleRandomScheduler(name)
-        return WASSDRLScheduler(drl_agent, node_names)
+        return WASSDRLScheduler(drl_agent, node_names, predictor)
     elif name == 'WASS-RAG':
         if drl_agent is None or predictor is None:
             # 如果没有提供完整的组件，创建一个改进的启发式调度器
             from .simple_schedulers import ImprovedHeuristicScheduler  
             return ImprovedHeuristicScheduler(name)
-        return WASSRAGScheduler(drl_agent, node_names, predictor)
+        return WASSRAGScheduler(drl_agent, node_names, predictor, knowledge_base_path)
     elif name == 'WASS (Heuristic)':
         from .simple_schedulers import HeuristicScheduler
         return HeuristicScheduler(name)

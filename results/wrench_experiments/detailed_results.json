@@ -76,8 +76,8 @@
       "experiment_metadata": {
         "experiment_id": 1,
         "workflow_size": 5,
-        "execution_time": 0.00025725364685058594,
-        "timestamp": "2025-09-15T00:17:27.452724"
+        "execution_time": 0.00019693374633789062,
+        "timestamp": "2025-09-15T10:17:43.704515"
       }
     },
     {
@@ -139,8 +139,8 @@
       "experiment_metadata": {
         "experiment_id": 2,
         "workflow_size": 5,
-        "execution_time": 0.00011014938354492188,
-        "timestamp": "2025-09-15T00:17:27.452949"
+        "execution_time": 6.723403930664062e-05,
+        "timestamp": "2025-09-15T10:17:43.704615"
       }
     },
     {
@@ -202,134 +202,42 @@
       "experiment_metadata": {
         "experiment_id": 3,
         "workflow_size": 5,
-        "execution_time": 0.00011968612670898438,
-        "timestamp": "2025-09-15T00:17:27.453116"
+        "execution_time": 6.4849853515625e-05,
+        "timestamp": "2025-09-15T10:17:43.704688"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_5_4",
       "task_count": 5,
-      "dependency_count": 4,
-      "makespan": 9.334941211838927,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 1.7750157863171552,
-        "task_1": 0.8278549687330872,
-        "task_2": 3.048031236963814,
-        "task_3": 3.3113185643499974,
-        "task_4": 0.37272065547487426
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7750157863171552,
-          "start_time": 0.0,
-          "end_time": 1.7750157863171552
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8278549687330872,
-          "start_time": 1.7750157863171552,
-          "end_time": 2.602870755050242
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.048031236963814,
-          "start_time": 2.602870755050242,
-          "end_time": 5.650901992014056
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.3113185643499974,
-          "start_time": 5.650901992014056,
-          "end_time": 8.962220556364054
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.37272065547487426,
-          "start_time": 8.962220556364054,
-          "end_time": 9.334941211838927
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 4,
         "workflow_size": 5,
-        "execution_time": 0.018875837326049805,
-        "timestamp": "2025-09-15T00:17:27.472049"
+        "execution_time": 2.2411346435546875e-05,
+        "timestamp": "2025-09-15T10:17:43.704716",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_5_5",
       "task_count": 5,
-      "dependency_count": 4,
-      "makespan": 9.127977469655656,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9319793208721364,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.06802067912786357
-      },
-      "task_execution_times": {
-        "task_0": 1.7750157863171552,
-        "task_1": 0.6208912265498154,
-        "task_2": 3.048031236963814,
-        "task_3": 3.3113185643499974,
-        "task_4": 0.37272065547487426
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7750157863171552,
-          "start_time": 0.0,
-          "end_time": 1.7750157863171552
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6208912265498154,
-          "start_time": 1.7750157863171552,
-          "end_time": 2.395907012866971
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.048031236963814,
-          "start_time": 2.395907012866971,
-          "end_time": 5.443938249830785
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.3113185643499974,
-          "start_time": 5.443938249830785,
-          "end_time": 8.755256814180782
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.37272065547487426,
-          "start_time": 8.755256814180782,
-          "end_time": 9.127977469655656
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 5,
         "workflow_size": 5,
-        "execution_time": 0.014050483703613281,
-        "timestamp": "2025-09-15T00:17:27.490297"
+        "execution_time": 1.71661376953125e-05,
+        "timestamp": "2025-09-15T10:17:43.704777",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -391,8 +299,8 @@
       "experiment_metadata": {
         "experiment_id": 6,
         "workflow_size": 5,
-        "execution_time": 0.00020074844360351562,
-        "timestamp": "2025-09-15T00:17:27.490570"
+        "execution_time": 4.506111145019531e-05,
+        "timestamp": "2025-09-15T10:17:43.704830"
       }
     },
     {
@@ -454,8 +362,8 @@
       "experiment_metadata": {
         "experiment_id": 7,
         "workflow_size": 5,
-        "execution_time": 8.368492126464844e-05,
-        "timestamp": "2025-09-15T00:17:27.490706"
+        "execution_time": 4.601478576660156e-05,
+        "timestamp": "2025-09-15T10:17:43.704881"
       }
     },
     {
@@ -517,134 +425,42 @@
       "experiment_metadata": {
         "experiment_id": 8,
         "workflow_size": 5,
-        "execution_time": 9.083747863769531e-05,
-        "timestamp": "2025-09-15T00:17:27.490838"
+        "execution_time": 5.8650970458984375e-05,
+        "timestamp": "2025-09-15T10:17:43.704955"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_5_9",
       "task_count": 5,
-      "dependency_count": 4,
-      "makespan": 11.42254326671824,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 2.863828462306532,
-        "task_1": 0.6048934837014351,
-        "task_2": 3.1011414117984493,
-        "task_3": 1.9071776977966477,
-        "task_4": 2.9455022111151767
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.863828462306532,
-          "start_time": 0.0,
-          "end_time": 2.863828462306532
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6048934837014351,
-          "start_time": 2.863828462306532,
-          "end_time": 3.468721946007967
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.1011414117984493,
-          "start_time": 3.468721946007967,
-          "end_time": 6.569863357806416
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9071776977966477,
-          "start_time": 6.569863357806416,
-          "end_time": 8.477041055603063
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.9455022111151767,
-          "start_time": 8.477041055603063,
-          "end_time": 11.42254326671824
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 9,
         "workflow_size": 5,
-        "execution_time": 0.005095481872558594,
-        "timestamp": "2025-09-15T00:17:27.495980"
+        "execution_time": 1.6689300537109375e-05,
+        "timestamp": "2025-09-15T10:17:43.704978",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_5_10",
       "task_count": 5,
-      "dependency_count": 4,
-      "makespan": 11.271319895792882,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9597500455163719,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.04024995448362819
-      },
-      "task_execution_times": {
-        "task_0": 2.863828462306532,
-        "task_1": 0.45367011277607633,
-        "task_2": 3.1011414117984493,
-        "task_3": 1.9071776977966477,
-        "task_4": 2.9455022111151767
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.863828462306532,
-          "start_time": 0.0,
-          "end_time": 2.863828462306532
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.45367011277607633,
-          "start_time": 2.863828462306532,
-          "end_time": 3.3174985750826083
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.1011414117984493,
-          "start_time": 3.3174985750826083,
-          "end_time": 6.4186399868810575
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9071776977966477,
-          "start_time": 6.4186399868810575,
-          "end_time": 8.325817684677705
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.9455022111151767,
-          "start_time": 8.325817684677705,
-          "end_time": 11.271319895792882
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 10,
         "workflow_size": 5,
-        "execution_time": 0.008442878723144531,
-        "timestamp": "2025-09-15T00:17:27.504519"
+        "execution_time": 2.0742416381835938e-05,
+        "timestamp": "2025-09-15T10:17:43.705005",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -706,8 +522,8 @@
       "experiment_metadata": {
         "experiment_id": 11,
         "workflow_size": 5,
-        "execution_time": 0.00010704994201660156,
-        "timestamp": "2025-09-15T00:17:27.504724"
+        "execution_time": 4.3392181396484375e-05,
+        "timestamp": "2025-09-15T10:17:43.705054"
       }
     },
     {
@@ -769,8 +585,8 @@
       "experiment_metadata": {
         "experiment_id": 12,
         "workflow_size": 5,
-        "execution_time": 0.00044345855712890625,
-        "timestamp": "2025-09-15T00:17:27.505222"
+        "execution_time": 4.8160552978515625e-05,
+        "timestamp": "2025-09-15T10:17:43.705108"
       }
     },
     {
@@ -832,134 +648,42 @@
       "experiment_metadata": {
         "experiment_id": 13,
         "workflow_size": 5,
-        "execution_time": 8.869171142578125e-05,
-        "timestamp": "2025-09-15T00:17:27.505353"
+        "execution_time": 5.269050598144531e-05,
+        "timestamp": "2025-09-15T10:17:43.705164"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_5_14",
       "task_count": 5,
-      "dependency_count": 4,
-      "makespan": 10.014214243587801,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 2.329897656454963,
-        "task_1": 2.168245586381404,
-        "task_2": 2.6956050751397145,
-        "task_3": 1.514551617798473,
-        "task_4": 1.3059143078132471
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.329897656454963,
-          "start_time": 0.0,
-          "end_time": 2.329897656454963
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.168245586381404,
-          "start_time": 2.329897656454963,
-          "end_time": 4.498143242836367
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6956050751397145,
-          "start_time": 4.498143242836367,
-          "end_time": 7.193748317976081
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.514551617798473,
-          "start_time": 7.193748317976081,
-          "end_time": 8.708299935774555
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.3059143078132471,
-          "start_time": 8.708299935774555,
-          "end_time": 10.014214243587801
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 14,
         "workflow_size": 5,
-        "execution_time": 0.001711130142211914,
-        "timestamp": "2025-09-15T00:17:27.507106"
+        "execution_time": 1.430511474609375e-05,
+        "timestamp": "2025-09-15T10:17:43.705183",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_5_15",
       "task_count": 5,
-      "dependency_count": 4,
-      "makespan": 9.47215284699245,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.8283194732966761,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.17168052670332393
-      },
-      "task_execution_times": {
-        "task_0": 2.329897656454963,
-        "task_1": 1.6261841897860532,
-        "task_2": 2.6956050751397145,
-        "task_3": 1.514551617798473,
-        "task_4": 1.3059143078132471
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.329897656454963,
-          "start_time": 0.0,
-          "end_time": 2.329897656454963
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.6261841897860532,
-          "start_time": 2.329897656454963,
-          "end_time": 3.956081846241016
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6956050751397145,
-          "start_time": 3.956081846241016,
-          "end_time": 6.651686921380731
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.514551617798473,
-          "start_time": 6.651686921380731,
-          "end_time": 8.166238539179204
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.3059143078132471,
-          "start_time": 8.166238539179204,
-          "end_time": 9.47215284699245
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 15,
         "workflow_size": 5,
-        "execution_time": 0.008517742156982422,
-        "timestamp": "2025-09-15T00:17:27.515719"
+        "execution_time": 1.33514404296875e-05,
+        "timestamp": "2025-09-15T10:17:43.705202",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -1061,8 +785,8 @@
       "experiment_metadata": {
         "experiment_id": 16,
         "workflow_size": 10,
-        "execution_time": 0.00016498565673828125,
-        "timestamp": "2025-09-15T00:17:27.515982"
+        "execution_time": 9.226799011230469e-05,
+        "timestamp": "2025-09-15T10:17:43.705300"
       }
     },
     {
@@ -1164,8 +888,8 @@
       "experiment_metadata": {
         "experiment_id": 17,
         "workflow_size": 10,
-        "execution_time": 0.00014638900756835938,
-        "timestamp": "2025-09-15T00:17:27.516195"
+        "execution_time": 9.083747863769531e-05,
+        "timestamp": "2025-09-15T10:17:43.705407"
       }
     },
     {
@@ -1267,214 +991,42 @@
       "experiment_metadata": {
         "experiment_id": 18,
         "workflow_size": 10,
-        "execution_time": 0.00015020370483398438,
-        "timestamp": "2025-09-15T00:17:27.516407"
+        "execution_time": 0.00010728836059570312,
+        "timestamp": "2025-09-15T10:17:43.705520"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_10_19",
       "task_count": 10,
-      "dependency_count": 8,
-      "makespan": 17.929887228875824,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 1.0818656094756307,
-        "task_1": 2.987298604587332,
-        "task_2": 2.611334906343766,
-        "task_3": 1.2888013984656599,
-        "task_4": 1.1752468923911388,
-        "task_5": 1.100991807559986,
-        "task_6": 1.884061130205541,
-        "task_7": 1.6877239419543744,
-        "task_8": 3.256518077294375,
-        "task_9": 0.8560448605980209
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.0818656094756307,
-          "start_time": 0.0,
-          "end_time": 1.0818656094756307
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.987298604587332,
-          "start_time": 1.0818656094756307,
-          "end_time": 4.069164214062963
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.611334906343766,
-          "start_time": 4.069164214062963,
-          "end_time": 6.680499120406729
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2888013984656599,
-          "start_time": 6.680499120406729,
-          "end_time": 7.969300518872389
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.1752468923911388,
-          "start_time": 7.969300518872389,
-          "end_time": 9.144547411263527
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.100991807559986,
-          "start_time": 9.144547411263527,
-          "end_time": 10.245539218823513
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.884061130205541,
-          "start_time": 10.245539218823513,
-          "end_time": 12.129600349029054
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.6877239419543744,
-          "start_time": 12.129600349029054,
-          "end_time": 13.817324290983429
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.256518077294375,
-          "start_time": 13.817324290983429,
-          "end_time": 17.073842368277802
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8560448605980209,
-          "start_time": 17.073842368277802,
-          "end_time": 17.929887228875824
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 19,
         "workflow_size": 10,
-        "execution_time": 0.017849445343017578,
-        "timestamp": "2025-09-15T00:17:27.534300"
+        "execution_time": 2.09808349609375e-05,
+        "timestamp": "2025-09-15T10:17:43.705545",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_10_20",
       "task_count": 10,
-      "dependency_count": 8,
-      "makespan": 16.32701771713097,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.8627750644816351,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.17654832308196558
-      },
-      "task_execution_times": {
-        "task_0": 1.0818656094756307,
-        "task_1": 2.240473953440499,
-        "task_2": 2.611334906343766,
-        "task_3": 1.2888013984656599,
-        "task_4": 1.1752468923911388,
-        "task_5": 1.100991807559986,
-        "task_6": 1.884061130205541,
-        "task_7": 1.6877239419543744,
-        "task_8": 3.256518077294375,
-        "task_9": 0.6420336454485156
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.0818656094756307,
-          "start_time": 0.0,
-          "end_time": 1.0818656094756307
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.240473953440499,
-          "start_time": 1.0818656094756307,
-          "end_time": 3.32233956291613
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.611334906343766,
-          "start_time": 3.32233956291613,
-          "end_time": 5.933674469259897
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2888013984656599,
-          "start_time": 5.933674469259897,
-          "end_time": 7.2224758677255565
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.1752468923911388,
-          "start_time": 7.2224758677255565,
-          "end_time": 8.397722760116695
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.100991807559986,
-          "start_time": 8.397722760116695,
-          "end_time": 9.49871456767668
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.884061130205541,
-          "start_time": 9.49871456767668,
-          "end_time": 11.382775697882222
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.6877239419543744,
-          "start_time": 11.382775697882222,
-          "end_time": 13.070499639836596
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.256518077294375,
-          "start_time": 13.070499639836596,
-          "end_time": 16.32701771713097
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.6420336454485156,
-          "start_time": 13.070499639836596,
-          "end_time": 13.712533285285112
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 20,
         "workflow_size": 10,
-        "execution_time": 0.029560565948486328,
-        "timestamp": "2025-09-15T00:17:27.563984"
+        "execution_time": 1.8358230590820312e-05,
+        "timestamp": "2025-09-15T10:17:43.705569",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -1576,8 +1128,8 @@
       "experiment_metadata": {
         "experiment_id": 21,
         "workflow_size": 10,
-        "execution_time": 0.00023436546325683594,
-        "timestamp": "2025-09-15T00:17:27.564638"
+        "execution_time": 9.489059448242188e-05,
+        "timestamp": "2025-09-15T10:17:43.705671"
       }
     },
     {
@@ -1679,8 +1231,8 @@
       "experiment_metadata": {
         "experiment_id": 22,
         "workflow_size": 10,
-        "execution_time": 0.00017499923706054688,
-        "timestamp": "2025-09-15T00:17:27.564854"
+        "execution_time": 0.00010061264038085938,
+        "timestamp": "2025-09-15T10:17:43.705776"
       }
     },
     {
@@ -1782,214 +1334,42 @@
       "experiment_metadata": {
         "experiment_id": 23,
         "workflow_size": 10,
-        "execution_time": 0.0001957416534423828,
-        "timestamp": "2025-09-15T00:17:27.565083"
+        "execution_time": 0.00014138221740722656,
+        "timestamp": "2025-09-15T10:17:43.705923"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_10_24",
       "task_count": 10,
-      "dependency_count": 8,
-      "makespan": 18.809416746808196,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 3.2003741443813265,
-        "task_1": 1.0557213479667868,
-        "task_2": 1.2995194841878195,
-        "task_3": 2.6212697534871063,
-        "task_4": 1.2151752111297385,
-        "task_5": 2.8462507994525126,
-        "task_6": 2.6204010736322383,
-        "task_7": 0.435484914065254,
-        "task_8": 3.049842163227786,
-        "task_9": 0.46537785527762676
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.2003741443813265,
-          "start_time": 0.0,
-          "end_time": 3.2003741443813265
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.0557213479667868,
-          "start_time": 3.2003741443813265,
-          "end_time": 4.256095492348114
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2995194841878195,
-          "start_time": 4.256095492348114,
-          "end_time": 5.555614976535933
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6212697534871063,
-          "start_time": 5.555614976535933,
-          "end_time": 8.17688473002304
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2151752111297385,
-          "start_time": 8.17688473002304,
-          "end_time": 9.392059941152779
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.8462507994525126,
-          "start_time": 9.392059941152779,
-          "end_time": 12.238310740605291
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6204010736322383,
-          "start_time": 12.238310740605291,
-          "end_time": 14.85871181423753
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.435484914065254,
-          "start_time": 14.85871181423753,
-          "end_time": 15.294196728302785
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.049842163227786,
-          "start_time": 15.294196728302785,
-          "end_time": 18.34403889153057
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.46537785527762676,
-          "start_time": 18.34403889153057,
-          "end_time": 18.809416746808196
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 24,
         "workflow_size": 10,
-        "execution_time": 0.011472225189208984,
-        "timestamp": "2025-09-15T00:17:27.576592"
+        "execution_time": 2.6226043701171875e-05,
+        "timestamp": "2025-09-15T10:17:43.705956",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_10_25",
       "task_count": 10,
-      "dependency_count": 8,
-      "makespan": 18.08010855453887,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9562065123344452,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.06309831597481837
-      },
-      "task_execution_times": {
-        "task_0": 3.2003741443813265,
-        "task_1": 0.7917910109750902,
-        "task_2": 1.2995194841878195,
-        "task_3": 2.6212697534871063,
-        "task_4": 1.2151752111297385,
-        "task_5": 2.8462507994525126,
-        "task_6": 2.6204010736322383,
-        "task_7": 0.435484914065254,
-        "task_8": 3.049842163227786,
-        "task_9": 0.34903339145822004
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.2003741443813265,
-          "start_time": 0.0,
-          "end_time": 3.2003741443813265
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.7917910109750902,
-          "start_time": 3.2003741443813265,
-          "end_time": 3.9921651553564166
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2995194841878195,
-          "start_time": 3.9921651553564166,
-          "end_time": 5.291684639544236
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6212697534871063,
-          "start_time": 5.291684639544236,
-          "end_time": 7.912954393031343
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2151752111297385,
-          "start_time": 7.912954393031343,
-          "end_time": 9.128129604161082
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.8462507994525126,
-          "start_time": 9.128129604161082,
-          "end_time": 11.974380403613594
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6204010736322383,
-          "start_time": 11.974380403613594,
-          "end_time": 14.594781477245832
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.435484914065254,
-          "start_time": 14.594781477245832,
-          "end_time": 15.030266391311086
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.049842163227786,
-          "start_time": 15.030266391311086,
-          "end_time": 18.08010855453887
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.34903339145822004,
-          "start_time": 9.128129604161082,
-          "end_time": 9.477162995619302
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 25,
         "workflow_size": 10,
-        "execution_time": 0.031441688537597656,
-        "timestamp": "2025-09-15T00:17:27.608134"
+        "execution_time": 0.0028486251831054688,
+        "timestamp": "2025-09-15T10:17:43.708816",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -2091,8 +1471,8 @@
       "experiment_metadata": {
         "experiment_id": 26,
         "workflow_size": 10,
-        "execution_time": 0.00023651123046875,
-        "timestamp": "2025-09-15T00:17:27.608432"
+        "execution_time": 0.00024127960205078125,
+        "timestamp": "2025-09-15T10:17:43.709100"
       }
     },
     {
@@ -2194,8 +1574,8 @@
       "experiment_metadata": {
         "experiment_id": 27,
         "workflow_size": 10,
-        "execution_time": 0.0001804828643798828,
-        "timestamp": "2025-09-15T00:17:27.608655"
+        "execution_time": 0.0001437664031982422,
+        "timestamp": "2025-09-15T10:17:43.709258"
       }
     },
     {
@@ -2297,214 +1677,42 @@
       "experiment_metadata": {
         "experiment_id": 28,
         "workflow_size": 10,
-        "execution_time": 0.00041103363037109375,
-        "timestamp": "2025-09-15T00:17:27.609102"
+        "execution_time": 0.0001614093780517578,
+        "timestamp": "2025-09-15T10:17:43.709428"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_10_29",
       "task_count": 10,
-      "dependency_count": 8,
-      "makespan": 20.363917800608473,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 2.7270206163632333,
-        "task_1": 2.7189185462709218,
-        "task_2": 2.9484863005406874,
-        "task_3": 1.9870706521638546,
-        "task_4": 0.44182220357168245,
-        "task_5": 1.9230437965909661,
-        "task_6": 0.7134972046668476,
-        "task_7": 0.9127027553332339,
-        "task_8": 2.725363065551953,
-        "task_9": 3.265992659555093
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.7270206163632333,
-          "start_time": 0.0,
-          "end_time": 2.7270206163632333
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.7189185462709218,
-          "start_time": 2.7270206163632333,
-          "end_time": 5.445939162634155
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.9484863005406874,
-          "start_time": 5.445939162634155,
-          "end_time": 8.394425463174843
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9870706521638546,
-          "start_time": 8.394425463174843,
-          "end_time": 10.381496115338697
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.44182220357168245,
-          "start_time": 10.381496115338697,
-          "end_time": 10.82331831891038
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9230437965909661,
-          "start_time": 10.82331831891038,
-          "end_time": 12.746362115501345
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7134972046668476,
-          "start_time": 12.746362115501345,
-          "end_time": 13.459859320168192
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9127027553332339,
-          "start_time": 13.459859320168192,
-          "end_time": 14.372562075501426
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.725363065551953,
-          "start_time": 14.372562075501426,
-          "end_time": 17.09792514105338
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.265992659555093,
-          "start_time": 17.09792514105338,
-          "end_time": 20.363917800608473
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 29,
         "workflow_size": 10,
-        "execution_time": 0.00429224967956543,
-        "timestamp": "2025-09-15T00:17:27.613477"
+        "execution_time": 2.86102294921875e-05,
+        "timestamp": "2025-09-15T10:17:43.709464",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_10_30",
       "task_count": 10,
-      "dependency_count": 8,
-      "makespan": 19.68418816404074,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.8964047237961075,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.10359527620389246
-      },
-      "task_execution_times": {
-        "task_0": 2.7270206163632333,
-        "task_1": 2.039188909703191,
-        "task_2": 2.9484863005406874,
-        "task_3": 1.9870706521638546,
-        "task_4": 0.44182220357168245,
-        "task_5": 1.9230437965909661,
-        "task_6": 0.7134972046668476,
-        "task_7": 0.9127027553332339,
-        "task_8": 2.725363065551953,
-        "task_9": 3.265992659555093
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.7270206163632333,
-          "start_time": 0.0,
-          "end_time": 2.7270206163632333
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.039188909703191,
-          "start_time": 2.7270206163632333,
-          "end_time": 4.766209526066424
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.9484863005406874,
-          "start_time": 4.766209526066424,
-          "end_time": 7.7146958266071115
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9870706521638546,
-          "start_time": 7.7146958266071115,
-          "end_time": 9.701766478770967
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.44182220357168245,
-          "start_time": 9.701766478770967,
-          "end_time": 10.14358868234265
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9230437965909661,
-          "start_time": 10.14358868234265,
-          "end_time": 12.066632478933615
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7134972046668476,
-          "start_time": 12.066632478933615,
-          "end_time": 12.780129683600462
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9127027553332339,
-          "start_time": 12.780129683600462,
-          "end_time": 13.692832438933696
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.725363065551953,
-          "start_time": 13.692832438933696,
-          "end_time": 16.41819550448565
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.265992659555093,
-          "start_time": 16.41819550448565,
-          "end_time": 19.68418816404074
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 30,
         "workflow_size": 10,
-        "execution_time": 0.016944408416748047,
-        "timestamp": "2025-09-15T00:17:27.630486"
+        "execution_time": 2.3365020751953125e-05,
+        "timestamp": "2025-09-15T10:17:43.709497",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -2646,8 +1854,8 @@
       "experiment_metadata": {
         "experiment_id": 31,
         "workflow_size": 15,
-        "execution_time": 0.00020265579223632812,
-        "timestamp": "2025-09-15T00:17:27.630780"
+        "execution_time": 0.0001723766326904297,
+        "timestamp": "2025-09-15T10:17:43.709677"
       }
     },
     {
@@ -2789,8 +1997,8 @@
       "experiment_metadata": {
         "experiment_id": 32,
         "workflow_size": 15,
-        "execution_time": 0.00022983551025390625,
-        "timestamp": "2025-09-15T00:17:27.631040"
+        "execution_time": 0.000186920166015625,
+        "timestamp": "2025-09-15T10:17:43.709870"
       }
     },
     {
@@ -2932,294 +2140,42 @@
       "experiment_metadata": {
         "experiment_id": 33,
         "workflow_size": 15,
-        "execution_time": 0.00019884109497070312,
-        "timestamp": "2025-09-15T00:17:27.631278"
+        "execution_time": 0.00022602081298828125,
+        "timestamp": "2025-09-15T10:17:43.710103"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_15_34",
       "task_count": 15,
-      "dependency_count": 12,
-      "makespan": 21.340896718633275,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 1.4462757914486593,
-        "task_1": 2.3360171743465252,
-        "task_2": 0.8519470623566288,
-        "task_12": 0.6350076545218348,
-        "task_3": 0.8170106711509584,
-        "task_4": 0.7658313531544584,
-        "task_5": 0.5763007605916354,
-        "task_6": 1.9938804258988758,
-        "task_7": 0.502839420357388,
-        "task_8": 0.6232378721389001,
-        "task_14": 0.7110119885458359,
-        "task_9": 2.699498485363474,
-        "task_10": 1.496195968156859,
-        "task_11": 2.612699302118001,
-        "task_13": 3.27314278848324
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.4462757914486593,
-          "start_time": 0.0,
-          "end_time": 1.4462757914486593
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.3360171743465252,
-          "start_time": 1.4462757914486593,
-          "end_time": 3.7822929657951843
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8519470623566288,
-          "start_time": 3.7822929657951843,
-          "end_time": 4.6342400281518135
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6350076545218348,
-          "start_time": 4.6342400281518135,
-          "end_time": 5.269247682673648
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8170106711509584,
-          "start_time": 5.269247682673648,
-          "end_time": 6.086258353824607
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7658313531544584,
-          "start_time": 6.086258353824607,
-          "end_time": 6.852089706979065
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5763007605916354,
-          "start_time": 6.852089706979065,
-          "end_time": 7.428390467570701
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9938804258988758,
-          "start_time": 7.428390467570701,
-          "end_time": 9.422270893469577
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.502839420357388,
-          "start_time": 9.422270893469577,
-          "end_time": 9.925110313826965
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6232378721389001,
-          "start_time": 9.925110313826965,
-          "end_time": 10.548348185965864
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7110119885458359,
-          "start_time": 10.548348185965864,
-          "end_time": 11.2593601745117
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.699498485363474,
-          "start_time": 11.2593601745117,
-          "end_time": 13.958858659875174
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.496195968156859,
-          "start_time": 13.958858659875174,
-          "end_time": 15.455054628032034
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.612699302118001,
-          "start_time": 15.455054628032034,
-          "end_time": 18.067753930150033
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.27314278848324,
-          "start_time": 18.067753930150033,
-          "end_time": 21.340896718633275
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 34,
         "workflow_size": 15,
-        "execution_time": 0.004190683364868164,
-        "timestamp": "2025-09-15T00:17:27.635497"
+        "execution_time": 3.695487976074219e-05,
+        "timestamp": "2025-09-15T10:17:43.710149",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_15_35",
       "task_count": 15,
-      "dependency_count": 12,
-      "makespan": 18.14419312292864,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9034394713013779,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.20455786224288808
-      },
-      "task_execution_times": {
-        "task_0": 1.4462757914486593,
-        "task_1": 1.7520128807598938,
-        "task_2": 0.8519470623566288,
-        "task_12": 0.6350076545218348,
-        "task_3": 0.8170106711509584,
-        "task_4": 0.7658313531544584,
-        "task_5": 0.5763007605916354,
-        "task_6": 1.9938804258988758,
-        "task_7": 0.502839420357388,
-        "task_8": 0.6232378721389001,
-        "task_14": 0.7110119885458359,
-        "task_9": 2.699498485363474,
-        "task_10": 1.496195968156859,
-        "task_11": 1.9595244765885007,
-        "task_13": 3.27314278848324
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.4462757914486593,
-          "start_time": 0.0,
-          "end_time": 1.4462757914486593
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.7520128807598938,
-          "start_time": 1.4462757914486593,
-          "end_time": 3.198288672208553
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8519470623566288,
-          "start_time": 3.198288672208553,
-          "end_time": 4.050235734565182
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6350076545218348,
-          "start_time": 4.050235734565182,
-          "end_time": 4.685243389087017
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8170106711509584,
-          "start_time": 4.685243389087017,
-          "end_time": 5.502254060237975
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7658313531544584,
-          "start_time": 5.502254060237975,
-          "end_time": 6.268085413392433
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5763007605916354,
-          "start_time": 6.268085413392433,
-          "end_time": 6.844386173984069
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9938804258988758,
-          "start_time": 6.844386173984069,
-          "end_time": 8.838266599882944
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.502839420357388,
-          "start_time": 8.838266599882944,
-          "end_time": 9.341106020240332
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.6232378721389001,
-          "start_time": 9.341106020240332,
-          "end_time": 9.964343892379231
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7110119885458359,
-          "start_time": 9.964343892379231,
-          "end_time": 10.675355880925068
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.699498485363474,
-          "start_time": 10.675355880925068,
-          "end_time": 13.374854366288542
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.496195968156859,
-          "start_time": 13.374854366288542,
-          "end_time": 14.871050334445401
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.9595244765885007,
-          "start_time": 14.871050334445401,
-          "end_time": 16.8305748110339
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.27314278848324,
-          "start_time": 14.871050334445401,
-          "end_time": 18.14419312292864
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 35,
         "workflow_size": 15,
-        "execution_time": 0.020454883575439453,
-        "timestamp": "2025-09-15T00:17:27.656040"
+        "execution_time": 3.1948089599609375e-05,
+        "timestamp": "2025-09-15T10:17:43.710189",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -3361,8 +2317,8 @@
       "experiment_metadata": {
         "experiment_id": 36,
         "workflow_size": 15,
-        "execution_time": 0.0002512931823730469,
-        "timestamp": "2025-09-15T00:17:27.656377"
+        "execution_time": 0.00019359588623046875,
+        "timestamp": "2025-09-15T10:17:43.710391"
       }
     },
     {
@@ -3504,8 +2460,8 @@
       "experiment_metadata": {
         "experiment_id": 37,
         "workflow_size": 15,
-        "execution_time": 0.0001926422119140625,
-        "timestamp": "2025-09-15T00:17:27.656614"
+        "execution_time": 0.0001742839813232422,
+        "timestamp": "2025-09-15T10:17:43.710572"
       }
     },
     {
@@ -3647,294 +2603,42 @@
       "experiment_metadata": {
         "experiment_id": 38,
         "workflow_size": 15,
-        "execution_time": 0.00021028518676757812,
-        "timestamp": "2025-09-15T00:17:27.656877"
+        "execution_time": 0.0002071857452392578,
+        "timestamp": "2025-09-15T10:17:43.710785"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_15_39",
       "task_count": 15,
-      "dependency_count": 12,
-      "makespan": 32.55038330887272,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 0.62285983441987,
-        "task_1": 2.2827107657340213,
-        "task_2": 3.136641814838513,
-        "task_3": 1.9975131626527913,
-        "task_4": 3.1249972382555007,
-        "task_5": 2.878369149187315,
-        "task_11": 2.669492568499802,
-        "task_6": 0.5479963302739644,
-        "task_7": 2.3118947044454434,
-        "task_12": 1.5868230460128485,
-        "task_13": 1.6025416057931432,
-        "task_8": 3.235336767204406,
-        "task_10": 1.5879172092527567,
-        "task_14": 2.7587493206955345,
-        "task_9": 2.2065397916068044
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.62285983441987,
-          "start_time": 0.0,
-          "end_time": 0.62285983441987
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2827107657340213,
-          "start_time": 0.62285983441987,
-          "end_time": 2.9055706001538915
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.136641814838513,
-          "start_time": 2.9055706001538915,
-          "end_time": 6.042212414992404
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9975131626527913,
-          "start_time": 6.042212414992404,
-          "end_time": 8.039725577645196
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.1249972382555007,
-          "start_time": 8.039725577645196,
-          "end_time": 11.164722815900697
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.878369149187315,
-          "start_time": 11.164722815900697,
-          "end_time": 14.043091965088013
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.669492568499802,
-          "start_time": 14.043091965088013,
-          "end_time": 16.712584533587815
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5479963302739644,
-          "start_time": 16.712584533587815,
-          "end_time": 17.26058086386178
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.3118947044454434,
-          "start_time": 17.26058086386178,
-          "end_time": 19.572475568307222
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5868230460128485,
-          "start_time": 19.572475568307222,
-          "end_time": 21.159298614320072
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.6025416057931432,
-          "start_time": 21.159298614320072,
-          "end_time": 22.761840220113214
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.235336767204406,
-          "start_time": 22.761840220113214,
-          "end_time": 25.99717698731762
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5879172092527567,
-          "start_time": 25.99717698731762,
-          "end_time": 27.585094196570378
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.7587493206955345,
-          "start_time": 27.585094196570378,
-          "end_time": 30.343843517265913
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2065397916068044,
-          "start_time": 30.343843517265913,
-          "end_time": 32.55038330887272
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 39,
         "workflow_size": 15,
-        "execution_time": 0.004376888275146484,
-        "timestamp": "2025-09-15T00:17:27.661298"
+        "execution_time": 3.743171691894531e-05,
+        "timestamp": "2025-09-15T10:17:43.710829",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_15_40",
       "task_count": 15,
-      "dependency_count": 12,
-      "makespan": 31.26011333014238,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.8761741553745873,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.12382584462541268
-      },
-      "task_execution_times": {
-        "task_0": 0.62285983441987,
-        "task_1": 1.712033074300516,
-        "task_2": 3.136641814838513,
-        "task_3": 1.9975131626527913,
-        "task_4": 3.1249972382555007,
-        "task_5": 2.158776861890486,
-        "task_11": 2.669492568499802,
-        "task_6": 0.5479963302739644,
-        "task_7": 2.3118947044454434,
-        "task_12": 1.5868230460128485,
-        "task_13": 1.6025416057931432,
-        "task_8": 3.235336767204406,
-        "task_10": 1.5879172092527567,
-        "task_14": 2.7587493206955345,
-        "task_9": 2.2065397916068044
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.62285983441987,
-          "start_time": 0.0,
-          "end_time": 0.62285983441987
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.712033074300516,
-          "start_time": 0.62285983441987,
-          "end_time": 2.334892908720386
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.136641814838513,
-          "start_time": 2.334892908720386,
-          "end_time": 5.471534723558899
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9975131626527913,
-          "start_time": 5.471534723558899,
-          "end_time": 7.4690478862116905
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.1249972382555007,
-          "start_time": 7.4690478862116905,
-          "end_time": 10.594045124467192
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 2.158776861890486,
-          "start_time": 10.594045124467192,
-          "end_time": 12.752821986357677
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.669492568499802,
-          "start_time": 12.752821986357677,
-          "end_time": 15.42231455485748
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5479963302739644,
-          "start_time": 15.42231455485748,
-          "end_time": 15.970310885131443
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.3118947044454434,
-          "start_time": 15.970310885131443,
-          "end_time": 18.282205589576886
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5868230460128485,
-          "start_time": 18.282205589576886,
-          "end_time": 19.869028635589736
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.6025416057931432,
-          "start_time": 19.869028635589736,
-          "end_time": 21.471570241382878
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.235336767204406,
-          "start_time": 21.471570241382878,
-          "end_time": 24.706907008587283
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5879172092527567,
-          "start_time": 24.706907008587283,
-          "end_time": 26.29482421784004
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.7587493206955345,
-          "start_time": 26.29482421784004,
-          "end_time": 29.053573538535577
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2065397916068044,
-          "start_time": 29.053573538535577,
-          "end_time": 31.26011333014238
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 40,
         "workflow_size": 15,
-        "execution_time": 0.019655704498291016,
-        "timestamp": "2025-09-15T00:17:27.681068"
+        "execution_time": 3.0040740966796875e-05,
+        "timestamp": "2025-09-15T10:17:43.710869",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -4076,8 +2780,8 @@
       "experiment_metadata": {
         "experiment_id": 41,
         "workflow_size": 15,
-        "execution_time": 0.0002491474151611328,
-        "timestamp": "2025-09-15T00:17:27.681413"
+        "execution_time": 0.0001862049102783203,
+        "timestamp": "2025-09-15T10:17:43.711063"
       }
     },
     {
@@ -4219,8 +2923,8 @@
       "experiment_metadata": {
         "experiment_id": 42,
         "workflow_size": 15,
-        "execution_time": 0.00018906593322753906,
-        "timestamp": "2025-09-15T00:17:27.681662"
+        "execution_time": 0.0003330707550048828,
+        "timestamp": "2025-09-15T10:17:43.711405"
       }
     },
     {
@@ -4362,294 +3066,42 @@
       "experiment_metadata": {
         "experiment_id": 43,
         "workflow_size": 15,
-        "execution_time": 0.00019478797912597656,
-        "timestamp": "2025-09-15T00:17:27.681908"
+        "execution_time": 0.00017595291137695312,
+        "timestamp": "2025-09-15T10:17:43.711588"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_15_44",
       "task_count": 15,
-      "dependency_count": 12,
-      "makespan": 26.04784019868134,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 0.9126940052703693,
-        "task_1": 0.3385245205145764,
-        "task_2": 1.7168501763201227,
-        "task_3": 1.602718730648223,
-        "task_12": 1.7354151795983925,
-        "task_4": 2.0962510816592244,
-        "task_5": 2.6133382973262576,
-        "task_11": 3.1709808932749124,
-        "task_6": 2.788275651924729,
-        "task_7": 1.2449509359668836,
-        "task_14": 1.8770863399236284,
-        "task_8": 2.2921478542622653,
-        "task_10": 0.7367939840250006,
-        "task_13": 0.48709186235296864,
-        "task_9": 2.4347206856137857
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9126940052703693,
-          "start_time": 0.0,
-          "end_time": 0.9126940052703693
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.3385245205145764,
-          "start_time": 0.9126940052703693,
-          "end_time": 1.2512185257849455
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7168501763201227,
-          "start_time": 1.2512185257849455,
-          "end_time": 2.968068702105068
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.602718730648223,
-          "start_time": 2.968068702105068,
-          "end_time": 4.570787432753291
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7354151795983925,
-          "start_time": 4.570787432753291,
-          "end_time": 6.306202612351684
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.0962510816592244,
-          "start_time": 6.306202612351684,
-          "end_time": 8.402453694010909
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6133382973262576,
-          "start_time": 8.402453694010909,
-          "end_time": 11.015791991337167
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.1709808932749124,
-          "start_time": 11.015791991337167,
-          "end_time": 14.186772884612079
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.788275651924729,
-          "start_time": 14.186772884612079,
-          "end_time": 16.975048536536807
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2449509359668836,
-          "start_time": 16.975048536536807,
-          "end_time": 18.21999947250369
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.8770863399236284,
-          "start_time": 18.21999947250369,
-          "end_time": 20.09708581242732
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2921478542622653,
-          "start_time": 20.09708581242732,
-          "end_time": 22.389233666689584
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7367939840250006,
-          "start_time": 22.389233666689584,
-          "end_time": 23.126027650714583
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.48709186235296864,
-          "start_time": 23.126027650714583,
-          "end_time": 23.613119513067552
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.4347206856137857,
-          "start_time": 23.613119513067552,
-          "end_time": 26.04784019868134
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 44,
         "workflow_size": 15,
-        "execution_time": 0.0038416385650634766,
-        "timestamp": "2025-09-15T00:17:27.685795"
+        "execution_time": 2.7418136596679688e-05,
+        "timestamp": "2025-09-15T10:17:43.711621",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_15_45",
       "task_count": 15,
-      "dependency_count": 12,
-      "makespan": 24.227793888954306,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9895205732907574,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.06420125506325502
-      },
-      "task_execution_times": {
-        "task_0": 0.9126940052703693,
-        "task_1": 0.2538933903859323,
-        "task_2": 1.7168501763201227,
-        "task_3": 1.602718730648223,
-        "task_12": 1.3015613846987943,
-        "task_4": 2.0962510816592244,
-        "task_5": 2.6133382973262576,
-        "task_11": 3.1709808932749124,
-        "task_6": 2.788275651924729,
-        "task_7": 1.2449509359668836,
-        "task_14": 1.8770863399236284,
-        "task_8": 2.2921478542622653,
-        "task_10": 0.7367939840250006,
-        "task_13": 0.48709186235296864,
-        "task_9": 2.4347206856137857
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9126940052703693,
-          "start_time": 0.0,
-          "end_time": 0.9126940052703693
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.2538933903859323,
-          "start_time": 0.9126940052703693,
-          "end_time": 1.1665873956563015
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7168501763201227,
-          "start_time": 1.1665873956563015,
-          "end_time": 2.8834375719764243
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.602718730648223,
-          "start_time": 2.8834375719764243,
-          "end_time": 4.486156302624647
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.3015613846987943,
-          "start_time": 4.486156302624647,
-          "end_time": 5.7877176873234415
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.0962510816592244,
-          "start_time": 4.486156302624647,
-          "end_time": 6.582407384283872
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.6133382973262576,
-          "start_time": 6.582407384283872,
-          "end_time": 9.19574568161013
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.1709808932749124,
-          "start_time": 9.19574568161013,
-          "end_time": 12.366726574885043
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.788275651924729,
-          "start_time": 12.366726574885043,
-          "end_time": 15.15500222680977
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2449509359668836,
-          "start_time": 15.15500222680977,
-          "end_time": 16.399953162776654
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.8770863399236284,
-          "start_time": 16.399953162776654,
-          "end_time": 18.277039502700283
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2921478542622653,
-          "start_time": 18.277039502700283,
-          "end_time": 20.569187356962548
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7367939840250006,
-          "start_time": 20.569187356962548,
-          "end_time": 21.30598134098755
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.48709186235296864,
-          "start_time": 21.30598134098755,
-          "end_time": 21.79307320334052
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.4347206856137857,
-          "start_time": 21.79307320334052,
-          "end_time": 24.227793888954306
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 45,
         "workflow_size": 15,
-        "execution_time": 0.028462886810302734,
-        "timestamp": "2025-09-15T00:17:27.714329"
+        "execution_time": 2.5272369384765625e-05,
+        "timestamp": "2025-09-15T10:17:43.711653",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -4831,8 +3283,8 @@
       "experiment_metadata": {
         "experiment_id": 46,
         "workflow_size": 20,
-        "execution_time": 0.000423431396484375,
-        "timestamp": "2025-09-15T00:17:27.714872"
+        "execution_time": 0.0002338886260986328,
+        "timestamp": "2025-09-15T10:17:43.711894"
       }
     },
     {
@@ -5014,8 +3466,8 @@
       "experiment_metadata": {
         "experiment_id": 47,
         "workflow_size": 20,
-        "execution_time": 0.0003509521484375,
-        "timestamp": "2025-09-15T00:17:27.715283"
+        "execution_time": 0.0003814697265625,
+        "timestamp": "2025-09-15T10:17:43.712284"
       }
     },
     {
@@ -5197,374 +3649,42 @@
       "experiment_metadata": {
         "experiment_id": 48,
         "workflow_size": 20,
-        "execution_time": 0.0004181861877441406,
-        "timestamp": "2025-09-15T00:17:27.715804"
+        "execution_time": 0.0005090236663818359,
+        "timestamp": "2025-09-15T10:17:43.712953"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_20_49",
       "task_count": 20,
-      "dependency_count": 16,
-      "makespan": 34.577048735948,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 2.673201133853333,
-        "task_1": 1.849728115789733,
-        "task_15": 0.9899776216131754,
-        "task_2": 0.35484585443830285,
-        "task_16": 2.89089124050871,
-        "task_19": 0.7539367390763362,
-        "task_3": 1.075073087885309,
-        "task_4": 3.099981719672964,
-        "task_18": 1.617358416068648,
-        "task_5": 2.873750889311957,
-        "task_6": 2.0607484250956203,
-        "task_7": 0.5123345952551273,
-        "task_10": 1.0979061202329776,
-        "task_8": 3.3119120363497,
-        "task_14": 2.1120228050903114,
-        "task_17": 2.715087936687023,
-        "task_9": 1.2311962439893476,
-        "task_11": 1.5677400160133494,
-        "task_12": 0.8306713764132261,
-        "task_13": 0.958684362602843
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.673201133853333,
-          "start_time": 0.0,
-          "end_time": 2.673201133853333
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.849728115789733,
-          "start_time": 2.673201133853333,
-          "end_time": 4.522929249643066
-        },
-        {
-          "task_id": "task_15",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9899776216131754,
-          "start_time": 4.522929249643066,
-          "end_time": 5.5129068712562415
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.35484585443830285,
-          "start_time": 5.5129068712562415,
-          "end_time": 5.867752725694544
-        },
-        {
-          "task_id": "task_16",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.89089124050871,
-          "start_time": 5.867752725694544,
-          "end_time": 8.758643966203254
-        },
-        {
-          "task_id": "task_19",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7539367390763362,
-          "start_time": 8.758643966203254,
-          "end_time": 9.51258070527959
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.075073087885309,
-          "start_time": 9.51258070527959,
-          "end_time": 10.587653793164899
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.099981719672964,
-          "start_time": 10.587653793164899,
-          "end_time": 13.687635512837863
-        },
-        {
-          "task_id": "task_18",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.617358416068648,
-          "start_time": 13.687635512837863,
-          "end_time": 15.30499392890651
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.873750889311957,
-          "start_time": 15.30499392890651,
-          "end_time": 18.17874481821847
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.0607484250956203,
-          "start_time": 18.17874481821847,
-          "end_time": 20.23949324331409
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5123345952551273,
-          "start_time": 20.23949324331409,
-          "end_time": 20.751827838569216
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.0979061202329776,
-          "start_time": 20.751827838569216,
-          "end_time": 21.849733958802194
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.3119120363497,
-          "start_time": 21.849733958802194,
-          "end_time": 25.161645995151893
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.1120228050903114,
-          "start_time": 25.161645995151893,
-          "end_time": 27.273668800242206
-        },
-        {
-          "task_id": "task_17",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.715087936687023,
-          "start_time": 27.273668800242206,
-          "end_time": 29.98875673692923
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2311962439893476,
-          "start_time": 29.98875673692923,
-          "end_time": 31.219952980918578
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5677400160133494,
-          "start_time": 31.219952980918578,
-          "end_time": 32.78769299693192
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8306713764132261,
-          "start_time": 32.78769299693192,
-          "end_time": 33.61836437334515
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.958684362602843,
-          "start_time": 33.61836437334515,
-          "end_time": 34.577048735948
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 49,
         "workflow_size": 20,
-        "execution_time": 0.0065877437591552734,
-        "timestamp": "2025-09-15T00:17:27.722466"
+        "execution_time": 5.7220458984375e-05,
+        "timestamp": "2025-09-15T10:17:43.713027",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_20_50",
       "task_count": 20,
-      "dependency_count": 16,
-      "makespan": 32.99655543657361,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9763136060316109,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.05368884751285433
-      },
-      "task_execution_times": {
-        "task_0": 2.673201133853333,
-        "task_1": 1.3872960868422997,
-        "task_15": 0.9899776216131754,
-        "task_2": 0.35484585443830285,
-        "task_16": 2.89089124050871,
-        "task_19": 0.7539367390763362,
-        "task_3": 1.075073087885309,
-        "task_4": 3.099981719672964,
-        "task_18": 1.617358416068648,
-        "task_5": 2.873750889311957,
-        "task_6": 2.0607484250956203,
-        "task_7": 0.38425094644134544,
-        "task_10": 1.0979061202329776,
-        "task_8": 3.3119120363497,
-        "task_14": 2.1120228050903114,
-        "task_17": 2.715087936687023,
-        "task_9": 1.2311962439893476,
-        "task_11": 1.5677400160133494,
-        "task_12": 0.8306713764132261,
-        "task_13": 0.958684362602843
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.673201133853333,
-          "start_time": 0.0,
-          "end_time": 2.673201133853333
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.3872960868422997,
-          "start_time": 2.673201133853333,
-          "end_time": 4.060497220695632
-        },
-        {
-          "task_id": "task_15",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9899776216131754,
-          "start_time": 2.673201133853333,
-          "end_time": 3.6631787554665083
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.35484585443830285,
-          "start_time": 4.060497220695632,
-          "end_time": 4.415343075133935
-        },
-        {
-          "task_id": "task_16",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.89089124050871,
-          "start_time": 4.415343075133935,
-          "end_time": 7.306234315642644
-        },
-        {
-          "task_id": "task_19",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7539367390763362,
-          "start_time": 7.306234315642644,
-          "end_time": 8.06017105471898
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.075073087885309,
-          "start_time": 8.06017105471898,
-          "end_time": 9.13524414260429
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.099981719672964,
-          "start_time": 9.13524414260429,
-          "end_time": 12.235225862277254
-        },
-        {
-          "task_id": "task_18",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.617358416068648,
-          "start_time": 12.235225862277254,
-          "end_time": 13.852584278345901
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.873750889311957,
-          "start_time": 13.852584278345901,
-          "end_time": 16.726335167657858
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.0607484250956203,
-          "start_time": 16.726335167657858,
-          "end_time": 18.78708359275348
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.38425094644134544,
-          "start_time": 18.78708359275348,
-          "end_time": 19.171334539194824
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.0979061202329776,
-          "start_time": 19.171334539194824,
-          "end_time": 20.2692406594278
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.3119120363497,
-          "start_time": 20.2692406594278,
-          "end_time": 23.5811526957775
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.1120228050903114,
-          "start_time": 23.5811526957775,
-          "end_time": 25.693175500867813
-        },
-        {
-          "task_id": "task_17",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.715087936687023,
-          "start_time": 25.693175500867813,
-          "end_time": 28.408263437554837
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2311962439893476,
-          "start_time": 28.408263437554837,
-          "end_time": 29.639459681544185
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5677400160133494,
-          "start_time": 29.639459681544185,
-          "end_time": 31.207199697557535
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8306713764132261,
-          "start_time": 31.207199697557535,
-          "end_time": 32.03787107397076
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.958684362602843,
-          "start_time": 32.03787107397076,
-          "end_time": 32.99655543657361
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 50,
         "workflow_size": 20,
-        "execution_time": 0.027339458465576172,
-        "timestamp": "2025-09-15T00:17:27.749916"
+        "execution_time": 3.790855407714844e-05,
+        "timestamp": "2025-09-15T10:17:43.713076",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -5746,8 +3866,8 @@
       "experiment_metadata": {
         "experiment_id": 51,
         "workflow_size": 20,
-        "execution_time": 0.0003018379211425781,
-        "timestamp": "2025-09-15T00:17:27.750277"
+        "execution_time": 0.0002410411834716797,
+        "timestamp": "2025-09-15T10:17:43.713327"
       }
     },
     {
@@ -5929,8 +4049,8 @@
       "experiment_metadata": {
         "experiment_id": 52,
         "workflow_size": 20,
-        "execution_time": 0.0005133152008056641,
-        "timestamp": "2025-09-15T00:17:27.751021"
+        "execution_time": 0.0002276897430419922,
+        "timestamp": "2025-09-15T10:17:43.713562"
       }
     },
     {
@@ -6112,374 +4232,42 @@
       "experiment_metadata": {
         "experiment_id": 53,
         "workflow_size": 20,
-        "execution_time": 0.0005192756652832031,
-        "timestamp": "2025-09-15T00:17:27.751767"
+        "execution_time": 0.0002536773681640625,
+        "timestamp": "2025-09-15T10:17:43.713821"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_20_54",
       "task_count": 20,
-      "dependency_count": 16,
-      "makespan": 37.491482270904605,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 1.7807383874792748,
-        "task_1": 0.7307682154325156,
-        "task_2": 2.4290284519470045,
-        "task_3": 2.2585045062609357,
-        "task_4": 3.262326116732258,
-        "task_12": 0.729886632529375,
-        "task_5": 1.2878820448224146,
-        "task_6": 2.0144656646656625,
-        "task_7": 1.661777619977326,
-        "task_15": 2.1767270775617327,
-        "task_18": 0.8598724501992684,
-        "task_8": 1.1873774028703794,
-        "task_11": 2.591650647161458,
-        "task_9": 2.809131234207756,
-        "task_10": 0.4480751528731831,
-        "task_13": 3.281000392991642,
-        "task_14": 2.538535889060068,
-        "task_16": 1.996970463512407,
-        "task_17": 1.7490885918787928,
-        "task_19": 1.6976753287411468
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7807383874792748,
-          "start_time": 0.0,
-          "end_time": 1.7807383874792748
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.7307682154325156,
-          "start_time": 1.7807383874792748,
-          "end_time": 2.5115066029117905
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.4290284519470045,
-          "start_time": 2.5115066029117905,
-          "end_time": 4.940535054858795
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2585045062609357,
-          "start_time": 4.940535054858795,
-          "end_time": 7.199039561119731
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.262326116732258,
-          "start_time": 7.199039561119731,
-          "end_time": 10.461365677851989
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.729886632529375,
-          "start_time": 10.461365677851989,
-          "end_time": 11.191252310381364
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2878820448224146,
-          "start_time": 11.191252310381364,
-          "end_time": 12.479134355203778
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.0144656646656625,
-          "start_time": 12.479134355203778,
-          "end_time": 14.49360001986944
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.661777619977326,
-          "start_time": 14.49360001986944,
-          "end_time": 16.155377639846765
-        },
-        {
-          "task_id": "task_15",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.1767270775617327,
-          "start_time": 16.155377639846765,
-          "end_time": 18.332104717408498
-        },
-        {
-          "task_id": "task_18",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8598724501992684,
-          "start_time": 18.332104717408498,
-          "end_time": 19.191977167607767
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.1873774028703794,
-          "start_time": 19.191977167607767,
-          "end_time": 20.379354570478146
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.591650647161458,
-          "start_time": 20.379354570478146,
-          "end_time": 22.971005217639604
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.809131234207756,
-          "start_time": 22.971005217639604,
-          "end_time": 25.780136451847362
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.4480751528731831,
-          "start_time": 25.780136451847362,
-          "end_time": 26.228211604720546
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.281000392991642,
-          "start_time": 26.228211604720546,
-          "end_time": 29.50921199771219
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.538535889060068,
-          "start_time": 29.50921199771219,
-          "end_time": 32.04774788677226
-        },
-        {
-          "task_id": "task_16",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.996970463512407,
-          "start_time": 32.04774788677226,
-          "end_time": 34.04471835028466
-        },
-        {
-          "task_id": "task_17",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7490885918787928,
-          "start_time": 34.04471835028466,
-          "end_time": 35.79380694216346
-        },
-        {
-          "task_id": "task_19",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.6976753287411468,
-          "start_time": 35.79380694216346,
-          "end_time": 37.491482270904605
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 54,
         "workflow_size": 20,
-        "execution_time": 0.006345033645629883,
-        "timestamp": "2025-09-15T00:17:27.758262"
+        "execution_time": 3.8623809814453125e-05,
+        "timestamp": "2025-09-15T10:17:43.713867",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_20_55",
       "task_count": 20,
-      "dependency_count": 16,
-      "makespan": 36.5789035845171,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9850166049863132,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.02994871438506186
-      },
-      "task_execution_times": {
-        "task_0": 1.7807383874792748,
-        "task_1": 0.5480761615743868,
-        "task_2": 2.4290284519470045,
-        "task_3": 2.2585045062609357,
-        "task_4": 3.262326116732258,
-        "task_12": 0.5474149743970314,
-        "task_5": 1.2878820448224146,
-        "task_6": 2.0144656646656625,
-        "task_7": 1.661777619977326,
-        "task_15": 2.1767270775617327,
-        "task_18": 0.8598724501992684,
-        "task_8": 1.1873774028703794,
-        "task_11": 2.591650647161458,
-        "task_9": 2.809131234207756,
-        "task_10": 0.4480751528731831,
-        "task_13": 3.281000392991642,
-        "task_14": 2.538535889060068,
-        "task_16": 1.996970463512407,
-        "task_17": 1.7490885918787928,
-        "task_19": 1.6976753287411468
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7807383874792748,
-          "start_time": 0.0,
-          "end_time": 1.7807383874792748
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5480761615743868,
-          "start_time": 1.7807383874792748,
-          "end_time": 2.3288145490536616
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.4290284519470045,
-          "start_time": 2.3288145490536616,
-          "end_time": 4.757843001000666
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.2585045062609357,
-          "start_time": 4.757843001000666,
-          "end_time": 7.016347507261601
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.262326116732258,
-          "start_time": 7.016347507261601,
-          "end_time": 10.278673623993859
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 0.5474149743970314,
-          "start_time": 10.278673623993859,
-          "end_time": 10.82608859839089
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.2878820448224146,
-          "start_time": 10.278673623993859,
-          "end_time": 11.566555668816273
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.0144656646656625,
-          "start_time": 11.566555668816273,
-          "end_time": 13.581021333481935
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.661777619977326,
-          "start_time": 13.581021333481935,
-          "end_time": 15.24279895345926
-        },
-        {
-          "task_id": "task_15",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.1767270775617327,
-          "start_time": 15.24279895345926,
-          "end_time": 17.419526031020993
-        },
-        {
-          "task_id": "task_18",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8598724501992684,
-          "start_time": 17.419526031020993,
-          "end_time": 18.279398481220262
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.1873774028703794,
-          "start_time": 18.279398481220262,
-          "end_time": 19.46677588409064
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.591650647161458,
-          "start_time": 19.46677588409064,
-          "end_time": 22.0584265312521
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.809131234207756,
-          "start_time": 22.0584265312521,
-          "end_time": 24.867557765459857
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.4480751528731831,
-          "start_time": 24.867557765459857,
-          "end_time": 25.31563291833304
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.281000392991642,
-          "start_time": 25.31563291833304,
-          "end_time": 28.596633311324684
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.538535889060068,
-          "start_time": 28.596633311324684,
-          "end_time": 31.13516920038475
-        },
-        {
-          "task_id": "task_16",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.996970463512407,
-          "start_time": 31.13516920038475,
-          "end_time": 33.132139663897156
-        },
-        {
-          "task_id": "task_17",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7490885918787928,
-          "start_time": 33.132139663897156,
-          "end_time": 34.88122825577595
-        },
-        {
-          "task_id": "task_19",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.6976753287411468,
-          "start_time": 34.88122825577595,
-          "end_time": 36.5789035845171
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 55,
         "workflow_size": 20,
-        "execution_time": 0.03441905975341797,
-        "timestamp": "2025-09-15T00:17:27.792757"
+        "execution_time": 3.361701965332031e-05,
+        "timestamp": "2025-09-15T10:17:43.713908",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
@@ -6661,8 +4449,8 @@
       "experiment_metadata": {
         "experiment_id": 56,
         "workflow_size": 20,
-        "execution_time": 0.00026106834411621094,
-        "timestamp": "2025-09-15T00:17:27.793073"
+        "execution_time": 0.0004570484161376953,
+        "timestamp": "2025-09-15T10:17:43.714373"
       }
     },
     {
@@ -6844,8 +4632,8 @@
       "experiment_metadata": {
         "experiment_id": 57,
         "workflow_size": 20,
-        "execution_time": 0.0005357265472412109,
-        "timestamp": "2025-09-15T00:17:27.793665"
+        "execution_time": 0.0002219676971435547,
+        "timestamp": "2025-09-15T10:17:43.714608"
       }
     },
     {
@@ -7027,374 +4815,42 @@
       "experiment_metadata": {
         "experiment_id": 58,
         "workflow_size": 20,
-        "execution_time": 0.00026488304138183594,
-        "timestamp": "2025-09-15T00:17:27.793992"
+        "execution_time": 0.00024056434631347656,
+        "timestamp": "2025-09-15T10:17:43.714854"
       }
     },
     {
       "scheduler_name": "WASS-DRL",
       "workflow_id": "workflow_20_59",
       "task_count": 20,
-      "dependency_count": 16,
-      "makespan": 35.652329164422866,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 1.0,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.0
-      },
-      "task_execution_times": {
-        "task_0": 3.110317647730508,
-        "task_1": 1.8948284675231375,
-        "task_11": 0.34128336503528184,
-        "task_2": 1.9104695976615633,
-        "task_10": 2.649333004603996,
-        "task_3": 0.5248198894502292,
-        "task_13": 2.524406651144618,
-        "task_14": 3.049373507890372,
-        "task_19": 1.341465188407319,
-        "task_4": 2.359775373601059,
-        "task_5": 1.7075061991514944,
-        "task_6": 2.1793525888796,
-        "task_12": 0.5743189614289682,
-        "task_7": 1.5051395929237652,
-        "task_8": 1.4485949265817166,
-        "task_15": 0.8822313861427161,
-        "task_16": 0.46996024430939454,
-        "task_17": 0.9389322271939459,
-        "task_9": 3.2627128053264256,
-        "task_18": 2.97750753943676
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.110317647730508,
-          "start_time": 0.0,
-          "end_time": 3.110317647730508
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.8948284675231375,
-          "start_time": 3.110317647730508,
-          "end_time": 5.005146115253646
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.34128336503528184,
-          "start_time": 5.005146115253646,
-          "end_time": 5.346429480288927
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9104695976615633,
-          "start_time": 5.346429480288927,
-          "end_time": 7.256899077950491
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.649333004603996,
-          "start_time": 7.256899077950491,
-          "end_time": 9.906232082554487
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5248198894502292,
-          "start_time": 9.906232082554487,
-          "end_time": 10.431051972004717
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.524406651144618,
-          "start_time": 10.431051972004717,
-          "end_time": 12.955458623149335
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.049373507890372,
-          "start_time": 12.955458623149335,
-          "end_time": 16.004832131039706
-        },
-        {
-          "task_id": "task_19",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.341465188407319,
-          "start_time": 16.004832131039706,
-          "end_time": 17.346297319447025
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.359775373601059,
-          "start_time": 17.346297319447025,
-          "end_time": 19.706072693048085
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7075061991514944,
-          "start_time": 19.706072693048085,
-          "end_time": 21.41357889219958
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.1793525888796,
-          "start_time": 21.41357889219958,
-          "end_time": 23.59293148107918
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5743189614289682,
-          "start_time": 23.59293148107918,
-          "end_time": 24.16725044250815
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5051395929237652,
-          "start_time": 24.16725044250815,
-          "end_time": 25.672390035431913
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.4485949265817166,
-          "start_time": 25.672390035431913,
-          "end_time": 27.12098496201363
-        },
-        {
-          "task_id": "task_15",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8822313861427161,
-          "start_time": 27.12098496201363,
-          "end_time": 28.003216348156347
-        },
-        {
-          "task_id": "task_16",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.46996024430939454,
-          "start_time": 28.003216348156347,
-          "end_time": 28.47317659246574
-        },
-        {
-          "task_id": "task_17",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9389322271939459,
-          "start_time": 28.47317659246574,
-          "end_time": 29.412108819659686
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.2627128053264256,
-          "start_time": 29.412108819659686,
-          "end_time": 32.67482162498611
-        },
-        {
-          "task_id": "task_18",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.97750753943676,
-          "start_time": 32.67482162498611,
-          "end_time": 35.652329164422866
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 59,
         "workflow_size": 20,
-        "execution_time": 0.005782604217529297,
-        "timestamp": "2025-09-15T00:17:27.799830"
+        "execution_time": 3.457069396972656e-05,
+        "timestamp": "2025-09-15T10:17:43.714894",
+        "error": "'WASSDRLScheduler' object has no attribute 'schedule_task'"
       }
     },
     {
       "scheduler_name": "WASS-RAG",
       "workflow_id": "workflow_20_60",
       "task_count": 20,
-      "dependency_count": 16,
-      "makespan": 32.99926945866249,
-      "cpu_utilization": {
-        "ComputeHost1": 0.0,
-        "ComputeHost2": 0.9569347632855157,
-        "ComputeHost3": 0.0,
-        "ComputeHost4": 0.09259707388764425
-      },
-      "task_execution_times": {
-        "task_0": 3.110317647730508,
-        "task_1": 1.421121350642353,
-        "task_11": 0.34128336503528184,
-        "task_2": 1.9104695976615633,
-        "task_10": 2.649333004603996,
-        "task_3": 0.5248198894502292,
-        "task_13": 2.524406651144618,
-        "task_14": 3.049373507890372,
-        "task_19": 1.341465188407319,
-        "task_4": 2.359775373601059,
-        "task_5": 1.7075061991514944,
-        "task_6": 1.6345144416597,
-        "task_12": 0.5743189614289682,
-        "task_7": 1.5051395929237652,
-        "task_8": 1.4485949265817166,
-        "task_15": 0.8822313861427161,
-        "task_16": 0.46996024430939454,
-        "task_17": 0.9389322271939459,
-        "task_9": 3.2627128053264256,
-        "task_18": 2.97750753943676
-      },
-      "scheduling_decisions": [
-        {
-          "task_id": "task_0",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.110317647730508,
-          "start_time": 0.0,
-          "end_time": 3.110317647730508
-        },
-        {
-          "task_id": "task_1",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.421121350642353,
-          "start_time": 3.110317647730508,
-          "end_time": 4.531438998372861
-        },
-        {
-          "task_id": "task_11",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.34128336503528184,
-          "start_time": 4.531438998372861,
-          "end_time": 4.872722363408143
-        },
-        {
-          "task_id": "task_2",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.9104695976615633,
-          "start_time": 4.872722363408143,
-          "end_time": 6.783191961069706
-        },
-        {
-          "task_id": "task_10",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.649333004603996,
-          "start_time": 6.783191961069706,
-          "end_time": 9.432524965673702
-        },
-        {
-          "task_id": "task_3",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5248198894502292,
-          "start_time": 9.432524965673702,
-          "end_time": 9.957344855123932
-        },
-        {
-          "task_id": "task_13",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.524406651144618,
-          "start_time": 9.957344855123932,
-          "end_time": 12.48175150626855
-        },
-        {
-          "task_id": "task_14",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.049373507890372,
-          "start_time": 12.48175150626855,
-          "end_time": 15.531125014158922
-        },
-        {
-          "task_id": "task_19",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.341465188407319,
-          "start_time": 15.531125014158922,
-          "end_time": 16.87259020256624
-        },
-        {
-          "task_id": "task_4",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.359775373601059,
-          "start_time": 16.87259020256624,
-          "end_time": 19.2323655761673
-        },
-        {
-          "task_id": "task_5",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.7075061991514944,
-          "start_time": 19.2323655761673,
-          "end_time": 20.939871775318796
-        },
-        {
-          "task_id": "task_6",
-          "chosen_node": "ComputeHost4",
-          "execution_time": 1.6345144416597,
-          "start_time": 9.957344855123932,
-          "end_time": 11.591859296783632
-        },
-        {
-          "task_id": "task_12",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.5743189614289682,
-          "start_time": 20.939871775318796,
-          "end_time": 21.514190736747764
-        },
-        {
-          "task_id": "task_7",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.5051395929237652,
-          "start_time": 21.514190736747764,
-          "end_time": 23.01933032967153
-        },
-        {
-          "task_id": "task_8",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 1.4485949265817166,
-          "start_time": 23.01933032967153,
-          "end_time": 24.467925256253245
-        },
-        {
-          "task_id": "task_15",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.8822313861427161,
-          "start_time": 24.467925256253245,
-          "end_time": 25.350156642395962
-        },
-        {
-          "task_id": "task_16",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.46996024430939454,
-          "start_time": 25.350156642395962,
-          "end_time": 25.820116886705357
-        },
-        {
-          "task_id": "task_17",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 0.9389322271939459,
-          "start_time": 25.820116886705357,
-          "end_time": 26.7590491138993
-        },
-        {
-          "task_id": "task_9",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 3.2627128053264256,
-          "start_time": 26.7590491138993,
-          "end_time": 30.021761919225728
-        },
-        {
-          "task_id": "task_18",
-          "chosen_node": "ComputeHost2",
-          "execution_time": 2.97750753943676,
-          "start_time": 30.021761919225728,
-          "end_time": 32.99926945866249
-        }
-      ],
+      "dependency_count": 0,
+      "makespan": Infinity,
+      "cpu_utilization": {},
+      "task_execution_times": {},
+      "scheduling_decisions": [],
       "experiment_metadata": {
         "experiment_id": 60,
         "workflow_size": 20,
-        "execution_time": 0.024713754653930664,
-        "timestamp": "2025-09-15T00:17:27.824629"
+        "execution_time": 3.147125244140625e-05,
+        "timestamp": "2025-09-15T10:17:43.714933",
+        "error": "'WASSRAGScheduler' object has no attribute 'schedule_task'"
       }
     }
   ]

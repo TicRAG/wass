@@ -5,13 +5,13 @@ rag:
   fusion: "weighted"
   
   # 知识库生成配置
-  num_cases: 5000
+  num_cases: 2000
   embedding_dim: 64
-  knowledge_base_path: "data/enhanced_rag_kb.json"  # 使用我们生成的知识库
+  knowledge_base_path: "data/real_heuristic_kb.json"
   
   # 案例生成参数
   workflow_sizes: [5, 10, 15, 20]
-  schedulers: ["HEFT", "FIFO", "Random"]
+  schedulers: ["HEFT", "WASS-Heuristic"]
   dependency_prob: 0.3
   
   # 检索参数

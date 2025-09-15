@@ -44,7 +44,7 @@ class PerformancePredictor(nn.Module):
             except Exception:
                 pass
     
-    def forward(self, x: torch.Tensor, edge_index: torch.Tensor, batch: torch.Tensor = None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, edge_index: torch.Tensor, batch: torch.Tensor = None) -> Tuple[torch.Tensor, torch.Tensor]:
         """Forward pass through GNN layers.
         
         Args:
@@ -94,7 +94,7 @@ class PerformancePredictor(nn.Module):
         # Final prediction
         output = self.predictor(combined_emb)
         
-        return output
+        return output, combined_emb
     
     def predict(self, data: Data) -> float:
         """Predict interface for PyG Data objects.
@@ -107,8 +107,22 @@ class PerformancePredictor(nn.Module):
         """
         self.eval()
         with torch.no_grad():
-            out = self.forward(data.x, data.edge_index, data.batch)
+            out, _ = self.forward(data.x, data.edge_index, data.batch)
         return out.item()
+
+    def get_graph_embedding(self, data: Data) -> np.ndarray:
+        """Get graph-level embedding for PyG Data objects.
+        
+        Args:
+            data: PyTorch Geometric Data object
+        
+        Returns:
+            Graph embedding as a numpy array
+        """
+        self.eval()
+        with torch.no_grad():
+            _, combined_emb = self.forward(data.x, data.edge_index, data.batch)
+        return combined_emb.squeeze(0).cpu().numpy()
 
 class SimplePerformancePredictor(nn.Module):
     """Simple feedforward neural network for performance prediction from flat features"""

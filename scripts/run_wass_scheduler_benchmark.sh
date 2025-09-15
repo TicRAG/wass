@@ -76,7 +76,7 @@ fi
 # -------------- Step 3: Run Scheduler Comparison --------------
 info "Running multi-scheduler WRENCH experiment"
 export WASS_DRL_MODEL="$MODEL"
-python experiments/wrench_real_experiment.py || { err "Experiment run failed"; exit 1; }
+PYTHONPATH=${PYTHONPATH}:/data/workspace/traespace/wass python experiments/wrench_real_experiment.py || { err "Experiment run failed"; exit 1; }
 
 if [[ ! -f "$RESULTS_JSON" ]]; then
   err "Results JSON not found: $RESULTS_JSON"; exit 1; fi

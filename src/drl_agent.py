@@ -309,7 +309,7 @@ class DQNAgent:
         
     def load(self, path: str, network_type="advanced", state_dim=None, action_dim=None, hidden_dims=None):
         """加载模型"""
-        checkpoint = torch.load(path, map_location=self.device)
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
         
         # Re-create networks if dimensions differ
         if state_dim is not None and action_dim is not None:

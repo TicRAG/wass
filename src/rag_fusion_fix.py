@@ -3,15 +3,19 @@ import logging
 from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class RAGFusionFix:
     """修复后的RAG融合机制"""
     
     def __init__(self):
+        print("DEBUG: RAGFusionFix __init__ called!")
         self.fusion_history = []
         self.rag_confidence_history = []
         
     def calculate_rag_confidence(self, rag_suggestions):
+        print("DEBUG: calculate_rag_confidence called!")
+        print("DEBUG: calculate_rag_confidence called!")
         """
         计算RAG建议的置信度
         
@@ -26,13 +30,16 @@ class RAGFusionFix:
         
         # 1. 计算建议的方差（方差越大，置信度越低）
         scores = [s.get('score', 0.0) for s in rag_suggestions]
+        print(f"DEBUG: RAG Confidence - scores={scores}")
         variance = np.var(scores)
         
         # 2. 计算最大值（最大值越大，置信度越高）
         max_score = max(scores) if scores else 0.0
         
-        # 3. 使用tanh函数将置信度限制在[0, 1]范围内
-        confidence = np.tanh(max_score * 10.0 - variance * 5.0)
+        print(f"DEBUG: RAG Confidence - variance={variance}, max_score={max_score}")
+        confidence_arg = max_score * 10.0 - variance * 5.0
+        print(f"DEBUG: RAG Confidence - tanh_arg={confidence_arg}")
+        confidence = np.tanh(confidence_arg)
         
         # 4. 确保置信度在[0, 1]范围内
         confidence = max(0.0, min(1.0, confidence))

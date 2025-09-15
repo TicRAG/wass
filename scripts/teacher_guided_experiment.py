@@ -198,7 +198,7 @@ class TeacherGuidedExperiment:
         model_path = Path(self.config.get('checkpoint', {}).get('dir', 'models/checkpoints/')) / 'wass_drl_teacher_guided.pth'
         
         if model_path.exists():
-            checkpoint = torch.load(model_path)
+            checkpoint = torch.load(model_path, weights_only=False)
             # 这里需要初始化DRL智能体并加载权重
             # 简化版本：直接使用训练器中的智能体
             self.schedulers['WASS-DRL'] = trainer.agent

@@ -4,6 +4,18 @@
 使用训练好的模型在真实WRENCH环境中进行性能对比实验
 """
 
+import os
+import sys
+
+# 添加项目根目录到Python路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+print(f"当前工作目录: {os.getcwd()}")
+
+from src.ai_schedulers import WASSRAGScheduler
+
 import sys
 import os
 import json
@@ -446,177 +458,7 @@ class WASSDRLScheduler(WRENCHScheduler):
             print(f"⚠️ 启发式回退也失败: {e}，使用第一个可用节点")
             return available_nodes[0]
 
-class WASSRAGScheduler(WRENCHScheduler):
-    """基于RAG知识库增强的调度器 (重构: 优先统一JSON格式)."""
 
-    def __init__(self, model_path: str, rag_path: str, enable_fusion: bool = True):
-        super().__init__("WASS-RAG")
-        self.drl_scheduler = WASSDRLScheduler(model_path)
-        self.knowledge_base = []  # list[dict]
-        self.rag_source = None
-        self.enable_fusion = enable_fusion
-        self._load_rag_knowledge(rag_path)
-
-    def _load_rag_knowledge(self, rag_path: str):
-        # 1. 标准 JSON (新格式)
-        preferred_json = "data/wrench_rag_knowledge_base.json"
-        candidate_jsons = [preferred_json, "data/enhanced_rag_knowledge.json", "data/extended_rag_knowledge.json", rag_path.replace('.pkl', '.json')]
-        for jpath in candidate_jsons:
-            if not os.path.exists(jpath):
-                continue
-            try:
-                with open(jpath, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                cases = []
-                if isinstance(data, dict):
-                    if 'cases' in data:
-                        cases = data['cases']
-                    elif 'sample_cases' in data:
-                        cases = data['sample_cases']
-                elif isinstance(data, list):
-                    cases = data
-                norm = []
-                for c in cases:
-                    if not isinstance(c, dict):
-                        continue
-                    
-                    task_flops = 0.0
-                    if 'task_features' in c and c['task_features']:
-                        task_flops = float(c['task_features'][0]) * 1e9
-                    elif 'task_flops' in c:
-                        task_flops = float(c['task_flops'])
-                    else:
-                        task_flops = float(c.get('task_execution_time', 1.0)) * 2e9  # Fallback
-
-                    total_workflow_flops = 0.0
-                    if 'workflow_embedding' in c and len(c['workflow_embedding']) > 3:
-                        # Heuristic: Assume the 4th element is total flops based on observation
-                        total_workflow_flops = float(c['workflow_embedding'][3])
-                    else:
-                        total_workflow_flops = float(c.get('total_workflow_flops', task_flops))
-
-                    norm.append({
-                        'task_flops': task_flops,
-                        'chosen_node': str(c.get('chosen_node', 'ComputeHost1')),
-                        'scheduler_type': str(c.get('scheduler_type', 'unknown')),
-                        'task_execution_time': float(c.get('task_execution_time', 0.0)),
-                        'workflow_makespan': float(c.get('workflow_makespan', 0.0)),
-                        'total_workflow_flops': total_workflow_flops,
-                        'workflow_size': int(c.get('workflow_size', 0))
-                    })
-                if norm:
-                    self.knowledge_base = norm
-                    self.rag_source = jpath
-                    print(f"✅ RAG知识库(JSON)已加载: {len(self.knowledge_base)} 案例 (源: {jpath})")
-                    return
-            except Exception as e:
-                print(f"JSON加载失败({jpath}): {e}")
-
-        # 2. 旧 pickle (向后兼容)
-        if os.path.exists(rag_path):
-            try:
-                import pickle
-                with open(rag_path, 'rb') as f:
-                    pdata = pickle.load(f)
-                if isinstance(pdata, dict):
-                    pcases = pdata.get('cases', [])
-                elif isinstance(pdata, list):
-                    pcases = pdata
-                else:
-                    pcases = [pdata]
-                norm = []
-                for c in pcases:
-                    if hasattr(c, '__dict__'):
-                        c = c.__dict__
-                    if not isinstance(c, dict):
-                        continue
-                    norm.append({
-                        'task_flops': float(c.get('task_flops', c.get('task_execution_time', 1.0) * 2e9)),
-                        'chosen_node': str(c.get('chosen_node', 'ComputeHost1')),
-                        'scheduler_type': str(c.get('scheduler_type', 'unknown')),
-                        'task_execution_time': float(c.get('task_execution_time', 0.0)),
-                        'workflow_makespan': float(c.get('workflow_makespan', 0.0))
-                    })
-                if norm:
-                    self.knowledge_base = norm
-                    self.rag_source = rag_path
-                    print(f"✅ RAG知识库(PKL)已加载: {len(self.knowledge_base)} 案例 (源: {rag_path})")
-                    return
-            except Exception as e:
-                print(f"PKL加载失败({rag_path}): {e}")
-
-        # 3. 默认知识库
-        print("⚠️ 未找到有效RAG知识库，使用默认内置案例。")
-        self._create_default_knowledge_base()
-    
-    def _create_default_knowledge_base(self):
-        """创建默认的RAG知识库（增强负载均衡案例）"""
-        # 基于节点性能和任务特征的增强启发式规则，重点考虑负载均衡
-        default_cases = [
-            # 小任务优先分配到负载低的节点（不一定是最高容量节点）
-            {'task_flops': 1e9, 'chosen_node': 'ComputeHost1', 'scheduler_type': 'heuristic', 
-             'task_execution_time': 0.5, 'workflow_makespan': 4.5, 'node_capacity': 2.0,
-             'performance_ratio': 0.9, 'total_workflow_flops': 5e9, 'workflow_size': 5,
-             'load_balance_factor': 0.8, 'node_load': 0.2},
-            
-            # 中等任务分配到中等容量且负载适中的节点
-            {'task_flops': 5e9, 'chosen_node': 'ComputeHost2', 'scheduler_type': 'heuristic',
-             'task_execution_time': 1.67, 'workflow_makespan': 9.5, 'node_capacity': 3.0,
-             'performance_ratio': 0.85, 'total_workflow_flops': 20e9, 'workflow_size': 10,
-             'load_balance_factor': 0.75, 'node_load': 0.4},
-            
-            # 大任务分配到高容量节点，但要考虑负载均衡
-            {'task_flops': 10e9, 'chosen_node': 'ComputeHost4', 'scheduler_type': 'heuristic',
-             'task_execution_time': 2.5, 'workflow_makespan': 14.0, 'node_capacity': 4.0,
-             'performance_ratio': 0.9, 'total_workflow_flops': 50e9, 'workflow_size': 15,
-             'load_balance_factor': 0.7, 'node_load': 0.3},
-            
-            # 负载均衡案例：优先选择负载低的节点
-            {'task_flops': 3e9, 'chosen_node': 'ComputeHost3', 'scheduler_type': 'heuristic',
-             'task_execution_time': 1.2, 'workflow_makespan': 7.5, 'node_capacity': 2.5,
-             'performance_ratio': 0.88, 'total_workflow_flops': 15e9, 'workflow_size': 8,
-             'load_balance_factor': 0.95, 'node_load': 0.1},
-            
-            # 高负载情况下选择空闲节点
-            {'task_flops': 7e9, 'chosen_node': 'ComputeHost1', 'scheduler_type': 'heuristic',
-             'task_execution_time': 3.5, 'workflow_makespan': 11.0, 'node_capacity': 2.0,
-             'performance_ratio': 0.82, 'total_workflow_flops': 30e9, 'workflow_size': 12,
-             'load_balance_factor': 0.9, 'node_load': 0.05},
-            
-            # 新增：负载均衡优先案例
-            {'task_flops': 2e9, 'chosen_node': 'ComputeHost2', 'scheduler_type': 'load_balance',
-             'task_execution_time': 0.67, 'workflow_makespan': 6.0, 'node_capacity': 3.0,
-             'performance_ratio': 0.87, 'total_workflow_flops': 12e9, 'workflow_size': 6,
-             'load_balance_factor': 0.92, 'node_load': 0.15},
-            
-            # 新增：避免高负载节点
-            {'task_flops': 4e9, 'chosen_node': 'ComputeHost3', 'scheduler_type': 'load_balance',
-             'task_execution_time': 1.6, 'workflow_makespan': 8.5, 'node_capacity': 2.5,
-             'performance_ratio': 0.83, 'total_workflow_flops': 18e9, 'workflow_size': 9,
-             'load_balance_factor': 0.88, 'node_load': 0.12},
-            
-            # 新增：大任务在高负载环境下选择次优容量但低负载的节点
-            {'task_flops': 8e9, 'chosen_node': 'ComputeHost3', 'scheduler_type': 'load_balance',
-             'task_execution_time': 3.2, 'workflow_makespan': 12.5, 'node_capacity': 2.5,
-             'performance_ratio': 0.8, 'total_workflow_flops': 40e9, 'workflow_size': 14,
-             'load_balance_factor': 0.85, 'node_load': 0.18},
-            
-            # 新增：中等任务在均衡环境下的分配
-            {'task_flops': 6e9, 'chosen_node': 'ComputeHost4', 'scheduler_type': 'balanced',
-             'task_execution_time': 1.5, 'workflow_makespan': 10.0, 'node_capacity': 4.0,
-             'performance_ratio': 0.92, 'total_workflow_flops': 25e9, 'workflow_size': 11,
-             'load_balance_factor': 0.8, 'node_load': 0.25},
-            
-            # 新增：小任务在高容量但高负载节点 vs 低容量低负载节点的选择
-            {'task_flops': 1.5e9, 'chosen_node': 'ComputeHost1', 'scheduler_type': 'balanced',
-             'task_execution_time': 0.75, 'workflow_makespan': 5.5, 'node_capacity': 2.0,
-             'performance_ratio': 0.86, 'total_workflow_flops': 8e9, 'workflow_size': 7,
-             'load_balance_factor': 0.93, 'node_load': 0.08}
-        ]
-        
-        # 添加更多多样化案例，重点考虑负载均衡
-        import random
-        random.seed(42)  # 确保可重现
         
         # 生成负载均衡导向的案例
         for _ in range(30):  # 生成30个额外案例
@@ -988,10 +830,31 @@ class WRENCHExperimentRunner:
                 print(f"⚠️ 环境变量WASS_DRL_MODEL指定的模型不存在: {env_model}")
         
         model_path = None
+        print("🔍 查找模型文件...")
         for candidate in model_candidates:
+            print(f"🔍 检查模型文件: {candidate}")
+            # 检查绝对路径
+            abs_candidate = os.path.abspath(candidate)
+            print(f"🔍 绝对路径: {abs_candidate}")
             if os.path.exists(candidate):
                 model_path = candidate
+                print(f"✅ 找到模型文件: {model_path}")
                 break
+            elif os.path.exists(abs_candidate):
+                model_path = abs_candidate
+                print(f"✅ 找到模型文件 (绝对路径): {model_path}")
+                break
+        
+        if not model_path:
+            print("⚠️ 未找到任何模型文件")
+            for candidate in model_candidates:
+                abs_candidate = os.path.abspath(candidate)
+                if os.path.exists(candidate):
+                    print(f"  存在: {candidate}")
+                elif os.path.exists(abs_candidate):
+                    print(f"  存在 (绝对路径): {abs_candidate}")
+                else:
+                    print(f"  不存在: {candidate} (绝对路径: {abs_candidate})")
         
         rag_path = "data/wrench_rag_knowledge_base.pkl"
         
@@ -1000,7 +863,36 @@ class WRENCHExperimentRunner:
             
             # 强制启用WASS-DRL调度器
             try:
-                drl_scheduler = WASSDRLScheduler(model_path)
+                # 从模型文件加载DRL代理
+                print("🔍 正在加载模型文件...")
+                checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+                print(f"🔍 模型加载成功，检查点键: {list(checkpoint.keys())}")
+                
+                # 从检查点数据创建DRL代理
+                # 获取模型配置信息
+                config = checkpoint.get('config', {})
+                # 优先从metadata获取state_dim和action_dim，如果不存在则从config获取，否则使用默认值
+                metadata = checkpoint.get('metadata', {})
+                state_dim = metadata.get('state_dim', config.get('state_dim', 32))  # 默认32维状态
+                action_dim = metadata.get('action_dim', config.get('action_dim', 4))  # 默认4个动作
+                
+                # 创建新的DRL代理
+                from src.drl_agent import DQNAgent
+                drl_agent = DQNAgent(state_dim=state_dim, action_dim=action_dim)
+                
+                # 加载模型权重
+                drl_agent.load(model_path)
+                
+                node_names = checkpoint.get('node_names', ['node1', 'node2', 'node3'])  # 默认节点名
+                predictor = checkpoint.get('predictor', None)
+                
+                print(f"🔍 DRL代理: {type(drl_agent)}")
+                print(f"🔍 节点名称: {node_names}")
+                print(f"🔍 预测器: {type(predictor)}")
+                
+                # 使用工厂函数创建调度器
+                from src.ai_schedulers import create_scheduler
+                drl_scheduler = create_scheduler('WASS-DRL (w/o RAG)', node_names, drl_agent, predictor)
                 schedulers["WASS-DRL"] = drl_scheduler
                 print("✅ WASS-DRL调度器已强制启用")
                 
@@ -1015,7 +907,8 @@ class WRENCHExperimentRunner:
                 for rag_candidate in rag_candidates:
                     if os.path.exists(rag_candidate):
                         try:
-                            rag_scheduler = WASSRAGScheduler(model_path, rag_candidate)
+                            # 正确初始化WASSRAGScheduler
+                            rag_scheduler = WASSRAGScheduler(drl_scheduler.drl_agent, drl_scheduler.node_names, drl_scheduler.predictor, rag_candidate)
                             schedulers["WASS-RAG"] = rag_scheduler
                             print(f"✅ WASS-RAG调度器已启用 (知识库: {rag_candidate})")
                             rag_available = True
@@ -1026,12 +919,14 @@ class WRENCHExperimentRunner:
                 
                 if not rag_available:
                     # 即使没有知识库，也创建空的RAG调度器
-                    rag_scheduler = WASSRAGScheduler(model_path, rag_path)
+                    rag_scheduler = WASSRAGScheduler(drl_scheduler.drl_agent, drl_scheduler.node_names, drl_scheduler.predictor, rag_path)
                     schedulers["WASS-RAG"] = rag_scheduler
                     print("⚠️  WASS-RAG调度器已创建 (知识库为空)")
                     
             except Exception as e:
                 print(f"❌ DRL/RAG调度器初始化失败: {e}")
+                import traceback
+                traceback.print_exc()
         else:
             print("❌ 未找到任何模型文件，仅使用基础调度器")
         
