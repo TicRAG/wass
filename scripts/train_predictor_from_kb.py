@@ -61,15 +61,30 @@ class PerformancePredictorTrainer:
         """加载训练数据"""
         if kb_path is None:
             kb_path = self.config.get('knowledge_base', {}).get('path', 'data/kb_training_dataset.json')
-        
+
         logger.info(f"加载训练数据: {kb_path}")
-        
+
         if not os.path.exists(kb_path):
             raise FileNotFoundError(f"知识库文件不存在: {kb_path}")
-        
+
         with open(kb_path, 'r') as f:
-            data = json.load(f)
-        
+            kb_data = json.load(f)
+
+        # 检查数据是字典还是列表
+        if isinstance(kb_data, dict) and 'cases' in kb_data:
+            data = kb_data['cases']
+        else:
+            data = kb_data
+
+        # 检查并解析字符串格式的JSON对象
+        if data and isinstance(data[0], str):
+            logger.info("数据样本是字符串格式，将进行JSON解析...")
+            try:
+                data = [json.loads(s) for s in data]
+            except json.JSONDecodeError as e:
+                logger.error(f"解析JSON字符串时出错: {e}")
+                raise
+
         logger.info(f"加载了 {len(data)} 个训练样本")
         return data
     
@@ -82,30 +97,33 @@ class PerformancePredictorTrainer:
         
         for sample in data:
             # 提取特征
+            task_features = sample.get('task_features', {})
+            platform_features = sample.get('platform_features', {})
+            
             feature_vector = [
-                sample.get('num_tasks', 0),
-                sample.get('avg_task_size', 0),
-                sample.get('max_task_size', 0),
-                sample.get('min_task_size', 0),
-                sample.get('task_size_std', 0),
-                sample.get('avg_dependencies', 0),
-                sample.get('max_dependencies', 0),
-                sample.get('critical_path_length', 0),
-                sample.get('parallelism_degree', 0),
-                sample.get('num_nodes', 0),
-                sample.get('avg_node_speed', 0),
-                sample.get('max_node_speed', 0),
-                sample.get('min_node_speed', 0),
-                sample.get('node_speed_std', 0),
-                sample.get('makespan', 0)
+                task_features.get('task_flops', 0),
+                task_features.get('task_memory', 0),
+                task_features.get('task_inputs', 0),
+                task_features.get('task_outputs', 0),
+                task_features.get('task_dependencies', 0),
+                platform_features.get('num_nodes', 0),
+                platform_features.get('avg_flops', 0),
+                platform_features.get('avg_memory', 0),
             ]
             
             features.append(feature_vector)
-            labels.append(sample.get('actual_makespan', 0))
+            labels.append(sample.get('makespan', 0))
         
         features = np.array(features, dtype=np.float32)
         labels = np.array(labels, dtype=np.float32)
-        
+
+        # 过滤掉makespan为0的异常数据
+        if len(labels) > 0:
+            valid_indices = labels > 1e-6  # Use a small epsilon for float comparison
+            features = features[valid_indices]
+            labels = labels[valid_indices]
+
+        logger.info(f"有效样本数: {len(features)}")
         logger.info(f"特征形状: {features.shape}")
         logger.info(f"标签形状: {labels.shape}")
         
@@ -114,6 +132,14 @@ class PerformancePredictorTrainer:
     def train_simple_predictor(self, features: np.ndarray, labels: np.ndarray) -> Dict:
         """训练简单性能预测器"""
         logger.info("训练简单性能预测器...")
+
+        if len(features) == 0:
+            logger.warning("没有有效的训练数据，跳过训练。")
+            return {
+                'r2': 0.0,
+                'rmse': 0.0,
+                'scaler': None
+            }
         
         # 分割数据
         X_train, X_test, y_train, y_test = train_test_split(

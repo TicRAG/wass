@@ -81,6 +81,7 @@ stage_2_train_predictor() {
     
     # 修复：使用正确的命令行参数调用训练脚本
     # 它需要一个配置文件，而不是 --output-model 参数
+    log_info "scripts/train_predictor_from_kb.py --kb-path ${MAIN_KB_JSON} ${PREDICTOR_CONFIG}"
     if python scripts/train_predictor_from_kb.py --kb-path "${MAIN_KB_JSON}" "${PREDICTOR_CONFIG}"; then
         log_success "性能预测器训练完成，模型已根据 ${PREDICTOR_CONFIG} 中的配置保存"
     else
