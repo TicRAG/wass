@@ -33,7 +33,7 @@ drl:
   reward_framework: "makespan_shaping_v2"  # 标记使用新奖励框架
   final_reward: "normalized_makespan"      # 终局奖励策略
 
-platform_file: configs/platform.xml
+platform_file: "test_platform.xml"
 
 checkpoint:
   dir: models/checkpoints/

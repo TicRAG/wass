@@ -1,172 +1,114 @@
-"""工具函数和日志设置."""
+"""工具函数、日志设置和最终版的实验运行器。"""
 from __future__ import annotations
 import logging
 import time
 from contextlib import contextmanager
-from typing import Dict, Any, Generator
+from typing import Dict, Any, Generator, List
 from pathlib import Path
-import sys 
-
-def setup_logger(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
-    """设置统一的日志器."""
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
-    # 避免重复添加handler
-    if not logger.handlers:
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        
-        # 控制台handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-        
-        # 文件handler（如果指定）
-        if log_file:
-            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file, encoding='utf-8')
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-    
-    return logger
-
-@contextmanager
-def time_stage(stage_name: str, logger: logging.Logger = None) -> Generator[Dict[str, Any], None, None]:
-    """计时上下文管理器."""
-    if logger is None:
-        logger = logging.getLogger(__name__)
-    
-    start_time = time.time()
-    stage_info = {"name": stage_name, "start_time": start_time}
-    
-    logger.info(f"[Stage] {stage_name} 开始")
-    try:
-        yield stage_info
-        end_time = time.time()
-        elapsed = end_time - start_time
-        stage_info["end_time"] = end_time
-        stage_info["elapsed_seconds"] = elapsed
-        logger.info(f"[Stage] {stage_name} 完成, 耗时: {elapsed:.2f}s")
-    except Exception as e:
-        end_time = time.time()
-        elapsed = end_time - start_time
-        stage_info["end_time"] = end_time
-        stage_info["elapsed_seconds"] = elapsed
-        stage_info["error"] = str(e)
-        logger.error(f"[Stage] {stage_name} 失败, 耗时: {elapsed:.2f}s, 错误: {e}")
-        raise
-
-def calculate_conflict_rate(L) -> float:
-    """计算标签矩阵中的冲突率."""
-    import numpy as np
-    
-    if hasattr(L, 'shape'):
-        # numpy array
-        n_samples, n_lfs = L.shape
-        if n_samples == 0 or n_lfs <= 1:
-            return 0.0
-        
-        conflicts = 0
-        total_pairs = 0
-        
-        for i in range(n_samples):
-            row = L[i]
-            # 获取非abstain的标签
-            valid_labels = row[row != -1]
-            if len(valid_labels) <= 1:
-                continue
-            
-            # 检查是否有冲突
-            unique_labels = np.unique(valid_labels)
-            if len(unique_labels) > 1:
-                conflicts += 1
-            total_pairs += 1
-        
-        return conflicts / max(1, total_pairs)
-    else:
-        # 其他格式，简单返回0
-        return 0.0
+import sys
+import wrench
+import pandas as pd
+import numpy as np
 
 def get_logger(name, level=logging.INFO):
-    """
-    Returns a configured logger.
-    """
-    # Create a logger
+    """获取一个已配置的日志器。"""
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
-    # Create a handler
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(level)
-
-    # Create a formatter and add it to the handler
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-
-    # Add the handler to the logger
-    # This check prevents adding duplicate handlers if the function is called multiple times
     if not logger.handlers:
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(formatter)
         logger.addHandler(handler)
-
     return logger
 
-# -------------------------------------------------------------
-# Knowledge Base Feature Extraction (used by generate_kb_dataset)
-# -------------------------------------------------------------
-def extract_features_for_kb(task, node_id: str, platform, workflow) -> Dict[str, Any]:
-    """Extract a minimal, model-agnostic feature dict for a (task,node) decision.
+# --- 最终版实验运行器 ---
+class WrenchExperimentRunner:
+    """处理多个WRENCH模拟的执行，以比较不同的调度器。"""
+    def __init__(self, schedulers: Dict[str, Any], config: Dict[str, Any]):
+        self.schedulers_map = schedulers
+        self.config = config
+        self.platform_file = config.get("platform_file")
+        self.workflow_dir = Path(config.get("workflow_dir", "workflows"))
+        self.workflow_sizes = config.get("workflow_sizes", [20, 50, 100])
+        self.repetitions = config.get("repetitions", 3)
+        self.output_dir = Path(config.get("output_dir", "results/final_experiments"))
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    Parameters
-    ----------
-    task : wrench.workflows.Task
-        The workflow task just scheduled or considered.
-    node_id : str
-        Target node name.
-    platform : wrench.platforms.Platform
-        Platform object (provides node characteristics / bandwidth).
-    workflow : wrench.workflows.Workflow
-        Workflow DAG (to query edges, parents, children etc.).
-
-    Returns
-    -------
-    Dict[str, Any]
-        Flat dictionary of numeric / categorical features.
-    """
-    try:
-        node = platform.get_node(node_id)
-    except Exception:
-        node = None
-
-    # Basic structural features
-    num_parents = len(task.parents)
-    num_children = len(task.children)
-
-    # Aggregate input data size (if API available)
-    total_input_data = 0.0
-    for p in task.parents:
+    def _run_single_simulation(self, scheduler_name: str, scheduler_impl: Any, workflow_file: str) -> Dict[str, Any]:
+        """运行单个WRENCH模拟并返回结果。"""
         try:
-            total_input_data += workflow.get_edge_data_size(p.id, task.id)
-        except Exception:
-            pass
+            sim = wrench.Simulation()
+            sim.add_platform(self.platform_file)
+            
+            all_hosts = list(sim.get_platform().get_compute_hosts().keys())
+            controller = all_hosts[0]
+            compute_hosts = all_hosts[1:] if len(all_hosts) > 1 else all_hosts
+            
+            cs = wrench.BareMetalComputeService(controller, compute_hosts)
+            sim.add_compute_service(cs)
 
-    features: Dict[str, Any] = {
-        "task_id": getattr(task, 'id', None),
-        "task_comp_size": getattr(task, 'computation_size', 0.0),
-        "num_parents": num_parents,
-        "num_children": num_children,
-        "total_input_data": total_input_data,
-        "node_id": node_id,
-    }
+            # 实例化调度器
+            scheduler_instance = scheduler_impl
+            if hasattr(scheduler_impl, 'set_simulation_context'):
+                 scheduler_instance.set_simulation_context(sim, cs, {h:{} for h in compute_hosts})
 
-    if node is not None:
-        # Common attributes; guard with getattr for API robustness
-        for attr, key in [
-            ("speed", "node_speed"),
-            ("core_count", "node_cores"),
-            ("memory", "node_memory"),
-        ]:
-            features[key] = getattr(node, attr, None)
+            sim.set_scheduler(scheduler_instance)
+            workflow = sim.create_workflow_from_json(str(workflow_file))
+            job = sim.create_standard_job(workflow.get_tasks())
+            cs.submit_job(job)
+            sim.run()
+            
+            return {"scheduler": scheduler_name, "workflow": workflow_file.name, "makespan": sim.get_makespan(), "status": "success"}
+        except Exception as e:
+            print(f"ERROR running {scheduler_name} on {workflow_file.name}: {e}")
+            return {"scheduler": scheduler_name, "workflow": workflow_file.name, "makespan": float('inf'), "status": "failed"}
 
-    return features
+    def run_all(self) -> List[Dict[str, Any]]:
+        """运行所有配置的实验。"""
+        results = []
+        total_exps = len(self.schedulers_map) * len(self.workflow_sizes) * self.repetitions
+        print(f"总实验数: {total_exps}")
+        
+        exp_count = 0
+        for name, sched_impl in self.schedulers_map.items():
+            for size in self.workflow_sizes:
+                # [FIX] 智能扫描工作流文件，而不是依赖固定名称
+                matching_files = list(self.workflow_dir.glob(f'*_{size}_*.json')) + \
+                                 list(self.workflow_dir.glob(f'*_{size}.json')) + \
+                                 list(self.workflow_dir.glob(f'*{size}-tasks-wf.json'))
+                
+                if not matching_files:
+                    print(f"[警告] 在 {self.workflow_dir} 中未找到大小为 {size} 的工作流文件，跳过...")
+                    continue
+                
+                # 为了实验的一致性，我们只使用找到的第一个匹配文件
+                workflow_file_to_run = matching_files[0]
+                
+                for rep in range(self.repetitions):
+                    exp_count += 1
+                    print(f"运行实验 [{exp_count}/{total_exps}]: {name} on {workflow_file_to_run.name}")
+                    result = self._run_single_simulation(name, sched_impl, workflow_file_to_run)
+                    results.append(result)
+        return results
+
+    def analyze_results(self, results: List[Dict[str, Any]]):
+        """分析、打印并保存实验结果摘要。"""
+        if not results:
+            print("没有可供分析的实验结果。"); return
+
+        df = pd.DataFrame(results)
+        
+        # 保存详细的原始结果
+        detailed_csv_path = self.output_dir / "detailed_results.csv"
+        df.to_csv(detailed_csv_path, index=False)
+        print(f"✅ 详细实验结果已保存到: {detailed_csv_path}")
+
+        summary = df.groupby('scheduler')['makespan'].agg(['mean', 'std', 'min', 'count']).reset_index()
+        summary = summary.rename(columns={'scheduler': '调度器', 'mean': '平均Makespan', 'std': '标准差', 'min': '最佳', 'count': '实验次数'})
+
+        print("\n" + "="*60); print("📈 实验结果分析:"); print(summary.to_string(index=False)); print("="*60 + "\n")
+        
+        # [FIX] 保存最终的摘要结果
+        summary_csv_path = self.output_dir / "summary_results.csv"
+        summary.to_csv(summary_csv_path, index=False)
+        print(f"✅ 实验结果摘要已保存到: {summary_csv_path}")

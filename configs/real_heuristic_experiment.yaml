@@ -1,30 +1,21 @@
-# 真实案例实验配置
-experiment:
-  name: "real_heuristic_comparison"
-  description: "使用真实HEFT和WASS-Heuristic案例的对比实验"
+# Wrench实验对比配置
+platform_file: "test_platform.xml"
+workflow_dir: "workflows"
+output_dir: "results/final_experiments_discrete_event"
+repetitions: 3
+workflow_sizes: [5, 10, 15, 20]
 
-# 调度器配置
-schedulers:
+# 要在实验中启用的调度器列表
+enabled_schedulers:
+  - "FIFO"
   - "HEFT"
   - "WASS-Heuristic"
   - "WASS-DRL"
   - "WASS-RAG"
 
-# 实验规模
-experiment_scale:
-  num_workflows: 50
-  workflow_sizes: [5, 10, 15, 20, 25]
-  platforms: ["test_platform.xml"]
+# RAG调度器特定的配置路径
+rag_config_path: "configs/rag.yaml"
 
-# RAG配置
-rag:
-  knowledge_base_path: "data/real_heuristic_kb.json"
-  retriever: "wrench_similarity"
-  top_k: 5
-  fusion: "weighted"
-
-# 评估配置
-evaluation:
-  metrics: ["makespan", "cpu_utilization", "load_balance"]
-  output_dir: "results/real_heuristic_experiments"
-  generate_charts: true
+# [FIX] 添加缺失的DRL模型路径配置
+# 这个路径必须与阶段三中保存模型的路径完全一致
+drl_model_path: "models/improved_wass_drl.pth"
