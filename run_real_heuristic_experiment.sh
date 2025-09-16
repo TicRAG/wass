@@ -23,6 +23,7 @@ DRL_CONFIG="configs/drl.yaml"
 PREDICTOR_CONFIG="configs/predictor.yaml" # 假设预测器有自己的配置文件
 EXPERIMENT_CONFIG="configs/real_heuristic_experiment.yaml"
 PLATFORM_FILE="test_platform.xml"
+WORKFLOW_MANAGER="scripts/workflow_manager.py"
 
 # --- 颜色和日志函数 ---
 RED='\033[0;31m'
@@ -37,6 +38,32 @@ log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # --- 阶段函数定义 ---
+
+# 阶段0: 准备工作流
+stage_0_prepare_workflows() {
+    log_info "--- [阶段0] 开始：准备工作流文件 ---"
+    
+    # 确保workflow_manager.py可执行
+    chmod +x "${WORKFLOW_MANAGER}"
+    
+    # 生成工作流文件
+    if python "${WORKFLOW_MANAGER}" --action generate; then
+        log_success "工作流文件生成完成"
+    else
+        log_error "工作流文件生成失败"
+        exit 1
+    fi
+    
+    # 更新所有配置文件以确保训练和实验的一致性
+    if python "${WORKFLOW_MANAGER}" --action update_all_configs; then
+        log_success "所有配置文件更新完成"
+    else
+        log_error "配置文件更新失败"
+        exit 1
+    fi
+    
+    log_success "--- [阶段0] 完成 ---"
+}
 
 # 阶段一: 知识库播种
 stage_1_seed_knowledge_base() {
@@ -167,6 +194,8 @@ main() {
     start_time=$(date +%s)
     
     # 依次执行所有阶段
+    stage_0_prepare_workflows
+    echo
     stage_1_seed_knowledge_base
     echo
     stage_2_train_predictor
@@ -188,6 +217,9 @@ main() {
 # 允许单独执行某个阶段，方便调试
 if [[ $# -gt 0 ]]; then
     case $1 in
+        "stage0")
+            stage_0_prepare_workflows
+            ;;
         "stage1")
             stage_1_seed_knowledge_base
             ;;
@@ -201,7 +233,7 @@ if [[ $# -gt 0 ]]; then
             final_stage_run_experiments
             ;;
         *)
-            echo "用法: $0 [stage1|stage2|stage3|eval]"
+            echo "用法: $0 [stage0|stage1|stage2|stage3|eval]"
             echo "无参数则运行完整流程"
             exit 1
             ;;

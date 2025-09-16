@@ -9,6 +9,7 @@ import sys
 import wrench
 import pandas as pd
 import numpy as np
+import json
 
 def get_logger(name, level=logging.INFO):
     """获取一个已配置的日志器。"""
@@ -37,31 +38,186 @@ class WrenchExperimentRunner:
     def _run_single_simulation(self, scheduler_name: str, scheduler_impl: Any, workflow_file: str) -> Dict[str, Any]:
         """运行单个WRENCH模拟并返回结果。"""
         try:
-            sim = wrench.Simulation()
-            sim.add_platform(self.platform_file)
+            # 读取平台文件内容
+            with open(self.platform_file, "r") as f:
+                platform_xml = f.read()
             
-            all_hosts = list(sim.get_platform().get_compute_hosts().keys())
-            controller = all_hosts[0]
-            compute_hosts = all_hosts[1:] if len(all_hosts) > 1 else all_hosts
+            # 创建模拟对象
+            simulation = wrench.Simulation()
             
-            cs = wrench.BareMetalComputeService(controller, compute_hosts)
-            sim.add_compute_service(cs)
-
+            # 启动仿真，指定控制器主机
+            controller_host = "ControllerHost"
+            simulation.start(platform_xml, controller_host)
+            
+            # 获取所有主机名
+            all_hostnames = simulation.get_all_hostnames()
+            
+            # 过滤出计算主机（排除控制器主机）
+            compute_hosts = [host for host in all_hostnames if host != controller_host]
+            
+            # 创建存储服务（在StorageHost上，挂载点为/storage）
+            storage_service = simulation.create_simple_storage_service("StorageHost", ["/storage"])
+            
+            # 创建裸机计算服务（在第一个计算主机上创建，使用其本地磁盘）
+            first_compute_host = compute_hosts[0] if compute_hosts else "ComputeHost1"
+            compute_service = simulation.create_bare_metal_compute_service(
+                first_compute_host, 
+                {host: (-1, -1) for host in compute_hosts},  # 所有核心都可用
+                "/scratch", 
+                {}, 
+                {}
+            )
+            
+            # 创建主机信息字典
+            hosts_dict = {name: {} for name in compute_hosts}
+            
             # 实例化调度器
-            scheduler_instance = scheduler_impl
-            if hasattr(scheduler_impl, 'set_simulation_context'):
-                 scheduler_instance.set_simulation_context(sim, cs, {h:{} for h in compute_hosts})
-
-            sim.set_scheduler(scheduler_instance)
-            workflow = sim.create_workflow_from_json(str(workflow_file))
-            job = sim.create_standard_job(workflow.get_tasks())
-            cs.submit_job(job)
-            sim.run()
+            if callable(scheduler_impl) and not isinstance(scheduler_impl, type):
+                # 工厂函数形式的调度器
+                scheduler_instance = scheduler_impl(simulation, compute_service, hosts_dict)
+            else:
+                # 类形式的调度器
+                scheduler_instance = scheduler_impl(simulation, compute_service, hosts_dict)
             
-            return {"scheduler": scheduler_name, "workflow": workflow_file.name, "makespan": sim.get_makespan(), "status": "success"}
+            # 从JSON文件创建工作流
+            with open(workflow_file, 'r') as f:
+                workflow_data = json.load(f)
+            
+            # 转换工作流数据为WfCommons格式
+            print(f"转换工作流数据为WfCommons格式...")
+            
+            # 构建任务依赖关系映射
+            task_children = {}
+            for task in workflow_data['workflow']['tasks']:
+                task_children[task['id']] = []
+            for task in workflow_data['workflow']['tasks']:
+                for parent_id in task.get('dependencies', []):
+                    if parent_id in task_children:
+                        task_children[parent_id].append(task['id'])
+            
+            # 转换为WfCommons格式
+            wfcommons_data = {
+                'name': workflow_data['metadata']['name'],
+                'workflow_name': workflow_data['metadata']['name'],
+                'description': workflow_data['metadata']['description'],
+                'schemaVersion': '1.5',
+                'author': {
+                    'name': 'WRENCH Experiment',
+                    'email': 'wrench@example.com'
+                },
+                'createdAt': workflow_data['metadata'].get('generated_at', '2024-01-01T00:00:00Z'),
+                'workflow': {
+                    'specification': {
+                        'tasks': [],
+                        'files': []
+                    },
+                    'execution': {
+                        'tasks': []
+                    }
+                }
+            }
+            
+                    # 转换任务
+            for task in workflow_data['workflow']['tasks']:
+                wfcommons_task = {
+                    'name': task['name'],
+                    'id': task['id'],
+                    'children': task_children[task['id']],
+                    'parents': task.get('dependencies', []),
+                    'inputFiles': task.get('input_files', []),
+                    'outputFiles': task.get('output_files', []),
+                    'flops': task.get('flops', 0),
+                    'memory': task.get('memory', 0)
+                }
+                wfcommons_data['workflow']['specification']['tasks'].append(wfcommons_task)
+                
+                # 添加执行信息
+                execution_task = {
+                    'id': task['id'],
+                    'runtimeInSeconds': task.get('runtime', 1.0),
+                    'cores': 1,
+                    'avgCPU': 1.0
+                }
+                wfcommons_data['workflow']['execution']['tasks'].append(execution_task)
+            
+            # 转换文件
+            for file in workflow_data['workflow']['files']:
+                wfcommons_file = {
+                    'id': file['id'],
+                    'name': file['name'],
+                    'sizeInBytes': file.get('size', 0)
+                }
+                wfcommons_data['workflow']['specification']['files'].append(wfcommons_file)
+            
+            # 创建工作流 - 使用直接方法
+            print(f"创建工作流，名称: {wfcommons_data['name']}")
+            
+            # 创建工作流 - 确保包含workflow_name字段
+            if 'workflow_name' not in wfcommons_data:
+                wfcommons_data['workflow_name'] = wfcommons_data.get('name', 'unknown')
+            
+            # 使用直接的create_workflow_from_json方法创建工作流
+            workflow = simulation.create_workflow_from_json(
+                wfcommons_data,
+                reference_flop_rate='100Mf',
+                ignore_machine_specs=True,
+                redundant_dependencies=False,
+                ignore_cycle_creating_dependencies=False,
+                min_cores_per_task=1,
+                max_cores_per_task=1,
+                enforce_num_cores=True,
+                ignore_avg_cpu=True,
+                show_warnings=False
+            )
+            
+            print(f"工作流创建成功！工作流名称: {workflow.get_name()}")
+            print(f"工作流任务数: {len(workflow.get_tasks())}")
+            
+            # 创建工作流中的所有文件副本
+            try:
+                for file in workflow.get_input_files():
+                    storage_service.create_file_copy(file)
+            except Exception as e:
+                print(f"文件副本创建失败: {e}")
+                # 跳过文件副本创建，继续执行
+            
+            # 开始调度
+            if hasattr(scheduler_instance, 'schedule_ready_tasks'):
+                scheduler_instance.schedule_ready_tasks(workflow, storage_service)
+            
+            # 运行仿真循环
+            while not workflow.is_done():
+                # 等待下一个事件
+                event = simulation.wait_for_next_event()
+                
+                # 处理任务完成事件
+                if event["event_type"] == "standard_job_completion":
+                    job = event["standard_job"]
+                    if hasattr(scheduler_instance, 'handle_completion'):
+                        for task in job.get_tasks():
+                            scheduler_instance.handle_completion(task)
+                    # 调度新的就绪任务
+                    if hasattr(scheduler_instance, 'schedule_ready_tasks'):
+                        scheduler_instance.schedule_ready_tasks(workflow, storage_service)
+                elif event["event_type"] == "simulation_termination":
+                    break
+            
+            # 获取makespan
+            makespan = simulation.get_simulated_time()
+            
+            # 终止仿真
+            simulation.terminate()
+            
+            # 修复: 使用Path对象来获取文件名
+            workflow_filename = Path(workflow_file).name
+            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": makespan, "status": "success"}
         except Exception as e:
-            print(f"ERROR running {scheduler_name} on {workflow_file.name}: {e}")
-            return {"scheduler": scheduler_name, "workflow": workflow_file.name, "makespan": float('inf'), "status": "failed"}
+            # 修复: 使用Path对象来获取文件名
+            workflow_filename = Path(workflow_file).name
+            import traceback
+            print(f"ERROR running {scheduler_name} on {workflow_filename}: {e}")
+            print(f"详细错误信息: {traceback.format_exc()}")
+            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": float('inf'), "status": "failed"}
 
     def run_all(self) -> List[Dict[str, Any]]:
         """运行所有配置的实验。"""

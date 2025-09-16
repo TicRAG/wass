@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "name": "Montage-like-5",
+    "description": "天文学图像拼接工作流，5个任务",
+    "generated_at": "2025-09-17T00:22:11.427756",
+    "task_count": 5,
+    "file_count": 6,
+    "random_seed": 42,
+    "pattern": "montage",
+    "ccr": 1.0
+  },
+  "workflow": {
+    "tasks": [
+      {
+        "id": "preprocess_0",
+        "name": "Preprocess Image 0",
+        "memory": 2051,
+        "flops": 35577071938.31535,
+        "input_files": [
+          "raw_image_0.fits"
+        ],
+        "output_files": [
+          "processed_image_0.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "diff_0",
+        "name": "Difference Detection 0",
+        "memory": 1142,
+        "flops": 8673377807.052143,
+        "input_files": [
+          "processed_image_0.fits"
+        ],
+        "output_files": [
+          "diff_0.fits"
+        ],
+        "dependencies": [
+          "preprocess_0"
+        ]
+      },
+      {
+        "id": "diff_1",
+        "name": "Difference Detection 1",
+        "memory": 1913,
+        "flops": 15150492311.34367,
+        "input_files": [
+          "processed_image_0.fits"
+        ],
+        "output_files": [
+          "diff_1.fits"
+        ],
+        "dependencies": [
+          "preprocess_0"
+        ]
+      },
+      {
+        "id": "mosaic_0",
+        "name": "Final Mosaic 0",
+        "memory": 6418,
+        "flops": 63629322699.86798,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits"
+        ],
+        "output_files": [
+          "final_mosaic_0.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1"
+        ]
+      },
+      {
+        "id": "mosaic_1",
+        "name": "Final Mosaic 1",
+        "memory": 4122,
+        "flops": 53753745574.82163,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits"
+        ],
+        "output_files": [
+          "final_mosaic_1.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "id": "raw_image_0.fits",
+        "name": "raw_image_0.fits",
+        "size": 13553170262
+      },
+      {
+        "id": "processed_image_0.fits",
+        "name": "processed_image_0.fits",
+        "size": 13553170262
+      },
+      {
+        "id": "diff_0.fits",
+        "name": "diff_0.fits",
+        "size": 3304143926
+      },
+      {
+        "id": "diff_1.fits",
+        "name": "diff_1.fits",
+        "size": 5771616118
+      },
+      {
+        "id": "final_mosaic_0.fits",
+        "name": "final_mosaic_0.fits",
+        "size": 24239741980
+      },
+      {
+        "id": "final_mosaic_1.fits",
+        "name": "final_mosaic_1.fits",
+        "size": 20477617361
+      }
+    ],
+    "entry_task": "preprocess_0",
+    "exit_task": "mosaic_1"
+  }
+}

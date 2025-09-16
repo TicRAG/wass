@@ -119,7 +119,7 @@ class WRENCHRAGKnowledgeBase:
         logger.info(f"Knowledge base saved to {output_path}")
 
     def load_knowledge_base(self, filename: str):
-        """从文件加载知识库"""
+        """从文件加载知识库，兼容JSONKnowledgeBase格式"""
         input_path = Path(filename)
         
         if not input_path.exists():
@@ -133,7 +133,77 @@ class WRENCHRAGKnowledgeBase:
         self.cases = []
         self.case_index = {}
         
-        # 加载案例
+        # 检查数据格式并适配
+        if 'metadata' in data and 'cases' in data:
+            # JSONKnowledgeBase格式
+            logger.info("检测到JSONKnowledgeBase格式，进行格式转换...")
+            self._load_json_knowledge_base_format(data)
+        else:
+            # 原始WRENCHRAGKnowledgeBase格式
+            self._load_wrench_knowledge_base_format(data)
+        
+        logger.info(f"Knowledge base loaded from {input_path} with {len(self.cases)} cases")
+    
+    def _load_json_knowledge_base_format(self, data: Dict[str, Any]):
+        """加载JSONKnowledgeBase格式的数据"""
+        for case_dict in data['cases']:
+            try:
+                # 转换任务特征从字典到数组
+                task_features_dict = case_dict.get('task_features', {})
+                if isinstance(task_features_dict, dict):
+                    task_features = np.array([
+                        task_features_dict.get('task_flops', 0.0),
+                        task_features_dict.get('task_memory', 0.0),
+                        task_features_dict.get('task_inputs', 0.0),
+                        task_features_dict.get('task_outputs', 0.0),
+                        task_features_dict.get('task_dependencies', 0.0)
+                    ])
+                else:
+                    task_features = np.array(task_features_dict) if task_features_dict else np.zeros(5)
+                
+                # 转换工作流嵌入
+                workflow_embedding = np.array(case_dict.get('workflow_embedding', []))
+                if len(workflow_embedding) == 0:
+                    workflow_embedding = np.zeros(self.embedder_dim)
+                
+                # 创建WRENCH知识案例（使用默认值填充缺失字段）
+                case = WRENCHKnowledgeCase(
+                    workflow_id=case_dict.get('workflow_id', 'unknown'),
+                    task_count=case_dict.get('platform_features', {}).get('num_nodes', 5),
+                    dependency_ratio=0.3,  # 默认值
+                    critical_path_length=3,  # 默认值
+                    workflow_embedding=workflow_embedding,
+                    task_id=case_dict.get('task_id', 'unknown'),
+                    task_flops=task_features_dict.get('task_flops', 0.0) if isinstance(task_features_dict, dict) else 0.0,
+                    task_input_files=int(task_features_dict.get('task_inputs', 0)) if isinstance(task_features_dict, dict) else 0,
+                    task_output_files=int(task_features_dict.get('task_outputs', 0)) if isinstance(task_features_dict, dict) else 0,
+                    task_dependencies=int(task_features_dict.get('task_dependencies', 0)) if isinstance(task_features_dict, dict) else 0,
+                    task_children=0,  # 默认值
+                    task_features=task_features,
+                    available_nodes=['node_0', 'node_1', 'node_2', 'node_3', 'node_4'],  # 默认值
+                    node_capacities={'node_0': 1.0, 'node_1': 1.0, 'node_2': 1.0, 'node_3': 1.0, 'node_4': 1.0},  # 默认值
+                    node_loads={'node_0': 0.0, 'node_1': 0.0, 'node_2': 0.0, 'node_3': 0.0, 'node_4': 0.0},  # 默认值
+                    node_features=np.zeros(10),  # 默认值
+                    scheduler_type=case_dict.get('scheduler_type', 'HEFT'),
+                    chosen_node=case_dict.get('chosen_node', 'node_0'),
+                    action_taken=0,  # 默认值
+                    task_execution_time=case_dict.get('task_execution_time', 0.0),
+                    task_wait_time=0.0,  # 默认值
+                    workflow_makespan=case_dict.get('makespan', 0.0),
+                    node_utilization={'node_0': 0.0, 'node_1': 0.0, 'node_2': 0.0, 'node_3': 0.0, 'node_4': 0.0},  # 默认值
+                    simulation_time=0.0,  # 默认值
+                    platform_config='default',  # 默认值
+                    metadata={'quality_score': case_dict.get('case_quality_score', 1.0), 'is_real_case': case_dict.get('is_real_case', True)}
+                )
+                
+                self.add_case(case)
+                
+            except Exception as e:
+                logger.warning(f"跳过案例加载失败: {e}")
+                continue
+    
+    def _load_wrench_knowledge_base_format(self, data: Dict[str, Any]):
+        """加载原始WRENCHRAGKnowledgeBase格式的数据"""
         for case_dict in data['cases']:
             # 转换列表为numpy数组
             case_dict['workflow_embedding'] = np.array(case_dict['workflow_embedding'])
@@ -143,7 +213,5 @@ class WRENCHRAGKnowledgeBase:
             # 创建案例对象
             case = WRENCHKnowledgeCase(**case_dict)
             self.add_case(case)
-        
-        logger.info(f"Knowledge base loaded from {input_path} with {len(self.cases)} cases")
 
 __all__ = ["WRENCHKnowledgeCase", "WRENCHRAGKnowledgeBase"]

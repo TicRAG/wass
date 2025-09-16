@@ -195,7 +195,7 @@ class RAGFusionFix:
     
     def _normalize_values(self, values):
         """归一化值列表"""
-        if not values:
+        if values is None or len(values) == 0:
             return []
         
         values = np.array(values)

@@ -1,0 +1,16 @@
+ccr: 1.0
+large_sizes:
+- 200
+- 500
+medium_sizes:
+- 50
+- 100
+patterns:
+- montage
+random_seed: 42
+small_sizes:
+- 5
+- 10
+- 15
+- 20
+workflow_dir: workflows

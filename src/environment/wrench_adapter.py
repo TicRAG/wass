@@ -37,6 +37,15 @@ class PythonRLScheduler:
         self.decision_needed_event.clear()
         self.decision_made_event.set()
 
+class WrenchSchedulerAdapter:
+    """A simple adapter class for wrapping existing scheduler decision methods for use in WRENCH."""
+    def __init__(self, scheduling_decision_method: Callable):
+        self.scheduling_decision_method = scheduling_decision_method
+    
+    def __call__(self, job: wrench.StandardJob, available_resources: List[str]):
+        """Directly calls the wrapped scheduling decision method."""
+        return self.scheduling_decision_method(job, available_resources)
+
 def parse_platform(platform_file: str) -> (str, Dict[str, Dict]):
     """Parses a platform XML file to extract properties."""
     host_properties = {}

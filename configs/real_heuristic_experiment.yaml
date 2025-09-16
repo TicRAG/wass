@@ -1,21 +1,17 @@
-# Wrench实验对比配置
-platform_file: "test_platform.xml"
-workflow_dir: "workflows"
-output_dir: "results/final_experiments_discrete_event"
-repetitions: 3
-workflow_sizes: [5, 10, 15, 20]
-
-# 要在实验中启用的调度器列表
+drl_model_path: models/improved_wass_drl.pth
 enabled_schedulers:
-  - "FIFO"
-  - "HEFT"
-  - "WASS-Heuristic"
-  - "WASS-DRL"
-  - "WASS-RAG"
-
-# RAG调度器特定的配置路径
-rag_config_path: "configs/rag.yaml"
-
-# [FIX] 添加缺失的DRL模型路径配置
-# 这个路径必须与阶段三中保存模型的路径完全一致
-drl_model_path: "models/improved_wass_drl.pth"
+- FIFO
+- HEFT
+- WASS-Heuristic
+- WASS-DRL
+- WASS-RAG
+output_dir: results/final_experiments_discrete_event
+platform_file: test_platform.xml
+rag_config_path: configs/rag.yaml
+repetitions: 3
+workflow_dir: workflows
+workflow_sizes:
+- 5
+- 10
+- 15
+- 20

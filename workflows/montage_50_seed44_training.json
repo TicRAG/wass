@@ -1,0 +1,1630 @@
+{
+  "metadata": {
+    "name": "Montage-like-50",
+    "description": "天文学图像拼接工作流，50个任务",
+    "generated_at": "2025-09-17T00:22:11.432154",
+    "task_count": 50,
+    "file_count": 66,
+    "random_seed": 44,
+    "pattern": "montage",
+    "ccr": 1.0
+  },
+  "workflow": {
+    "tasks": [
+      {
+        "id": "preprocess_0",
+        "name": "Preprocess Image 0",
+        "memory": 3109,
+        "flops": 26341435170.17975,
+        "input_files": [
+          "raw_image_0.fits"
+        ],
+        "output_files": [
+          "processed_image_0.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_1",
+        "name": "Preprocess Image 1",
+        "memory": 2238,
+        "flops": 38064568895.70851,
+        "input_files": [
+          "raw_image_1.fits"
+        ],
+        "output_files": [
+          "processed_image_1.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_2",
+        "name": "Preprocess Image 2",
+        "memory": 2461,
+        "flops": 17066625767.817753,
+        "input_files": [
+          "raw_image_2.fits"
+        ],
+        "output_files": [
+          "processed_image_2.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_3",
+        "name": "Preprocess Image 3",
+        "memory": 2460,
+        "flops": 21582723864.643944,
+        "input_files": [
+          "raw_image_3.fits"
+        ],
+        "output_files": [
+          "processed_image_3.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_4",
+        "name": "Preprocess Image 4",
+        "memory": 2018,
+        "flops": 14666021337.714552,
+        "input_files": [
+          "raw_image_4.fits"
+        ],
+        "output_files": [
+          "processed_image_4.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_5",
+        "name": "Preprocess Image 5",
+        "memory": 3586,
+        "flops": 14007204221.69278,
+        "input_files": [
+          "raw_image_5.fits"
+        ],
+        "output_files": [
+          "processed_image_5.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_6",
+        "name": "Preprocess Image 6",
+        "memory": 2620,
+        "flops": 30548528340.107025,
+        "input_files": [
+          "raw_image_6.fits"
+        ],
+        "output_files": [
+          "processed_image_6.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_7",
+        "name": "Preprocess Image 7",
+        "memory": 2775,
+        "flops": 37740410457.25752,
+        "input_files": [
+          "raw_image_7.fits"
+        ],
+        "output_files": [
+          "processed_image_7.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_8",
+        "name": "Preprocess Image 8",
+        "memory": 3568,
+        "flops": 33639887096.00202,
+        "input_files": [
+          "raw_image_8.fits"
+        ],
+        "output_files": [
+          "processed_image_8.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_9",
+        "name": "Preprocess Image 9",
+        "memory": 2667,
+        "flops": 37652385136.49517,
+        "input_files": [
+          "raw_image_9.fits"
+        ],
+        "output_files": [
+          "processed_image_9.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_10",
+        "name": "Preprocess Image 10",
+        "memory": 2693,
+        "flops": 24331374488.33985,
+        "input_files": [
+          "raw_image_10.fits"
+        ],
+        "output_files": [
+          "processed_image_10.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_11",
+        "name": "Preprocess Image 11",
+        "memory": 3264,
+        "flops": 43660915876.24837,
+        "input_files": [
+          "raw_image_11.fits"
+        ],
+        "output_files": [
+          "processed_image_11.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_12",
+        "name": "Preprocess Image 12",
+        "memory": 3046,
+        "flops": 16361936364.176817,
+        "input_files": [
+          "raw_image_12.fits"
+        ],
+        "output_files": [
+          "processed_image_12.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_13",
+        "name": "Preprocess Image 13",
+        "memory": 2193,
+        "flops": 12802667495.196692,
+        "input_files": [
+          "raw_image_13.fits"
+        ],
+        "output_files": [
+          "processed_image_13.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_14",
+        "name": "Preprocess Image 14",
+        "memory": 2645,
+        "flops": 20800061809.695732,
+        "input_files": [
+          "raw_image_14.fits"
+        ],
+        "output_files": [
+          "processed_image_14.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "preprocess_15",
+        "name": "Preprocess Image 15",
+        "memory": 3280,
+        "flops": 14308674616.550774,
+        "input_files": [
+          "raw_image_15.fits"
+        ],
+        "output_files": [
+          "processed_image_15.fits"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "diff_0",
+        "name": "Difference Detection 0",
+        "memory": 1098,
+        "flops": 10168265892.477203,
+        "input_files": [
+          "processed_image_9.fits",
+          "processed_image_0.fits"
+        ],
+        "output_files": [
+          "diff_0.fits"
+        ],
+        "dependencies": [
+          "preprocess_9",
+          "preprocess_0"
+        ]
+      },
+      {
+        "id": "diff_1",
+        "name": "Difference Detection 1",
+        "memory": 1193,
+        "flops": 18753341904.719994,
+        "input_files": [
+          "processed_image_15.fits",
+          "processed_image_7.fits"
+        ],
+        "output_files": [
+          "diff_1.fits"
+        ],
+        "dependencies": [
+          "preprocess_15",
+          "preprocess_7"
+        ]
+      },
+      {
+        "id": "diff_2",
+        "name": "Difference Detection 2",
+        "memory": 1795,
+        "flops": 16206743707.652908,
+        "input_files": [
+          "processed_image_4.fits",
+          "processed_image_15.fits"
+        ],
+        "output_files": [
+          "diff_2.fits"
+        ],
+        "dependencies": [
+          "preprocess_4",
+          "preprocess_15"
+        ]
+      },
+      {
+        "id": "diff_3",
+        "name": "Difference Detection 3",
+        "memory": 1836,
+        "flops": 15105752307.240469,
+        "input_files": [
+          "processed_image_1.fits",
+          "processed_image_0.fits"
+        ],
+        "output_files": [
+          "diff_3.fits"
+        ],
+        "dependencies": [
+          "preprocess_1",
+          "preprocess_0"
+        ]
+      },
+      {
+        "id": "diff_4",
+        "name": "Difference Detection 4",
+        "memory": 1730,
+        "flops": 5567502871.744873,
+        "input_files": [
+          "processed_image_13.fits",
+          "processed_image_11.fits"
+        ],
+        "output_files": [
+          "diff_4.fits"
+        ],
+        "dependencies": [
+          "preprocess_13",
+          "preprocess_11"
+        ]
+      },
+      {
+        "id": "diff_5",
+        "name": "Difference Detection 5",
+        "memory": 1645,
+        "flops": 17457225338.095222,
+        "input_files": [
+          "processed_image_10.fits",
+          "processed_image_5.fits"
+        ],
+        "output_files": [
+          "diff_5.fits"
+        ],
+        "dependencies": [
+          "preprocess_10",
+          "preprocess_5"
+        ]
+      },
+      {
+        "id": "diff_6",
+        "name": "Difference Detection 6",
+        "memory": 1154,
+        "flops": 17029435136.22836,
+        "input_files": [
+          "processed_image_14.fits",
+          "processed_image_9.fits"
+        ],
+        "output_files": [
+          "diff_6.fits"
+        ],
+        "dependencies": [
+          "preprocess_14",
+          "preprocess_9"
+        ]
+      },
+      {
+        "id": "diff_7",
+        "name": "Difference Detection 7",
+        "memory": 1813,
+        "flops": 11833587511.64865,
+        "input_files": [
+          "processed_image_7.fits",
+          "processed_image_15.fits"
+        ],
+        "output_files": [
+          "diff_7.fits"
+        ],
+        "dependencies": [
+          "preprocess_7",
+          "preprocess_15"
+        ]
+      },
+      {
+        "id": "diff_8",
+        "name": "Difference Detection 8",
+        "memory": 1859,
+        "flops": 17294209335.745922,
+        "input_files": [
+          "processed_image_11.fits",
+          "processed_image_9.fits"
+        ],
+        "output_files": [
+          "diff_8.fits"
+        ],
+        "dependencies": [
+          "preprocess_11",
+          "preprocess_9"
+        ]
+      },
+      {
+        "id": "diff_9",
+        "name": "Difference Detection 9",
+        "memory": 1228,
+        "flops": 7359038815.940534,
+        "input_files": [
+          "processed_image_1.fits",
+          "processed_image_4.fits"
+        ],
+        "output_files": [
+          "diff_9.fits"
+        ],
+        "dependencies": [
+          "preprocess_1",
+          "preprocess_4"
+        ]
+      },
+      {
+        "id": "diff_10",
+        "name": "Difference Detection 10",
+        "memory": 1662,
+        "flops": 16301828504.036692,
+        "input_files": [
+          "processed_image_0.fits",
+          "processed_image_9.fits"
+        ],
+        "output_files": [
+          "diff_10.fits"
+        ],
+        "dependencies": [
+          "preprocess_0",
+          "preprocess_9"
+        ]
+      },
+      {
+        "id": "diff_11",
+        "name": "Difference Detection 11",
+        "memory": 1414,
+        "flops": 13452175058.317959,
+        "input_files": [
+          "processed_image_9.fits",
+          "processed_image_5.fits"
+        ],
+        "output_files": [
+          "diff_11.fits"
+        ],
+        "dependencies": [
+          "preprocess_9",
+          "preprocess_5"
+        ]
+      },
+      {
+        "id": "diff_12",
+        "name": "Difference Detection 12",
+        "memory": 1858,
+        "flops": 10101957296.469141,
+        "input_files": [
+          "processed_image_3.fits",
+          "processed_image_5.fits"
+        ],
+        "output_files": [
+          "diff_12.fits"
+        ],
+        "dependencies": [
+          "preprocess_3",
+          "preprocess_5"
+        ]
+      },
+      {
+        "id": "diff_13",
+        "name": "Difference Detection 13",
+        "memory": 1443,
+        "flops": 15750552906.759737,
+        "input_files": [
+          "processed_image_7.fits",
+          "processed_image_9.fits"
+        ],
+        "output_files": [
+          "diff_13.fits"
+        ],
+        "dependencies": [
+          "preprocess_7",
+          "preprocess_9"
+        ]
+      },
+      {
+        "id": "diff_14",
+        "name": "Difference Detection 14",
+        "memory": 1125,
+        "flops": 14346317403.831928,
+        "input_files": [
+          "processed_image_1.fits",
+          "processed_image_10.fits"
+        ],
+        "output_files": [
+          "diff_14.fits"
+        ],
+        "dependencies": [
+          "preprocess_1",
+          "preprocess_10"
+        ]
+      },
+      {
+        "id": "mosaic_0",
+        "name": "Final Mosaic 0",
+        "memory": 7819,
+        "flops": 31414595353.2697,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_0.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_1",
+        "name": "Final Mosaic 1",
+        "memory": 7422,
+        "flops": 71395882806.27548,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_1.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_2",
+        "name": "Final Mosaic 2",
+        "memory": 6660,
+        "flops": 20431746613.76302,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_2.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_3",
+        "name": "Final Mosaic 3",
+        "memory": 6643,
+        "flops": 43495883894.591446,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_3.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_4",
+        "name": "Final Mosaic 4",
+        "memory": 4304,
+        "flops": 25044816894.56051,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_4.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_5",
+        "name": "Final Mosaic 5",
+        "memory": 5121,
+        "flops": 20539139768.63009,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_5.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_6",
+        "name": "Final Mosaic 6",
+        "memory": 6145,
+        "flops": 34271672778.270138,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_6.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_7",
+        "name": "Final Mosaic 7",
+        "memory": 4789,
+        "flops": 70118024753.47037,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_7.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_8",
+        "name": "Final Mosaic 8",
+        "memory": 7402,
+        "flops": 88644141459.83719,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_8.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_9",
+        "name": "Final Mosaic 9",
+        "memory": 5978,
+        "flops": 24862650799.37808,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_9.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_10",
+        "name": "Final Mosaic 10",
+        "memory": 5075,
+        "flops": 96874471889.78503,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_10.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_11",
+        "name": "Final Mosaic 11",
+        "memory": 6098,
+        "flops": 97886490264.46123,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_11.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_12",
+        "name": "Final Mosaic 12",
+        "memory": 7229,
+        "flops": 80085733452.40378,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_12.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_13",
+        "name": "Final Mosaic 13",
+        "memory": 6237,
+        "flops": 67975641089.6203,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_13.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_14",
+        "name": "Final Mosaic 14",
+        "memory": 4267,
+        "flops": 83812082700.52141,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_14.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_15",
+        "name": "Final Mosaic 15",
+        "memory": 5228,
+        "flops": 42731091076.813736,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_15.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_16",
+        "name": "Final Mosaic 16",
+        "memory": 5237,
+        "flops": 52092950584.34392,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_16.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_17",
+        "name": "Final Mosaic 17",
+        "memory": 7861,
+        "flops": 63768402864.12172,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_17.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      },
+      {
+        "id": "mosaic_18",
+        "name": "Final Mosaic 18",
+        "memory": 5300,
+        "flops": 55982686324.58047,
+        "input_files": [
+          "diff_0.fits",
+          "diff_1.fits",
+          "diff_2.fits",
+          "diff_3.fits",
+          "diff_4.fits",
+          "diff_5.fits",
+          "diff_6.fits",
+          "diff_7.fits",
+          "diff_8.fits",
+          "diff_9.fits",
+          "diff_10.fits",
+          "diff_11.fits",
+          "diff_12.fits",
+          "diff_13.fits",
+          "diff_14.fits"
+        ],
+        "output_files": [
+          "final_mosaic_18.fits"
+        ],
+        "dependencies": [
+          "diff_0",
+          "diff_1",
+          "diff_2",
+          "diff_3",
+          "diff_4",
+          "diff_5",
+          "diff_6",
+          "diff_7",
+          "diff_8",
+          "diff_9",
+          "diff_10",
+          "diff_11",
+          "diff_12",
+          "diff_13",
+          "diff_14"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "id": "raw_image_0.fits",
+        "name": "raw_image_0.fits",
+        "size": 10034832445
+      },
+      {
+        "id": "processed_image_0.fits",
+        "name": "processed_image_0.fits",
+        "size": 10034832445
+      },
+      {
+        "id": "raw_image_1.fits",
+        "name": "raw_image_1.fits",
+        "size": 14500788150
+      },
+      {
+        "id": "processed_image_1.fits",
+        "name": "processed_image_1.fits",
+        "size": 14500788150
+      },
+      {
+        "id": "raw_image_2.fits",
+        "name": "raw_image_2.fits",
+        "size": 6501571721
+      },
+      {
+        "id": "processed_image_2.fits",
+        "name": "processed_image_2.fits",
+        "size": 6501571721
+      },
+      {
+        "id": "raw_image_3.fits",
+        "name": "raw_image_3.fits",
+        "size": 8221990043
+      },
+      {
+        "id": "processed_image_3.fits",
+        "name": "processed_image_3.fits",
+        "size": 8221990043
+      },
+      {
+        "id": "raw_image_4.fits",
+        "name": "raw_image_4.fits",
+        "size": 5587055747
+      },
+      {
+        "id": "processed_image_4.fits",
+        "name": "processed_image_4.fits",
+        "size": 5587055747
+      },
+      {
+        "id": "raw_image_5.fits",
+        "name": "raw_image_5.fits",
+        "size": 5336077798
+      },
+      {
+        "id": "processed_image_5.fits",
+        "name": "processed_image_5.fits",
+        "size": 5336077798
+      },
+      {
+        "id": "raw_image_6.fits",
+        "name": "raw_image_6.fits",
+        "size": 11637534605
+      },
+      {
+        "id": "processed_image_6.fits",
+        "name": "processed_image_6.fits",
+        "size": 11637534605
+      },
+      {
+        "id": "raw_image_7.fits",
+        "name": "raw_image_7.fits",
+        "size": 14377299221
+      },
+      {
+        "id": "processed_image_7.fits",
+        "name": "processed_image_7.fits",
+        "size": 14377299221
+      },
+      {
+        "id": "raw_image_8.fits",
+        "name": "raw_image_8.fits",
+        "size": 12815195084
+      },
+      {
+        "id": "processed_image_8.fits",
+        "name": "processed_image_8.fits",
+        "size": 12815195084
+      },
+      {
+        "id": "raw_image_9.fits",
+        "name": "raw_image_9.fits",
+        "size": 14343765766
+      },
+      {
+        "id": "processed_image_9.fits",
+        "name": "processed_image_9.fits",
+        "size": 14343765766
+      },
+      {
+        "id": "raw_image_10.fits",
+        "name": "raw_image_10.fits",
+        "size": 9269095043
+      },
+      {
+        "id": "processed_image_10.fits",
+        "name": "processed_image_10.fits",
+        "size": 9269095043
+      },
+      {
+        "id": "raw_image_11.fits",
+        "name": "raw_image_11.fits",
+        "size": 16632729857
+      },
+      {
+        "id": "processed_image_11.fits",
+        "name": "processed_image_11.fits",
+        "size": 16632729857
+      },
+      {
+        "id": "raw_image_12.fits",
+        "name": "raw_image_12.fits",
+        "size": 6233118614
+      },
+      {
+        "id": "processed_image_12.fits",
+        "name": "processed_image_12.fits",
+        "size": 6233118614
+      },
+      {
+        "id": "raw_image_13.fits",
+        "name": "raw_image_13.fits",
+        "size": 4877206664
+      },
+      {
+        "id": "processed_image_13.fits",
+        "name": "processed_image_13.fits",
+        "size": 4877206664
+      },
+      {
+        "id": "raw_image_14.fits",
+        "name": "raw_image_14.fits",
+        "size": 7923833070
+      },
+      {
+        "id": "processed_image_14.fits",
+        "name": "processed_image_14.fits",
+        "size": 7923833070
+      },
+      {
+        "id": "raw_image_15.fits",
+        "name": "raw_image_15.fits",
+        "size": 5450923663
+      },
+      {
+        "id": "processed_image_15.fits",
+        "name": "processed_image_15.fits",
+        "size": 5450923663
+      },
+      {
+        "id": "diff_0.fits",
+        "name": "diff_0.fits",
+        "size": 3873625101
+      },
+      {
+        "id": "diff_1.fits",
+        "name": "diff_1.fits",
+        "size": 7144130249
+      },
+      {
+        "id": "diff_2.fits",
+        "name": "diff_2.fits",
+        "size": 6173997602
+      },
+      {
+        "id": "diff_3.fits",
+        "name": "diff_3.fits",
+        "size": 5754572307
+      },
+      {
+        "id": "diff_4.fits",
+        "name": "diff_4.fits",
+        "size": 2120953474
+      },
+      {
+        "id": "diff_5.fits",
+        "name": "diff_5.fits",
+        "size": 6650371557
+      },
+      {
+        "id": "diff_6.fits",
+        "name": "diff_6.fits",
+        "size": 6487403861
+      },
+      {
+        "id": "diff_7.fits",
+        "name": "diff_7.fits",
+        "size": 4508033337
+      },
+      {
+        "id": "diff_8.fits",
+        "name": "diff_8.fits",
+        "size": 6588270223
+      },
+      {
+        "id": "diff_9.fits",
+        "name": "diff_9.fits",
+        "size": 2803443358
+      },
+      {
+        "id": "diff_10.fits",
+        "name": "diff_10.fits",
+        "size": 6210220382
+      },
+      {
+        "id": "diff_11.fits",
+        "name": "diff_11.fits",
+        "size": 5124638117
+      },
+      {
+        "id": "diff_12.fits",
+        "name": "diff_12.fits",
+        "size": 3848364684
+      },
+      {
+        "id": "diff_13.fits",
+        "name": "diff_13.fits",
+        "size": 6000210631
+      },
+      {
+        "id": "diff_14.fits",
+        "name": "diff_14.fits",
+        "size": 5465263772
+      },
+      {
+        "id": "final_mosaic_0.fits",
+        "name": "final_mosaic_0.fits",
+        "size": 11967464896
+      },
+      {
+        "id": "final_mosaic_1.fits",
+        "name": "final_mosaic_1.fits",
+        "size": 27198431545
+      },
+      {
+        "id": "final_mosaic_2.fits",
+        "name": "final_mosaic_2.fits",
+        "size": 7783522519
+      },
+      {
+        "id": "final_mosaic_3.fits",
+        "name": "final_mosaic_3.fits",
+        "size": 16569860531
+      },
+      {
+        "id": "final_mosaic_4.fits",
+        "name": "final_mosaic_4.fits",
+        "size": 9540882626
+      },
+      {
+        "id": "final_mosaic_5.fits",
+        "name": "final_mosaic_5.fits",
+        "size": 7824434197
+      },
+      {
+        "id": "final_mosaic_6.fits",
+        "name": "final_mosaic_6.fits",
+        "size": 13055875344
+      },
+      {
+        "id": "final_mosaic_7.fits",
+        "name": "final_mosaic_7.fits",
+        "size": 26711628477
+      },
+      {
+        "id": "final_mosaic_8.fits",
+        "name": "final_mosaic_8.fits",
+        "size": 33769196746
+      },
+      {
+        "id": "final_mosaic_9.fits",
+        "name": "final_mosaic_9.fits",
+        "size": 9471486018
+      },
+      {
+        "id": "final_mosaic_10.fits",
+        "name": "final_mosaic_10.fits",
+        "size": 36904560719
+      },
+      {
+        "id": "final_mosaic_11.fits",
+        "name": "final_mosaic_11.fits",
+        "size": 37290091529
+      },
+      {
+        "id": "final_mosaic_12.fits",
+        "name": "final_mosaic_12.fits",
+        "size": 30508850839
+      },
+      {
+        "id": "final_mosaic_13.fits",
+        "name": "final_mosaic_13.fits",
+        "size": 25895482319
+      },
+      {
+        "id": "final_mosaic_14.fits",
+        "name": "final_mosaic_14.fits",
+        "size": 31928412457
+      },
+      {
+        "id": "final_mosaic_15.fits",
+        "name": "final_mosaic_15.fits",
+        "size": 16278510886
+      },
+      {
+        "id": "final_mosaic_16.fits",
+        "name": "final_mosaic_16.fits",
+        "size": 19844933555
+      },
+      {
+        "id": "final_mosaic_17.fits",
+        "name": "final_mosaic_17.fits",
+        "size": 24292724900
+      },
+      {
+        "id": "final_mosaic_18.fits",
+        "name": "final_mosaic_18.fits",
+        "size": 21326737647
+      }
+    ],
+    "entry_task": "preprocess_0",
+    "exit_task": "mosaic_18"
+  }
+}
