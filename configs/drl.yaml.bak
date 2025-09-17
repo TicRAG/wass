@@ -33,7 +33,7 @@ logging:
   fusion_debug: results/fusion_debug.log
   metrics_file: results/training_metrics.jsonl
   reward_debug: results/reward_debug.log
-platform_file: "test_platform.xml"
+platform_file: test_platform.xml
 task_range:
 - 5
 - 20

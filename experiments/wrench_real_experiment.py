@@ -137,9 +137,9 @@ class RealWrenchExperiment:
         schedulers_map = {
             "FIFO": FIFOScheduler,
             "HEFT": HEFTScheduler,
-            # "WASS-Heuristic": WASSHeuristicScheduler,
-            # "WASS-DRL": create_wass_drl,
-            # "WASS-RAG": create_wass_rag
+            "WASS-Heuristic": WASSHeuristicScheduler,
+            "WASS-DRL": create_wass_drl,
+            "WASS-RAG": create_wass_rag
         }
         
         enabled_schedulers = self.config.get('enabled_schedulers', list(schedulers_map.keys()))

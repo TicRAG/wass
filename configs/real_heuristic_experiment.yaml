@@ -12,5 +12,3 @@ workflow_dir: workflows
 workflow_sizes:
 - 5
 - 10
-# - 15
-# - 20
