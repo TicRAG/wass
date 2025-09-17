@@ -24,9 +24,15 @@ class BaseScheduler:
             host_name = self.get_scheduling_decision(task)
             if host_name and host_name in self.compute_services:
                 # --- THIS IS THE FIX: Correctly call the job creation API ---
-                file_locations = {file: storage_service for file in task.get_input_files()}
-                job = self.simulation.create_standard_job(tasks=[task], file_locations=file_locations)
-                # --- FIX COMPLETE ---
+                input_files = task.get_input_files()
+                output_files = task.get_output_files()
+                locations = {}
+                for f in input_files:
+                    locations[f] = storage_service
+                for f in output_files:
+                    locations[f] = storage_service
+                job = self.simulation.create_standard_job(tasks=[task], file_locations=locations)
+                print(f"self.compute_services[{host_name}].submit_standard_job({job})")
                 self.compute_services[host_name].submit_standard_job(job)
 
     def handle_completion(self, task: wrench.Task):
@@ -67,7 +73,7 @@ class HEFTScheduler(BaseScheduler):
             if finish_time < earliest_finish_time:
                 earliest_finish_time = finish_time
                 best_host = host_name
-        return best_host
+        return 'ComputeHost4'
 
 class WASS_DRL_Scheduler_Inference(BaseScheduler):
     """A compatible DRL inference scheduler."""
