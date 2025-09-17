@@ -7,6 +7,8 @@ import wrench
 import pandas as pd
 from pathlib import Path
 import json
+import torch
+from src.drl.utils import workflow_json_to_pyg_data
 
 # 基础调度器类
 class BaseScheduler:
@@ -200,3 +202,72 @@ class RecordingHEFTScheduler(HEFTScheduler):
     def get_recorded_decisions(self) -> list:
         """获取所有记录下来的决策"""
         return self.decisions
+
+class WASS_RAG_Scheduler_Trainable(BaseScheduler):
+    """
+    A special scheduler designed specifically for the DRL training loop.
+    It connects the DRL agent to the WRENCH simulation environment.
+    """
+    def __init__(self, simulation, compute_services, hosts, agent, teacher, replay_buffer, gnn_encoder, workflow_file):
+        """
+        Initializes the trainable scheduler.
+
+        Args:
+            simulation: The WRENCH simulation object.
+            compute_services: A dictionary of compute services.
+            hosts: A dictionary of host information.
+            agent: An instance of the PPO ActorCritic agent.
+            teacher: An instance of the KnowledgeableTeacher.
+            replay_buffer: An instance of the ReplayBuffer.
+            gnn_encoder: An instance of the GNNEncoder.
+            workflow_file (str): The path to the current workflow JSON file, needed for state extraction.
+        """
+        super().__init__(simulation, compute_services, hosts)
+        self.agent = agent
+        self.teacher = teacher
+        self.replay_buffer = replay_buffer
+        self.gnn_encoder = gnn_encoder
+        self.workflow_file = workflow_file # Store the path to the workflow file
+
+        # A simple flag to encode the static graph state only once per simulation
+        self.state_embedding = None
+        
+        print("🤖 WASS_RAG_Scheduler_Trainable initialized and ready for training.")
+
+    def get_scheduling_decision(self, task: 'wrench.Task') -> str:
+        """
+        This method is called by WRENCH at each decision point.
+        It performs one step of the reinforcement learning loop.
+        """
+        # 1. Get State Embedding
+        # For now, we use a simplified state representation: the static graph of the
+        # entire workflow. We compute it once and reuse it for all decisions in an episode.
+        if self.state_embedding is None:
+            print("    [DRL] First decision: Encoding workflow graph into state embedding...")
+            # We reuse the utility from the seeding step to represent the state
+            pyg_data = workflow_json_to_pyg_data(self.workflow_file)
+            self.state_embedding = self.gnn_encoder(pyg_data)
+
+        # 2. Agent chooses an Action
+        # The agent decides which host to schedule the task on.
+        # The action is an integer index corresponding to a host.
+        action_index, log_prob = self.agent.act(self.state_embedding)
+
+        # 3. Teacher provides a Reward
+        # The RAG teacher immediately provides a reward for this action based on historical data.
+        rag_reward = self.teacher.generate_rag_reward(self.state_embedding, action_index)
+        
+        # 4. Store the experience tuple in the replay buffer
+        self.replay_buffer.add(
+            state=self.state_embedding,
+            action=action_index,
+            logprob=log_prob,
+            reward=rag_reward
+        )
+        
+        # 5. Return the decision to WRENCH
+        # Convert the action index back to a host name
+        chosen_host_name = list(self.hosts.keys())[action_index]
+        print(f"    [DRL] Task '{task.get_name()}' -> Agent Action: {chosen_host_name}, RAG Reward: {rag_reward:.4f}")
+        
+        return chosen_host_name
