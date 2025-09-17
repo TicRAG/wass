@@ -7,6 +7,7 @@ medium_sizes:
 - 100
 patterns:
 - montage
+- highly_parallel
 random_seed: 42
 small_sizes:
 - 5

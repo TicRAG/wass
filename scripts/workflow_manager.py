@@ -45,7 +45,7 @@ class WorkflowManager:
             # 如果配置文件不存在，使用默认配置
             self.config = {
                 'workflow_dir': 'workflows',
-                'patterns': ['montage'],
+                'patterns': ['montage', 'highly_parallel'],
                 'small_sizes': [5, 10, 15, 20],
                 'medium_sizes': [50, 100],
                 'large_sizes': [200, 500],

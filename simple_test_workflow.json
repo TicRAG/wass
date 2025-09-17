@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "Simple Test Workflow",
+    "task_count": 1,
+    "pattern": "test"
+  },
+  "workflow": {
+    "tasks": [
+      {
+        "id": "test_task",
+        "name": "Test Task",
+        "flops": 10000000000.0,
+        "memory": 100,
+        "input_files": [],
+        "output_files": [
+          "output.dat"
+        ],
+        "dependencies": []
+      }
+    ],
+    "files": [
+      {
+        "id": "output.dat",
+        "name": "output.dat",
+        "size": 1000000
+      }
+    ]
+  }
+}

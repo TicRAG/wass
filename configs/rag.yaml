@@ -1,15 +1,29 @@
-rag:
-  retriever: wrench_similarity
-  top_k: 5
-  fusion: weighted
-  num_cases: 2000
-  embedding_dim: 64
-  knowledge_base_path: data/real_heuristic_kb.json
+# RAG配置 - 优化WASS-RAG性能
+rag_config:
+  retriever:
+    type: wrench_similarity
+    top_k: 5  # 减少top_k以提高质量
+    fusion_method: weighted  # weighted, voting, or priority
+    
+  knowledge_base:
+    path: data/real_heuristic_kb.json
+    
   workflow_sizes: [5, 10, 15, 20]
-  schedulers: [HEFT, WASS-Heuristic]
-  dependency_prob: 0.3
+  scheduler_references: [HEFT, WASS-Heuristic]  # 专注于性能较好的调度器
+  
   similarity_weights:
-    workflow: 0.7
-    task: 0.3
-  num_clusters: 20
-  max_kmeans_iters: 50
+    workflow: 0.8  # 增加workflow权重，因为工作流结构更重要
+    task: 0.2
+    
+  clustering:
+    num_clusters: 20  # 标准聚类数量
+    max_kmeans_iters: 50  # 标准迭代次数
+    
+  fusion_strategy:
+    confidence_threshold: 0.3  # 降低置信度阈值，更容易接受RAG建议
+    exploration_rate: 0.05  # 降低探索率
+    use_makespan_info: true  # 使用makespan信息
+    
+  fallback_strategy:
+    use_heuristic: true  # 当RAG失败时使用启发式
+    heuristic_weight: 0.5  # 启发式建议的权重

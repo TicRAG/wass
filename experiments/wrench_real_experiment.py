@@ -4,6 +4,10 @@ import torch
 import yaml
 import sys
 import os
+import logging
+
+# 配置日志级别为WARNING，减少输出
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Add project root to Python path
 current_dir = Path(__file__).parent
@@ -133,9 +137,9 @@ class RealWrenchExperiment:
         schedulers_map = {
             "FIFO": FIFOScheduler,
             "HEFT": HEFTScheduler,
-            "WASS-Heuristic": WASSHeuristicScheduler,
-            "WASS-DRL": create_wass_drl,
-            "WASS-RAG": create_wass_rag
+            # "WASS-Heuristic": WASSHeuristicScheduler,
+            # "WASS-DRL": create_wass_drl,
+            # "WASS-RAG": create_wass_rag
         }
         
         enabled_schedulers = self.config.get('enabled_schedulers', list(schedulers_map.keys()))

@@ -65,6 +65,46 @@ class SimplePerformancePredictor(nn.Module):
                 x_tensor = x.float().unsqueeze(0)
             out = self.forward(x_tensor).item()
         return out
+    
+    def extract_graph_features(self, dag, node_features, focus_task_id=None):
+        """
+        提取图特征用于GNN预测
+        这是一个兼容性方法，将图数据转换为预测器可处理的特征向量
+        """
+        # 简化的图特征提取：将节点特征展平并添加一些图结构信息
+        if isinstance(node_features, dict):
+            # 如果是字典格式，提取数值特征
+            feature_list = []
+            for node_name, features in node_features.items():
+                if isinstance(features, dict):
+                    # 提取关键特征
+                    feature_values = [
+                        features.get('speed', 0.0),
+                        features.get('available_time', 0.0),
+                        features.get('queue_length', 0.0)
+                    ]
+                    feature_list.extend(feature_values)
+                else:
+                    # 如果是数组或列表
+                    if hasattr(features, '__iter__') and not isinstance(features, str):
+                        feature_list.extend(list(features))
+                    else:
+                        feature_list.append(float(features))
+            
+            # 限制特征维度，避免过大
+            max_features = 50  # 根据预测器输入维度调整
+            if len(feature_list) > max_features:
+                feature_list = feature_list[:max_features]
+            elif len(feature_list) < max_features:
+                # 填充到期望维度
+                feature_list.extend([0.0] * (max_features - len(feature_list)))
+            
+            return np.array(feature_list, dtype=np.float32)
+        elif isinstance(node_features, np.ndarray):
+            return node_features.astype(np.float32)
+        else:
+            # 默认返回一个简单的特征向量
+            return np.zeros(50, dtype=np.float32)
 
 # 保留 PerformancePredictor 以防万一，但 DRL 训练器不再使用它
 class PerformancePredictor(nn.Module):

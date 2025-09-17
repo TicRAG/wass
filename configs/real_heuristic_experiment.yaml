@@ -3,15 +3,14 @@ enabled_schedulers:
 - FIFO
 - HEFT
 - WASS-Heuristic
-- WASS-DRL
 - WASS-RAG
 output_dir: results/final_experiments_discrete_event
 platform_file: test_platform.xml
 rag_config_path: configs/rag.yaml
-repetitions: 3
+repetitions: 1
 workflow_dir: workflows
 workflow_sizes:
 - 5
 - 10
-- 15
-- 20
+# - 15
+# - 20

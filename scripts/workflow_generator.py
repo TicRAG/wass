@@ -287,6 +287,93 @@ class WorkflowPattern:
             entry_task=tasks[0].id,
             exit_task=tasks[-1].id
         )
+    
+    @staticmethod
+    def generate_highly_parallel(num_tasks: int, ccr: float = 0.1) -> Workflow:
+        """生成高度并行工作流（低CCR，高并行性）"""
+        tasks = []
+        files = []
+        
+        # 阶段1：数据生成（并行）
+        parallel_tasks = min(num_tasks // 2, 20)  # 最多20个并行任务
+        for i in range(parallel_tasks):
+            task_id = f"generate_{i}"
+            output_file = f"raw_data_{i}.dat"
+            
+            # 适中的计算量，让主机性能差异显现
+            flops = random.uniform(5e9, 2e10)  # 5-20 GFLOPS
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
+            
+            tasks.append(Task(
+                id=task_id,
+                name=f"Data Generation {i}",
+                memory=random.randint(1000, 3000),
+                flops=flops,
+                input_files=[],
+                output_files=[output_file],
+                dependencies=[]
+            ))
+        
+        # 阶段2：并行处理（真正的并行阶段）
+        processing_tasks = min(num_tasks - parallel_tasks, 30)  # 剩余任务用于处理
+        for i in range(processing_tasks):
+            task_id = f"process_{i}"
+            # 随机选择2-3个生成任务作为输入
+            source_tasks = random.sample([t for t in tasks if t.id.startswith('generate_')], 
+                                       min(3, len([t for t in tasks if t.id.startswith('generate_')])))
+            input_files = [task.output_files[0] for task in source_tasks]
+            output_file = f"processed_data_{i}.dat"
+            
+            # 计算量更大，主机选择影响更明显
+            flops = random.uniform(1e10, 5e10)  # 10-50 GFLOPS
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(output_file, output_file, output_size))
+            
+            tasks.append(Task(
+                id=task_id,
+                name=f"Parallel Processing {i}",
+                memory=random.randint(2000, 5000),
+                flops=flops,
+                input_files=input_files,
+                output_files=[output_file],
+                dependencies=[task.id for task in source_tasks]
+            ))
+        
+        # 阶段3：结果聚合（串行，但可选）
+        if len(tasks) > 0:
+            final_task_id = "aggregate_results"
+            final_output = "final_results.dat"
+            
+            # 收集所有处理结果
+            all_inputs = [task.output_files[0] for task in tasks if task.id.startswith('process_')]
+            
+            # 适中的聚合计算
+            flops = random.uniform(2e10, 8e10)  # 20-80 GFLOPS
+            output_size = WorkflowPattern.calculate_data_size(flops, ccr)
+            
+            files.append(File(final_output, final_output, output_size))
+            
+            tasks.append(Task(
+                id=final_task_id,
+                name="Aggregate Results",
+                memory=random.randint(3000, 6000),
+                flops=flops,
+                input_files=all_inputs,
+                output_files=[final_output],
+                dependencies=[task.id for task in tasks if task.id.startswith('process_')]
+            ))
+        
+        return Workflow(
+            name=f"Highly-Parallel-{num_tasks}",
+            description=f"高度并行工作流，{num_tasks}个任务，并行度>50%，CCR={ccr}",
+            tasks=tasks,
+            files=files,
+            entry_task=tasks[0].id,
+            exit_task=tasks[-1].id
+        )
 
     @staticmethod
     def generate_cybershake_like(num_tasks: int, ccr: float = 1.0) -> Workflow:
@@ -387,7 +474,9 @@ class WorkflowGenerator:
             'montage': lambda n: WorkflowPattern.generate_montage_like(n, self.ccr),
             'ligo': lambda n: WorkflowPattern.generate_ligo_like(n, self.ccr),
             'cybershake': lambda n: WorkflowPattern.generate_cybershake_like(n, self.ccr),
-            'comm_intensive': lambda n: WorkflowPattern.generate_communication_intensive(n, self.ccr)
+            'comm_intensive': lambda n: WorkflowPattern.generate_communication_intensive(n, self.ccr),
+            'highly_parallel': lambda n: WorkflowPattern.generate_highly_parallel(n, self.ccr),
+            'serial': lambda n: WorkflowPattern.generate_serial(n, self.ccr)
         }
     
     def generate_workflow_set(self, pattern: str, task_counts: List[int]) -> List[str]:
@@ -535,7 +624,7 @@ class WorkflowGenerator:
 
 def main():
     parser = argparse.ArgumentParser(description='WASS-RAG 工作流生成器')
-    parser.add_argument('--pattern', choices=['montage', 'ligo', 'cybershake', 'comm_intensive', 'all'], 
+    parser.add_argument('--pattern', choices=['montage', 'ligo', 'cybershake', 'comm_intensive', 'highly_parallel', 'serial', 'all'], 
                        default='all', help='工作流模式')
     parser.add_argument('--tasks', nargs='+', type=int, 
                        help='任务数量列表，例如：--tasks 50 100 200')

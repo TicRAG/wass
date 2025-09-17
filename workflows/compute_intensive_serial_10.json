@@ -1,0 +1,263 @@
+{
+  "metadata": {
+    "name": "Compute Intensive Serial Workflow (10 tasks)",
+    "description": "计算密集型串行工作流，10个任务，高FLOPS低CCR=0.01",
+    "generated_at": "2025-09-17T11:41:50.505823",
+    "task_count": 10,
+    "file_count": 18,
+    "pattern": "compute_intensive_serial",
+    "ccr": 0.01
+  },
+  "workflow": {
+    "tasks": [
+      {
+        "id": "compute_task_0",
+        "name": "Compute Task 0",
+        "flops": 67548411861.20953,
+        "memory": 110.00430208906677,
+        "runtime": 0,
+        "input_files": [],
+        "output_files": [
+          "data_0_to_1.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "compute_task_1",
+        "name": "Compute Task 1",
+        "flops": 30088966433.394047,
+        "memory": 394.58848566560494,
+        "runtime": 0,
+        "input_files": [
+          "data_0_to_1.dat"
+        ],
+        "output_files": [
+          "data_1_to_2.dat"
+        ],
+        "dependencies": [
+          "compute_task_0"
+        ]
+      },
+      {
+        "id": "compute_task_2",
+        "name": "Compute Task 2",
+        "flops": 17824494936.647453,
+        "memory": 268.7687278741082,
+        "runtime": 0,
+        "input_files": [
+          "data_1_to_2.dat"
+        ],
+        "output_files": [
+          "data_2_to_3.dat"
+        ],
+        "dependencies": [
+          "compute_task_1"
+        ]
+      },
+      {
+        "id": "compute_task_3",
+        "name": "Compute Task 3",
+        "flops": 55481975929.30261,
+        "memory": 110.61438787354545,
+        "runtime": 0,
+        "input_files": [
+          "data_2_to_3.dat"
+        ],
+        "output_files": [
+          "data_3_to_4.dat"
+        ],
+        "dependencies": [
+          "compute_task_2"
+        ]
+      },
+      {
+        "id": "compute_task_4",
+        "name": "Compute Task 4",
+        "flops": 59044733254.2895,
+        "memory": 188.17624881627867,
+        "runtime": 0,
+        "input_files": [
+          "data_3_to_4.dat"
+        ],
+        "output_files": [
+          "data_4_to_5.dat"
+        ],
+        "dependencies": [
+          "compute_task_3"
+        ]
+      },
+      {
+        "id": "compute_task_5",
+        "name": "Compute Task 5",
+        "flops": 10584888371.025492,
+        "memory": 422.32770073312315,
+        "runtime": 0,
+        "input_files": [
+          "data_4_to_5.dat"
+        ],
+        "output_files": [
+          "data_5_to_6.dat"
+        ],
+        "dependencies": [
+          "compute_task_4"
+        ]
+      },
+      {
+        "id": "compute_task_6",
+        "name": "Compute Task 6",
+        "flops": 23993154983.06034,
+        "memory": 482.88522888271245,
+        "runtime": 0,
+        "input_files": [
+          "data_5_to_6.dat"
+        ],
+        "output_files": [
+          "data_6_to_7.dat"
+        ],
+        "dependencies": [
+          "compute_task_5"
+        ]
+      },
+      {
+        "id": "compute_task_7",
+        "name": "Compute Task 7",
+        "flops": 18704473915.01176,
+        "memory": 438.9977465389839,
+        "runtime": 0,
+        "input_files": [
+          "data_6_to_7.dat"
+        ],
+        "output_files": [
+          "data_7_to_8.dat"
+        ],
+        "dependencies": [
+          "compute_task_6"
+        ]
+      },
+      {
+        "id": "compute_task_8",
+        "name": "Compute Task 8",
+        "flops": 75675860802.4436,
+        "memory": 314.4912365818803,
+        "runtime": 0,
+        "input_files": [
+          "data_7_to_8.dat"
+        ],
+        "output_files": [
+          "data_8_to_9.dat"
+        ],
+        "dependencies": [
+          "compute_task_7"
+        ]
+      },
+      {
+        "id": "compute_task_9",
+        "name": "Compute Task 9",
+        "flops": 59683656814.59043,
+        "memory": 431.76186570119796,
+        "runtime": 0,
+        "input_files": [
+          "data_8_to_9.dat"
+        ],
+        "output_files": [],
+        "dependencies": [
+          "compute_task_8"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "id": "data_0_to_1.dat",
+        "name": "data_0_to_1.dat",
+        "size": 3475263.8653220735
+      },
+      {
+        "id": "data_0_to_1.dat",
+        "name": "data_0_to_1.dat",
+        "size": 7090295.386806202
+      },
+      {
+        "id": "data_1_to_2.dat",
+        "name": "data_1_to_2.dat",
+        "size": 9029616.109343609
+      },
+      {
+        "id": "data_1_to_2.dat",
+        "name": "data_1_to_2.dat",
+        "size": 1268174.974942633
+      },
+      {
+        "id": "data_2_to_3.dat",
+        "name": "data_2_to_3.dat",
+        "size": 2967741.77323243
+      },
+      {
+        "id": "data_2_to_3.dat",
+        "name": "data_2_to_3.dat",
+        "size": 2789538.856179836
+      },
+      {
+        "id": "data_3_to_4.dat",
+        "name": "data_3_to_4.dat",
+        "size": 6848959.940015709
+      },
+      {
+        "id": "data_3_to_4.dat",
+        "name": "data_3_to_4.dat",
+        "size": 6303391.154883179
+      },
+      {
+        "id": "data_4_to_5.dat",
+        "name": "data_4_to_5.dat",
+        "size": 8284874.11010044
+      },
+      {
+        "id": "data_4_to_5.dat",
+        "name": "data_4_to_5.dat",
+        "size": 7283254.554894041
+      },
+      {
+        "id": "data_5_to_6.dat",
+        "name": "data_5_to_6.dat",
+        "size": 4062254.648661927
+      },
+      {
+        "id": "data_5_to_6.dat",
+        "name": "data_5_to_6.dat",
+        "size": 4029350.906013641
+      },
+      {
+        "id": "data_6_to_7.dat",
+        "name": "data_6_to_7.dat",
+        "size": 1834712.590421331
+      },
+      {
+        "id": "data_6_to_7.dat",
+        "name": "data_6_to_7.dat",
+        "size": 6433534.282302019
+      },
+      {
+        "id": "data_7_to_8.dat",
+        "name": "data_7_to_8.dat",
+        "size": 8264154.459469422
+      },
+      {
+        "id": "data_7_to_8.dat",
+        "name": "data_7_to_8.dat",
+        "size": 9758041.875814335
+      },
+      {
+        "id": "data_8_to_9.dat",
+        "name": "data_8_to_9.dat",
+        "size": 4406809.394875182
+      },
+      {
+        "id": "data_8_to_9.dat",
+        "name": "data_8_to_9.dat",
+        "size": 6566677.771278215
+      }
+    ],
+    "entry_task": "compute_task_0",
+    "exit_task": "compute_task_9"
+  }
+}

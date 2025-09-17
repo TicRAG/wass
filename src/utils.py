@@ -52,32 +52,46 @@ class WrenchExperimentRunner:
             # 获取所有主机名
             all_hostnames = simulation.get_all_hostnames()
             
-            # 过滤出计算主机（排除控制器主机）
-            compute_hosts = [host for host in all_hostnames if host != controller_host]
+            # 过滤出计算主机（排除控制器主机和存储主机）
+            compute_hosts = [host for host in all_hostnames if host not in [controller_host, "StorageHost"]]
             
             # 创建存储服务（在StorageHost上，挂载点为/storage）
             storage_service = simulation.create_simple_storage_service("StorageHost", ["/storage"])
             
-            # 创建裸机计算服务（在第一个计算主机上创建，使用其本地磁盘）
-            first_compute_host = compute_hosts[0] if compute_hosts else "ComputeHost1"
-            compute_service = simulation.create_bare_metal_compute_service(
-                first_compute_host, 
-                {host: (-1, -1) for host in compute_hosts},  # 所有核心都可用
-                "/scratch", 
-                {}, 
-                {}
-            )
+            # 为每个计算主机创建独立的计算服务
+            compute_services = {}
+            for host in compute_hosts:
+                compute_services[host] = simulation.create_bare_metal_compute_service(
+                    host, 
+                    {host: (-1, -1)},  # 只有该主机的核心
+                    "/scratch", 
+                    {}, 
+                    {}
+                )
             
             # 创建主机信息字典
             hosts_dict = {name: {} for name in compute_hosts}
             
             # 实例化调度器
-            if callable(scheduler_impl) and not isinstance(scheduler_impl, type):
+            if isinstance(scheduler_impl, str):
+                # 字符串形式的调度器类名，需要导入对应的类
+                import importlib
+                module_name, class_name = scheduler_impl.rsplit('.', 1) if '.' in scheduler_impl else ('wrench_schedulers', scheduler_impl)
+                try:
+                    module = importlib.import_module(module_name)
+                    scheduler_class = getattr(module, class_name)
+                    scheduler_instance = scheduler_class(simulation, compute_services, hosts_dict)
+                except (ImportError, AttributeError) as e:
+                    print(f"导入调度器类失败: {scheduler_impl}, 错误: {e}")
+                    # 回退到基础调度器
+                    from wrench_schedulers import BaseScheduler
+                    scheduler_instance = BaseScheduler(simulation, compute_services, hosts_dict)
+            elif callable(scheduler_impl) and not isinstance(scheduler_impl, type):
                 # 工厂函数形式的调度器
-                scheduler_instance = scheduler_impl(simulation, compute_service, hosts_dict)
+                scheduler_instance = scheduler_impl(simulation, compute_services, hosts_dict)
             else:
                 # 类形式的调度器
-                scheduler_instance = scheduler_impl(simulation, compute_service, hosts_dict)
+                scheduler_instance = scheduler_impl(simulation, compute_services, hosts_dict)
             
             # 从JSON文件创建工作流
             with open(workflow_file, 'r') as f:
@@ -157,10 +171,12 @@ class WrenchExperimentRunner:
                 wfcommons_data['workflow_name'] = wfcommons_data.get('name', 'unknown')
             
             # 使用直接的create_workflow_from_json方法创建工作流
+            # 修复：设置合适的reference_flop_rate值让FLOPS值生效
+            # 使用较大的reference_flop_rate值避免小FLOPS值被缩放为0
             workflow = simulation.create_workflow_from_json(
                 wfcommons_data,
-                reference_flop_rate='100Mf',
-                ignore_machine_specs=True,
+                reference_flop_rate=str(task.get('flops', 0)/1000000)+'Mf',  # 使用较小的参考值，让实际FLOPS值更有意义
+                ignore_machine_specs=False,  # 改为False，让机器规格影响执行时间
                 redundant_dependencies=False,
                 ignore_cycle_creating_dependencies=False,
                 min_cores_per_task=1,
@@ -237,8 +253,23 @@ class WrenchExperimentRunner:
                     print(f"[警告] 在 {self.workflow_dir} 中未找到大小为 {size} 的工作流文件，跳过...")
                     continue
                 
-                # 为了实验的一致性，我们只使用找到的第一个匹配文件
-                workflow_file_to_run = matching_files[0]
+                # 优先选择compute_intensive_serial工作流，其次serial，再次highly_parallel，最后回退到第一个匹配文件
+                compute_intensive_files = [f for f in matching_files if 'compute_intensive_serial' in f.name]
+                if compute_intensive_files:
+                    workflow_file_to_run = compute_intensive_files[0]
+                    print(f"[信息] 优先使用计算密集型串行工作流: {workflow_file_to_run.name}")
+                else:
+                    serial_files = [f for f in matching_files if 'serial' in f.name]
+                    if serial_files:
+                        workflow_file_to_run = serial_files[0]
+                        print(f"[信息] 优先使用串行工作流: {workflow_file_to_run.name}")
+                    else:
+                        highly_parallel_files = [f for f in matching_files if 'highly_parallel' in f.name]
+                        if highly_parallel_files:
+                            workflow_file_to_run = highly_parallel_files[0]
+                            print(f"[信息] 优先使用高度并行工作流: {workflow_file_to_run.name}")
+                        else:
+                            workflow_file_to_run = matching_files[0]
                 
                 for rep in range(self.repetitions):
                     exp_count += 1

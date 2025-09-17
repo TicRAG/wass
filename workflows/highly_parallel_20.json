@@ -1,0 +1,458 @@
+{
+  "metadata": {
+    "name": "Highly-Parallel-20",
+    "description": "高度并行工作流，20个任务，并行度>50%，CCR=1.0",
+    "generated_at": "2025-09-17T11:29:42.618268",
+    "task_count": 21,
+    "file_count": 21,
+    "random_seed": 42,
+    "pattern": "highly_parallel",
+    "ccr": 1.0
+  },
+  "workflow": {
+    "tasks": [
+      {
+        "id": "generate_0",
+        "name": "Data Generation 0",
+        "memory": 1051,
+        "flops": 14591401976.868256,
+        "input_files": [],
+        "output_files": [
+          "raw_data_0.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_1",
+        "name": "Data Generation 1",
+        "memory": 1501,
+        "flops": 16123257496.397493,
+        "input_files": [],
+        "output_files": [
+          "raw_data_1.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_2",
+        "name": "Data Generation 2",
+        "memory": 2508,
+        "flops": 8348161072.232342,
+        "input_files": [],
+        "output_files": [
+          "raw_data_2.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_3",
+        "name": "Data Generation 3",
+        "memory": 2516,
+        "flops": 6537427642.572613,
+        "input_files": [],
+        "output_files": [
+          "raw_data_3.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_4",
+        "name": "Data Generation 4",
+        "memory": 1178,
+        "flops": 18382693515.57268,
+        "input_files": [],
+        "output_files": [
+          "raw_data_4.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_5",
+        "name": "Data Generation 5",
+        "memory": 1065,
+        "flops": 13857387686.735596,
+        "input_files": [],
+        "output_files": [
+          "raw_data_5.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_6",
+        "name": "Data Generation 6",
+        "memory": 1447,
+        "flops": 5446958291.571055,
+        "input_files": [],
+        "output_files": [
+          "raw_data_6.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_7",
+        "name": "Data Generation 7",
+        "memory": 2232,
+        "flops": 8489913400.8610935,
+        "input_files": [],
+        "output_files": [
+          "raw_data_7.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_8",
+        "name": "Data Generation 8",
+        "memory": 1407,
+        "flops": 5398039545.257955,
+        "input_files": [],
+        "output_files": [
+          "raw_data_8.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "generate_9",
+        "name": "Data Generation 9",
+        "memory": 2436,
+        "flops": 15740294193.836052,
+        "input_files": [],
+        "output_files": [
+          "raw_data_9.dat"
+        ],
+        "dependencies": []
+      },
+      {
+        "id": "process_0",
+        "name": "Parallel Processing 0",
+        "memory": 3139,
+        "flops": 27968361851.354145,
+        "input_files": [
+          "raw_data_8.dat",
+          "raw_data_6.dat",
+          "raw_data_3.dat"
+        ],
+        "output_files": [
+          "processed_data_0.dat"
+        ],
+        "dependencies": [
+          "generate_8",
+          "generate_6",
+          "generate_3"
+        ]
+      },
+      {
+        "id": "process_1",
+        "name": "Parallel Processing 1",
+        "memory": 2636,
+        "flops": 23610020660.719673,
+        "input_files": [
+          "raw_data_0.dat",
+          "raw_data_2.dat",
+          "raw_data_6.dat"
+        ],
+        "output_files": [
+          "processed_data_1.dat"
+        ],
+        "dependencies": [
+          "generate_0",
+          "generate_2",
+          "generate_6"
+        ]
+      },
+      {
+        "id": "process_2",
+        "name": "Parallel Processing 2",
+        "memory": 2396,
+        "flops": 13709833735.205917,
+        "input_files": [
+          "raw_data_3.dat",
+          "raw_data_5.dat",
+          "raw_data_1.dat"
+        ],
+        "output_files": [
+          "processed_data_2.dat"
+        ],
+        "dependencies": [
+          "generate_3",
+          "generate_5",
+          "generate_1"
+        ]
+      },
+      {
+        "id": "process_3",
+        "name": "Parallel Processing 3",
+        "memory": 4988,
+        "flops": 42285130930.975204,
+        "input_files": [
+          "raw_data_5.dat",
+          "raw_data_9.dat",
+          "raw_data_4.dat"
+        ],
+        "output_files": [
+          "processed_data_3.dat"
+        ],
+        "dependencies": [
+          "generate_5",
+          "generate_9",
+          "generate_4"
+        ]
+      },
+      {
+        "id": "process_4",
+        "name": "Parallel Processing 4",
+        "memory": 3550,
+        "flops": 48924630559.17483,
+        "input_files": [
+          "raw_data_7.dat",
+          "raw_data_8.dat",
+          "raw_data_1.dat"
+        ],
+        "output_files": [
+          "processed_data_4.dat"
+        ],
+        "dependencies": [
+          "generate_7",
+          "generate_8",
+          "generate_1"
+        ]
+      },
+      {
+        "id": "process_5",
+        "name": "Parallel Processing 5",
+        "memory": 4533,
+        "flops": 43176186570.1198,
+        "input_files": [
+          "raw_data_1.dat",
+          "raw_data_8.dat",
+          "raw_data_4.dat"
+        ],
+        "output_files": [
+          "processed_data_5.dat"
+        ],
+        "dependencies": [
+          "generate_1",
+          "generate_8",
+          "generate_4"
+        ]
+      },
+      {
+        "id": "process_6",
+        "name": "Parallel Processing 6",
+        "memory": 2933,
+        "flops": 11832975346.226488,
+        "input_files": [
+          "raw_data_5.dat",
+          "raw_data_3.dat",
+          "raw_data_1.dat"
+        ],
+        "output_files": [
+          "processed_data_6.dat"
+        ],
+        "dependencies": [
+          "generate_5",
+          "generate_3",
+          "generate_1"
+        ]
+      },
+      {
+        "id": "process_7",
+        "name": "Parallel Processing 7",
+        "memory": 3556,
+        "flops": 44659346670.210785,
+        "input_files": [
+          "raw_data_4.dat",
+          "raw_data_1.dat",
+          "raw_data_3.dat"
+        ],
+        "output_files": [
+          "processed_data_7.dat"
+        ],
+        "dependencies": [
+          "generate_4",
+          "generate_1",
+          "generate_3"
+        ]
+      },
+      {
+        "id": "process_8",
+        "name": "Parallel Processing 8",
+        "memory": 3455,
+        "flops": 16506163886.243393,
+        "input_files": [
+          "raw_data_4.dat",
+          "raw_data_7.dat",
+          "raw_data_5.dat"
+        ],
+        "output_files": [
+          "processed_data_8.dat"
+        ],
+        "dependencies": [
+          "generate_4",
+          "generate_7",
+          "generate_5"
+        ]
+      },
+      {
+        "id": "process_9",
+        "name": "Parallel Processing 9",
+        "memory": 2700,
+        "flops": 34365240226.67953,
+        "input_files": [
+          "raw_data_3.dat",
+          "raw_data_4.dat",
+          "raw_data_1.dat"
+        ],
+        "output_files": [
+          "processed_data_9.dat"
+        ],
+        "dependencies": [
+          "generate_3",
+          "generate_4",
+          "generate_1"
+        ]
+      },
+      {
+        "id": "aggregate_results",
+        "name": "Aggregate Results",
+        "memory": 4002,
+        "flops": 52048392621.78248,
+        "input_files": [
+          "processed_data_0.dat",
+          "processed_data_1.dat",
+          "processed_data_2.dat",
+          "processed_data_3.dat",
+          "processed_data_4.dat",
+          "processed_data_5.dat",
+          "processed_data_6.dat",
+          "processed_data_7.dat",
+          "processed_data_8.dat",
+          "processed_data_9.dat"
+        ],
+        "output_files": [
+          "final_results.dat"
+        ],
+        "dependencies": [
+          "process_0",
+          "process_1",
+          "process_2",
+          "process_3",
+          "process_4",
+          "process_5",
+          "process_6",
+          "process_7",
+          "process_8",
+          "process_9"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "id": "raw_data_0.dat",
+        "name": "raw_data_0.dat",
+        "size": 5558629324
+      },
+      {
+        "id": "raw_data_1.dat",
+        "name": "raw_data_1.dat",
+        "size": 6142193331
+      },
+      {
+        "id": "raw_data_2.dat",
+        "name": "raw_data_2.dat",
+        "size": 3180251837
+      },
+      {
+        "id": "raw_data_3.dat",
+        "name": "raw_data_3.dat",
+        "size": 2490448625
+      },
+      {
+        "id": "raw_data_4.dat",
+        "name": "raw_data_4.dat",
+        "size": 7002930863
+      },
+      {
+        "id": "raw_data_5.dat",
+        "name": "raw_data_5.dat",
+        "size": 5279004833
+      },
+      {
+        "id": "raw_data_6.dat",
+        "name": "raw_data_6.dat",
+        "size": 2075031730
+      },
+      {
+        "id": "raw_data_7.dat",
+        "name": "raw_data_7.dat",
+        "size": 3234252724
+      },
+      {
+        "id": "raw_data_8.dat",
+        "name": "raw_data_8.dat",
+        "size": 2056396017
+      },
+      {
+        "id": "raw_data_9.dat",
+        "name": "raw_data_9.dat",
+        "size": 5996302550
+      },
+      {
+        "id": "processed_data_0.dat",
+        "name": "processed_data_0.dat",
+        "size": 10654614038
+      },
+      {
+        "id": "processed_data_1.dat",
+        "name": "processed_data_1.dat",
+        "size": 8994293585
+      },
+      {
+        "id": "processed_data_2.dat",
+        "name": "processed_data_2.dat",
+        "size": 5222793803
+      },
+      {
+        "id": "processed_data_3.dat",
+        "name": "processed_data_3.dat",
+        "size": 16108621307
+      },
+      {
+        "id": "processed_data_4.dat",
+        "name": "processed_data_4.dat",
+        "size": 18637954498
+      },
+      {
+        "id": "processed_data_5.dat",
+        "name": "processed_data_5.dat",
+        "size": 16448071074
+      },
+      {
+        "id": "processed_data_6.dat",
+        "name": "processed_data_6.dat",
+        "size": 4507800131
+      },
+      {
+        "id": "processed_data_7.dat",
+        "name": "processed_data_7.dat",
+        "size": 17013084445
+      },
+      {
+        "id": "processed_data_8.dat",
+        "name": "processed_data_8.dat",
+        "size": 6288062432
+      },
+      {
+        "id": "processed_data_9.dat",
+        "name": "processed_data_9.dat",
+        "size": 13091520086
+      },
+      {
+        "id": "final_results.dat",
+        "name": "final_results.dat",
+        "size": 19827959094
+      }
+    ],
+    "entry_task": "generate_0",
+    "exit_task": "aggregate_results"
+  }
+}
