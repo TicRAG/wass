@@ -43,16 +43,17 @@ class KnowledgeBase:
         self.metadata.to_csv(self.meta_file, index=False)
 
 class PerformancePredictor(nn.Module):
-    """一个简单的MLP，用于根据历史案例预测性能 (Makespan)"""
+    """A slightly deeper MLP for performance prediction."""
     def __init__(self, state_dim: int):
         super(PerformancePredictor, self).__init__()
-        # 简化版：仅用状态预测，更复杂的版本可以加入动作和上下文
         self.model = nn.Sequential(
             nn.Linear(state_dim, 128),
             nn.ReLU(),
-            nn.Linear(128, 64),
+            nn.Linear(128, 64), # Added an extra layer
             nn.ReLU(),
-            nn.Linear(64, 1) # 输出预测的Makespan
+            nn.Linear(64, 32), # Added an extra layer
+            nn.ReLU(),
+            nn.Linear(32, 1)
         )
     def forward(self, state):
         return self.model(state)

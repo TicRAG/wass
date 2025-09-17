@@ -1,273 +1,106 @@
-"""
-Custom Python schedulers for WRENCH simulation.
-"""
+# src/wrench_schedulers.py
 from __future__ import annotations
-from typing import List, Dict, Any
 import wrench
-import pandas as pd
-from pathlib import Path
-import json
+from typing import Dict, Any
 import torch
+
+from src.drl.gnn_encoder import GNNEncoder
+from src.drl.ppo_agent import ActorCritic
 from src.drl.utils import workflow_json_to_pyg_data
 
-# 基础调度器类
 class BaseScheduler:
-    """基础调度器类，用于自定义调度策略"""
-    def __init__(self, simulation: 'wrench.Simulation', compute_services, hosts: Dict[str, Any] = None):
-        self.sim = simulation
-        self.compute_services = compute_services  # 现在是多个计算服务的字典
+    """A final, fully compatible BaseScheduler."""
+    def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], **kwargs):
+        self.simulation = simulation
+        self.compute_services = compute_services
+        # hosts is now a dictionary of properties, e.g., {'ComputeHost1': {'speed': 1e9}}
         self.hosts = hosts
-        self.completed_tasks = set()
+        self.extra_args = kwargs
 
-    def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service):
-        """调度所有准备就绪的任务"""
+    def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
+        """Schedules all tasks that are ready to run."""
         ready_tasks = workflow.get_ready_tasks()
         for task in ready_tasks:
-            if task not in self.completed_tasks:
-                # 调用子类的调度决策方法
-                host_name = self.get_scheduling_decision(task)
-                if host_name:
-                    # 准备文件位置字典
-                    file_locations = {}
-                    for f in task.get_input_files():
-                        file_locations[f] = storage_service
-                    for f in task.get_output_files():
-                        file_locations[f] = storage_service
-                    
-                    # 创建标准作业并提交到选定的主机对应的计算服务
-                    job = self.sim.create_standard_job([task], file_locations)
-                    if host_name in self.compute_services:
-                        self.compute_services[host_name].submit_standard_job(job)
-                    else:
-                        # 回退到第一个可用的计算服务
-                        first_service = list(self.compute_services.values())[0]
-                        first_service.submit_standard_job(job)
+            host_name = self.get_scheduling_decision(task)
+            if host_name and host_name in self.compute_services:
+                # --- THIS IS THE FIX: Correctly call the job creation API ---
+                file_locations = {file: storage_service for file in task.get_input_files()}
+                job = self.simulation.create_standard_job(tasks=[task], file_locations=file_locations)
+                # --- FIX COMPLETE ---
+                self.compute_services[host_name].submit_standard_job(job)
 
-    def get_scheduling_decision(self, task: wrench.Task):
-        """获取调度决策（由子类实现）"""
+    def handle_completion(self, task: wrench.Task):
+        pass
+
+    def get_scheduling_decision(self, task: wrench.Task) -> str:
         raise NotImplementedError
 
-    def handle_completion(self, task: wrench.Task):
-        """处理任务完成事件"""
-        self.completed_tasks.add(task)
-
 class FIFOScheduler(BaseScheduler):
-    """简单的先进先出调度器"""
-    def __init__(self, simulation: 'wrench.Simulation', compute_services, hosts: Dict[str, Any] = None):
-        super().__init__(simulation, compute_services, hosts)
-        # 固定选择ComputeHost1（1GFLOPS，最慢的主机）
-        self.fixed_host = 'ComputeHost1'
-        self.task_assignments = {}  # 记录任务分配情况
-        print(f"FIFO调度器初始化完成，固定主机: {self.fixed_host}")
-    
-    def get_scheduling_decision(self, task: wrench.Task):
-        # 总是选择固定的主机，确保与HEFT有明显区别
-        print(f"FIFO调度任务 '{task.get_name()}' -> 固定分配到 {self.fixed_host}")
-        self.task_assignments[task.get_name()] = self.fixed_host
-        return self.fixed_host
-
-class HEFTScheduler(BaseScheduler):
-    """真正的HEFT（异构最早完成时间）调度器"""
-    def __init__(self, simulation: 'wrench.Simulation', compute_services, hosts: Dict[str, Any] = None):
-        super().__init__(simulation, compute_services, hosts)
-        self.host_ready_times = {host: 0.0 for host in hosts.keys()}  # 记录每个主机的可用时间
-        self.task_assignments = {}  # 记录任务分配情况
-        
-        # 预定义主机速度映射（基于平台XML配置，这里没有读取xml而是为了简化代码写死了）
-        # 进一步放大主机性能差异
-        self.host_speeds = {
-            'ComputeHost1': 1e9,    # 1 GFLOPS - 最慢
-            'ComputeHost2': 5e9,    # 5 GFLOPS - 中等
-            'ComputeHost3': 2e9,    # 2 GFLOPS - 较慢
-            'ComputeHost4': 10e9    # 10 GFLOPS - 最快
-        }
-        print(f"HEFT调度器初始化完成，主机速度配置: {self.host_speeds}")
-    
-    def get_scheduling_decision(self, task: wrench.Task):
-        """
-        真正的HEFT调度：选择能使任务最早完成的主机
-        关键改进：让计算性能差异占主导，而非数据传输时间
-        """
-        best_host = None
-        min_eft = float('inf')
-        current_time = self.sim.get_simulated_time()
-
-        # 获取任务的计算负载
-        task_flops = task.get_flops()
-        
-        print(f"HEFT调度任务 '{task.get_name()}' (FLOPS: {task_flops:.2e})")
-        
-        for host_name in self.hosts.keys():
-            # 获取主机速度（FLOPS）
-            host_speed = self.host_speeds.get(host_name, 2e9)  # 默认2 GFLOPS
-            
-            # 计算计算时间 - 这是主要差异来源
-            compute_time = task_flops / host_speed
-            
-            # 简化数据传输时间：假设高效的数据预取和缓存
-            # 只考虑很小的固定传输开销
-            transfer_time = 0.1  # 固定100ms传输开销
-            
-            # 计算任务的开始时间：主机可用时间 或 当前时间 + 数据传输时间
-            host_ready_time = self.host_ready_times.get(host_name, 0.0)
-            start_time = max(host_ready_time, current_time + transfer_time)
-            
-            # 计算完成时间
-            finish_time = start_time + compute_time
-            
-            print(f"  主机 {host_name}: 速度={host_speed/1e9:.1f}GFLOPS, 计算时间={compute_time:.2f}s, 传输时间={transfer_time:.2f}s, 完成时间={finish_time:.2f}s")
-            
-            if finish_time < min_eft:
-                min_eft = finish_time
-                best_host = host_name
-        
-        # 更新选中主机的可用时间
-        if best_host:
-            host_speed = self.host_speeds.get(best_host, 2e9)
-            compute_time = task_flops / host_speed
-            self.host_ready_times[best_host] = min_eft
-            self.task_assignments[task.get_name()] = best_host
-            print(f"  -> 选择主机 {best_host}，预计完成时间: {min_eft:.2f}s")
-        
-        return best_host or list(self.hosts.keys())[0]
-    
-    def handle_completion(self, task: wrench.Task):
-        """处理任务完成事件，更新主机状态"""
-        super().handle_completion(task)
-        # 这里可以添加更复杂的逻辑，如更新主机负载状态
-
-class WASSHeuristicScheduler(HEFTScheduler):
-    """WASS启发式调度器"""
-    # 实际实现中会包含更复杂的数据感知逻辑
-    def get_scheduling_decision(self, task: wrench.Task):
-        # 基于数据局部性和主机负载的启发式调度
-        best_host = None
-        min_cost = float('inf')
-        
-        # 获取任务输入文件大小
-        input_files = task.get_input_files()
-        total_input_size = sum(f.get_size() for f in input_files)
-        
-        for host_name in self.hosts.keys():
-            # 获取主机对应的计算服务
-            if host_name in self.compute_services:
-                compute_service = self.compute_services[host_name]
-            else:
-                # 回退到第一个可用的计算服务
-                compute_service = list(self.compute_services.values())[0]
-            
-            # 获取主机速度
-            core_speeds = compute_service.get_core_flop_rates()
-            host_speed = core_speeds[0] if isinstance(core_speeds, (list, tuple)) and core_speeds else 1e9
-            
-            # 计算计算成本（执行时间）
-            compute_cost = task.get_flops() / host_speed
-            
-            # 计算数据传输成本（简化版，假设数据需要从存储主机传输）
-            # 网络带宽为1GBps，延迟为1ms
-            transfer_time = total_input_size / (1e9)  # 1GBps = 1e9 bytes/s
-            network_cost = transfer_time + 0.001  # 加上1ms延迟
-            
-            # 总成本 = 计算成本 + 数据传输成本
-            total_cost = compute_cost + network_cost
-            
-            if total_cost < min_cost:
-                min_cost = total_cost
-                best_host = host_name
-        
-        return best_host or list(self.hosts.keys())[0]
-
-class RecordingHEFTScheduler(HEFTScheduler):
-    """
-    一个继承自HEFTScheduler的特殊调度器，
-    它的唯一目的是记录下所有调度决策。
-    """
+    """A compatible FIFO scheduler."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.decisions = []
-        print("📝 RecordingHEFTScheduler initialized. Ready to record decisions.")
+        self.host_queue = list(self.hosts.keys())
+        self.next_host_idx = 0
 
-    def get_scheduling_decision(self, task: 'wrench.Task') -> str:
-        # 调用父类（原始HEFT）的决策逻辑
-        decision_host = super().get_scheduling_decision(task)
+    def get_scheduling_decision(self, task: wrench.Task) -> str:
+        host_name = self.host_queue[self.next_host_idx]
+        self.next_host_idx = (self.next_host_idx + 1) % len(self.host_queue)
+        return host_name
+
+class HEFTScheduler(BaseScheduler):
+    """A compatible HEFT scheduler."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # This now works correctly with the properties dictionary
+        self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
+        print(f"HEFT scheduler initialized with host speeds: {self.host_speeds}")
+
+    def get_scheduling_decision(self, task: wrench.Task) -> str:
+        best_host = None
+        earliest_finish_time = float('inf')
+
+        for host_name, speed in self.host_speeds.items():
+            # A simplified EFT calculation, as we don't have direct access to WRENCH host objects here
+            compute_time = task.get_flops() / speed if speed > 0 else float('inf')
+            finish_time = self.simulation.get_simulated_time() + compute_time
+
+            if finish_time < earliest_finish_time:
+                earliest_finish_time = finish_time
+                best_host = host_name
+        return best_host
+
+class WASS_DRL_Scheduler_Inference(BaseScheduler):
+    """A compatible DRL inference scheduler."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        model_path = "models/saved_models/drl_agent.pth"
+        self.workflow_file = self.extra_args.get("workflow_file")
+        if not self.workflow_file:
+            raise ValueError("WASS_DRL_Scheduler_Inference requires a 'workflow_file' argument.")
+
+        GNN_IN_CHANNELS = 3
+        GNN_HIDDEN_CHANNELS = 64
+        GNN_OUT_CHANNELS = 32
+        ACTION_DIM = len(self.hosts)
         
-        # 记录决策
-        self.decisions.append({
-            "task_name": task.get_name(),
-            "host_name": decision_host
-        })
-        # print(f"    [Record] Task '{task.get_name()}' -> Host '{decision_host}'")
-        return decision_host
+        print(f"🤖 [Inference] Loading trained DRL agent from {model_path}...")
+        self.gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+        self.agent = ActorCritic(state_dim=GNN_OUT_CHANNELS, action_dim=ACTION_DIM)
+        
+        try:
+            self.agent.load_state_dict(torch.load(model_path))
+            self.agent.eval()
+            print("✅ Model loaded successfully.")
+        except Exception as e:
+            print(f"❌ ERROR: Failed to load model. Error: {e}")
 
-    def get_recorded_decisions(self) -> list:
-        """获取所有记录下来的决策"""
-        return self.decisions
-
-class WASS_RAG_Scheduler_Trainable(BaseScheduler):
-    """
-    A special scheduler designed specifically for the DRL training loop.
-    It connects the DRL agent to the WRENCH simulation environment.
-    """
-    def __init__(self, simulation, compute_services, hosts, agent, teacher, replay_buffer, gnn_encoder, workflow_file):
-        """
-        Initializes the trainable scheduler.
-
-        Args:
-            simulation: The WRENCH simulation object.
-            compute_services: A dictionary of compute services.
-            hosts: A dictionary of host information.
-            agent: An instance of the PPO ActorCritic agent.
-            teacher: An instance of the KnowledgeableTeacher.
-            replay_buffer: An instance of the ReplayBuffer.
-            gnn_encoder: An instance of the GNNEncoder.
-            workflow_file (str): The path to the current workflow JSON file, needed for state extraction.
-        """
-        super().__init__(simulation, compute_services, hosts)
-        self.agent = agent
-        self.teacher = teacher
-        self.replay_buffer = replay_buffer
-        self.gnn_encoder = gnn_encoder
-        self.workflow_file = workflow_file # Store the path to the workflow file
-
-        # A simple flag to encode the static graph state only once per simulation
         self.state_embedding = None
-        
-        print("🤖 WASS_RAG_Scheduler_Trainable initialized and ready for training.")
 
-    def get_scheduling_decision(self, task: 'wrench.Task') -> str:
-        """
-        This method is called by WRENCH at each decision point.
-        It performs one step of the reinforcement learning loop.
-        """
-        # 1. Get State Embedding
-        # For now, we use a simplified state representation: the static graph of the
-        # entire workflow. We compute it once and reuse it for all decisions in an episode.
+    def get_scheduling_decision(self, task: wrench.Task) -> str:
         if self.state_embedding is None:
-            print("    [DRL] First decision: Encoding workflow graph into state embedding...")
-            # We reuse the utility from the seeding step to represent the state
-            pyg_data = workflow_json_to_pyg_data(self.workflow_file)
+            pyg_data = workflow_json_to_pyg_data(self.workflow_file) 
             self.state_embedding = self.gnn_encoder(pyg_data)
 
-        # 2. Agent chooses an Action
-        # The agent decides which host to schedule the task on.
-        # The action is an integer index corresponding to a host.
-        action_index, log_prob = self.agent.act(self.state_embedding)
-
-        # 3. Teacher provides a Reward
-        # The RAG teacher immediately provides a reward for this action based on historical data.
-        rag_reward = self.teacher.generate_rag_reward(self.state_embedding, action_index)
-        
-        # 4. Store the experience tuple in the replay buffer
-        self.replay_buffer.add(
-            state=self.state_embedding,
-            action=action_index,
-            logprob=log_prob,
-            reward=rag_reward
-        )
-        
-        # 5. Return the decision to WRENCH
-        # Convert the action index back to a host name
+        action_index, _ = self.agent.act(self.state_embedding, deterministic=True)
         chosen_host_name = list(self.hosts.keys())[action_index]
-        print(f"    [DRL] Task '{task.get_name()}' -> Agent Action: {chosen_host_name}, RAG Reward: {rag_reward:.4f}")
-        
         return chosen_host_name

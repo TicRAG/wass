@@ -17,6 +17,7 @@ small_sizes:
 workflow_dir: workflows
 
 # Configuration for generating experiment workflows (for final testing)
+# 实验工作流保持不变
 experiment_workflows:
   montage:
     sizes: [20, 50, 100]
@@ -27,14 +28,13 @@ experiment_workflows:
     count: 3
     seed_start: 1
 
-# Configuration for generating training workflows (for the knowledge base)
-# We are significantly increasing the size and variety here.
+# --- 这是我们用于稳定训练的训练集 ---
 training_workflows:
   montage:
-    sizes: [50, 100, 200]    # Added a larger size
-    count: 25               # Increased count from 3 to 25
-    seed_start: 100         # Use a different seed to avoid overlap with tests
+    sizes: [50]      # 只使用50个任务的
+    count: 10
+    seed_start: 100
   highly_parallel:
-    sizes: [50, 100, 200]    # Added a larger size
-    count: 25               # Increased count from 3 to 25
-    seed_start: 100         # Use a different seed
+    sizes: [50]      # 只使用50个任务的
+    count: 10
+    seed_start: 100

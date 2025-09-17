@@ -157,51 +157,58 @@ class WrenchExperimentRunner:
             print(f"详细错误信息: {traceback.format_exc()}")
             return -1.0, []
 
+# In src/utils.py, replace the _run_single_simulation method
     def _run_single_simulation(self, scheduler_name: str, scheduler_impl: Any, workflow_file: str) -> Dict[str, Any]:
-        """运行单个WRENCH模拟并返回结果。"""
-        # --- 您提供的这个方法保持原样，不做任何修改 ---
+        """Runs a single WRENCH simulation and returns the results."""
+        workflow_filename = Path(workflow_file).name
         try:
             with open(self.platform_file, "r") as f:
                 platform_xml = f.read()
 
             simulation = wrench.Simulation()
-
             controller_host = "ControllerHost"
             simulation.start(platform_xml, controller_host)
 
             all_hostnames = simulation.get_all_hostnames()
-
-            compute_hosts = [host for host in all_hostnames if host not in [controller_host, "StorageHost"]]
-
+            compute_hosts_names = [host for host in all_hostnames if host not in [controller_host, "StorageHost"]]
             storage_service = simulation.create_simple_storage_service("StorageHost", ["/storage"])
 
             compute_services = {}
-            for host in compute_hosts:
-                compute_services[host] = simulation.create_bare_metal_compute_service(
-                    host, {host: (-1, -1)}, "/scratch", {}, {}
+            for host_name in compute_hosts_names:
+                compute_services[host_name] = simulation.create_bare_metal_compute_service(
+                    host_name, {host_name: (-1, -1)}, "/scratch", {}, {}
                 )
 
-            hosts_dict = {name: {} for name in compute_hosts}
+            # --- THIS IS THE FIX: Build a dictionary of host properties using valid APIs ---
+            hosts_properties = {}
+            for name, service in compute_services.items():
+                flop_rates = service.get_core_flop_rates()
+                # Assume a single core type per host for simplicity
+                speed = list(flop_rates.values())[0] if flop_rates else 0.0
+                hosts_properties[name] = {"speed": speed}
+            # --- FIX COMPLETE ---
+
+            scheduler_args = {
+                "simulation": simulation,
+                "compute_services": compute_services,
+                "hosts": hosts_properties
+            }
+            if scheduler_name == "WASS_DRL":
+                scheduler_args['workflow_file'] = workflow_file
 
             if isinstance(scheduler_impl, str):
-                module_name, class_name = scheduler_impl.rsplit('.', 1) if '.' in scheduler_impl else ('wrench_schedulers', scheduler_impl)
-                try:
-                    module = importlib.import_module(module_name)
-                    scheduler_class = getattr(module, class_name)
-                    scheduler_instance = scheduler_class(simulation, compute_services, hosts_dict)
-                except (ImportError, AttributeError) as e:
-                    print(f"导入调度器类失败: {scheduler_impl}, 错误: {e}")
-                    from wrench_schedulers import BaseScheduler
-                    scheduler_instance = BaseScheduler(simulation, compute_services, hosts_dict)
-            elif callable(scheduler_impl) and not isinstance(scheduler_impl, type):
-                scheduler_instance = scheduler_impl(simulation, compute_services, hosts_dict)
+                import importlib
+                module_name, class_name = scheduler_impl.rsplit('.', 1) if '.' in scheduler_impl else ('src.wrench_schedulers', scheduler_impl)
+                module = importlib.import_module(module_name)
+                scheduler_class = getattr(module, class_name)
+                scheduler_instance = scheduler_class(**scheduler_args)
             else:
-                scheduler_instance = scheduler_impl(simulation, compute_services, hosts_dict)
-
+                scheduler_instance = scheduler_impl(**scheduler_args)
+            
+            # WfCommons conversion logic remains the same...
             with open(workflow_file, 'r') as f:
                 workflow_data = json.load(f)
-
-            print(f"转换工作流数据为WfCommons格式...")
+            
             task_children = {}
             for task in workflow_data['workflow']['tasks']:
                 task_children[task['id']] = []
@@ -209,7 +216,7 @@ class WrenchExperimentRunner:
                 for parent_id in task.get('dependencies', []):
                     if parent_id in task_children:
                         task_children[parent_id].append(task['id'])
-
+            
             wfcommons_data = {
                 'name': workflow_data['metadata']['name'],
                 'workflow_name': workflow_data['metadata']['name'],
@@ -219,7 +226,7 @@ class WrenchExperimentRunner:
                 'createdAt': workflow_data['metadata'].get('generated_at', '2024-01-01T00:00:00Z'),
                 'workflow': {'specification': {'tasks': [], 'files': []}, 'execution': {'tasks': []}}
             }
-
+            
             for task in workflow_data['workflow']['tasks']:
                 wfcommons_task = {
                     'name': task['name'], 'id': task['id'], 'children': task_children[task['id']],
@@ -228,45 +235,34 @@ class WrenchExperimentRunner:
                     'memory': task.get('memory', 0)
                 }
                 wfcommons_data['workflow']['specification']['tasks'].append(wfcommons_task)
-
                 execution_task = {
-                    'id': task['id'], 'runtimeInSeconds': task.get('runtime', 1.0),
-                    'cores': 1, 'avgCPU': 1.0
+                    'id': task['id'], 'runtimeInSeconds': task.get('runtime', 1.0), 'cores': 1, 'avgCPU': 1.0
                 }
                 wfcommons_data['workflow']['execution']['tasks'].append(execution_task)
-
+            
             for file in workflow_data['workflow']['files']:
                 wfcommons_file = {
                     'id': file['id'], 'name': file['name'], 'sizeInBytes': file.get('size', 0)
                 }
                 wfcommons_data['workflow']['specification']['files'].append(wfcommons_file)
-
-            print(f"创建工作流，名称: {wfcommons_data['name']}")
-
+            
             if 'workflow_name' not in wfcommons_data:
                 wfcommons_data['workflow_name'] = wfcommons_data.get('name', 'unknown')
-
+            
             workflow = simulation.create_workflow_from_json(
-                wfcommons_data,
-                reference_flop_rate=str(task.get('flops', 0)/1000000)+'Mf',
+                wfcommons_data, reference_flop_rate=str(task.get('flops', 0)/1000000)+'Mf',
                 ignore_machine_specs=False, redundant_dependencies=False,
                 ignore_cycle_creating_dependencies=False, min_cores_per_task=1,
                 max_cores_per_task=1, enforce_num_cores=True,
                 ignore_avg_cpu=True, show_warnings=False
             )
-
-            print(f"工作流创建成功！工作流名称: {workflow.get_name()}")
-            print(f"工作流任务数: {len(workflow.get_tasks())}")
-
-            try:
-                for file in workflow.get_input_files():
-                    storage_service.create_file_copy(file)
-            except Exception as e:
-                print(f"文件副本创建失败: {e}")
-
+            
+            for file in workflow.get_input_files():
+                storage_service.create_file_copy(file)
+            
             if hasattr(scheduler_instance, 'schedule_ready_tasks'):
                 scheduler_instance.schedule_ready_tasks(workflow, storage_service)
-
+            
             while not workflow.is_done():
                 event = simulation.wait_for_next_event()
                 if event["event_type"] == "standard_job_completion":
@@ -278,14 +274,12 @@ class WrenchExperimentRunner:
                         scheduler_instance.schedule_ready_tasks(workflow, storage_service)
                 elif event["event_type"] == "simulation_termination":
                     break
-
+            
             makespan = simulation.get_simulated_time()
             simulation.terminate()
-
-            workflow_filename = Path(workflow_file).name
+            
             return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": makespan, "status": "success"}
         except Exception as e:
-            workflow_filename = Path(workflow_file).name
             import traceback
             print(f"ERROR running {scheduler_name} on {workflow_filename}: {e}")
             print(f"详细错误信息: {traceback.format_exc()}")

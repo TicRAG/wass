@@ -4,7 +4,7 @@
     {
       "experiment": "\u73b0\u6709\u5e73\u53f0\u914d\u7f6e-workflow_manager",
       "scheduler": "FIFO",
-      "makespan": 921.7574818355657,
+      "makespan": Infinity,
       "task_assignments": {},
       "host_utilization": {},
       "success": true
@@ -12,27 +12,17 @@
     {
       "experiment": "\u73b0\u6709\u5e73\u53f0\u914d\u7f6e-workflow_manager",
       "scheduler": "HEFT",
-      "makespan": 881.4421726544497,
+      "makespan": Infinity,
       "task_assignments": {},
       "host_utilization": {},
       "success": true
     }
   ],
-  "analysis": {
-    "\u73b0\u6709\u5e73\u53f0\u914d\u7f6e-workflow_manager": {
-      "fifo_makespan": 921.7574818355657,
-      "heft_makespan": 881.4421726544497,
-      "absolute_difference": 40.31530918111605,
-      "relative_improvement": 4.373743633827969,
-      "fifo_host_distribution": {},
-      "heft_host_distribution": {},
-      "amplification_level": "low"
-    }
-  },
+  "analysis": {},
   "summary": {
     "total_experiments": 1,
-    "successful_experiments": 1,
-    "best_amplification": 4.373743633827969,
-    "average_amplification": 4.373743633827969
+    "successful_experiments": 0,
+    "best_amplification": 0,
+    "average_amplification": 0
   }
 }

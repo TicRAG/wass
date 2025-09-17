@@ -40,17 +40,12 @@ class ActorCritic(nn.Module):
     def act(self, state: torch.Tensor, deterministic: bool = False) -> tuple[int, torch.Tensor]:
         """
         根据状态选择一个动作。
-        Args:
-            state (torch.Tensor): 当前状态的嵌入向量。
-            deterministic (bool): 是否采用确定性策略 (选择概率最高的动作)，用于评估阶段。
-        Returns:
-            tuple[int, torch.Tensor]: 选择的动作索引, 该动作的对数概率。
         """
         action_probs = self.actor(state)
         dist = Categorical(action_probs)
         
         if deterministic:
-            action = torch.argmax(action_probs).item()
+            action = torch.argmax(action_probs) # 保持为Tensor
         else:
             action = dist.sample()
 
