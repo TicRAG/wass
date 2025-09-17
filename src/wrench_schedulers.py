@@ -174,3 +174,29 @@ class WASSHeuristicScheduler(HEFTScheduler):
                 best_host = host_name
         
         return best_host or list(self.hosts.keys())[0]
+
+class RecordingHEFTScheduler(HEFTScheduler):
+    """
+    一个继承自HEFTScheduler的特殊调度器，
+    它的唯一目的是记录下所有调度决策。
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.decisions = []
+        print("📝 RecordingHEFTScheduler initialized. Ready to record decisions.")
+
+    def get_scheduling_decision(self, task: 'wrench.Task') -> str:
+        # 调用父类（原始HEFT）的决策逻辑
+        decision_host = super().get_scheduling_decision(task)
+        
+        # 记录决策
+        self.decisions.append({
+            "task_name": task.get_name(),
+            "host_name": decision_host
+        })
+        # print(f"    [Record] Task '{task.get_name()}' -> Host '{decision_host}'")
+        return decision_host
+
+    def get_recorded_decisions(self) -> list:
+        """获取所有记录下来的决策"""
+        return self.decisions

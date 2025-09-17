@@ -2,8 +2,7 @@ experiments/results/*
 charts/*
 src/__pycache__/*
 experiments/__pycache__/*
-models/*
-data/*
 configs/platforms/*
-results
 scripts/__pycache__/*
+workflows/*
+*.log

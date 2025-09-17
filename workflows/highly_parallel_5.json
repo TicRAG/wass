@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Highly-Parallel-5",
     "description": "高度并行工作流，5个任务，并行度>50%，CCR=1.0",
-    "generated_at": "2025-09-17T15:28:12.644837",
+    "generated_at": "2025-09-17T17:21:33.155355",
     "task_count": 6,
     "file_count": 6,
     "random_seed": 42,
