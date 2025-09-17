@@ -1,9 +1,0 @@
-# configs/predictor.yaml
-model:
-  type: "GNN" 
-  output_path: "models/performance_predictor.pth" # 指定输出路径
-
-training:
-  epochs: 50
-  batch_size: 32
-  learning_rate: 0.001

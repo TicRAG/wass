@@ -369,10 +369,14 @@ def run_amplification_experiment(experiment_name, platform_xml, workflow_json, s
     
     print(f"\n--- 运行实验: {experiment_name} - {scheduler_type} ---")
     
-    # 保存平台XML到临时文件
-    platform_file = f"temp_platform_{experiment_name}.xml"
-    with open(platform_file, 'w') as f:
-        f.write(platform_xml)
+    # 保存平台XML到临时文件（如果提供了平台配置）
+    if platform_xml:
+        platform_file = f"temp_platform_{experiment_name}.xml"
+        with open(platform_file, 'w') as f:
+            f.write(platform_xml)
+    else:
+        # 使用现有的test_platform.xml
+        platform_file = "/data/workspace/traespace/wass_trae/test_platform.xml"
     
     # 配置实验运行器
     config = {
@@ -428,7 +432,8 @@ def run_amplification_experiment(experiment_name, platform_xml, workflow_json, s
         import os
         if os.path.exists(workflow_file):
             os.remove(workflow_file)
-        if os.path.exists(platform_file):
+        # 只删除我们创建的临时平台文件，不删除现有的test_platform.xml
+        if platform_xml and os.path.exists(platform_file) and platform_file != "/data/workspace/traespace/wass_trae/test_platform.xml":
             os.remove(platform_file)
 
 def analyze_amplification_results(results):
@@ -487,49 +492,68 @@ def analyze_amplification_results(results):
     
     return analysis
 
-def main():
-    """主函数"""
-    print("时间差异放大测试 - 使用WrenchExperimentRunner")
-    print("=" * 60)
+def run_existing_platform_experiment():
+    """使用现有的test_platform.xml和workflow_manager生成的工作流运行实验"""
+    print("\n--- 使用现有平台配置和workflow_manager生成的工作流运行实验 ---")
     
-    # 创建平台和工作流配置
-    platforms = create_amplification_platforms()
-    workflows = create_amplification_workflows()
+    # 读取现有的test_platform.xml
+    platform_file = "/data/workspace/traespace/wass_trae/test_platform.xml"
     
-    # 定义实验组合
-    experiments = [
-        ('原始配置-简单工作流', platforms['original'], workflows['simple']),
-        ('高差异平台-简单工作流', platforms['high_variance'], workflows['simple']),
-        ('资源受限平台-简单工作流', platforms['constrained'], workflows['simple']),
-        ('高差异平台-复杂工作流', platforms['high_variance'], workflows['complex']),
-        ('资源受限平台-复杂工作流', platforms['constrained'], workflows['complex'])
-    ]
+    # 使用workflow_manager生成工作流
+    from scripts.workflow_manager import WorkflowManager
+    
+    # 创建工作流管理器
+    workflow_manager = WorkflowManager()
+    
+    # 生成实验工作流（使用小规模的几个任务）
+    print("正在生成工作流...")
+    workflow_files = workflow_manager.generate_experiment_workflows()
+    
+    if not workflow_files:
+        print("❌ 未能生成工作流文件")
+        return []
+    
+    # 选择第一个生成的工作流文件
+    workflow_file = workflow_files[0]
+    print(f"使用工作流文件: {workflow_file}")
+    
+    # 读取工作流内容
+    with open(workflow_file, 'r') as f:
+        workflow = json.load(f)
     
     results = []
     
-    # 运行所有实验
-    for exp_name, platform, workflow in experiments:
-        # 运行FIFO实验
-        fifo_result = run_amplification_experiment(exp_name, platform, workflow, 'FIFO')
-        results.append(fifo_result)
-        
-        # 运行HEFT实验
-        heft_result = run_amplification_experiment(exp_name, platform, workflow, 'HEFT')
-        results.append(heft_result)
-        
-        # 短暂暂停，避免系统过载
-        time.sleep(1)
+    # 运行FIFO实验
+    fifo_result = run_amplification_experiment('现有平台配置-workflow_manager', '', workflow, 'FIFO')
+    results.append(fifo_result)
+    
+    # 运行HEFT实验  
+    heft_result = run_amplification_experiment('现有平台配置-workflow_manager', '', workflow, 'HEFT')
+    results.append(heft_result)
+    
+    return results
+
+def main():
+    """主函数 - 仅运行使用workflow_manager的现有平台实验"""
+    print("时间差异放大测试 - 使用WrenchExperimentRunner (仅workflow_manager生成的工作流)")
+    print("=" * 60)
+    
+    results = []
+    
+    # 仅运行使用现有平台和workflow_manager生成的工作流实验
+    existing_platform_results = run_existing_platform_experiment()
+    results.extend(existing_platform_results)
     
     # 分析结果
     analysis = analyze_amplification_results(results)
     
     # 保存详细结果
     output_data = {
-        'experiments': experiments,
+        'experiments': [],  # 空列表，因为没有手动创建的实验
         'results': results,
         'analysis': analysis,
         'summary': {
-            'total_experiments': len(experiments),
+            'total_experiments': 1,  # 只有1个实验（现有平台-workflow_manager）
             'successful_experiments': len([a for a in analysis.values() if 'amplification_level' in a]),
             'best_amplification': max([abs(a.get('relative_improvement', 0)) for a in analysis.values()], default=0),
             'average_amplification': sum([abs(a.get('relative_improvement', 0)) for a in analysis.values()]) / len(analysis) if analysis else 0
@@ -551,6 +575,7 @@ def main():
     print(f"平均放大效果: {output_data['summary']['average_amplification']:.2f}%")
     print(f"详细结果保存至: final_amplification_results.json")
     print(f"分析报告保存至: final_amplification_analysis.md")
+    print("\n注意：仅运行了使用现有test_platform.xml平台和workflow_manager生成的工作流实验")
 
 def generate_analysis_report(analysis, summary):
     """生成分析报告"""

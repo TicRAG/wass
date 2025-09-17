@@ -71,7 +71,7 @@ class HEFTScheduler(BaseScheduler):
         self.host_ready_times = {host: 0.0 for host in hosts.keys()}  # 记录每个主机的可用时间
         self.task_assignments = {}  # 记录任务分配情况
         
-        # 预定义主机速度映射（基于平台XML配置）
+        # 预定义主机速度映射（基于平台XML配置，这里没有读取xml而是为了简化代码写死了）
         # 进一步放大主机性能差异
         self.host_speeds = {
             'ComputeHost1': 1e9,    # 1 GFLOPS - 最慢

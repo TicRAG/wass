@@ -6,3 +6,4 @@ models/*
 data/*
 configs/platforms/*
 results
+*/__pycache__
