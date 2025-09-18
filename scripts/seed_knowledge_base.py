@@ -16,7 +16,7 @@ from workflow_manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.knowledge_teacher import KnowledgeBase
 from src.drl.utils import workflow_json_to_pyg_data
-from src.wrench_schedulers import RecordingHEFTScheduler
+from src.wrench_schedulers import HEFTScheduler
 from src.utils import WrenchExperimentRunner
 
 # --- Configuration ---
@@ -82,7 +82,7 @@ def main():
         print(f"\n--- Processing workflow {i+1}/{len(successful_workflows)}: {wf_path.name} ---")
         
         makespan, decisions = wrench_runner.run_single_seeding_simulation(
-            scheduler_class=RecordingHEFTScheduler,
+            scheduler_class=HEFTScheduler,
             workflow_file=str(wf_path)
         )
 

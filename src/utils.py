@@ -12,7 +12,7 @@ import numpy as np
 import json
 import importlib # 为动态导入调度器而添加
 
-reference_flop_rate = str(200000000)+'Mf'
+reference_flop_rate = str(300000000)+'Mf'
 
 def get_logger(name, level=logging.INFO):
     """获取一个已配置的日志器。"""
