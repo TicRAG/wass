@@ -16,27 +16,34 @@ class BaseScheduler:
         # hosts is now a dictionary of properties, e.g., {'ComputeHost1': {'speed': 1e9}}
         self.hosts = hosts
         self.extra_args = kwargs
+        self.completed_tasks = set()
 
     def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
         """Schedules all tasks that are ready to run."""
         ready_tasks = workflow.get_ready_tasks()
         for task in ready_tasks:
+            if task in self.completed_tasks:
+                continue
             host_name = self.get_scheduling_decision(task)
-            if host_name and host_name in self.compute_services:
-                # --- THIS IS THE FIX: Correctly call the job creation API ---
-                input_files = task.get_input_files()
-                output_files = task.get_output_files()
-                locations = {}
-                for f in input_files:
-                    locations[f] = storage_service
-                for f in output_files:
-                    locations[f] = storage_service
-                job = self.simulation.create_standard_job(tasks=[task], file_locations=locations)
-                print(f"self.compute_services[{host_name}].submit_standard_job({job})")
-                self.compute_services[host_name].submit_standard_job(job)
+            if host_name:
+                    # 准备文件位置字典
+                    file_locations = {}
+                    for f in task.get_input_files():
+                        file_locations[f] = storage_service
+                    for f in task.get_output_files():
+                        file_locations[f] = storage_service
+                    
+                    # 创建标准作业并提交到选定的主机对应的计算服务
+                    job = self.simulation.create_standard_job([task], file_locations)
+                    if host_name in self.compute_services:
+                        self.compute_services[host_name].submit_standard_job(job)
+                    else:
+                        # 回退到第一个可用的计算服务
+                        first_service = list(self.compute_services.values())[0]
+                        first_service.submit_standard_job(job)
 
     def handle_completion(self, task: wrench.Task):
-        pass
+        self.completed_tasks.add(task)
 
     def get_scheduling_decision(self, task: wrench.Task) -> str:
         raise NotImplementedError

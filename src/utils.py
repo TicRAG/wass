@@ -12,6 +12,8 @@ import numpy as np
 import json
 import importlib # 为动态导入调度器而添加
 
+reference_flop_rate = str(200000000)+'Mf'
+
 def get_logger(name, level=logging.INFO):
     """获取一个已配置的日志器。"""
     logger = logging.getLogger(name)
@@ -115,13 +117,12 @@ class WrenchExperimentRunner:
 
             if 'workflow_name' not in wfcommons_data:
                 wfcommons_data['workflow_name'] = wfcommons_data.get('name', 'unknown')
-
             workflow = simulation.create_workflow_from_json(
-                wfcommons_data, reference_flop_rate=str(task.get('flops', 0)/1000000)+'Mf',
+                wfcommons_data, reference_flop_rate=reference_flop_rate,
                 ignore_machine_specs=False, redundant_dependencies=False,
                 ignore_cycle_creating_dependencies=False, min_cores_per_task=1,
                 max_cores_per_task=1, enforce_num_cores=True,
-                ignore_avg_cpu=True, show_warnings=False
+                ignore_avg_cpu=False, show_warnings=False
             )
             # --- 修正结束 ---
 
@@ -179,7 +180,6 @@ class WrenchExperimentRunner:
                     host_name, {host_name: (-1, -1)}, "/scratch", {}, {}
                 )
 
-            # --- THIS IS THE FIX: Build a dictionary of host properties using valid APIs ---
             hosts_properties = {}
             for name, service in compute_services.items():
                 flop_rates = service.get_core_flop_rates()
@@ -197,10 +197,12 @@ class WrenchExperimentRunner:
                 scheduler_args['workflow_file'] = workflow_file
 
             if isinstance(scheduler_impl, str):
+                print(f"Loading scheduler: {scheduler_impl}")
                 import importlib
                 module_name, class_name = scheduler_impl.rsplit('.', 1) if '.' in scheduler_impl else ('src.wrench_schedulers', scheduler_impl)
                 module = importlib.import_module(module_name)
                 scheduler_class = getattr(module, class_name)
+                print(f"scheduler_args: {scheduler_args}")
                 scheduler_instance = scheduler_class(**scheduler_args)
             else:
                 scheduler_instance = scheduler_impl(**scheduler_args)
@@ -250,11 +252,11 @@ class WrenchExperimentRunner:
                 wfcommons_data['workflow_name'] = wfcommons_data.get('name', 'unknown')
             
             workflow = simulation.create_workflow_from_json(
-                wfcommons_data, reference_flop_rate=str(task.get('flops', 0)/1000000)+'Mf',
+                wfcommons_data, reference_flop_rate=reference_flop_rate,
                 ignore_machine_specs=False, redundant_dependencies=False,
                 ignore_cycle_creating_dependencies=False, min_cores_per_task=1,
                 max_cores_per_task=1, enforce_num_cores=True,
-                ignore_avg_cpu=True, show_warnings=False
+                ignore_avg_cpu=False, show_warnings=False
             )
             
             for file in workflow.get_input_files():
@@ -277,7 +279,6 @@ class WrenchExperimentRunner:
             
             makespan = simulation.get_simulated_time()
             simulation.terminate()
-            
             return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": makespan, "status": "success"}
         except Exception as e:
             import traceback
