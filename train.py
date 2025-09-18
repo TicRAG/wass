@@ -32,7 +32,7 @@ LEARNING_RATE = 3e-4
 GAMMA = 0.99
 EPOCHS = 10
 EPS_CLIP = 0.2
-TOTAL_EPISODES = 500
+TOTAL_EPISODES = 100
 MODEL_SAVE_DIR = "models/saved_models"
 AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, "drl_agent.pth")
 PLATFORM_FILE = "configs/test_platform.xml"
@@ -114,7 +114,7 @@ def main():
     for episode in range(1, TOTAL_EPISODES + 1):
         workflow_file = np.random.choice(training_workflows)
         
-        trainable_scheduler = lambda sim, cs, h: WASS_RAG_Scheduler_Trainable(
+        trainable_scheduler = lambda sim, cs, h, **kwargs: WASS_RAG_Scheduler_Trainable(
             simulation=sim, 
             compute_services=cs, 
             hosts=h,
@@ -122,7 +122,8 @@ def main():
             teacher=teacher,
             replay_buffer=replay_buffer,
             gnn_encoder=gnn_encoder,
-            workflow_file=workflow_file
+            workflow_file=workflow_file,
+            **kwargs
         )
 
         makespan, _ = wrench_runner.run_single_seeding_simulation(

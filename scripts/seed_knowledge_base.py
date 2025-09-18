@@ -71,8 +71,8 @@ def main():
 
     # --- 核心修改：定义用于 seeding 的调度器列表 ---
     seeding_schedulers = {
-        "HEFT": HEFTScheduler,
-        "Random": RandomScheduler
+        "HEFT": HEFTScheduler
+        # "Random": RandomScheduler
     }
     print(f"\n[Step 3b/6] Simulating workflows with schedulers: {list(seeding_schedulers.keys())}...")
     

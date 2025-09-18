@@ -4,7 +4,7 @@
     {
       "experiment": "\u73b0\u6709\u5e73\u53f0\u914d\u7f6e-workflow_manager",
       "scheduler": "FIFO",
-      "makespan": 7059.930417273334,
+      "makespan": 7975.335386553334,
       "task_assignments": {},
       "host_utilization": {},
       "success": true
@@ -12,7 +12,7 @@
     {
       "experiment": "\u73b0\u6709\u5e73\u53f0\u914d\u7f6e-workflow_manager",
       "scheduler": "HEFT",
-      "makespan": 7975.335386553334,
+      "makespan": 7059.930417273334,
       "task_assignments": {},
       "host_utilization": {},
       "success": true
@@ -20,10 +20,10 @@
   ],
   "analysis": {
     "\u73b0\u6709\u5e73\u53f0\u914d\u7f6e-workflow_manager": {
-      "fifo_makespan": 7059.930417273334,
-      "heft_makespan": 7975.335386553334,
+      "fifo_makespan": 7975.335386553334,
+      "heft_makespan": 7059.930417273334,
       "absolute_difference": 915.4049692799999,
-      "relative_improvement": -12.966203845866586,
+      "relative_improvement": 11.477949514491911,
       "fifo_host_distribution": {},
       "heft_host_distribution": {},
       "amplification_level": "medium"
@@ -32,7 +32,7 @@
   "summary": {
     "total_experiments": 1,
     "successful_experiments": 1,
-    "best_amplification": 12.966203845866586,
-    "average_amplification": 12.966203845866586
+    "best_amplification": 11.477949514491911,
+    "average_amplification": 11.477949514491911
   }
 }

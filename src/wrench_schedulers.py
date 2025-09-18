@@ -163,7 +163,7 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         self.teacher = teacher
         self.replay_buffer = replay_buffer
         self.gnn_encoder = gnn_encoder
-        self.workflow_file = workflow_file
+        self.workflow_file = kwargs.get('workflow_file')
         
         self.pyg_data = workflow_json_to_pyg_data(self.workflow_file)
         self.task_name_to_idx = None

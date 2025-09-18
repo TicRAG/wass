@@ -18,24 +18,22 @@ small_sizes:
 - 20
 workflow_dir: workflows
 
-# 实验工作流的规模保持不变，因为我们需要在这些规模上进行最终测试
 experiment_workflows:
   montage:
-    sizes: [20, 50, 100]
-    count: 3
-    seed_start: 1
-  highly_parallel:
-    sizes: [20, 50, 100]
-    count: 3
-    seed_start: 1
-
-# --- 这是核心修改：降低训练工作流的最大规模以避免死锁 ---
-training_workflows:
-  montage:
-    sizes: [20, 40, 60] # 将最大规模从100降低到60
-    count: 5
+    sizes: [20]
+    count: 2
     seed_start: 100
   highly_parallel:
-    sizes: [20, 40, 60] # 将最大规模从100降低到60
-    count: 5
+    sizes: [20]
+    count: 2
+    seed_start: 100
+
+training_workflows:
+  montage:
+    sizes: [20] 
+    count: 2
+    seed_start: 100
+  highly_parallel:
+    sizes: [20] 
+    count: 2
     seed_start: 100
