@@ -1,3 +1,4 @@
+# src/utils.py
 """工具函数、日志设置和最终版的实验运行器。"""
 from __future__ import annotations
 import logging
@@ -39,6 +40,7 @@ class WrenchExperimentRunner:
 
     def run_single_seeding_simulation(self, scheduler_class: Any, workflow_file: str) -> tuple[float, list]:
         """运行一次用于知识库“播种”的模拟。"""
+        # ... (这个函数保持不变) ...
         workflow_filename = Path(workflow_file).name
         try:
             with open(self.platform_file, "r") as f:
@@ -62,22 +64,17 @@ class WrenchExperimentRunner:
             with open(workflow_file, 'r') as f:
                 workflow_data = json.load(f)
             
-            # 为 seeder 注入 workflow 对象 (保持接口一致性)
-            workflow = self.create_workflow_from_json_data(simulation, workflow_data, workflow_file)
+            # --- 为 seeder 注入 workflow 对象 ---
+            # (这部分代码虽然在seeding阶段不是必须的，但保持一致性是好的实践)
+            wf_obj = self.create_workflow_from_json_data(simulation, workflow_data, workflow_file)
             
-            scheduler_args = {
-                "simulation": simulation,
-                "compute_services": compute_services,
-                "hosts": hosts_properties,
-                "workflow_obj": workflow
-            }
-            scheduler_instance = scheduler_class(**scheduler_args)
+            scheduler_instance = scheduler_class(simulation, compute_services, hosts_properties, workflow_obj=wf_obj)
             
-            for file in workflow.get_input_files():
+            for file in wf_obj.get_input_files():
                 storage_service.create_file_copy(file)
             if hasattr(scheduler_instance, 'schedule_ready_tasks'):
-                scheduler_instance.schedule_ready_tasks(workflow, storage_service)
-            while not workflow.is_done():
+                scheduler_instance.schedule_ready_tasks(wf_obj, storage_service)
+            while not wf_obj.is_done():
                 event = simulation.wait_for_next_event()
                 if event["event_type"] == "standard_job_completion":
                     job = event["standard_job"]
@@ -85,7 +82,7 @@ class WrenchExperimentRunner:
                         for task in job.get_tasks():
                             scheduler_instance.handle_completion(task)
                     if hasattr(scheduler_instance, 'schedule_ready_tasks'):
-                        scheduler_instance.schedule_ready_tasks(workflow, storage_service)
+                        scheduler_instance.schedule_ready_tasks(wf_obj, storage_service)
                 elif event["event_type"] == "simulation_termination":
                     break
             makespan = simulation.get_simulated_time()
@@ -99,6 +96,7 @@ class WrenchExperimentRunner:
             print(f"ERROR running seeding simulation on {workflow_filename}: {e}")
             print(f"详细错误信息: {traceback.format_exc()}")
             return -1.0, []
+
 
     def create_workflow_from_json_data(self, simulation, workflow_data, workflow_file_path):
         """从JSON数据创建WRENCH工作流对象的辅助函数。"""
@@ -163,6 +161,7 @@ class WrenchExperimentRunner:
                 speed = list(flop_rates.values())[0] if flop_rates else 0.0
                 hosts_properties[name] = {"speed": speed}
             
+            # --- 核心修改：为所有调度器创建并传递 workflow 对象 ---
             with open(workflow_file, 'r') as f:
                 workflow_data = json.load(f)
             
@@ -180,6 +179,7 @@ class WrenchExperimentRunner:
                 scheduler_args['workflow_file'] = workflow_file
 
             scheduler_instance = scheduler_impl(**scheduler_args)
+            # --- 修改结束 ---
 
             for file in workflow.get_input_files():
                 storage_service.create_file_copy(file)
@@ -208,8 +208,13 @@ class WrenchExperimentRunner:
             print(f"详细错误信息: {traceback.format_exc()}")
             return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": float('inf'), "status": "failed"}
 
+    # --- 核心修改：删除有问题的 run_all 方法 ---
+    # def run_all(self) -> List[Dict[str, Any]]:
+    #     ... (此方法的全部内容被删除)
+
     def analyze_results(self, results: List[Dict[str, Any]]):
         """分析、打印并保存实验结果摘要。"""
+        # ... (这个函数保持不变) ...
         if not results:
             print("没有可供分析的实验结果。"); return
         df = pd.DataFrame(results)

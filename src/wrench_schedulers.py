@@ -14,7 +14,7 @@ from src.drl.knowledge_teacher import KnowledgeableTeacher
 
 class BaseScheduler:
     """A final, fully compatible BaseScheduler."""
-    def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], **kwargs):
+    def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], workflow_obj: wrench.Workflow, **kwargs):
         self.simulation = simulation
         self.compute_services = compute_services
         self.hosts = hosts

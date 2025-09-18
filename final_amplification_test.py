@@ -15,7 +15,7 @@ project_root = current_dir
 sys.path.insert(0, str(project_root))
 
 from src.utils import WrenchExperimentRunner
-
+from src.wrench_schedulers import HEFTScheduler, FIFOScheduler
 
 def run_amplification_experiment(experiment_name, platform_xml, workflow_json, scheduler_type):
     """运行单个放大实验"""
@@ -42,9 +42,8 @@ def run_amplification_experiment(experiment_name, platform_xml, workflow_json, s
     
     # 定义调度器
     schedulers = {
-        "FIFO": "src.wrench_schedulers.FIFOScheduler",
-        "HEFT": "src.wrench_schedulers.HEFTScheduler",
-        "RANDOM": "src.wrench_schedulers.RandomScheduler"
+        "FIFO": FIFOScheduler,
+        "HEFT": HEFTScheduler
     }
     
     # 创建实验运行器
