@@ -14,28 +14,28 @@
     </host>
     
     <!-- Compute Hosts -->
-    <host id="ComputeHost1" speed="2Gf" core="4">
+    <host id="ComputeHost1" speed="10Gf" core="4">
       <disk id="local_disk" read_bw="200MBps" write_bw="200MBps">
         <prop id="size" value="100GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
     
-    <host id="ComputeHost2" speed="3Gf" core="8">
+    <host id="ComputeHost2" speed="50Gf" core="8">
       <disk id="local_disk" read_bw="250MBps" write_bw="250MBps">
         <prop id="size" value="200GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
     
-    <host id="ComputeHost3" speed="2.5Gf" core="6">
+    <host id="ComputeHost3" speed="50Gf" core="6">
       <disk id="local_disk" read_bw="220MBps" write_bw="220MBps">
         <prop id="size" value="150GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
     
-    <host id="ComputeHost4" speed="4Gf" core="16">
+    <host id="ComputeHost4" speed="60Gf" core="16">
       <disk id="local_disk" read_bw="300MBps" write_bw="300MBps">
         <prop id="size" value="500GB"/>
         <prop id="mount" value="/scratch"/>

@@ -19,21 +19,29 @@ small_sizes:
 workflow_dir: workflows
 
 experiment_workflows:
-  montage:
+  # comm_intensive:
+  #   sizes: [20]
+  #   count: 2
+  #   seed_start: 100
+  # montage:
+  #   sizes: [20]
+  #   count: 2
+  #   seed_start: 100
+  cybershake:
     sizes: [20]
     count: 2
-    seed_start: 100
-  highly_parallel:
-    sizes: [20]
-    count: 2
-    seed_start: 100
+    seed_start: 2
 
 training_workflows:
-  montage:
+  # comm_intensive:
+  #   sizes: [20] 
+  #   count: 2
+  #   seed_start: 100
+  # montage:
+  #   sizes: [20] 
+  #   count: 2
+  #   seed_start: 100
+  cybershake:
     sizes: [20] 
     count: 2
-    seed_start: 100
-  highly_parallel:
-    sizes: [20] 
-    count: 2
-    seed_start: 100
+    seed_start: 20    
