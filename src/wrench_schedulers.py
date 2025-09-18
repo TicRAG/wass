@@ -7,6 +7,7 @@ import torch
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.ppo_agent import ActorCritic
 from src.drl.utils import workflow_json_to_pyg_data
+from src.drl.replay_buffer import ReplayBuffer # 确保导入 ReplayBuffer
 
 class BaseScheduler:
     """A final, fully compatible BaseScheduler."""
@@ -116,4 +117,45 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
 
         action_index, _ = self.agent.act(self.state_embedding, deterministic=True)
         chosen_host_name = list(self.hosts.keys())[action_index]
+        return chosen_host_name
+
+# --- 这是新增的、用于训练的调度器 ---
+class WASS_RAG_Scheduler_Trainable(BaseScheduler):
+    """
+    一个与训练循环兼容的DRL调度器。
+    它使用智能体来做决策，并将(状态、动作、回报)元组存入一个Replay Buffer中。
+    """
+    def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any],
+                 agent: ActorCritic, teacher: Any, replay_buffer: ReplayBuffer, gnn_encoder: GNNEncoder, workflow_file: str, **kwargs):
+        super().__init__(simulation, compute_services, hosts, **kwargs)
+        self.agent = agent
+        self.teacher = teacher  # Teacher可以是None
+        self.replay_buffer = replay_buffer
+        self.gnn_encoder = gnn_encoder
+        self.workflow_file = workflow_file
+        
+        # 为每个工作流只编码一次图
+        self.state_embedding = None
+
+    def get_scheduling_decision(self, task: wrench.Task) -> str:
+        """使用DRL智能体来选择一个主机。"""
+        # 1. 获取当前状态（图嵌入）
+        if self.state_embedding is None:
+            pyg_data = workflow_json_to_pyg_data(self.workflow_file)
+            self.state_embedding = self.gnn_encoder(pyg_data)
+        
+        state = self.state_embedding
+
+        # 2. 从智能体获取动作
+        # 在训练时，我们使用随机策略（deterministic=False）
+        action_index, action_logprob = self.agent.act(state, deterministic=False)
+        
+        # 3. 将经验存入回放缓冲区
+        # 注意：这里的reward是占位符，因为实际的reward（-makespan）只有在整个工作流结束后才能知道。
+        # 我们将在train.py的主循环中填充正确的reward。
+        self.replay_buffer.add(state, action_index, action_logprob, reward=0.0)
+        
+        # 4. 将动作索引映射到主机名
+        chosen_host_name = list(self.hosts.keys())[action_index]
+        
         return chosen_host_name

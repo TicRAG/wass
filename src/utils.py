@@ -70,10 +70,17 @@ class WrenchExperimentRunner:
                     host, {host: (-1, -1)}, "/scratch", {}, {}
                 )
 
-            hosts_dict = {name: {} for name in compute_hosts}
-            scheduler_instance = scheduler_class(simulation, compute_services, hosts_dict)
+            # --- 这是修正的部分: 添加了主机性能获取逻辑 ---
+            hosts_properties = {}
+            for name, service in compute_services.items():
+                flop_rates = service.get_core_flop_rates()
+                # 假设每个主机只有一种核心类型以简化
+                speed = list(flop_rates.values())[0] if flop_rates else 0.0
+                hosts_properties[name] = {"speed": speed}
+            # --- 修正结束 ---
 
-            # --- 这是修正的部分: 完整地复制了下方 proven 的工作流创建逻辑 ---
+            scheduler_instance = scheduler_class(simulation, compute_services, hosts_properties)
+
             with open(workflow_file, 'r') as f:
                 workflow_data = json.load(f)
 
@@ -124,7 +131,6 @@ class WrenchExperimentRunner:
                 max_cores_per_task=1, enforce_num_cores=True,
                 ignore_avg_cpu=False, show_warnings=False
             )
-            # --- 修正结束 ---
 
             for file in workflow.get_input_files():
                 storage_service.create_file_copy(file)
