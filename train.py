@@ -18,11 +18,13 @@ from scripts.workflow_manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.ppo_agent import ActorCritic
 from src.drl.replay_buffer import ReplayBuffer
+from src.drl.knowledge_teacher import KnowledgeBase, KnowledgeableTeacher
 from src.wrench_schedulers import WASS_RAG_Scheduler_Trainable
 from src.utils import WrenchExperimentRunner
 
+
 # --- 配置 ---
-GNN_IN_CHANNELS = 3
+GNN_IN_CHANNELS = 4
 GNN_HIDDEN_CHANNELS = 64
 GNN_OUT_CHANNELS = 32
 ACTION_DIM = 4
@@ -49,9 +51,10 @@ class PPO:
     def update(self, memory):
         rewards = []
         discounted_reward = 0
-        final_reward = memory.rewards[0].item() if memory.rewards else 0
-        for _ in reversed(memory.rewards):
-            discounted_reward = final_reward
+        for reward in reversed(memory.rewards):
+            # 确保 reward 是一个 tensor
+            reward_tensor = reward if isinstance(reward, torch.Tensor) else torch.tensor(reward, dtype=torch.float32)
+            discounted_reward = reward_tensor + (self.gamma * discounted_reward)
             rewards.insert(0, discounted_reward)
 
         rewards = torch.tensor(rewards, dtype=torch.float32)
@@ -64,13 +67,9 @@ class PPO:
         for _ in range(self.epochs):
             logprobs, state_values, dist_entropy = self.policy.evaluate(old_states, old_actions)
 
-            # --- 这是修正的部分 ---
-            # 确保 rewards 的形状是 [n, 1]，与 state_values 的形状匹配
             rewards_reshaped = rewards.view(-1, 1)
-            # --- 修正结束 ---
-
-            ratios = torch.exp(logprobs - old_logprobs.detach())
             advantages = rewards_reshaped - state_values.detach()
+            ratios = torch.exp(logprobs - old_logprobs.detach())
             
             surr1 = ratios * advantages
             surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
@@ -82,7 +81,7 @@ class PPO:
             self.optimizer.step()
 
 def main():
-    print("🚀 [Phase 3] Starting DRL Agent Training...")
+    print("🚀 [Phase 3] Starting DRL Agent Training (with Dynamic State Update)...")
     
     Path(MODEL_SAVE_DIR).mkdir(parents=True, exist_ok=True)
     
@@ -95,6 +94,10 @@ def main():
     ppo_updater = PPO(policy_agent, LEARNING_RATE, GAMMA, EPOCHS, EPS_CLIP)
     
     replay_buffer = ReplayBuffer()
+    
+    print("🧠 Initializing Knowledge Base and Teacher...")
+    kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
+    teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb)
     
     config_params = {"platform_file": PLATFORM_FILE}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
@@ -116,7 +119,7 @@ def main():
             compute_services=cs, 
             hosts=h,
             agent=policy_agent,
-            teacher=None,
+            teacher=teacher,
             replay_buffer=replay_buffer,
             gnn_encoder=gnn_encoder,
             workflow_file=workflow_file
@@ -127,18 +130,26 @@ def main():
             workflow_file=workflow_file
         )
 
-        if makespan < 0:
+        if makespan < 0 or not replay_buffer.rewards:
             print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Status: FAILED. Skipping update.")
             replay_buffer.clear()
             continue
 
-        reward = -makespan
-        replay_buffer.rewards = [torch.tensor(reward) for _ in replay_buffer.actions]
+        # --- 核心修改：在更新前计算平均RAG奖励 ---
+        # 提取所有RAG奖励（除了最后一个可能是终局奖励）
+        rag_rewards = [r.item() for r in replay_buffer.rewards]
+        avg_rag_reward = np.mean(rag_rewards) if rag_rewards else 0
+        
+        # 终局奖励：负的makespan
+        final_reward = -makespan / 1000.0
+        # 将其加到最后一步的奖励上
+        replay_buffer.rewards[-1] = torch.tensor(replay_buffer.rewards[-1].item() + final_reward)
+        # --- 修改结束 ---
         
         ppo_updater.update(replay_buffer)
         replay_buffer.clear()
 
-        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Reward: {reward:.2f}")
+        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Avg RAG Reward: {avg_rag_reward:.4f}")
 
         if episode % 50 == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)

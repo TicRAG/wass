@@ -43,7 +43,8 @@ def run_amplification_experiment(experiment_name, platform_xml, workflow_json, s
     # 定义调度器
     schedulers = {
         "FIFO": "src.wrench_schedulers.FIFOScheduler",
-        "HEFT": "src.wrench_schedulers.HEFTScheduler"
+        "HEFT": "src.wrench_schedulers.HEFTScheduler",
+        "RANDOM": "src.wrench_schedulers.RandomScheduler"
     }
     
     # 创建实验运行器

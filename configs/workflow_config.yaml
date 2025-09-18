@@ -1,3 +1,5 @@
+# configs/workflow_config.yaml
+
 ccr: 1.0
 large_sizes:
 - 200
@@ -16,8 +18,7 @@ small_sizes:
 - 20
 workflow_dir: workflows
 
-# Configuration for generating experiment workflows (for final testing)
-# 实验工作流保持不变
+# 实验工作流的规模保持不变，因为我们需要在这些规模上进行最终测试
 experiment_workflows:
   montage:
     sizes: [20, 50, 100]
@@ -28,13 +29,13 @@ experiment_workflows:
     count: 3
     seed_start: 1
 
-# --- 这是我们用于稳定训练的训练集 ---
+# --- 这是核心修改：降低训练工作流的最大规模以避免死锁 ---
 training_workflows:
   montage:
-    sizes: [50]      # 只使用50个任务的
-    count: 10
+    sizes: [20, 40, 60] # 将最大规模从100降低到60
+    count: 5
     seed_start: 100
   highly_parallel:
-    sizes: [50]      # 只使用50个任务的
-    count: 10
+    sizes: [20, 40, 60] # 将最大规模从100降低到60
+    count: 5
     seed_start: 100
