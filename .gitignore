@@ -7,3 +7,4 @@ scripts/__pycache__/*
 workflows/*
 *.log
 data/*
+models/saved_models/*

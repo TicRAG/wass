@@ -1,4 +1,4 @@
-# train.py
+# train_no_rag.py
 import os
 import sys
 import torch
@@ -18,10 +18,8 @@ from scripts.workflow_manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.ppo_agent import ActorCritic
 from src.drl.replay_buffer import ReplayBuffer
-from src.drl.knowledge_teacher import KnowledgeBase, KnowledgeableTeacher
 from src.wrench_schedulers import WASS_RAG_Scheduler_Trainable
 from src.utils import WrenchExperimentRunner
-
 
 # --- Config ---
 GNN_IN_CHANNELS = 4
@@ -34,7 +32,7 @@ EPOCHS = 10
 EPS_CLIP = 0.2
 TOTAL_EPISODES = 100
 MODEL_SAVE_DIR = "models/saved_models"
-AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, "drl_agent.pth")
+AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, "drl_agent_no_rag.pth")
 PLATFORM_FILE = "configs/test_platform.xml"
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 
@@ -49,18 +47,14 @@ class PPO:
         self.mse_loss = nn.MSELoss()
 
     def update(self, memory):
-        rewards = []
-        discounted_reward = 0
-        for reward in reversed(memory.rewards):
-            reward_tensor = reward if isinstance(reward, torch.Tensor) else torch.tensor(reward, dtype=torch.float32)
-            discounted_reward = reward_tensor + (self.gamma * discounted_reward)
-            rewards.insert(0, discounted_reward)
-            
-        if not rewards:
-            return
-            
+        # Reward calculation is based only on the final makespan
+        final_reward = memory.rewards[0]
+        rewards = [final_reward] * len(memory.actions)
+
         rewards = torch.tensor(rewards, dtype=torch.float32)
-        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-7)
+        # Normalize rewards only if there's more than one to avoid division by zero
+        if len(rewards) > 1:
+            rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-7)
 
         old_states = torch.cat(memory.states).detach()
         old_actions = torch.stack(memory.actions).detach()
@@ -79,21 +73,19 @@ class PPO:
             self.optimizer.step()
 
 def main():
-    print("🚀 [Phase 3] Starting DRL Agent Training (with Re-balanced Rewards)...")
+    print("🚀 [Phase 3.1] Starting DRL Agent Training (NO RAG)...")
     
     Path(MODEL_SAVE_DIR).mkdir(parents=True, exist_ok=True)
     
     print("\n[Step 1/4] Initializing components...")
     workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=ACTION_DIM)
     ppo_updater = PPO(policy_agent, LEARNING_RATE, GAMMA, EPOCHS, EPS_CLIP)
-    replay_buffer = ReplayBuffer()
     
-    print("🧠 Initializing Knowledge Base and Teacher...")
-    kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
-    teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb)
+    replay_buffer = ReplayBuffer()
     
     config_params = {"platform_file": PLATFORM_FILE}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
@@ -104,7 +96,7 @@ def main():
     if not training_workflows:
         print("❌ No training workflows generated.")
         return
-    print(f"✅ Generated {len(training_workflows)} workflows for training pool.")
+    print(f"✅ Generated {len(training_workflows)} workflows.")
 
     print("\n[Step 3/4] Starting main training loop...")
     for episode in range(1, TOTAL_EPISODES + 1):
@@ -117,10 +109,10 @@ def main():
             hosts=hosts,
             workflow_obj=workflow_obj,
             agent=policy_agent,
-            teacher=teacher,
+            teacher=None, # Teacher is disabled
             replay_buffer=replay_buffer,
             gnn_encoder=gnn_encoder,
-            workflow_file=workflow_file 
+            workflow_file=workflow_file
         )
         
         makespan, _ = wrench_runner.run_single_seeding_simulation(
@@ -128,37 +120,26 @@ def main():
             workflow_file=workflow_file
         )
 
-        if makespan < 0 or not replay_buffer.rewards:
-            print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Status: FAILED. Skipping update.")
+        if makespan < 0 or not replay_buffer.actions:
+            print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Status: FAILED. Skipping.")
             replay_buffer.clear()
             continue
 
-        RAG_REWARD_MULTIPLIER = 10.0
-        FINAL_REWARD_NORMALIZER = 5000.0
-
-        rag_rewards_for_logging = [r.item() for r in replay_buffer.rewards]
-        avg_rag_reward = np.mean(rag_rewards_for_logging) if rag_rewards_for_logging else 0.0
-
-        for i in range(len(replay_buffer.rewards)):
-            replay_buffer.rewards[i] = torch.tensor(replay_buffer.rewards[i].item() * RAG_REWARD_MULTIPLIER)
-
-        final_penalty = - (makespan / FINAL_REWARD_NORMALIZER)
-
-        if replay_buffer.rewards:
-            replay_buffer.rewards[-1] = torch.tensor(replay_buffer.rewards[-1].item() + final_penalty)
+        reward = -makespan / 1000.0
+        replay_buffer.rewards = [torch.tensor(reward)]
         
         ppo_updater.update(replay_buffer)
         replay_buffer.clear()
 
-        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Avg RAG Reward: {avg_rag_reward:.4f}")
+        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Reward: {reward:.4f}")
 
         if episode % 50 == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
-            print(f"💾 Model saved at episode {episode}")
+            print(f"💾 NO-RAG Model saved at episode {episode}")
 
     print("\n[Step 4/4] Training finished.")
-    print(f"✅ Final model saved to: {AGENT_MODEL_PATH}")
-    print("\n🎉 [Phase 3] DRL Agent Training Completed! 🎉")
+    print(f"✅ Final NO-RAG model saved to: {AGENT_MODEL_PATH}")
+    print("\n🎉 [Phase 3.1] DRL Agent (NO RAG) Training Completed! 🎉")
 
 if __name__ == "__main__":
     main()
