@@ -80,7 +80,7 @@ class HEFTScheduler(BaseScheduler):
             if finish_time < earliest_finish_time:
                 earliest_finish_time = finish_time
                 best_host = host_name
-        return 'ComputeHost4'
+        return best_host
 
 class WASS_DRL_Scheduler_Inference(BaseScheduler):
     """A compatible DRL inference scheduler."""
