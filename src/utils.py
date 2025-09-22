@@ -13,7 +13,7 @@ import numpy as np
 import json
 import importlib 
 
-reference_flop_rate = str(300000000)+'Mf'
+reference_flop_rate = str(1000000000)+'Mf'
 
 def get_logger(name, level=logging.INFO):
     """获取一个已配置的日志器。"""

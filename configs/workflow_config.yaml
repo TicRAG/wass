@@ -18,30 +18,31 @@ small_sizes:
 - 20
 workflow_dir: workflows
 
-experiment_workflows:
-  # comm_intensive:
-  #   sizes: [20]
-  #   count: 2
-  #   seed_start: 100
-  # montage:
-  #   sizes: [20]
-  #   count: 2
-  #   seed_start: 100
-  cybershake:
-    sizes: [20]
-    count: 2
-    seed_start: 2
-
 training_workflows:
-  # comm_intensive:
-  #   sizes: [20] 
-  #   count: 2
-  #   seed_start: 100
-  # montage:
-  #   sizes: [20] 
-  #   count: 2
-  #   seed_start: 100
-  cybershake:
-    sizes: [20] 
+  comm_intensive:
+    sizes: [20,40] 
     count: 2
-    seed_start: 20    
+    seed_start: 100
+  pipeline:
+    sizes: [20,40] 
+    count: 2
+    seed_start: 100
+  montage:
+    sizes: [20,40] 
+    count: 6
+    seed_start: 2 
+
+experiment_workflows:
+  comm_intensive:
+    sizes: [20,40]
+    count: 2
+    seed_start: 100
+  pipeline:
+    sizes: [20,40]
+    count: 2
+    seed_start: 100
+  montage:
+    sizes: [20,40]
+    count: 6
+    seed_start: 1
+

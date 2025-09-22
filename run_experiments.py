@@ -37,7 +37,7 @@ def main():
         "platform_file": "configs/test_platform.xml",
         "workflow_dir": "data/workflows",
         "workflow_sizes": [20, 50, 100],
-        "repetitions": 4,
+        "repetitions": 3,
         "output_dir": "results/final_experiments"
     }
     print(f"📝 Experiment Config: Testing on sizes {experiment_config['workflow_sizes']} with {experiment_config['repetitions']} repetitions.")

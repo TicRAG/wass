@@ -50,6 +50,50 @@ class WorkflowPattern:
     AVG_BANDWIDTH = 1e9  # 平均带宽 (1 GBps)
     
     @staticmethod
+    def generate_pipeline(num_tasks: int, ccr: float = 0.5) -> Workflow:
+        """生成 Pipeline/Chain (流水线/链式) 工作流"""
+        tasks = []
+        files = []
+        
+        # 创建入口文件
+        in_file = File("pipeline_entry.dat", "pipeline_entry.dat", 1024)
+        files.append(in_file)
+        
+        last_output_file = in_file.name
+
+        for i in range(num_tasks):
+            task_id = f"pipeline_task_{i}"
+            flops = random.uniform(5e9, 5e10) # 适中的计算量
+            
+            input_file_name = last_output_file
+            output_file_name = f"pipeline_out_{i}.dat"
+            
+            out_file = File(output_file_name, output_file_name, WorkflowPattern.calculate_data_size(flops, ccr))
+            files.append(out_file)
+
+            dependencies = [f"pipeline_task_{i-1}"] if i > 0 else []
+            
+            tasks.append(Task(
+                id=task_id,
+                name=task_id,
+                memory=random.randint(1000, 3000),
+                flops=flops,
+                input_files=[input_file_name],
+                output_files=[output_file_name],
+                dependencies=dependencies
+            ))
+            last_output_file = output_file_name
+        
+        return Workflow(
+            name=f"Pipeline-{num_tasks}",
+            description=f"A pipeline/chain workflow with {num_tasks} tasks.",
+            tasks=tasks,
+            files=files,
+            entry_task=tasks[0].id,
+            exit_task=tasks[-1].id
+        )
+
+    @staticmethod
     def calculate_data_size(compute_flops: float, ccr: float) -> int:
         """
         根据计算量和CCR计算数据大小
@@ -470,6 +514,7 @@ class WorkflowGenerator:
         self.ccr = ccr  # Communication to Computation Ratio
         
         self.patterns = {
+            'pipeline': lambda n: WorkflowPattern.generate_pipeline(n, self.ccr),
             'montage': lambda n: WorkflowPattern.generate_montage_like(n, self.ccr),
             'ligo': lambda n: WorkflowPattern.generate_ligo_like(n, self.ccr),
             'cybershake': lambda n: WorkflowPattern.generate_cybershake_like(n, self.ccr),
