@@ -12,13 +12,13 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from scripts.workflow_manager import WorkflowManager
+from src.workflows.manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
-from src.drl.knowledge_teacher import KnowledgeBase
+from src.rag.teacher import KnowledgeBase
 from src.drl.utils import workflow_json_to_pyg_data
 # --- FINAL FIX: Import the new Recording Schedulers ---
-from src.wrench_schedulers import RecordingHEFTScheduler, RecordingRandomScheduler
-from src.utils import WrenchExperimentRunner
+from src.simulation.schedulers import RecordingHEFTScheduler, RecordingRandomScheduler
+from src.simulation.experiment_runner import WrenchExperimentRunner
 
 # Configuration
 GNN_IN_CHANNELS = 4

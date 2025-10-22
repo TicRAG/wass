@@ -1,10 +1,19 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Wrench/Experiment generated data
 experiments/results/*
 charts/*
-src/__pycache__/*
-experiments/__pycache__/*
 configs/platforms/*
-scripts/__pycache__/*
 workflows/*
 *.log
+
+# Project-specific generated data
 data/*
 models/saved_models/*
+results/*
+
+# IDE / OS files
+.DS_Store
+.vscode/

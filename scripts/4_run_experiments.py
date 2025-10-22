@@ -1,6 +1,13 @@
 # run_experiments.py
 import os
 import sys
+
+# --- 路径修正 ---
+# 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+# -----------------
 from pathlib import Path
 
 # --- 路径修正 ---
@@ -9,10 +16,10 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 # -----------------
 
-from src.utils import WrenchExperimentRunner
-from scripts.workflow_manager import WorkflowManager
+from src.simulation.experiment_runner import WrenchExperimentRunner
+from src.workflows.manager import WorkflowManager
 # --- 核心修改：导入所有需要对比的调度器 ---
-from src.wrench_schedulers import (
+from src.simulation.schedulers import (
     FIFOScheduler, 
     HEFTScheduler, 
     WASS_DRL_Scheduler_Inference, 

@@ -1,6 +1,12 @@
-# train_no_rag.py
 import os
 import sys
+
+# --- 路径修正 ---
+# 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+# -----------------
 import torch
 import torch.nn as nn
 from torch.optim import Adam
@@ -14,12 +20,12 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 # -----------------
 
-from scripts.workflow_manager import WorkflowManager
+from src.workflows.manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
-from src.drl.ppo_agent import ActorCritic
+from src.drl.agent import ActorCritic
 from src.drl.replay_buffer import ReplayBuffer
-from src.wrench_schedulers import WASS_RAG_Scheduler_Trainable
-from src.utils import WrenchExperimentRunner
+from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
+from src.simulation.experiment_runner import WrenchExperimentRunner
 
 # --- Config ---
 GNN_IN_CHANNELS = 4

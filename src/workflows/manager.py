@@ -11,7 +11,7 @@ if project_root not in sys.path:
 # -------------------------
 
 # 现在我们导入原始的、功能强大的生成器
-from scripts.workflow_generator import WorkflowGenerator
+from src.workflows.generator import WorkflowGenerator
 
 class WorkflowManager:
     """管理工作流的生成，适配原始的WorkflowGenerator。"""

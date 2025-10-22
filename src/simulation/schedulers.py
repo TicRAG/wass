@@ -8,10 +8,10 @@ import random
 import json
 
 from src.drl.gnn_encoder import GNNEncoder
-from src.drl.ppo_agent import ActorCritic
+from src.drl.agent import ActorCritic
 from src.drl.utils import workflow_json_to_pyg_data
 from src.drl.replay_buffer import ReplayBuffer
-from src.drl.knowledge_teacher import KnowledgeableTeacher
+from src.rag.teacher import KnowledgeableTeacher
 
 class BaseScheduler:
     """A final, fully compatible BaseScheduler."""
