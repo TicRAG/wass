@@ -25,7 +25,8 @@ GNN_IN_CHANNELS = 4
 GNN_HIDDEN_CHANNELS = 64
 GNN_OUT_CHANNELS = 32
 KB_DIMENSION = GNN_OUT_CHANNELS
-PLATFORM_FILE = "configs/test_platform.xml"
+# 平台文件现在从 workflow_config.yaml 的 platform_xml 区块解析
+# 可通过环境变量 WASS_PLATFORM 覆盖 (small|medium|large|test)
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
 
@@ -33,9 +34,10 @@ def main():
     print("🚀 [Phase 1] Starting Knowledge Base Seeding (with Decision Recording)...")
     
     workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
+    platform_file = workflow_manager.get_platform_file()
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
     knowledge_base = KnowledgeBase(dimension=KB_DIMENSION)
-    config_params = {"platform_file": PLATFORM_FILE}
+    config_params = {"platform_file": platform_file}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
     print("✅ Components initialized.")
 

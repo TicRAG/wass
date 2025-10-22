@@ -46,3 +46,24 @@ experiment_workflows:
     count: 6
     seed_start: 1
 
+# -----------------------------------------------------------------------------
+# Platform XML configuration
+# Added to make previously hard-coded references (e.g. configs/platform_small.xml)
+# configurable. Code can now read:
+#   cfg['platform_xml']['base_dir'] + '/' + cfg['platform_xml']['mapping'][cfg['platform_xml']['default']]
+# or pick a size-specific key dynamically.
+#
+# Fields:
+#   base_dir : directory where the platform XML files reside (relative or absolute)
+#   mapping  : logical name -> XML filename
+#   default  : logical name to use when no explicit selection is provided
+# -----------------------------------------------------------------------------
+platform_xml:
+  base_dir: configs
+  mapping:
+    small: platform_small.xml
+    medium: platform_medium.xml
+    large: platform_large.xml
+    test: test_platform.xml
+  default: small
+

@@ -24,6 +24,30 @@ class WorkflowManager:
             self.config = yaml.safe_load(f)
         print("✅ [WorkflowManager] Config loaded successfully.")
 
+    # ------------------------------------------------------------------
+    # Platform XML resolution helper
+    # 优先级: 传入参数 key > 环境变量 WASS_PLATFORM > 配置 default
+    # 使用示例: platform_file = wm.get_platform_file()  # 使用默认
+    #          platform_file = wm.get_platform_file('medium')
+    #          WASS_PLATFORM=large python script.py  (自动使用 large)
+    # ------------------------------------------------------------------
+    def get_platform_file(self, key: str = None) -> str:
+        px_cfg = self.config.get('platform_xml')
+        if not px_cfg:
+            raise KeyError("platform_xml section missing in workflow config; please add it to use configurable platform XML files.")
+        base_dir = px_cfg.get('base_dir', 'configs')
+        mapping = px_cfg.get('mapping', {})
+        # env override
+        env_key = os.environ.get('WASS_PLATFORM')
+        chosen = key or env_key or px_cfg.get('default', 'small')
+        if chosen not in mapping:
+            raise ValueError(f"Platform key '{chosen}' not found in mapping. Available: {list(mapping.keys())}")
+        platform_path = os.path.join(base_dir, mapping[chosen])
+        if not os.path.exists(platform_path):
+            # 仅警告，不立刻失败（文件可能稍后由生成脚本创建）
+            print(f"⚠️  Platform XML '{platform_path}' does not exist yet. Make sure to generate it if required.")
+        return platform_path
+
     def _generate_workflows(self, workflow_type, config):
         """内部辅助函数，用于生成特定类型的工作流。"""
         generated_files = []

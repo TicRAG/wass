@@ -39,7 +39,6 @@ EPS_CLIP = 0.2
 TOTAL_EPISODES = 200
 MODEL_SAVE_DIR = "models/saved_models"
 AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, "drl_agent_no_rag.pth")
-PLATFORM_FILE = "configs/test_platform.xml"
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 
 class PPO:
@@ -85,6 +84,7 @@ def main():
     
     print("\n[Step 1/4] Initializing components...")
     workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
+    platform_file = workflow_manager.get_platform_file()
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
     
     state_dim = GNN_OUT_CHANNELS
@@ -93,7 +93,7 @@ def main():
     
     replay_buffer = ReplayBuffer()
     
-    config_params = {"platform_file": PLATFORM_FILE}
+    config_params = {"platform_file": platform_file}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
     print("✅ Components initialized.")
 

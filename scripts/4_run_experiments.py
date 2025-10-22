@@ -10,10 +10,6 @@ if project_root not in sys.path:
 # -----------------
 from pathlib import Path
 
-# --- 路径修正 ---
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
 # -----------------
 
 from src.simulation.experiment_runner import WrenchExperimentRunner
@@ -40,17 +36,17 @@ def main():
     print(f"📊 Schedulers to compare: {list(schedulers_to_compare.keys())}")
     # --- 修改结束 ---
 
+    print("\n[Step 1/3] Generating experiment workflows...")
+    workflow_manager = WorkflowManager(config_path="configs/workflow_config.yaml")
+    platform_file = workflow_manager.get_platform_file()
     experiment_config = {
-        "platform_file": "configs/test_platform.xml",
+        "platform_file": platform_file,
         "workflow_dir": "data/workflows",
         "workflow_sizes": [20, 50, 100],
         "repetitions": 3,
         "output_dir": "results/final_experiments"
     }
-    print(f"📝 Experiment Config: Testing on sizes {experiment_config['workflow_sizes']} with {experiment_config['repetitions']} repetitions.")
-
-    print("\n[Step 1/3] Generating experiment workflows...")
-    workflow_manager = WorkflowManager(config_path="configs/workflow_config.yaml")
+    print(f"📝 Experiment Config: Platform={platform_file}, Testing sizes {experiment_config['workflow_sizes']} with {experiment_config['repetitions']} repetitions.")
     experiment_workflow_files = workflow_manager.generate_experiment_workflows()
     print("✅ Experiment workflows are ready.")
 
