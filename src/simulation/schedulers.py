@@ -2,6 +2,7 @@
 from __future__ import annotations
 import wrench
 from typing import Dict, Any, Optional
+from pathlib import Path
 import torch
 from torch_geometric.data import Data
 import random
@@ -12,6 +13,12 @@ from src.drl.agent import ActorCritic
 from src.drl.utils import workflow_json_to_pyg_data
 from src.drl.replay_buffer import ReplayBuffer
 from src.rag.teacher import KnowledgeableTeacher
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+def _resolve_model_path(path: str) -> Path:
+    candidate = Path(path)
+    return candidate if candidate.is_absolute() else PROJECT_ROOT / candidate
 
 class BaseScheduler:
     """A final, fully compatible BaseScheduler."""
@@ -106,14 +113,35 @@ class RecordingRandomScheduler(BaseScheduler):
 class WASS_DRL_NO_RAG_Scheduler_Inference(BaseScheduler):
     def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], workflow_obj: wrench.Workflow, **kwargs):
         super().__init__(simulation, compute_services, hosts, workflow_obj, **kwargs)
-        model_path = "models/saved_models/drl_agent_no_rag.pth"
+        model_path = self.extra_args.get("model_path", "models/saved_models/drl_agent_no_rag.pth")
+        model_path = _resolve_model_path(model_path)
         self.workflow_file = self.extra_args.get("workflow_file")
         if not self.workflow_file: raise ValueError("WASS_DRL_NO_RAG_Scheduler_Inference requires a 'workflow_file' argument.")
-        GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS, ACTION_DIM = 4, 64, 32, len(self.hosts)
-        self.gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
-        self.agent = ActorCritic(state_dim=GNN_OUT_CHANNELS, action_dim=ACTION_DIM)
+        GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS = 4, 64, 32
         try:
-            self.agent.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            state_dict = torch.load(str(model_path), map_location=torch.device('cpu'))
+        except Exception as e:
+            raise RuntimeError(f"Failed to load DRL NO_RAG agent weights from {model_path}") from e
+
+        expected_actions = state_dict.get('actor.4.weight')
+        if expected_actions is None:
+            raise RuntimeError(
+                f"Checkpoint at {model_path} is missing 'actor.4.weight'; cannot infer required action dimension."
+            )
+
+        action_dim = len(self.hosts)
+        expected_action_dim = expected_actions.shape[0]
+        if expected_action_dim != action_dim:
+            raise RuntimeError(
+                "DRL NO_RAG agent action dimension mismatch: "
+                f"checkpoint expects {expected_action_dim} compute hosts but platform exposes {action_dim}. "
+                "Select a platform XML with the same host count used during training or retrain the agent."
+            )
+
+        self.gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+        self.agent = ActorCritic(state_dim=GNN_OUT_CHANNELS, action_dim=action_dim)
+        try:
+            self.agent.load_state_dict(state_dict)
             self.agent.eval()
         except Exception as e:
             raise RuntimeError(f"Failed to load DRL NO_RAG agent model from {model_path}") from e
@@ -141,14 +169,35 @@ class WASS_DRL_NO_RAG_Scheduler_Inference(BaseScheduler):
 class WASS_DRL_Scheduler_Inference(BaseScheduler):
     def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], workflow_obj: wrench.Workflow, **kwargs):
         super().__init__(simulation, compute_services, hosts, workflow_obj, **kwargs)
-        model_path = "models/saved_models/drl_agent.pth"
+        model_path = self.extra_args.get("model_path", "models/saved_models/drl_agent.pth")
+        model_path = _resolve_model_path(model_path)
         self.workflow_file = self.extra_args.get("workflow_file")
         if not self.workflow_file: raise ValueError("WASS_DRL_Scheduler_Inference requires a 'workflow_file' argument.")
-        GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS, ACTION_DIM = 4, 64, 32, len(self.hosts)
-        self.gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
-        self.agent = ActorCritic(state_dim=GNN_OUT_CHANNELS, action_dim=ACTION_DIM)
+        GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS = 4, 64, 32
         try:
-            self.agent.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            state_dict = torch.load(str(model_path), map_location=torch.device('cpu'))
+        except Exception as e:
+            raise RuntimeError(f"Failed to load DRL agent weights from {model_path}") from e
+
+        expected_actions = state_dict.get('actor.4.weight')
+        if expected_actions is None:
+            raise RuntimeError(
+                f"Checkpoint at {model_path} is missing 'actor.4.weight'; cannot infer required action dimension."
+            )
+
+        action_dim = len(self.hosts)
+        expected_action_dim = expected_actions.shape[0]
+        if expected_action_dim != action_dim:
+            raise RuntimeError(
+                "DRL agent action dimension mismatch: "
+                f"checkpoint expects {expected_action_dim} compute hosts but platform exposes {action_dim}. "
+                "Select a platform XML with the same host count used during training or retrain the agent."
+            )
+
+        self.gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+        self.agent = ActorCritic(state_dim=GNN_OUT_CHANNELS, action_dim=action_dim)
+        try:
+            self.agent.load_state_dict(state_dict)
             self.agent.eval()
         except Exception as e:
             raise RuntimeError(f"Failed to load DRL agent model from {model_path}") from e

@@ -23,28 +23,28 @@ training_workflows:
     sizes: [20,40] 
     count: 2
     seed_start: 100
-  pipeline:
-    sizes: [20,40] 
-    count: 2
-    seed_start: 100
-  montage:
-    sizes: [20,40] 
-    count: 6
-    seed_start: 2 
+  # pipeline:
+  #   sizes: [20,40] 
+  #   count: 2
+  #   seed_start: 100
+  # montage:
+  #   sizes: [20,40] 
+  #   count: 6
+  #   seed_start: 2 
 
 experiment_workflows:
   comm_intensive:
     sizes: [20,40]
     count: 2
     seed_start: 100
-  pipeline:
-    sizes: [20,40]
-    count: 2
-    seed_start: 100
-  montage:
-    sizes: [20,40]
-    count: 6
-    seed_start: 1
+  # pipeline:
+  #   sizes: [20,40]
+  #   count: 2
+  #   seed_start: 100
+  # montage:
+  #   sizes: [20,40]
+  #   count: 6
+  #   seed_start: 1
 
 # -----------------------------------------------------------------------------
 # Platform XML configuration

@@ -202,13 +202,14 @@ class WrenchExperimentRunner:
                     break
             
             makespan = simulation.get_simulated_time()
+            task_count = len(workflow_data['workflow']['tasks'])
             simulation.terminate()
-            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": makespan, "status": "success"}
+            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": makespan, "status": "success", "task_count": task_count}
         except Exception as e:
             import traceback
             print(f"ERROR running {scheduler_name} on {workflow_filename}: {e}")
             print(f"详细错误信息: {traceback.format_exc()}")
-            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": float('inf'), "status": "failed"}
+            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": float('inf'), "status": "failed", "task_count": 0}
 
     def analyze_results(self, results: List[Dict[str, Any]]):
         """分析、打印并保存实验结果摘要。"""

@@ -13,6 +13,7 @@ from torch.optim import Adam
 import numpy as np
 from pathlib import Path
 import json
+import xml.etree.ElementTree as ET
 
 # --- Path fix ---
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
@@ -33,7 +34,6 @@ from src.simulation.experiment_runner import WrenchExperimentRunner
 GNN_IN_CHANNELS = 4
 GNN_HIDDEN_CHANNELS = 64
 GNN_OUT_CHANNELS = 32
-ACTION_DIM = 4
 LEARNING_RATE = 3e-4
 GAMMA = 0.99
 EPOCHS = 10
@@ -42,6 +42,18 @@ TOTAL_EPISODES = 200
 MODEL_SAVE_DIR = "models/saved_models"
 AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, "drl_agent.pth")
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
+
+
+def infer_action_dim(platform_path: str) -> int:
+    tree = ET.parse(platform_path)
+    host_ids = {
+        host.get('id')
+        for host in tree.getroot().iter('host')
+        if host.get('id') not in {"ControllerHost", "StorageHost"}
+    }
+    if not host_ids:
+        raise ValueError(f"No compute hosts found in platform XML: {platform_path}")
+    return len(host_ids)
 
 class PPO:
     """Handles the PPO update."""
@@ -91,9 +103,10 @@ def main():
     print("\n[Step 1/4] Initializing components...")
     workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
     platform_file = workflow_manager.get_platform_file()
+    action_dim = infer_action_dim(platform_file)
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
     state_dim = GNN_OUT_CHANNELS
-    policy_agent = ActorCritic(state_dim=state_dim, action_dim=ACTION_DIM)
+    policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim)
     ppo_updater = PPO(policy_agent, LEARNING_RATE, GAMMA, EPOCHS, EPS_CLIP)
     replay_buffer = ReplayBuffer()
     

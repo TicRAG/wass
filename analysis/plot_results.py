@@ -19,14 +19,12 @@ plt.rcParams['axes.unicode_minus'] = False
 
 def load_experiment_results():
     """Load experimental results data"""
-    results_file = "results/wrench_experiments/detailed_results.json"
+    results_file = "results/final_experiments/detailed_results.csv"
     if not os.path.exists(results_file):
         raise FileNotFoundError(f"Experimental results file does not exist: {results_file}")
     
-    with open(results_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    return data['results']
+    df = pd.read_csv(results_file)
+    return df.to_dict('records')
 
 def create_scheduler_performance_comparison(results):
     """Create scheduler performance comparison chart"""
@@ -253,8 +251,8 @@ def main():
         print("Generating makespan distribution chart...")
         create_makespan_distribution(results)
         
-        print("Generating CPU utilization chart...")
-        create_cpu_utilization_chart(results)
+        # print("Generating CPU utilization chart...")
+        # create_cpu_utilization_chart(results)
         
         print("Generating task scaling analysis chart...")
         create_task_scaling_analysis(results)

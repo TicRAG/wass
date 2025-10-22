@@ -11,7 +11,7 @@ from collections import defaultdict
 
 # Add project root to Python path
 current_dir = Path(__file__).parent
-project_root = current_dir
+project_root = current_dir.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.utils import WrenchExperimentRunner
@@ -29,7 +29,7 @@ def run_amplification_experiment(experiment_name, platform_xml, workflow_json, s
             f.write(platform_xml)
     else:
         # 使用现有的test_platform.xml
-        platform_file = "test_platform.xml"
+        platform_file = "configs/test_platform.xml"
     
     # 配置实验运行器
     config = {
@@ -86,7 +86,7 @@ def run_amplification_experiment(experiment_name, platform_xml, workflow_json, s
         if os.path.exists(workflow_file):
             os.remove(workflow_file)
         # 只删除我们创建的临时平台文件，不删除现有的test_platform.xml
-        if platform_xml and os.path.exists(platform_file) and platform_file != "/data/workspace/traespace/wass_trae/test_platform.xml":
+        if platform_xml and os.path.exists(platform_file) and platform_file != "configs/test_platform.xml":
             os.remove(platform_file)
 
 def analyze_amplification_results(results):
@@ -150,7 +150,7 @@ def run_existing_platform_experiment():
     print("\n--- 使用现有平台配置和workflow_manager生成的工作流运行实验 ---")
     
     # 读取现有的test_platform.xml
-    platform_file = "/data/workspace/traespace/wass_trae/test_platform.xml"
+    platform_file = "configs/test_platform.xml"
     
     # 使用workflow_manager生成工作流
     from scripts.workflow_manager import WorkflowManager
