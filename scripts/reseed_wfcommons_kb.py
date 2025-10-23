@@ -25,6 +25,7 @@ FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
 SEED_GNN_WEIGHTS_PATH = "models/saved_models/gnn_encoder_kb.pth"
 KB_DIM = 32  # Will be validated against encoder out_channels
 TRAINING_WORKFLOWS_DIR = Path("data/workflows/training")
+AUGMENTED_WORKFLOWS_DIR = Path("data/workflows/training_aug")
 
 # Reseed options
 SCHEDULERS_TO_RUN = ["HEFT", "Random"]  # Order matters for deterministic logging
@@ -76,6 +77,12 @@ def main():
         print(f"❌ Training workflows directory missing: {TRAINING_WORKFLOWS_DIR}")
         return
     workflow_files = sorted(str(p) for p in TRAINING_WORKFLOWS_DIR.glob("*.json"))
+    # Include augmented variants if present
+    if AUGMENTED_WORKFLOWS_DIR.exists():
+        aug_files = sorted(str(p) for p in AUGMENTED_WORKFLOWS_DIR.glob("*.json"))
+        if aug_files:
+            print(f"➕ Including {len(aug_files)} augmented workflow variants from {AUGMENTED_WORKFLOWS_DIR}.")
+            workflow_files.extend(aug_files)
     if not workflow_files:
         print(f"❌ No workflow JSON files found in {TRAINING_WORKFLOWS_DIR}")
         return

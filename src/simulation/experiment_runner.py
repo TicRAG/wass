@@ -111,6 +111,9 @@ class WrenchExperimentRunner:
         对于格式2，直接使用其任务并映射 parents->children 关系；对于格式1，构造一个 wfcommons 兼容对象。
         """
         wf_section = workflow_data.get('workflow', {})
+        # Ensure top-level workflow_name exists for WRENCH parser (some augmented files lack it)
+        if 'workflow_name' not in workflow_data:
+            workflow_data['workflow_name'] = workflow_data.get('name', workflow_file_path and Path(workflow_file_path).stem or 'unknown')
         is_wfcommons_like = 'specification' in wf_section and 'tasks' in wf_section.get('specification', {})
 
         if is_wfcommons_like:
