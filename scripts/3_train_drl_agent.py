@@ -12,7 +12,6 @@ import torch.nn as nn
 from torch.optim import Adam
 import numpy as np
 from pathlib import Path
-import json
 import xml.etree.ElementTree as ET
 
 # --- Path fix ---
@@ -27,19 +26,42 @@ from src.drl.agent import ActorCritic
 from src.drl.replay_buffer import ReplayBuffer
 from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
 from src.simulation.experiment_runner import WrenchExperimentRunner
+from src.utils.config import load_training_config
 
-# --- Config ---
-GNN_IN_CHANNELS = 4
-GNN_HIDDEN_CHANNELS = 64
-GNN_OUT_CHANNELS = 32
-LEARNING_RATE = 3e-4
-GAMMA = 0.99
-EPOCHS = 10
-EPS_CLIP = 0.2
-TOTAL_EPISODES = 200
-MODEL_SAVE_DIR = "models/saved_models"
-AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, "drl_agent_no_rag.pth")
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
+
+def _merge_dicts(base: dict, override: dict) -> dict:
+    merged = dict(base or {})
+    merged.update(override or {})
+    return merged
+
+
+TRAINING_CFG = load_training_config()
+COMMON_CFG = TRAINING_CFG.get("common", {})
+DRL_CFG = TRAINING_CFG.get("drl_training", {})
+
+GNN_CFG = _merge_dicts(COMMON_CFG.get("gnn", {}), DRL_CFG.get("gnn", {}))
+PPO_CFG = _merge_dicts(COMMON_CFG.get("ppo", {}), DRL_CFG.get("ppo", {}))
+MODEL_CFG = DRL_CFG.get("model", {})
+REWARD_CFG = DRL_CFG.get("reward_scaling", {})
+
+GNN_IN_CHANNELS = int(GNN_CFG.get("in_channels", 4))
+GNN_HIDDEN_CHANNELS = int(GNN_CFG.get("hidden_channels", 64))
+GNN_OUT_CHANNELS = int(GNN_CFG.get("out_channels", 32))
+
+LEARNING_RATE = float(PPO_CFG.get("learning_rate", 3e-4))
+GAMMA = float(PPO_CFG.get("gamma", 0.99))
+EPOCHS = int(PPO_CFG.get("epochs", 10))
+EPS_CLIP = float(PPO_CFG.get("eps_clip", 0.2))
+
+TOTAL_EPISODES = int(DRL_CFG.get("total_episodes", 200))
+SAVE_INTERVAL = int(DRL_CFG.get("save_interval", 50)) if DRL_CFG.get("save_interval") is not None else 0
+
+MODEL_SAVE_DIR = MODEL_CFG.get("save_dir", "models/saved_models")
+MODEL_FILENAME = MODEL_CFG.get("filename", "drl_agent_no_rag.pth")
+AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, MODEL_FILENAME)
+
+MAKESPAN_NORMALIZER = float(REWARD_CFG.get("makespan_normalizer", 1000.0)) or 1.0
 
 
 def infer_action_dim(platform_path: str) -> int:
@@ -144,7 +166,7 @@ def main():
             replay_buffer.clear()
             continue
 
-        reward = -makespan / 1000.0
+        reward = -makespan / MAKESPAN_NORMALIZER
         replay_buffer.rewards = [torch.tensor(reward)]
         
         ppo_updater.update(replay_buffer)
@@ -152,7 +174,7 @@ def main():
 
         print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Reward: {reward:.4f}")
 
-        if episode % 50 == 0:
+        if SAVE_INTERVAL and episode % SAVE_INTERVAL == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
             print(f"💾 NO-RAG Model saved at episode {episode}")
 

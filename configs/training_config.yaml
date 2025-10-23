@@ -1,0 +1,38 @@
+# Training and inference hyperparameters for WASS agents
+
+# Shared model architecture and PPO optimizer defaults.
+common:
+  gnn:
+    in_channels: 4
+    hidden_channels: 64
+    out_channels: 32
+  ppo:
+    learning_rate: 0.0003
+    gamma: 0.99
+    epochs: 10
+    eps_clip: 0.2
+
+# Settings specific to the RAG-enabled PPO training loop.
+rag_training:
+  total_episodes: 200
+  save_interval: 50
+  model:
+    save_dir: models/saved_models
+    filename: drl_agent.pth
+  reward_scaling:
+    rag_multiplier: 10.0
+    final_normalizer: 5000.0
+  teacher:
+    top_k: 10
+    scheduler_filter: HEFT
+    reward_normalizer: 1000.0
+
+# Settings specific to the DRL-only PPO training loop (no teacher).
+drl_training:
+  total_episodes: 200
+  save_interval: 50
+  model:
+    save_dir: models/saved_models
+    filename: drl_agent_no_rag.pth
+  reward_scaling:
+    makespan_normalizer: 1000.0

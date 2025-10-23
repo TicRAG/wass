@@ -9,6 +9,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 # -----------------
 from pathlib import Path
+from functools import partial
 
 # -----------------
 
@@ -18,8 +19,7 @@ from src.workflows.manager import WorkflowManager
 from src.simulation.schedulers import (
     FIFOScheduler, 
     HEFTScheduler, 
-    WASS_DRL_Scheduler_Inference, 
-    WASS_DRL_NO_RAG_Scheduler_Inference
+    WASS_DRL_Scheduler_Inference
 )
 
 def main():
@@ -30,8 +30,8 @@ def main():
     schedulers_to_compare = {
         "FIFO": FIFOScheduler,
         "HEFT": HEFTScheduler,
-        "WASS_DRL": WASS_DRL_NO_RAG_Scheduler_Inference, # 没有RAG的模型
-        "WASS_RAG": WASS_DRL_Scheduler_Inference      # 有RAG的模型 (我们之前的WASS_DRL)
+        "WASS_DRL": partial(WASS_DRL_Scheduler_Inference, variant="drl"), # 没有RAG的模型
+        "WASS_RAG": partial(WASS_DRL_Scheduler_Inference, variant="rag")  # 有RAG的模型 (我们之前的WASS_DRL)
     }
     print(f"📊 Schedulers to compare: {list(schedulers_to_compare.keys())}")
     # --- 修改结束 ---
@@ -43,7 +43,7 @@ def main():
         "platform_file": platform_file,
         "workflow_dir": "data/workflows",
         "workflow_sizes": [20, 50, 100],
-        "repetitions": 3,
+        "repetitions": 1,
         "output_dir": "results/final_experiments"
     }
     print(f"📝 Experiment Config: Platform={platform_file}, Testing sizes {experiment_config['workflow_sizes']} with {experiment_config['repetitions']} repetitions.")

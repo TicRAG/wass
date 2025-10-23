@@ -5,6 +5,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from pathlib import Path
+from typing import Any, Dict, Optional
 import json
 
 class KnowledgeBase:
@@ -53,8 +54,13 @@ class KnowledgeBase:
 
 class KnowledgeableTeacher:
     """知识引导教师，负责生成RAG奖励。"""
-    def __init__(self, state_dim: int, knowledge_base: KnowledgeBase):
+    def __init__(self, state_dim: int, knowledge_base: KnowledgeBase, reward_config: Optional[Dict[str, Any]] = None):
         self.kb = knowledge_base
+        cfg = reward_config or {}
+        self.top_k = int(cfg.get("top_k", 10))
+        self.scheduler_filter = cfg.get("scheduler_filter", "HEFT")
+        normalizer = cfg.get("reward_normalizer", 1000.0)
+        self.reward_normalizer = float(normalizer) if normalizer not in (None, 0) else 1.0
 
     # --- 这是最终的奖励函数 ---
     def generate_rag_reward(self, state_embedding: torch.Tensor, agent_eft: float, task_name: str) -> float:
@@ -63,13 +69,13 @@ class KnowledgeableTeacher:
         奖励 = (历史最优EFT - 智能体当前EFT)
         """
         # 1. 检索相似案例
-        similar_cases = self.kb.search(state_embedding.detach().cpu().numpy(), k=10)
+        similar_cases = self.kb.search(state_embedding.detach().cpu().numpy(), k=self.top_k)
         
         if similar_cases.empty:
             return 0.0
 
         # 2. 筛选出由HEFT调度器产生的、“好的”历史案例
-        heft_cases = similar_cases[similar_cases['scheduler_used'] == 'HEFT']
+        heft_cases = similar_cases[similar_cases['scheduler_used'] == self.scheduler_filter]
         if heft_cases.empty:
             return 0.0
 
@@ -91,6 +97,6 @@ class KnowledgeableTeacher:
         best_historical_eft = np.min(historical_efts)
 
         # 5. 计算奖励 (并进行缩放，使其数值稳定)
-        reward = (best_historical_eft - agent_eft) / 1000.0
+        reward = (best_historical_eft - agent_eft) / self.reward_normalizer
         
         return reward

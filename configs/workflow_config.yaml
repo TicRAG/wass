@@ -19,28 +19,28 @@ small_sizes:
 workflow_dir: workflows
 
 training_workflows:
-  comm_intensive:
-    sizes: [20,40] 
-    count: 2
-    seed_start: 100
-  # pipeline:
+  # comm_intensive:
   #   sizes: [20,40] 
   #   count: 2
   #   seed_start: 100
+  pipeline:
+    sizes: [100]
+    count: 1
+    seed_start: 100
   # montage:
   #   sizes: [20,40] 
   #   count: 6
   #   seed_start: 2 
 
 experiment_workflows:
-  comm_intensive:
-    sizes: [20,40]
-    count: 2
-    seed_start: 100
-  # pipeline:
-  #   sizes: [20,40]
-  #   count: 2
+  # comm_intensive:
+  #   sizes: [1000]
+  #   count: 1
   #   seed_start: 100
+  pipeline:
+    sizes: [100]
+    count: 1
+    seed_start: 100
   # montage:
   #   sizes: [20,40]
   #   count: 6

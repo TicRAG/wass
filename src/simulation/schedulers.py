@@ -1,7 +1,7 @@
 # src/wrench_schedulers.py
 from __future__ import annotations
 import wrench
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from pathlib import Path
 import torch
 from torch_geometric.data import Data
@@ -13,12 +13,45 @@ from src.drl.agent import ActorCritic
 from src.drl.utils import workflow_json_to_pyg_data
 from src.drl.replay_buffer import ReplayBuffer
 from src.rag.teacher import KnowledgeableTeacher
+from src.utils.config import load_training_config
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 def _resolve_model_path(path: str) -> Path:
     candidate = Path(path)
     return candidate if candidate.is_absolute() else PROJECT_ROOT / candidate
+
+def _as_int(value, default):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+try:
+    _TRAINING_CONFIG = load_training_config()
+except FileNotFoundError:
+    _TRAINING_CONFIG = {}
+
+_COMMON_CFG = _TRAINING_CONFIG.get("common", {})
+_GNN_CFG = _COMMON_CFG.get("gnn", {})
+
+DEFAULT_GNN_IN = _as_int(_GNN_CFG.get("in_channels"), 4)
+DEFAULT_GNN_HIDDEN = _as_int(_GNN_CFG.get("hidden_channels"), 64)
+DEFAULT_GNN_OUT = _as_int(_GNN_CFG.get("out_channels"), 32)
+
+def _default_model_path(variant: str) -> Path:
+    section_key = "rag_training" if variant == "rag" else "drl_training"
+    section_cfg = _TRAINING_CONFIG.get(section_key, {})
+    model_cfg = section_cfg.get("model", {})
+    save_dir = model_cfg.get("save_dir", "models/saved_models")
+    filename_default = "drl_agent.pth" if variant == "rag" else "drl_agent_no_rag.pth"
+    filename = model_cfg.get("filename", filename_default)
+    return _resolve_model_path(Path(save_dir) / filename)
+
+_DEFAULT_MODEL_PATHS = {
+    "rag": _default_model_path("rag"),
+    "drl": _default_model_path("drl"),
+}
 
 class BaseScheduler:
     """A final, fully compatible BaseScheduler."""
@@ -110,70 +143,17 @@ class RecordingRandomScheduler(BaseScheduler):
     def get_recorded_decisions(self):
         return self.decisions
 
-class WASS_DRL_NO_RAG_Scheduler_Inference(BaseScheduler):
-    def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], workflow_obj: wrench.Workflow, **kwargs):
-        super().__init__(simulation, compute_services, hosts, workflow_obj, **kwargs)
-        model_path = self.extra_args.get("model_path", "models/saved_models/drl_agent_no_rag.pth")
-        model_path = _resolve_model_path(model_path)
-        self.workflow_file = self.extra_args.get("workflow_file")
-        if not self.workflow_file: raise ValueError("WASS_DRL_NO_RAG_Scheduler_Inference requires a 'workflow_file' argument.")
-        GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS = 4, 64, 32
-        try:
-            state_dict = torch.load(str(model_path), map_location=torch.device('cpu'))
-        except Exception as e:
-            raise RuntimeError(f"Failed to load DRL NO_RAG agent weights from {model_path}") from e
-
-        expected_actions = state_dict.get('actor.4.weight')
-        if expected_actions is None:
-            raise RuntimeError(
-                f"Checkpoint at {model_path} is missing 'actor.4.weight'; cannot infer required action dimension."
-            )
-
-        action_dim = len(self.hosts)
-        expected_action_dim = expected_actions.shape[0]
-        if expected_action_dim != action_dim:
-            raise RuntimeError(
-                "DRL NO_RAG agent action dimension mismatch: "
-                f"checkpoint expects {expected_action_dim} compute hosts but platform exposes {action_dim}. "
-                "Select a platform XML with the same host count used during training or retrain the agent."
-            )
-
-        self.gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
-        self.agent = ActorCritic(state_dim=GNN_OUT_CHANNELS, action_dim=action_dim)
-        try:
-            self.agent.load_state_dict(state_dict)
-            self.agent.eval()
-        except Exception as e:
-            raise RuntimeError(f"Failed to load DRL NO_RAG agent model from {model_path}") from e
-        self.pyg_data = workflow_json_to_pyg_data(self.workflow_file)
-        self.task_name_to_idx = {t.get_name(): i for i, t in enumerate(workflow_obj.get_tasks().values())}
-        self.STATUS_WAITING, self.STATUS_READY, self.STATUS_COMPLETED = 0.0, 1.0, 2.0
-
-    def _update_state(self, workflow: wrench.Workflow):
-        ready_tasks = {t.get_name() for t in workflow.get_ready_tasks()}
-        completed_tasks = {t.get_name() for t in self.completed_tasks}
-        for name, idx in self.task_name_to_idx.items():
-            if name in completed_tasks: self.pyg_data.x[idx, 3] = self.STATUS_COMPLETED
-            elif name in ready_tasks: self.pyg_data.x[idx, 3] = self.STATUS_READY
-            else: self.pyg_data.x[idx, 3] = self.STATUS_WAITING
-
-    def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
-        self._update_state(workflow)
-        super().schedule_ready_tasks(workflow, storage_service)
-
-    def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
-        state_embedding = self.gnn_encoder(self.pyg_data)
-        action_index, _ = self.agent.act(state_embedding, deterministic=True)
-        return list(self.hosts.keys())[action_index]
-
 class WASS_DRL_Scheduler_Inference(BaseScheduler):
     def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], workflow_obj: wrench.Workflow, **kwargs):
         super().__init__(simulation, compute_services, hosts, workflow_obj, **kwargs)
-        model_path = self.extra_args.get("model_path", "models/saved_models/drl_agent.pth")
-        model_path = _resolve_model_path(model_path)
         self.workflow_file = self.extra_args.get("workflow_file")
-        if not self.workflow_file: raise ValueError("WASS_DRL_Scheduler_Inference requires a 'workflow_file' argument.")
-        GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS = 4, 64, 32
+        if not self.workflow_file:
+            raise ValueError("WASS_DRL_Scheduler_Inference requires a 'workflow_file' argument.")
+
+        variant = self.extra_args.get("variant", "rag")
+        model_override = self.extra_args.get("model_path")
+        fallback_path = _DEFAULT_MODEL_PATHS.get(variant, _DEFAULT_MODEL_PATHS.get("rag"))
+        model_path = _resolve_model_path(model_override) if model_override else fallback_path
         try:
             state_dict = torch.load(str(model_path), map_location=torch.device('cpu'))
         except Exception as e:
@@ -194,8 +174,8 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
                 "Select a platform XML with the same host count used during training or retrain the agent."
             )
 
-        self.gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
-        self.agent = ActorCritic(state_dim=GNN_OUT_CHANNELS, action_dim=action_dim)
+        self.gnn_encoder = GNNEncoder(DEFAULT_GNN_IN, DEFAULT_GNN_HIDDEN, DEFAULT_GNN_OUT)
+        self.agent = ActorCritic(state_dim=DEFAULT_GNN_OUT, action_dim=action_dim)
         try:
             self.agent.load_state_dict(state_dict)
             self.agent.eval()

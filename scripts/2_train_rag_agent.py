@@ -12,7 +12,6 @@ import torch.nn as nn
 from torch.optim import Adam
 import numpy as np
 from pathlib import Path
-import json
 import xml.etree.ElementTree as ET
 
 # --- Path fix ---
@@ -28,20 +27,46 @@ from src.drl.replay_buffer import ReplayBuffer
 from src.rag.teacher import KnowledgeBase, KnowledgeableTeacher
 from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
 from src.simulation.experiment_runner import WrenchExperimentRunner
+from src.utils.config import load_training_config
 
 
-# --- Config ---
-GNN_IN_CHANNELS = 4
-GNN_HIDDEN_CHANNELS = 64
-GNN_OUT_CHANNELS = 32
-LEARNING_RATE = 3e-4
-GAMMA = 0.99
-EPOCHS = 10
-EPS_CLIP = 0.2
-TOTAL_EPISODES = 200
-MODEL_SAVE_DIR = "models/saved_models"
-AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, "drl_agent.pth")
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
+
+def _merge_dicts(base: dict, override: dict) -> dict:
+    """Return a shallow merge of two dictionaries with override precedence."""
+    merged = dict(base or {})
+    merged.update(override or {})
+    return merged
+
+
+TRAINING_CFG = load_training_config()
+COMMON_CFG = TRAINING_CFG.get("common", {})
+RAG_CFG = TRAINING_CFG.get("rag_training", {})
+
+GNN_CFG = _merge_dicts(COMMON_CFG.get("gnn", {}), RAG_CFG.get("gnn", {}))
+PPO_CFG = _merge_dicts(COMMON_CFG.get("ppo", {}), RAG_CFG.get("ppo", {}))
+MODEL_CFG = RAG_CFG.get("model", {})
+REWARD_CFG = RAG_CFG.get("reward_scaling", {})
+TEACHER_CFG = RAG_CFG.get("teacher", {})
+
+GNN_IN_CHANNELS = int(GNN_CFG.get("in_channels", 4))
+GNN_HIDDEN_CHANNELS = int(GNN_CFG.get("hidden_channels", 64))
+GNN_OUT_CHANNELS = int(GNN_CFG.get("out_channels", 32))
+
+LEARNING_RATE = float(PPO_CFG.get("learning_rate", 3e-4))
+GAMMA = float(PPO_CFG.get("gamma", 0.99))
+EPOCHS = int(PPO_CFG.get("epochs", 10))
+EPS_CLIP = float(PPO_CFG.get("eps_clip", 0.2))
+
+TOTAL_EPISODES = int(RAG_CFG.get("total_episodes", 200))
+SAVE_INTERVAL = int(RAG_CFG.get("save_interval", 50)) if RAG_CFG.get("save_interval") is not None else 0
+
+MODEL_SAVE_DIR = MODEL_CFG.get("save_dir", "models/saved_models")
+MODEL_FILENAME = MODEL_CFG.get("filename", "drl_agent.pth")
+AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, MODEL_FILENAME)
+
+RAG_REWARD_MULTIPLIER = float(REWARD_CFG.get("rag_multiplier", 10.0))
+FINAL_REWARD_NORMALIZER = float(REWARD_CFG.get("final_normalizer", 5000.0))
 
 
 def infer_action_dim(platform_path: str) -> int:
@@ -112,7 +137,7 @@ def main():
     
     print("🧠 Initializing Knowledge Base and Teacher...")
     kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
-    teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb)
+    teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb, reward_config=TEACHER_CFG)
     
     config_params = {"platform_file": platform_file}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
@@ -152,16 +177,14 @@ def main():
             replay_buffer.clear()
             continue
 
-        RAG_REWARD_MULTIPLIER = 10.0
-        FINAL_REWARD_NORMALIZER = 5000.0
-
         rag_rewards_for_logging = [r.item() for r in replay_buffer.rewards]
         avg_rag_reward = np.mean(rag_rewards_for_logging) if rag_rewards_for_logging else 0.0
 
         for i in range(len(replay_buffer.rewards)):
             replay_buffer.rewards[i] = torch.tensor(replay_buffer.rewards[i].item() * RAG_REWARD_MULTIPLIER)
 
-        final_penalty = - (makespan / FINAL_REWARD_NORMALIZER)
+        normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
+        final_penalty = - (makespan / normalizer)
 
         if replay_buffer.rewards:
             replay_buffer.rewards[-1] = torch.tensor(replay_buffer.rewards[-1].item() + final_penalty)
@@ -171,7 +194,7 @@ def main():
 
         print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Avg RAG Reward: {avg_rag_reward:.4f}")
 
-        if episode % 50 == 0:
+        if SAVE_INTERVAL and episode % SAVE_INTERVAL == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
             print(f"💾 Model saved at episode {episode}")
 
