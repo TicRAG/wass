@@ -38,8 +38,10 @@ if [[ "${CLEAN:-0}" == "1" ]]; then
 	rm -rf models/saved_models/* || true
 fi
 
-# Ensure required directories exist
+# Ensure required directories exist (including new split subdirs)
 mkdir -p data/workflows
+mkdir -p data/workflows/training
+mkdir -p data/workflows/experiment
 mkdir -p data/knowledge_base
 mkdir -p results/final_experiments
 mkdir -p models/saved_models
@@ -56,11 +58,29 @@ else
 	echo "⏭  Skipping conversion step (SKIP_CONVERT=1)."
 fi
 
+echo "ℹ️  手动划分模式: 本脚本不再自动复制/拆分 workflows。"
+echo "   你需要自行将训练集放入 data/workflows/training/ ，实验集放入 data/workflows/experiment/。"
+echo "   转换输出仍写入 data/workflows/ 根目录 (不会被移动)。"
+
 ###############################################################################
 # Step 2: Validate converted workflows
 ###############################################################################
-echo "🩺 [Step 2] Validating converted workflows..."
-python scripts/validate_workflows.py --dir data/workflows
+echo "🩺 [Step 2] Validating workflows (root, training/, experiment/)..."
+if compgen -G "data/workflows/*.json" > /dev/null; then
+	python scripts/validate_workflows.py --dir data/workflows || true
+else
+	echo "  ⚠️  Skip root validation (no *.json)."
+fi
+if compgen -G "data/workflows/training/*.json" > /dev/null; then
+	python scripts/validate_workflows.py --dir data/workflows/training || true
+else
+	echo "  ❌ training/ 为空：请手动挑选并复制若干 *.json 到 data/workflows/training/ 后再运行后续步骤。"
+fi
+if compgen -G "data/workflows/experiment/*.json" > /dev/null; then
+	python scripts/validate_workflows.py --dir data/workflows/experiment || true
+else
+	echo "  ⚠️ experiment/ 为空：最终实验将被跳过或无数据 (脚本4会直接退出)。"
+fi
 
 ###############################################################################
 # Step 3: Seed Knowledge Base

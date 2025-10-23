@@ -15,6 +15,7 @@ from torch.optim import Adam
 import numpy as np
 from pathlib import Path
 import xml.etree.ElementTree as ET
+import joblib
 
 # --- Path fix ---
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
@@ -25,6 +26,7 @@ if project_root not in sys.path:
 from src.workflows.manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.agent import ActorCritic
+from src.drl.ppo import PPOTrainer, PPOConfig
 from src.drl.replay_buffer import ReplayBuffer
 from src.rag.teacher import KnowledgeBase, KnowledgeableTeacher
 from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
@@ -122,11 +124,16 @@ class PPO:
             loss.mean().backward()
             self.optimizer.step()
 
+FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Train RAG-enabled scheduling agent.")
     parser.add_argument('--max_tasks', type=int, default=None, help='Skip workflows with task count greater than this value.')
     parser.add_argument('--max_episodes', type=int, default=None, help='Override TOTAL_EPISODES for quick diagnostic runs.')
     parser.add_argument('--profile', action='store_true', help='Print timing for major phases to diagnose hangs.')
+    parser.add_argument('--freeze_gnn', action='store_true', help='Freeze GNN encoder parameters to avoid embedding drift relative to KB.')
+    parser.add_argument('--kb_refresh_interval', type=int, default=0, help='If >0, periodically rebuild KB entries using current GNN every N episodes (costly).')
+    parser.add_argument('--reward_mode', choices=['dense','final'], default='dense', help='dense: use per-task RAG rewards + discount; final: only final aggregated reward.')
     return parser.parse_args()
 
 
@@ -155,22 +162,39 @@ def main():
     platform_file = workflow_manager.get_platform_file()
     action_dim = infer_action_dim(platform_file)
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    if args.freeze_gnn:
+        for p in gnn_encoder.parameters():
+            p.requires_grad = False
+        print("🧊 GNN encoder parameters frozen (no drift relative to seeded KB embeddings).")
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim)
-    ppo_updater = PPO(policy_agent, LEARNING_RATE, GAMMA, EPOCHS, EPS_CLIP)
+    ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
+    from torch.optim import Adam as _Adam
+    ppo_updater = PPOTrainer(policy_agent, _Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
     replay_buffer = ReplayBuffer()
     
     print("🧠 Initializing Knowledge Base and Teacher...")
     kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
     teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb, reward_config=TEACHER_CFG)
+
+    # Load feature scaler for consistent preprocessing with seeding phase
+    feature_scaler = None
+    if Path(FEATURE_SCALER_PATH).exists():
+        try:
+            feature_scaler = joblib.load(FEATURE_SCALER_PATH)
+            print(f"🔄 Loaded feature scaler from {FEATURE_SCALER_PATH} for embedding normalization.")
+        except Exception as e:
+            print(f"⚠️ Failed to load feature scaler ({e}); proceeding without scaling.")
+    else:
+        print(f"⚠️ Feature scaler file not found at {FEATURE_SCALER_PATH}; proceeding without scaling.")
     
     config_params = {"platform_file": platform_file}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
     print("✅ Components initialized.")
 
     t_load_start = time.time()
-    print("\n[Step 2/4] Loading converted wfcommons training workflows...")
-    workflows_dir = Path("data/workflows")
+    print("\n[Step 2/4] Loading converted wfcommons training workflows (data/workflows/training)...")
+    workflows_dir = Path("data/workflows/training")
     training_workflows_all = sorted(str(p) for p in workflows_dir.glob("*.json"))
     # Filter by max_tasks if requested
     if args.max_tasks is not None:
@@ -188,7 +212,7 @@ def main():
     else:
         training_workflows = training_workflows_all
     if not training_workflows:
-        print(f"❌ No converted workflows found in {workflows_dir}. Run scripts/0_convert_wfcommons.py first.")
+        print(f"❌ No training workflows found in {workflows_dir}. Ensure files are placed under data/workflows/training.")
         return
     load_elapsed = time.time() - t_load_start
     print(f"✅ Loaded {len(training_workflows)} workflows (elapsed {load_elapsed:.2f}s).")
@@ -206,6 +230,7 @@ def main():
             print(f"[EP] {episode}/{effective_total_episodes} -> {Path(workflow_file).name} tasks={task_count_selected}")
         
         # --- THIS IS THE FIX: The lambda now accepts all keyword arguments from the caller ---
+        # Inject feature_scaler & gnn_encoder so scheduler/teacher can produce scaled embeddings
         trainable_scheduler_factory = lambda simulation, compute_services, hosts, workflow_obj, workflow_file: WASS_RAG_Scheduler_Trainable(
             simulation=simulation,
             compute_services=compute_services,
@@ -215,7 +240,8 @@ def main():
             teacher=teacher,
             replay_buffer=replay_buffer,
             gnn_encoder=gnn_encoder,
-            workflow_file=workflow_file 
+            workflow_file=workflow_file,
+            feature_scaler=feature_scaler
         )
         
         t_sim_start = time.time()
@@ -233,17 +259,61 @@ def main():
         rag_rewards_for_logging = [r.item() for r in replay_buffer.rewards]
         avg_rag_reward = np.mean(rag_rewards_for_logging) if rag_rewards_for_logging else 0.0
 
-        for i in range(len(replay_buffer.rewards)):
-            replay_buffer.rewards[i] = torch.tensor(replay_buffer.rewards[i].item() * RAG_REWARD_MULTIPLIER)
-
-        normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
-        final_penalty = - (makespan / normalizer)
-
-        if replay_buffer.rewards:
-            replay_buffer.rewards[-1] = torch.tensor(replay_buffer.rewards[-1].item() + final_penalty)
+        if args.reward_mode == 'dense':
+            # Scale intermediate RAG rewards
+            for i in range(len(replay_buffer.rewards)):
+                replay_buffer.rewards[i] = torch.tensor(replay_buffer.rewards[i].item() * RAG_REWARD_MULTIPLIER)
+            # Add final penalty to last reward
+            normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
+            final_penalty = - (makespan / normalizer)
+            if replay_buffer.rewards:
+                replay_buffer.rewards[-1] = torch.tensor(replay_buffer.rewards[-1].item() + final_penalty)
+        else:
+            # final mode: ignore intermediates, collapse to single combined reward
+            normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
+            final_penalty = - (makespan / normalizer)
+            total_rag = sum([r.item() for r in replay_buffer.rewards]) if replay_buffer.rewards else 0.0
+            combined = total_rag * RAG_REWARD_MULTIPLIER + final_penalty
+            replay_buffer.rewards = [torch.tensor(combined)]
         
         ppo_updater.update(replay_buffer)
         replay_buffer.clear()
+
+        # Optional periodic KB refresh (expensive: re-encode all workflows with current GNN)
+        if args.kb_refresh_interval and episode % args.kb_refresh_interval == 0:
+            if args.freeze_gnn:
+                print("[KB Refresh] Skipped because GNN is frozen (no drift).")
+            else:
+                try:
+                    print(f"[KB Refresh] Rebuilding Knowledge Base embeddings at episode {episode}...")
+                    from src.drl.utils import workflow_json_to_pyg_data
+                    new_vectors = []
+                    new_meta = []
+                    for wf in training_workflows:
+                        try:
+                            data_obj = workflow_json_to_pyg_data(wf, feature_scaler)
+                            emb = gnn_encoder(data_obj).detach().cpu().numpy().flatten()
+                            new_vectors.append(emb)
+                            new_meta.append({
+                                'workflow_file': Path(wf).name,
+                                'scheduler_used': 'HEFT',
+                                'makespan': 0.0,
+                                'decisions': '{}'
+                            })
+                        except Exception as e:
+                            print(f"  [KB Refresh] Failed to encode {wf}: {e}")
+                    if new_vectors:
+                        # Replace KB (re-init FAISS index for simplicity)
+                        kb.index.reset()
+                        kb.metadata = kb.metadata.iloc[0:0]
+                        # Use already imported numpy at module level (avoid shadowing / UnboundLocal)
+                        kb.add(np.array(new_vectors, dtype=np.float32), new_meta)
+                        kb.save()
+                        print(f"[KB Refresh] Completed with {len(new_vectors)} embeddings.")
+                    else:
+                        print("[KB Refresh] No embeddings produced; KB unchanged.")
+                except Exception as e:
+                    print(f"[KB Refresh] Failed: {e}")
 
         print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, tasks={task_count_selected}, Makespan: {makespan:.2f}s, Avg RAG Reward: {avg_rag_reward:.4f}, sim_time={sim_elapsed:.2f}s")
 

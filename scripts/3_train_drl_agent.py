@@ -23,6 +23,7 @@ if project_root not in sys.path:
 from src.workflows.manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.agent import ActorCritic
+from src.drl.ppo import PPOTrainer, PPOConfig
 from src.drl.replay_buffer import ReplayBuffer
 from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
 from src.simulation.experiment_runner import WrenchExperimentRunner
@@ -111,7 +112,16 @@ class PPO:
             loss.mean().backward()
             self.optimizer.step()
 
+import argparse
+
+def parse_args():
+    ap = argparse.ArgumentParser(description="Train DRL scheduler (no RAG) with unified PPO.")
+    ap.add_argument('--max_episodes', type=int, default=None, help='Override TOTAL_EPISODES for quick runs.')
+    ap.add_argument('--reward_mode', choices=['dense','final'], default='final', help='Reward shaping mode: dense (discount across steps) or final (single terminal reward).')
+    return ap.parse_args()
+
 def main():
+    args = parse_args()
     print("🚀 [Phase 3.1] Starting DRL Agent Training (NO RAG)...")
     
     Path(MODEL_SAVE_DIR).mkdir(parents=True, exist_ok=True)
@@ -124,7 +134,8 @@ def main():
     
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim)
-    ppo_updater = PPO(policy_agent, LEARNING_RATE, GAMMA, EPOCHS, EPS_CLIP)
+    ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
+    ppo_updater = PPOTrainer(policy_agent, Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
     
     replay_buffer = ReplayBuffer()
     
@@ -132,16 +143,17 @@ def main():
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
     print("✅ Components initialized.")
 
-    print("\n[Step 2/4] Loading converted wfcommons training workflows...")
-    workflows_dir = Path("data/workflows")
+    print("\n[Step 2/4] Loading converted wfcommons training workflows (data/workflows/training)...")
+    workflows_dir = Path("data/workflows/training")
     training_workflows = sorted(str(p) for p in workflows_dir.glob("*.json"))
     if not training_workflows:
-        print(f"❌ No converted workflows found in {workflows_dir}. Run scripts/0_convert_wfcommons.py first.")
+        print(f"❌ No training workflows found in {workflows_dir}. Ensure files are placed under data/workflows/training.")
         return
     print(f"✅ Loaded {len(training_workflows)} converted workflows.")
 
-    print("\n[Step 3/4] Starting main training loop...")
-    for episode in range(1, TOTAL_EPISODES + 1):
+    effective_total = args.max_episodes if args.max_episodes is not None else TOTAL_EPISODES
+    print(f"\n[Step 3/4] Starting main training loop... total_episodes={effective_total} mode={args.reward_mode}")
+    for episode in range(1, effective_total + 1):
         workflow_file = np.random.choice(training_workflows)
         
         # --- THIS IS THE FIX: The lambda now accepts all keyword arguments from the caller ---
@@ -167,13 +179,26 @@ def main():
             replay_buffer.clear()
             continue
 
-        reward = -makespan / MAKESPAN_NORMALIZER
-        replay_buffer.rewards = [torch.tensor(reward)]
+        final_reward = -makespan / MAKESPAN_NORMALIZER
+        if args.reward_mode == 'final':
+            replay_buffer.rewards = [torch.tensor(final_reward)]
+        else:
+            # dense mode: create per-step rewards with discount semantics handled in PPO
+            steps = len(replay_buffer.actions)
+            if steps == 0:
+                replay_buffer.rewards = [torch.tensor(final_reward)]
+            else:
+                per_step = final_reward / steps
+                replay_buffer.rewards = [torch.tensor(per_step) for _ in range(steps)]
         
         ppo_updater.update(replay_buffer)
         replay_buffer.clear()
 
-        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Reward: {reward:.4f}")
+        if args.reward_mode == 'final':
+            reported_reward = final_reward
+        else:
+            reported_reward = final_reward  # aggregate of per-step rewards equals final_reward
+        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Reward: {reported_reward:.4f}")
 
         if SAVE_INTERVAL and episode % SAVE_INTERVAL == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)

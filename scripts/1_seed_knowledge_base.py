@@ -41,8 +41,13 @@ def main():
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
     print("✅ Components initialized.")
 
-    seeding_workflows = workflow_manager.generate_training_workflows()
-    print(f"✅ Generated {len(seeding_workflows)} workflows.")
+    # Load pre-converted training workflows instead of generating new ones
+    training_dir = Path("data/workflows/training")
+    seeding_workflows = sorted(str(p) for p in training_dir.glob("*.json"))
+    if not seeding_workflows:
+        print(f"❌ No training workflows found in {training_dir}. Ensure conversion placed files there.")
+        return
+    print(f"✅ Loaded {len(seeding_workflows)} training workflows from {training_dir}.")
 
     print("\n[Step 3a/6] Extracting features to fit the scaler...")
     all_node_features = []
@@ -50,7 +55,14 @@ def main():
         try:
             with open(wf_file, 'r') as f:
                 wf_data = json.load(f)
-            for task in wf_data['workflow']['tasks']:
+            wf_section = wf_data.get('workflow', {})
+            if 'tasks' in wf_section:
+                tasks = wf_section.get('tasks', [])
+            else:
+                tasks = wf_section.get('specification', {}).get('tasks', [])
+            for task in tasks:
+                if not isinstance(task, dict):
+                    continue
                 all_node_features.append([
                     float(task.get('runtime', 0.0)),
                     float(task.get('flops', 0.0)),
@@ -79,7 +91,7 @@ def main():
 
     for scheduler_name, scheduler_class in seeding_schedulers.items():
         print(f"\n--- Seeding with {scheduler_name} Scheduler ---")
-        for i, wf_file in enumerate(seeding_workflows):
+    for i, wf_file in enumerate(seeding_workflows):
             wf_path = Path(wf_file)
             print(f"  Processing workflow {i+1}/{len(seeding_workflows)}: {wf_path.name}")
             

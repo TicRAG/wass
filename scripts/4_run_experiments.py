@@ -36,20 +36,20 @@ def main():
     print(f"📊 Schedulers to compare: {list(schedulers_to_compare.keys())}")
     # --- 修改结束 ---
 
-    print("\n[Step 1/3] Loading converted wfcommons experiment workflows...")
+    print("\n[Step 1/3] Loading converted wfcommons experiment workflows (data/workflows/experiment)...")
     workflow_manager = WorkflowManager(config_path="configs/workflow_config.yaml")
     platform_file = workflow_manager.get_platform_file()
     experiment_config = {
         "platform_file": platform_file,
-        "workflow_dir": "data/workflows",
+        "workflow_dir": "data/workflows/experiment",
         "workflow_sizes": [],
         "repetitions": 1,
         "output_dir": "results/final_experiments"
     }
-    workflows_dir = Path("data/workflows")
+    workflows_dir = Path("data/workflows/experiment")
     experiment_workflow_files = sorted(str(p) for p in workflows_dir.glob("*.json"))
     if not experiment_workflow_files:
-        print(f"❌ No converted workflows found in {workflows_dir}. Run scripts/0_convert_wfcommons.py first.")
+        print(f"❌ No experiment workflows found in {workflows_dir}. Ensure files are placed under data/workflows/experiment.")
         return
     print(f"✅ Loaded {len(experiment_workflow_files)} converted workflows for experiments.")
 

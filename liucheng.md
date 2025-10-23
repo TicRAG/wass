@@ -6,6 +6,9 @@
 1. 转换 WFCommons 工作流：
 	```bash
 	python scripts/0_convert_wfcommons.py --input_dir configs/wfcommons --output_dir data/workflows
+	
+	分别将工作流放入/data/workflow/experiment和/data/workflow/training
+
 	```
 2. 校验转换结果：
 	```bash
@@ -32,7 +35,7 @@
 ## 一键执行
 使用更新后的管线脚本：
 ```bash
-bash run_pipeline.sh
+bash run_pipeline.sh SKIP_CONVERT=1
 ```
 支持的环境变量：
 ```bash
