@@ -1,5 +1,7 @@
 import os
 import sys
+import time
+import argparse
 
 # --- 路径修正 ---
 # 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
@@ -120,7 +122,30 @@ class PPO:
             loss.mean().backward()
             self.optimizer.step()
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Train RAG-enabled scheduling agent.")
+    parser.add_argument('--max_tasks', type=int, default=None, help='Skip workflows with task count greater than this value.')
+    parser.add_argument('--max_episodes', type=int, default=None, help='Override TOTAL_EPISODES for quick diagnostic runs.')
+    parser.add_argument('--profile', action='store_true', help='Print timing for major phases to diagnose hangs.')
+    return parser.parse_args()
+
+
+def count_tasks_in_workflow(path: str) -> int:
+    try:
+        import json
+        with open(path, 'r') as f:
+            data = json.load(f)
+        wf = data.get('workflow', {})
+        if 'tasks' in wf and isinstance(wf['tasks'], list):
+            return len(wf['tasks'])
+        spec_tasks = wf.get('specification', {}).get('tasks', [])
+        return len(spec_tasks) if isinstance(spec_tasks, list) else 0
+    except Exception:
+        return -1
+
+
 def main():
+    args = parse_args()
     print("🚀 [Phase 3] Starting DRL Agent Training (with Re-balanced Rewards)...")
     
     Path(MODEL_SAVE_DIR).mkdir(parents=True, exist_ok=True)
@@ -143,17 +168,42 @@ def main():
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
     print("✅ Components initialized.")
 
+    t_load_start = time.time()
     print("\n[Step 2/4] Loading converted wfcommons training workflows...")
     workflows_dir = Path("data/workflows")
-    training_workflows = sorted(str(p) for p in workflows_dir.glob("*.json"))
+    training_workflows_all = sorted(str(p) for p in workflows_dir.glob("*.json"))
+    # Filter by max_tasks if requested
+    if args.max_tasks is not None:
+        filtered = []
+        for wf_path in training_workflows_all:
+            tc = count_tasks_in_workflow(wf_path)
+            if tc < 0:
+                print(f"[WARN] Could not parse {wf_path}, skipping.")
+                continue
+            if tc <= args.max_tasks:
+                filtered.append(wf_path)
+            else:
+                print(f"[SKIP] {Path(wf_path).name} task_count={tc} > max_tasks={args.max_tasks}")
+        training_workflows = filtered
+    else:
+        training_workflows = training_workflows_all
     if not training_workflows:
         print(f"❌ No converted workflows found in {workflows_dir}. Run scripts/0_convert_wfcommons.py first.")
         return
-    print(f"✅ Loaded {len(training_workflows)} converted workflows for training pool.")
+    load_elapsed = time.time() - t_load_start
+    print(f"✅ Loaded {len(training_workflows)} workflows (elapsed {load_elapsed:.2f}s).")
+    if args.profile:
+        for wf in training_workflows:
+            print(f"    • {Path(wf).name} tasks={count_tasks_in_workflow(wf)}")
 
-    print("\n[Step 3/4] Starting main training loop...")
-    for episode in range(1, TOTAL_EPISODES + 1):
+    effective_total_episodes = args.max_episodes if args.max_episodes is not None else TOTAL_EPISODES
+    print(f"\n[Step 3/4] Starting main training loop... total_episodes={effective_total_episodes}")
+    loop_start = time.time()
+    for episode in range(1, effective_total_episodes + 1):
         workflow_file = np.random.choice(training_workflows)
+        task_count_selected = count_tasks_in_workflow(workflow_file)
+        if args.profile:
+            print(f"[EP] {episode}/{effective_total_episodes} -> {Path(workflow_file).name} tasks={task_count_selected}")
         
         # --- THIS IS THE FIX: The lambda now accepts all keyword arguments from the caller ---
         trainable_scheduler_factory = lambda simulation, compute_services, hosts, workflow_obj, workflow_file: WASS_RAG_Scheduler_Trainable(
@@ -168,10 +218,12 @@ def main():
             workflow_file=workflow_file 
         )
         
+        t_sim_start = time.time()
         makespan, _ = wrench_runner.run_single_seeding_simulation(
             scheduler_class=trainable_scheduler_factory,
             workflow_file=workflow_file
         )
+        sim_elapsed = time.time() - t_sim_start
 
         if makespan < 0 or not replay_buffer.rewards:
             print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Status: FAILED. Skipping update.")
@@ -193,13 +245,14 @@ def main():
         ppo_updater.update(replay_buffer)
         replay_buffer.clear()
 
-        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Avg RAG Reward: {avg_rag_reward:.4f}")
+        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, tasks={task_count_selected}, Makespan: {makespan:.2f}s, Avg RAG Reward: {avg_rag_reward:.4f}, sim_time={sim_elapsed:.2f}s")
 
         if SAVE_INTERVAL and episode % SAVE_INTERVAL == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
             print(f"💾 Model saved at episode {episode}")
 
-    print("\n[Step 4/4] Training finished.")
+    total_loop_elapsed = time.time() - loop_start
+    print(f"\n[Step 4/4] Training finished. Total loop time: {total_loop_elapsed:.2f}s")
     print(f"✅ Final model saved to: {AGENT_MODEL_PATH}")
     print("\n🎉 [Phase 3] DRL Agent Training Completed! 🎉")
 
