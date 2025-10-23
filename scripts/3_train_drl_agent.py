@@ -181,11 +181,12 @@ def main():
 
         final_reward = -makespan / MAKESPAN_NORMALIZER
         if args.reward_mode == 'final':
+            # Provide only terminal reward; PPOTrainer will discount across steps.
             replay_buffer.rewards = [torch.tensor(final_reward)]
         else:
-            # dense mode: create per-step rewards with discount semantics handled in PPO
+            # Dense: approximate shaping by distributing reward equally; PPO will still discount.
             steps = len(replay_buffer.actions)
-            if steps == 0:
+            if steps <= 1:
                 replay_buffer.rewards = [torch.tensor(final_reward)]
             else:
                 per_step = final_reward / steps

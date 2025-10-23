@@ -2,7 +2,24 @@
 # -*- coding: utf-8 -*-
 
 """
-WASS-RAG 工作流生成器
+DEPRECATED MODULE: Synthetic Workflow Generator
+------------------------------------------------
+This module previously generated synthetic workflows (pipeline, montage-like, etc.)
+for experimentation. The project has migrated to use converted WFCommons workflows
+exclusively (see scripts/0_convert_wfcommons.py and data/workflows/*).
+
+Status:
+    - Retained only for historical reference and potential future benchmarking.
+    - Not invoked by the current training or experiment pipeline.
+    - Will be removed in a future cleanup once WFCommons coverage is fully sufficient.
+
+Guidance:
+    - Do NOT use this to seed the knowledge base or training runs.
+    - Place WFCommons converted JSON files under data/workflows/training and
+        data/workflows/experiment manually.
+
+If you need a synthetic workflow for a custom stress test, consider isolating it
+in a separate script so as not to interfere with RAG/DLR training reproducibility.
 """
 
 import json

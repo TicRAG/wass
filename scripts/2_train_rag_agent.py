@@ -161,11 +161,18 @@ def main():
     workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
     platform_file = workflow_manager.get_platform_file()
     action_dim = infer_action_dim(platform_file)
-    gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    # Dual encoders: policy (trainable) vs rag (frozen, matches KB space)
+    policy_gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    rag_gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    for p in rag_gnn_encoder.parameters():
+        p.requires_grad = False
+    rag_gnn_encoder.eval()
     if args.freeze_gnn:
-        for p in gnn_encoder.parameters():
+        for p in policy_gnn_encoder.parameters():
             p.requires_grad = False
-        print("🧊 GNN encoder parameters frozen (no drift relative to seeded KB embeddings).")
+        print("🧊 Policy GNN encoder frozen; using identical frozen encoder for RAG queries.")
+    else:
+        print("🔀 Using separate trainable policy GNN and frozen RAG GNN (pre-seeding weights).")
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim)
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
@@ -239,7 +246,8 @@ def main():
             agent=policy_agent,
             teacher=teacher,
             replay_buffer=replay_buffer,
-            gnn_encoder=gnn_encoder,
+            policy_gnn_encoder=policy_gnn_encoder,
+            rag_gnn_encoder=rag_gnn_encoder,
             workflow_file=workflow_file,
             feature_scaler=feature_scaler
         )
@@ -292,7 +300,7 @@ def main():
                     for wf in training_workflows:
                         try:
                             data_obj = workflow_json_to_pyg_data(wf, feature_scaler)
-                            emb = gnn_encoder(data_obj).detach().cpu().numpy().flatten()
+                            emb = policy_gnn_encoder(data_obj).detach().cpu().numpy().flatten()
                             new_vectors.append(emb)
                             new_meta.append({
                                 'workflow_file': Path(wf).name,

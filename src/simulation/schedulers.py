@@ -203,15 +203,25 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         return list(self.hosts.keys())[action_index]
 
 class WASS_RAG_Scheduler_Trainable(BaseScheduler):
-    def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], workflow_obj: wrench.Workflow, **kwargs):
+    def __init__(
+        self,
+        simulation: wrench.Simulation,
+        compute_services: Dict[str, Any],
+        hosts: Dict[str, Any],
+        workflow_obj: wrench.Workflow,
+        **kwargs
+    ):
         super().__init__(simulation, compute_services, hosts, workflow_obj, **kwargs)
         self.agent = self.extra_args['agent']
         self.teacher = self.extra_args['teacher']
         self.replay_buffer = self.extra_args['replay_buffer']
-        self.gnn_encoder = self.extra_args['gnn_encoder']
+        # Dual encoders: policy (trainable) and rag (frozen). Fallback to policy if rag not provided.
+        self.policy_gnn_encoder = self.extra_args.get('policy_gnn_encoder') or self.extra_args.get('gnn_encoder')
+        self.rag_gnn_encoder = self.extra_args.get('rag_gnn_encoder')  # may be None
         self.workflow_file = self.extra_args.get("workflow_file")
+        self.feature_scaler = self.extra_args.get('feature_scaler')
         self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
-        self.pyg_data = workflow_json_to_pyg_data(self.workflow_file)
+        self.pyg_data = workflow_json_to_pyg_data(self.workflow_file, self.feature_scaler)
         self.task_name_to_idx = None
         self.STATUS_WAITING, self.STATUS_READY, self.STATUS_COMPLETED = 0.0, 1.0, 2.0
 
@@ -224,7 +234,7 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
             if name in completed_tasks: self.pyg_data.x[idx, 3] = self.STATUS_COMPLETED
             elif name in ready_tasks: self.pyg_data.x[idx, 3] = self.STATUS_READY
             else: self.pyg_data.x[idx, 3] = self.STATUS_WAITING
-        return self.gnn_encoder(self.pyg_data)
+        return self.policy_gnn_encoder(self.pyg_data)
 
     def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
         state = self._update_and_get_state(workflow)
@@ -233,6 +243,11 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         host_speed = self.host_speeds.get(chosen_host_name, 1.0)
         compute_time = task.get_flops() / host_speed if host_speed > 0 else float('inf')
         agent_eft = self.simulation.get_simulated_time() + compute_time
-        reward = self.teacher.generate_rag_reward(state, agent_eft, task.get_name()) if self.teacher else 0.0
+        # Use frozen rag encoder embedding for teacher if provided; else reuse policy embedding
+        if self.teacher:
+            rag_state = self.rag_gnn_encoder(self.pyg_data) if self.rag_gnn_encoder else state
+            reward = self.teacher.generate_rag_reward(rag_state, agent_eft, task.get_name())
+        else:
+            reward = 0.0
         self.replay_buffer.add(state, action_index, action_logprob, reward=reward)
         return chosen_host_name

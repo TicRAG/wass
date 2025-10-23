@@ -22,12 +22,7 @@ class PPOTrainer:
     def _build_returns(self, rewards: List[torch.Tensor]) -> torch.Tensor:
         if not rewards:
             return torch.zeros(0)
-        if self.cfg.reward_mode == 'final':
-            # Use only final reward, broadcast across steps
-            final_r = rewards[-1].detach()
-            returns = [final_r for _ in rewards]
-            return torch.stack(returns)
-        # Dense discounted
+        # Standard (dense) discounted returns over provided reward sequence
         discounted = []
         running = torch.zeros(1)
         for r in reversed(rewards):
@@ -40,7 +35,18 @@ class PPOTrainer:
         rewards = memory.rewards  # list[Tensor]
         if not rewards:
             return
-        returns = self._build_returns(rewards).detach()  # shape: [T]
+        # Build returns depending on reward shaping mode
+        if self.cfg.reward_mode == 'final':
+            # Sparse terminal reward: discount it back across all steps
+            T_steps = len(memory.actions)
+            if T_steps == 0:
+                return
+            final_r = rewards[-1].detach() if isinstance(rewards[-1], torch.Tensor) else torch.tensor(rewards[-1], dtype=torch.float32)
+            # returns[t] = gamma^(T-1 - t) * final_r
+            returns_vals = [final_r * (self.cfg.gamma ** (T_steps - 1 - t)) for t in range(T_steps)]
+            returns = torch.stack(returns_vals)
+        else:
+            returns = self._build_returns(rewards).detach()  # shape: [reward_len]
         old_states = torch.cat(memory.states).detach()   # shape: [T, state_dim]
         old_actions = torch.stack(memory.actions).detach()  # [T]
         old_logprobs = torch.stack(memory.logprobs).detach()  # [T]
@@ -50,17 +56,13 @@ class PPOTrainer:
 
         # Align lengths:
         if T_returns != T_steps:
-            if T_returns == 1 and self.cfg.reward_mode == 'final':
-                # Expand single return to all steps
-                returns = returns.repeat(T_steps)
+            # Truncate or pad (pad with last) to match when using dense mode or unexpected mismatch
+            if T_returns > T_steps:
+                returns = returns[:T_steps]
             else:
-                # Truncate or pad (pad with last) to match
-                if T_returns > T_steps:
-                    returns = returns[:T_steps]
-                else:
-                    pad_val = returns[-1]
-                    pad = pad_val.repeat(T_steps - T_returns)
-                    returns = torch.cat([returns, pad], dim=0)
+                pad_val = returns[-1]
+                pad = pad_val.repeat(T_steps - T_returns)
+                returns = torch.cat([returns, pad], dim=0)
 
         # Normalize for stability if >1
         if returns.numel() > 1:

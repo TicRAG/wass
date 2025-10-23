@@ -11,10 +11,13 @@ if project_root not in sys.path:
 # -------------------------
 
 # 现在我们导入原始的、功能强大的生成器
-from src.workflows.generator import WorkflowGenerator
+from src.workflows.generator import WorkflowGenerator  # Deprecated synthetic generator (see module docstring)
 
 class WorkflowManager:
     """管理工作流的生成，适配原始的WorkflowGenerator。"""
+    # NOTE: WorkflowManager synthetic generation methods are legacy and not used
+    # in the current WFCommons-based pipeline. They remain for optional synthetic
+    # benchmarking and will be removed once deprecated fully.
     def __init__(self, config_path="configs/workflow_config.yaml"):
         self.config_path = config_path
         print(f"🔄 [WorkflowManager] Loading config from: {self.config_path}")

@@ -6,7 +6,7 @@
 
 -----
 
-# WASS-RAG: 基于检索增强的深度强化学习工作流调度系统
+# WASS-RAG: 基于检索增强的深度强化学习工作流调度系统（使用 WFCommons 基准）
 
 WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成（RAG）技术优化科学工作流调度的研究项目。本项目的核心目标是开发一个智能调度代理（Agent），它能够学习并做出比传统调度算法（如 FIFO 和 HEFT）更优的决策，从而最小化工作流的总执行时间（Makespan）。
 
@@ -14,7 +14,7 @@ WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成�
 
 ## 核心特性
 
-  * **动态工作流生成**: 能够程序化地生成多种类型和规模的科学工作流，如 Montage（天文学）、LIGO（引力波探测）、CyberShake（地震模拟）等，以模拟真实世界的计算挑战。
+  * **WFCommons 基准驱动**: 使用真实的 WFCommons 科学工作流 (epigenomics, montage, seismology 等) 转换为统一格式，不再依赖内部的合成生成器（该模块已标记为 Deprecated）。
   * **基于GNN的状态编码**: 使用图注意力网络（GATv2）将复杂的工作流依赖关系编码为向量表示，为强化学习智能体提供决策依据。
   * **PPO驱动的强化学习代理**: 采用近端策略优化（PPO）算法训练一个Actor-Critic模型，使其能够根据当前工作流的状态选择最佳的计算节点进行任务分配。
   * **RAG增强的决策奖励**: 创新性地引入了检索增强生成（RAG）机制。通过构建一个存储历史最优调度经验的“知识库”，智能体在训练时可以参考相似工作流的“专家决策”（如HEFT算法的决策），从而获得更精确和动态的奖励信号，加速学习过程并提升最终性能。
@@ -24,22 +24,22 @@ WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成�
 
 整个项目的执行流程被设计为三个主要阶段，通过 `bash.sh` 或 `liucheng.md` 中的脚本顺序执行：
 
-### 阶段一：知识库构建 (`scripts/seed_knowledge_base.py`)
+### 阶段一：知识库构建 (`scripts/1_seed_knowledge_base.py`)
 
 这是为RAG机制准备“养料”的阶段。
 
-1.  **生成工作流**: 首先，系统会根据 `configs/workflow_config.yaml` 中的定义，生成大量不同类型和规模的训练用工作流。
-2.  **模拟与记录**: 接着，使用传统的优秀调度算法（如HEFT）和随机算法在 `configs/test_platform.xml` 所定义的模拟平台上执行这些工作流。
+1.  **放置工作流**: 先运行转换脚本并手动将转换后的文件划分至 `data/workflows/training` 与 `data/workflows/experiment` 目录（当前不自动拆分）。
+2.  **模拟与记录**: 使用传统调度算法（如 HEFT）在指定平台上执行这些工作流并记录调度决策。
 3.  **编码与存储**: 在模拟过程中，记录下每个决策（哪个任务分配给哪个主机）以及对应的性能。然后，使用GNN编码器将每个工作流的状态图转换为向量嵌入，连同其性能数据和决策记录一起存入FAISS向量索引构建的知识库中。
 
-### 阶段二：智能体训练 (`train.py` 和 `train_no_rag.py`)
+### 阶段二：智能体训练 (`scripts/2_train_rag_agent.py` 与 `scripts/3_train_drl_agent.py`)
 
 这个阶段的目标是训练出聪明的调度“大脑”。项目包含两个并行的训练脚本：
 
-  * `train.py`: **训练带有RAG的WASS智能体**。在训练过程中，除了基于最终完成时间的全局奖励外，智能体在做出每个决策后，还会向知识库查询。**知识引导教师 (`KnowledgeableTeacher`)** 会比较智能体的决策与知识库中相似情况下的“专家决策”，并给予一个即时的、细粒度的奖励或惩罚。这使得智能体能更快地学会“好”的决策模式。
-  * `train_no_rag.py`: **训练一个纯DRL的WASS智能体**。这个版本的智能体不使用知识库，仅依赖于最终工作流完成时间（Makespan）作为奖励信号进行学习，作为对比实验组。
+  * `2_train_rag_agent.py`: 训练带有 RAG 的智能体。采用双 GNN 编码架构：一个冻结的 `rag_gnn_encoder` 用于稳定的检索嵌入，和一个可训练的 `policy_gnn_encoder` 用于策略梯度更新，避免训练过程中的表示漂移导致检索失效。教师模块接收预计算的状态嵌入，消除重复 GNN 前向。
+  * `3_train_drl_agent.py`: 训练纯 DRL 智能体，不访问知识库。统一的 PPOTrainer 处理两种奖励模式：`dense`（逐步给予等分奖励并进行折扣）与 `final`（仅终止奖励，经 gamma 回溯折扣）。
 
-### 阶段三：实验与评估 (`run_experiments.py`)
+### 阶段三：实验与评估 (`scripts/4_run_experiments.py`)
 
 训练完成后，就到了检验成果的时候。
 
@@ -62,7 +62,7 @@ WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成�
       * `configs/test_platform.xml`: 在这里定义你的模拟计算环境，包括主机的数量、计算速度、核心数和网络带宽等。
 
 3.  **执行完整流程**:
-    直接运行 `bash.sh` 脚本即可按顺序完成知识库构建、模型训练和最终实验评估的全部流程。
+  运行 `run_pipeline.sh` 脚本可串联转换（可选）、知识库播种、RAG 训练、DRL 训练与最终实验。工作流的训练/实验划分需手动完成后再调用训练脚本。
 
     ```bash
     bash bash.sh
@@ -81,7 +81,7 @@ WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成�
 
 ## 工作流来源与转换流程
 
-本项目的训练与实验使用来自 [WFCommons](https://wfcommons.org/) 的真实科学工作流基准 (epigenomics, montage, seismology 等) 的 JSON 描述。为了让调度与图编码模块使用统一的字段 (runtime, flops, memory, dependencies)，我们提供了标准转换脚本：
+本项目的训练与实验使用来自 [WFCommons](https://wfcommons.org/) 的真实科学工作流基准 (epigenomics, montage, seismology 等) 的 JSON 描述。为了让调度与图编码模块使用统一的字段 (runtime, flops, memory, dependencies)，我们提供了标准转换脚本，并弃用了早期的合成工作流生成代码：
 
 1. 原始 WFCommons JSON 位于 `configs/wfcommons/*.json`。
 2. 运行 `scripts/0_convert_wfcommons.py`：
@@ -90,7 +90,7 @@ WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成�
   - 估算内存: sum(input file sizes) + sum(output file sizes) + 100MB 基础开销。
   - 写入 `task['runtime']` = execution.tasks.runtimeInSeconds，提供给 GNN 编码与 PPO 状态向量。
   - 保持原始结构并补充 `flops` / `memory` / `runtime` 字段，输出到 `data/workflows/*.json`。
-3. 训练与推理脚本 (`scripts/2_train_rag_agent.py`, `scripts/3_train_drl_agent.py`, `scripts/4_run_experiments.py`) 直接从 `data/workflows` 读取已转换文件，不再生成内部合成工作流。
+3. 训练与推理脚本 (`scripts/2_train_rag_agent.py`, `scripts/3_train_drl_agent.py`, `scripts/4_run_experiments.py`) 直接从 `data/workflows/training` 与 `data/workflows/experiment` 读取已转换文件；不再自动生成或拆分内部合成工作流。
 4. 图数据构建 (`src/drl/utils.py`) 会自动检测：
   - 如果存在 `workflow['specification']['tasks']`，映射 `parents` 为 `dependencies`。
   - 从 `workflow.execution.tasks` 中补全缺失的 `runtime`。
@@ -124,4 +124,17 @@ python scripts/4_run_experiments.py
 | inputFiles/outputFiles | 输入与输出文件 ID |
 
 若需调整 FLOPs 或内存估算策略，可修改 `scripts/0_convert_wfcommons.py` 中 `compute_flops` / `compute_memory` 与 `BASE_OVERHEAD`。
+
+## 架构最新要点
+1. 双 GNN 编码：RAG 编码器冻结，策略编码器训练，避免检索嵌入语义漂移。
+2. 单次状态前向：调度器预计算嵌入并传递给教师，减少重复计算。
+3. 统一稀疏奖励折扣：`reward_mode='final'` 时 PPOTrainer 根据步数对单一终止奖励进行 gamma 回溯分配。
+4. 合成生成器弃用：`src/workflows/generator.py` 与 `manager.py` 保留仅作历史参考，标记 Deprecated。
+5. 手动工作流划分：用户负责将转换结果分类至训练与实验目录，保证实验公平性。
+
+## 后续改进建议
+* 引入优势估计 (GAE) 提升策略梯度稳定性。
+* 使用指数移动平均 (EMA) 维护一个慢速更新的检索编码器替代完全冻结策略。
+* 运行时奖励 shaping：结合 makespan 预测残差作为辅助 dense signal。
+* 在线更新知识库：周期性对新策略的高性能轨迹进行再编码与插入。
 

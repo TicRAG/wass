@@ -53,7 +53,7 @@ class KnowledgeBase:
         print("✅ [KB] Knowledge Base saved.")
 
 class KnowledgeableTeacher:
-    """知识引导教师，负责生成RAG奖励。"""
+    """知识引导教师，负责生成RAG奖励。现在假定调用方已提供图嵌入，避免重复GNN前向。"""
     def __init__(self, state_dim: int, knowledge_base: KnowledgeBase, reward_config: Optional[Dict[str, Any]] = None):
         self.kb = knowledge_base
         cfg = reward_config or {}
@@ -83,7 +83,6 @@ class KnowledgeableTeacher:
         historical_efts = []
         for _, row in heft_cases.iterrows():
             try:
-                # decisions字段是JSON字符串，需要解析
                 decisions = json.loads(row['decisions'])
                 if task_name in decisions:
                     historical_efts.append(decisions[task_name]['finish_time'])
@@ -91,12 +90,11 @@ class KnowledgeableTeacher:
                 continue
         
         if not historical_efts:
-            return 0.0 # 知识库中没有关于这个任务的HEFT决策记录
+            return 0.0  # 知识库中没有关于这个任务的HEFT决策记录
 
         # 4. 找到历史上的最优EFT
         best_historical_eft = np.min(historical_efts)
 
         # 5. 计算奖励 (并进行缩放，使其数值稳定)
         reward = (best_historical_eft - agent_eft) / self.reward_normalizer
-        
         return reward
