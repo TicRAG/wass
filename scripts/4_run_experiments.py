@@ -36,19 +36,22 @@ def main():
     print(f"📊 Schedulers to compare: {list(schedulers_to_compare.keys())}")
     # --- 修改结束 ---
 
-    print("\n[Step 1/3] Generating experiment workflows...")
+    print("\n[Step 1/3] Loading converted wfcommons experiment workflows...")
     workflow_manager = WorkflowManager(config_path="configs/workflow_config.yaml")
     platform_file = workflow_manager.get_platform_file()
     experiment_config = {
         "platform_file": platform_file,
         "workflow_dir": "data/workflows",
-        "workflow_sizes": [20, 50, 100],
+        "workflow_sizes": [],
         "repetitions": 1,
         "output_dir": "results/final_experiments"
     }
-    print(f"📝 Experiment Config: Platform={platform_file}, Testing sizes {experiment_config['workflow_sizes']} with {experiment_config['repetitions']} repetitions.")
-    experiment_workflow_files = workflow_manager.generate_experiment_workflows()
-    print("✅ Experiment workflows are ready.")
+    workflows_dir = Path("data/workflows")
+    experiment_workflow_files = sorted(str(p) for p in workflows_dir.glob("*.json"))
+    if not experiment_workflow_files:
+        print(f"❌ No converted workflows found in {workflows_dir}. Run scripts/0_convert_wfcommons.py first.")
+        return
+    print(f"✅ Loaded {len(experiment_workflow_files)} converted workflows for experiments.")
 
     print("\n[Step 2/3] Initializing and running WrenchExperimentRunner...")
     runner = WrenchExperimentRunner(schedulers=schedulers_to_compare, config=experiment_config)

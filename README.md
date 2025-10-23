@@ -78,3 +78,50 @@ WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成�
 > WASS-RAG 和 WASS-DRL 调度器的性能（以Makespan衡量）优于传统的 FIFO 调度器。
 
 通过引入RAG，WASS-RAG旨在比纯DRL版本的调度器达到更高的性能和更快的收敛速度。
+
+## 工作流来源与转换流程
+
+本项目的训练与实验使用来自 [WFCommons](https://wfcommons.org/) 的真实科学工作流基准 (epigenomics, montage, seismology 等) 的 JSON 描述。为了让调度与图编码模块使用统一的字段 (runtime, flops, memory, dependencies)，我们提供了标准转换脚本：
+
+1. 原始 WFCommons JSON 位于 `configs/wfcommons/*.json`。
+2. 运行 `scripts/0_convert_wfcommons.py`：
+  - 读取 execution.machines、execution.tasks、specification.files、specification.tasks。
+  - 计算每个任务的 FLOPs: runtimeInSeconds * (avgCPU/100) * cpu_speed_MHz * 1e6。
+  - 估算内存: sum(input file sizes) + sum(output file sizes) + 100MB 基础开销。
+  - 写入 `task['runtime']` = execution.tasks.runtimeInSeconds，提供给 GNN 编码与 PPO 状态向量。
+  - 保持原始结构并补充 `flops` / `memory` / `runtime` 字段，输出到 `data/workflows/*.json`。
+3. 训练与推理脚本 (`scripts/2_train_rag_agent.py`, `scripts/3_train_drl_agent.py`, `scripts/4_run_experiments.py`) 直接从 `data/workflows` 读取已转换文件，不再生成内部合成工作流。
+4. 图数据构建 (`src/drl/utils.py`) 会自动检测：
+  - 如果存在 `workflow['specification']['tasks']`，映射 `parents` 为 `dependencies`。
+  - 从 `workflow.execution.tasks` 中补全缺失的 `runtime`。
+5. 快速校验脚本 `scripts/validate_workflows.py` 可确保所有任务都具备非负的 `flops` 与 `memory`。
+
+### 常用命令示例
+
+```bash
+# 1. 执行转换
+python scripts/0_convert_wfcommons.py --input_dir configs/wfcommons --output_dir data/workflows
+
+# 2. 校验转换结果
+python scripts/validate_workflows.py --dir data/workflows
+
+# 3. 开始训练 (示例：RAG 版本)
+python scripts/2_train_rag_agent.py
+
+# 4. 运行最终实验
+python scripts/4_run_experiments.py
+```
+
+### 字段说明 (转换后任务)
+| 字段 | 含义 |
+|------|------|
+| id | 任务唯一标识 |
+| parents | 任务依赖的前置任务 (原始 wfcommons) |
+| children | 自动推导的后继任务列表 |
+| flops | 估算的总浮点运算次数 |
+| memory | 估算的内存需求 (字节) |
+| runtime | 预计运行时间 (秒, 来自 execution.tasks.runtimeInSeconds) |
+| inputFiles/outputFiles | 输入与输出文件 ID |
+
+若需调整 FLOPs 或内存估算策略，可修改 `scripts/0_convert_wfcommons.py` 中 `compute_flops` / `compute_memory` 与 `BASE_OVERHEAD`。
+

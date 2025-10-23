@@ -132,12 +132,13 @@ def main():
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
     print("✅ Components initialized.")
 
-    print("\n[Step 2/4] Generating a pool of training workflows...")
-    training_workflows = workflow_manager.generate_training_workflows()
+    print("\n[Step 2/4] Loading converted wfcommons training workflows...")
+    workflows_dir = Path("data/workflows")
+    training_workflows = sorted(str(p) for p in workflows_dir.glob("*.json"))
     if not training_workflows:
-        print("❌ No training workflows generated.")
+        print(f"❌ No converted workflows found in {workflows_dir}. Run scripts/0_convert_wfcommons.py first.")
         return
-    print(f"✅ Generated {len(training_workflows)} workflows.")
+    print(f"✅ Loaded {len(training_workflows)} converted workflows.")
 
     print("\n[Step 3/4] Starting main training loop...")
     for episode in range(1, TOTAL_EPISODES + 1):

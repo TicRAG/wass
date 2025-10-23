@@ -102,33 +102,72 @@ class WrenchExperimentRunner:
             return -1.0, []
 
     def create_workflow_from_json_data(self, simulation, workflow_data, workflow_file_path):
-        """从JSON数据创建WRENCH工作流对象的辅助函数。"""
-        task_children = {}
-        for task in workflow_data['workflow']['tasks']:
-            task_children[task['id']] = []
-        for task in workflow_data['workflow']['tasks']:
-            for parent_id in task.get('dependencies', []):
-                if parent_id in task_children:
-                    task_children[parent_id].append(task['id'])
-        wfcommons_data = {
-            'name': workflow_data['metadata']['name'],
-            'workflow_name': workflow_data['metadata']['name'],
-            'description': workflow_data['metadata']['description'],
-            'schemaVersion': '1.5',
-            'author': {'name': 'WRENCH Experiment', 'email': 'wrench@example.com'},
-            'createdAt': workflow_data['metadata'].get('generated_at', '2024-01-01T00:00:00Z'),
-            'workflow': {'specification': {'tasks': [], 'files': []}, 'execution': {'tasks': []}}}
-        for task in workflow_data['workflow']['tasks']:
-            wfcommons_data['workflow']['specification']['tasks'].append({
-                'name': task['name'], 'id': task['id'], 'children': task_children[task['id']],
-                'parents': task.get('dependencies', []), 'inputFiles': task.get('input_files', []),
-                'outputFiles': task.get('output_files', []), 'flops': task.get('flops', 0),
-                'memory': task.get('memory', 0)})
-            wfcommons_data['workflow']['execution']['tasks'].append({
-                'id': task['id'], 'runtimeInSeconds': task.get('runtime', 1.0), 'cores': 1, 'avgCPU': 1.0})
-        for file in workflow_data['workflow']['files']:
-            wfcommons_data['workflow']['specification']['files'].append({
-                'id': file['id'], 'name': file['name'], 'sizeInBytes': file.get('size', 0)})
+        """从 JSON 数据创建 WRENCH 工作流对象。
+
+        支持两种格式:
+          1. 项目内部生成格式: workflow.tasks + metadata + workflow.files
+          2. wfcommons 转换格式: workflow.specification.tasks + workflow.specification.files + workflow.execution.tasks
+
+        对于格式2，直接使用其任务并映射 parents->children 关系；对于格式1，构造一个 wfcommons 兼容对象。
+        """
+        wf_section = workflow_data.get('workflow', {})
+        is_wfcommons_like = 'specification' in wf_section and 'tasks' in wf_section.get('specification', {})
+
+        if is_wfcommons_like:
+            # 已经是转换后的 wfcommons 格式 (scripts/0_convert_wfcommons.py 生成)
+            spec = wf_section['specification']
+            tasks = spec.get('tasks', [])
+            # 构建 children 关系: 依据每个任务的 parents 列表
+            task_children = {t.get('id'): [] for t in tasks if isinstance(t, dict)}
+            for t in tasks:
+                if not isinstance(t, dict):
+                    continue
+                for parent_id in t.get('parents', []) or []:
+                    if parent_id in task_children:
+                        task_children[parent_id].append(t.get('id'))
+            # 将 children 写入任务（不破坏原有结构）
+            for t in tasks:
+                if not isinstance(t, dict):
+                    continue
+                tid = t.get('id')
+                if tid in task_children:
+                    t.setdefault('children', task_children[tid])
+            wfcommons_data = workflow_data  # 直接使用
+        else:
+            # 原项目内部格式，需转换到 wfcommons 结构
+            internal_tasks = wf_section.get('tasks', [])
+            task_children = {t.get('id'): [] for t in internal_tasks if isinstance(t, dict)}
+            for t in internal_tasks:
+                if not isinstance(t, dict):
+                    continue
+                for parent_id in t.get('dependencies', []) or []:
+                    if parent_id in task_children:
+                        task_children[parent_id].append(t.get('id'))
+            metadata = workflow_data.get('metadata', {})
+            wfcommons_data = {
+                'name': metadata.get('name', 'unknown'),
+                'workflow_name': metadata.get('name', 'unknown'),
+                'description': metadata.get('description', ''),
+                'schemaVersion': '1.5',
+                'author': {'name': 'WRENCH Experiment', 'email': 'wrench@example.com'},
+                'createdAt': metadata.get('generated_at', '2024-01-01T00:00:00Z'),
+                'workflow': {'specification': {'tasks': [], 'files': []}, 'execution': {'tasks': []}}}
+            for t in internal_tasks:
+                if not isinstance(t, dict):
+                    continue
+                tid = t.get('id')
+                wfcommons_data['workflow']['specification']['tasks'].append({
+                    'name': t.get('name', tid), 'id': tid, 'children': task_children.get(tid, []),
+                    'parents': t.get('dependencies', []), 'inputFiles': t.get('input_files', []),
+                    'outputFiles': t.get('output_files', []), 'flops': t.get('flops', 0),
+                    'memory': t.get('memory', 0)})
+                wfcommons_data['workflow']['execution']['tasks'].append({
+                    'id': tid, 'runtimeInSeconds': t.get('runtime', 1.0), 'cores': 1, 'avgCPU': 1.0})
+            for f in wf_section.get('files', []):
+                if not isinstance(f, dict):
+                    continue
+                wfcommons_data['workflow']['specification']['files'].append({
+                    'id': f.get('id'), 'name': f.get('name'), 'sizeInBytes': f.get('size', 0)})
         if 'workflow_name' not in wfcommons_data:
             wfcommons_data['workflow_name'] = wfcommons_data.get('name', 'unknown')
         return simulation.create_workflow_from_json(
@@ -202,7 +241,13 @@ class WrenchExperimentRunner:
                     break
             
             makespan = simulation.get_simulated_time()
-            task_count = len(workflow_data['workflow']['tasks'])
+            wf_section = workflow_data.get('workflow', {})
+            if 'tasks' in wf_section and isinstance(wf_section.get('tasks'), list):
+                task_count_source = wf_section.get('tasks')
+            else:
+                spec_tasks = wf_section.get('specification', {}).get('tasks', [])
+                task_count_source = spec_tasks if isinstance(spec_tasks, list) else []
+            task_count = len(task_count_source)
             simulation.terminate()
             return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": makespan, "status": "success", "task_count": task_count}
         except Exception as e:
