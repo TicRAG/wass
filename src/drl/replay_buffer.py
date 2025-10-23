@@ -13,7 +13,7 @@ class ReplayBuffer:
         self.rewards = []
 
     def add(self, state: torch.Tensor, action: int, logprob: torch.Tensor, reward: float):
-        """添加一条经验"""
+        """添加一条经验。存储状态嵌入张量（保持梯度链路）。"""
         self.states.append(state)
         self.actions.append(torch.tensor(action))
         self.logprobs.append(logprob)

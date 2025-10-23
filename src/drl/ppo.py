@@ -47,9 +47,9 @@ class PPOTrainer:
             returns = torch.stack(returns_vals)
         else:
             returns = self._build_returns(rewards).detach()  # shape: [reward_len]
-        old_states = torch.cat(memory.states).detach()   # shape: [T, state_dim]
-        old_actions = torch.stack(memory.actions).detach()  # [T]
-        old_logprobs = torch.stack(memory.logprobs).detach()  # [T]
+        # States now are precomputed embeddings (Tensor)
+        old_actions = torch.stack(memory.actions)
+        old_logprobs = torch.stack(memory.logprobs).detach()
 
         T_returns = returns.shape[0]
         T_steps = old_actions.shape[0]
@@ -70,8 +70,10 @@ class PPOTrainer:
 
         target_values_full = returns.view(-1, 1)  # [T,1]
 
-        for _ in range(self.cfg.epochs):
-            logprobs, state_values, dist_entropy = self.policy.evaluate(old_states, old_actions)
+        embedded_states_full = torch.cat(memory.states).detach()  # detach to avoid multiple backward through same graph
+        for epoch_i in range(self.cfg.epochs):
+            embedded_states = embedded_states_full  # already detached
+            logprobs, state_values, dist_entropy = self.policy.evaluate(embedded_states, old_actions)
             # Ensure state_values shape matches
             if state_values.shape[0] != target_values_full.shape[0]:
                 min_len = min(state_values.shape[0], target_values_full.shape[0])

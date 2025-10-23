@@ -225,7 +225,7 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         self.task_name_to_idx = None
         self.STATUS_WAITING, self.STATUS_READY, self.STATUS_COMPLETED = 0.0, 1.0, 2.0
 
-    def _update_and_get_state(self, workflow: wrench.Workflow) -> torch.Tensor:
+    def _update_and_get_state(self, workflow: wrench.Workflow) -> Data:
         if self.task_name_to_idx is None:
             self.task_name_to_idx = {t.get_name(): i for i, t in enumerate(workflow.get_tasks().values())}
         ready_tasks = {t.get_name() for t in workflow.get_ready_tasks()}
@@ -234,20 +234,26 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
             if name in completed_tasks: self.pyg_data.x[idx, 3] = self.STATUS_COMPLETED
             elif name in ready_tasks: self.pyg_data.x[idx, 3] = self.STATUS_READY
             else: self.pyg_data.x[idx, 3] = self.STATUS_WAITING
-        return self.policy_gnn_encoder(self.pyg_data)
+        return self.pyg_data
 
     def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
-        state = self._update_and_get_state(workflow)
-        action_index, action_logprob = self.agent.act(state, deterministic=False)
+        graph_state = self._update_and_get_state(workflow)
+        # Clone and detach node features to avoid autograd versioning issues due to in-place status updates
+        graph_state_embed = graph_state.clone()
+        graph_state_embed.x = graph_state.x.clone().detach()
+        policy_emb = self.policy_gnn_encoder(graph_state_embed)
+        action_index, action_logprob = self.agent.act(policy_emb, deterministic=False)
         chosen_host_name = list(self.hosts.keys())[action_index]
         host_speed = self.host_speeds.get(chosen_host_name, 1.0)
         compute_time = task.get_flops() / host_speed if host_speed > 0 else float('inf')
         agent_eft = self.simulation.get_simulated_time() + compute_time
-        # Use frozen rag encoder embedding for teacher if provided; else reuse policy embedding
+        # Teacher reward: normalize graph status for RAG query (convert COMPLETED->WAITING)
         if self.teacher:
-            rag_state = self.rag_gnn_encoder(self.pyg_data) if self.rag_gnn_encoder else state
-            reward = self.teacher.generate_rag_reward(rag_state, agent_eft, task.get_name())
+            rag_graph = graph_state.clone()
+            rag_graph.x[:, 3][rag_graph.x[:, 3] == self.STATUS_COMPLETED] = self.STATUS_WAITING
+            reward = self.teacher.generate_rag_reward(rag_graph, agent_eft, task.get_name())
         else:
             reward = 0.0
-        self.replay_buffer.add(state, action_index, action_logprob, reward=reward)
+        # Store embedding tensor directly (Plan B) to avoid autograd issues with in-place graph mutation
+        self.replay_buffer.add(policy_emb, action_index, action_logprob, reward=reward)
         return chosen_host_name

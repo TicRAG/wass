@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from torch_geometric.data import Data
 from pathlib import Path
 from typing import Any, Dict, Optional
 import json
@@ -53,9 +54,11 @@ class KnowledgeBase:
         print("✅ [KB] Knowledge Base saved.")
 
 class KnowledgeableTeacher:
-    """知识引导教师，负责生成RAG奖励。现在假定调用方已提供图嵌入，避免重复GNN前向。"""
-    def __init__(self, state_dim: int, knowledge_base: KnowledgeBase, reward_config: Optional[Dict[str, Any]] = None):
+    """知识引导教师，负责生成RAG奖励。现在自行对传入的标准化图执行冻结的GNN编码。"""
+    def __init__(self, state_dim: int, knowledge_base: KnowledgeBase, gnn_encoder: nn.Module, reward_config: Optional[Dict[str, Any]] = None):
         self.kb = knowledge_base
+        self.gnn_encoder = gnn_encoder
+        self.gnn_encoder.eval()
         cfg = reward_config or {}
         self.top_k = int(cfg.get("top_k", 10))
         self.scheduler_filter = cfg.get("scheduler_filter", "HEFT")
@@ -63,13 +66,11 @@ class KnowledgeableTeacher:
         self.reward_normalizer = float(normalizer) if normalizer not in (None, 0) else 1.0
 
     # --- 这是最终的奖励函数 ---
-    def generate_rag_reward(self, state_embedding: torch.Tensor, agent_eft: float, task_name: str) -> float:
-        """
-        生成基于行为的、动态的RAG奖励。
-        奖励 = (历史最优EFT - 智能体当前EFT)
-        """
-        # 1. 检索相似案例
-        similar_cases = self.kb.search(state_embedding.detach().cpu().numpy(), k=self.top_k)
+    def generate_rag_reward(self, current_graph: Data, agent_eft: float, task_name: str) -> float:
+        """根据当前标准化图（已将 COMPLETED 状态还原为 WAITING/READY）生成 RAG 奖励。"""
+        with torch.no_grad():
+            emb = self.gnn_encoder(current_graph).detach().cpu().numpy().flatten()
+        similar_cases = self.kb.search(emb, k=self.top_k)
         
         if similar_cases.empty:
             return 0.0

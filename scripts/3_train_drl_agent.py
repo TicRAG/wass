@@ -133,7 +133,7 @@ def main():
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
     
     state_dim = GNN_OUT_CHANNELS
-    policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim)
+    policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim, gnn_encoder=gnn_encoder)
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
     ppo_updater = PPOTrainer(policy_agent, Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
     

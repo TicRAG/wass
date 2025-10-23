@@ -29,6 +29,7 @@ KB_DIMENSION = GNN_OUT_CHANNELS
 # 可通过环境变量 WASS_PLATFORM 覆盖 (small|medium|large|test)
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
+GNN_SEED_WEIGHTS_PATH = "models/saved_models/gnn_encoder_kb.pth"
 
 def main():
     print("🚀 [Phase 1] Starting Knowledge Base Seeding (with Decision Recording)...")
@@ -127,6 +128,10 @@ def main():
         
     knowledge_base.add(np.array(all_embeddings), all_metadata)
     knowledge_base.save()
+    # Save GNN encoder weights for RAG frozen encoder reuse
+    Path("models/saved_models").mkdir(parents=True, exist_ok=True)
+    torch.save(gnn_encoder.state_dict(), GNN_SEED_WEIGHTS_PATH)
+    print(f"💾 Saved seed GNN encoder weights to {GNN_SEED_WEIGHTS_PATH}")
     print(f"\n✅ Knowledge Base saved with {len(all_embeddings)} entries from {len(seeding_schedulers)} schedulers.")
     print("\n🎉 [Phase 1] Completed! 🎉")
 

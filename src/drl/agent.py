@@ -9,7 +9,7 @@ class ActorCritic(nn.Module):
     - Actor (策略网络): 输入状态，输出一个动作概率分布。
     - Critic (价值网络): 输入状态，输出该状态的评价值 (Value)。
     """
-    def __init__(self, state_dim: int, action_dim: int):
+    def __init__(self, state_dim: int, action_dim: int, gnn_encoder: nn.Module = None):
         """
         初始化Actor-Critic网络。
         Args:
@@ -17,6 +17,8 @@ class ActorCritic(nn.Module):
             action_dim (int): 动作空间的维度 (即可选的主机数量)。
         """
         super(ActorCritic, self).__init__()
+        # Optional GNN encoder reference (for re-embedding raw graphs during PPO update)
+        self.gnn_encoder = gnn_encoder
 
         # Actor网络
         self.actor = nn.Sequential(

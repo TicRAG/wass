@@ -71,6 +71,7 @@ AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, MODEL_FILENAME)
 
 RAG_REWARD_MULTIPLIER = float(REWARD_CFG.get("rag_multiplier", 10.0))
 FINAL_REWARD_NORMALIZER = float(REWARD_CFG.get("final_normalizer", 5000.0))
+GNN_SEED_WEIGHTS_PATH = "models/saved_models/gnn_encoder_kb.pth"
 
 
 def infer_action_dim(platform_path: str) -> int:
@@ -134,6 +135,7 @@ def parse_args():
     parser.add_argument('--freeze_gnn', action='store_true', help='Freeze GNN encoder parameters to avoid embedding drift relative to KB.')
     parser.add_argument('--kb_refresh_interval', type=int, default=0, help='If >0, periodically rebuild KB entries using current GNN every N episodes (costly).')
     parser.add_argument('--reward_mode', choices=['dense','final'], default='dense', help='dense: use per-task RAG rewards + discount; final: only final aggregated reward.')
+    parser.add_argument('--grad_check', action='store_true', help='Perform a one-off gradient flow check for policy GNN before PPO update.')
     return parser.parse_args()
 
 
@@ -164,6 +166,12 @@ def main():
     # Dual encoders: policy (trainable) vs rag (frozen, matches KB space)
     policy_gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
     rag_gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    if Path(GNN_SEED_WEIGHTS_PATH).exists():
+        try:
+            rag_gnn_encoder.load_state_dict(torch.load(GNN_SEED_WEIGHTS_PATH, map_location=torch.device('cpu')))
+            print(f"🔐 Loaded seed GNN weights into frozen RAG encoder from {GNN_SEED_WEIGHTS_PATH}")
+        except Exception as e:
+            print(f"⚠️ Failed to load seed GNN weights ({e}); continuing with random init.")
     for p in rag_gnn_encoder.parameters():
         p.requires_grad = False
     rag_gnn_encoder.eval()
@@ -174,7 +182,7 @@ def main():
     else:
         print("🔀 Using separate trainable policy GNN and frozen RAG GNN (pre-seeding weights).")
     state_dim = GNN_OUT_CHANNELS
-    policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim)
+    policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim, gnn_encoder=policy_gnn_encoder)
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
     from torch.optim import Adam as _Adam
     ppo_updater = PPOTrainer(policy_agent, _Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
@@ -182,7 +190,7 @@ def main():
     
     print("🧠 Initializing Knowledge Base and Teacher...")
     kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
-    teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb, reward_config=TEACHER_CFG)
+    teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb, gnn_encoder=rag_gnn_encoder, reward_config=TEACHER_CFG)
 
     # Load feature scaler for consistent preprocessing with seeding phase
     feature_scaler = None
@@ -284,7 +292,28 @@ def main():
             combined = total_rag * RAG_REWARD_MULTIPLIER + final_penalty
             replay_buffer.rewards = [torch.tensor(combined)]
         
+        # Gradient check for unfrozen GNN
+        if not args.freeze_gnn:
+            with torch.no_grad():
+                pre_norm = sum(p.norm().item() for p in policy_gnn_encoder.parameters() if p.requires_grad)
+        # Optional gradient check: verify policy GNN parameters receive non-zero grads on a dummy loss
+        if args.grad_check and not args.freeze_gnn:
+            # Buffer now stores embeddings directly; run a simple dummy loss on last embedding requiring gradient through policy MLP (not GNN) to validate flow
+            if replay_buffer.states:
+                emb_test = replay_buffer.states[-1]
+                # Ensure embedding retains grad
+                emb_test = emb_test.requires_grad_(True)
+                dummy_loss = emb_test.pow(2).mean()
+                policy_gnn_encoder.zero_grad()
+                dummy_loss.backward(retain_graph=True)
+                grad_norm = sum((p.grad.norm().item() if p.grad is not None else 0.0) for p in policy_gnn_encoder.parameters() if p.requires_grad)
+                print(f"    [GradCheck] Dummy loss={dummy_loss.item():.6f} policy_gnn_grad_norm={grad_norm:.6f}")
+                policy_gnn_encoder.zero_grad()
         ppo_updater.update(replay_buffer)
+        if not args.freeze_gnn:
+            with torch.no_grad():
+                post_norm = sum(p.norm().item() for p in policy_gnn_encoder.parameters() if p.requires_grad)
+            print(f"    [GradCheck] GNN param norm: pre={pre_norm:.4f} post={post_norm:.4f} delta={(post_norm - pre_norm):.4f}")
         replay_buffer.clear()
 
         # Optional periodic KB refresh (expensive: re-encode all workflows with current GNN)
