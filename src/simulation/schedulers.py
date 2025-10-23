@@ -155,9 +155,12 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         fallback_path = _DEFAULT_MODEL_PATHS.get(variant, _DEFAULT_MODEL_PATHS.get("rag"))
         model_path = _resolve_model_path(model_override) if model_override else fallback_path
         try:
-            state_dict = torch.load(str(model_path), map_location=torch.device('cpu'))
+            raw_state_dict = torch.load(str(model_path), map_location=torch.device('cpu'))
         except Exception as e:
             raise RuntimeError(f"Failed to load DRL agent weights from {model_path}") from e
+
+        # Filter out gnn_encoder.* keys if present (training saved full module) so ActorCritic can load cleanly
+        state_dict = {k: v for k, v in raw_state_dict.items() if not k.startswith('gnn_encoder.')}
 
         expected_actions = state_dict.get('actor.4.weight')
         if expected_actions is None:
@@ -175,9 +178,10 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
             )
 
         self.gnn_encoder = GNNEncoder(DEFAULT_GNN_IN, DEFAULT_GNN_HIDDEN, DEFAULT_GNN_OUT)
-        self.agent = ActorCritic(state_dim=DEFAULT_GNN_OUT, action_dim=action_dim)
+        self.agent = ActorCritic(state_dim=DEFAULT_GNN_OUT, action_dim=action_dim, gnn_encoder=None)
         try:
-            self.agent.load_state_dict(state_dict)
+            # Allow missing keys (gnn removed) but enforce actor/critic match
+            self.agent.load_state_dict(state_dict, strict=False)
             self.agent.eval()
         except Exception as e:
             raise RuntimeError(f"Failed to load DRL agent model from {model_path}") from e

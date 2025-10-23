@@ -131,6 +131,26 @@ python scripts/4_run_experiments.py
 3. 统一稀疏奖励折扣：`reward_mode='final'` 时 PPOTrainer 根据步数对单一终止奖励进行 gamma 回溯分配。
 4. 合成生成器弃用：`src/workflows/generator.py` 与 `manager.py` 保留仅作历史参考，标记 Deprecated。
 5. 手动工作流划分：用户负责将转换结果分类至训练与实验目录，保证实验公平性。
+ 6. Plan B 重放缓冲策略：为解决 GNN 图对象在调度循环中状态标记 (`READY`/`COMPLETED`) 原位更新导致的 Autograd 版本冲突（"modified by inplace operation" 与 "backward through graph a second time"），已改为在每次决策时仅计算一次状态嵌入并将该嵌入张量（而非可变 Data 图）写入 `ReplayBuffer`。PPO 更新阶段直接拼接这些已脱离图的嵌入，避免重复反向传播和梯度失效。
+ 7. 推理检查点过滤：训练阶段保存的权重包含 `gnn_encoder.*` 前缀参数。推理调度器 `WASS_DRL_Scheduler_Inference` 在加载时自动过滤这些键，仅保留 `actor.*` 与 `critic.*` 参数并使用 `strict=False` 载入，从而避免 "Unexpected key(s) in state_dict" 异常。若未来需要在推理阶段动态重嵌原始工作流图，可扩展为单独加载 GNNEncoder 权重。
+
+### Plan B 设计细节
+原始尝试：在 ReplayBuffer 中存储 PyG `Data` 对象并在 PPO 多 epoch 中重新前向嵌入，结果出现：
+* 任务状态列 `x[:,3]` 频繁原位写入导致计算图版本递增，引发 autograd 版本冲突。
+* 多 epoch 使用同一图的计算图节点，第二次 backward 触发 "Trying to backward through the graph a second time"。
+
+解决方案（Plan B）：
+* 每个调度决策只前向一次 GNN，得到 `policy_emb`（一维或批嵌入）。
+* 将该 embedding 直接存入 `ReplayBuffer.states`，不再存图对象。
+* PPOTrainer 在 `update()` 中 `torch.cat(memory.states).detach()`，确保多 epoch 更新在纯张量空间完成，避免跨图梯度残留。
+* Grad Check 修改为对最后一个 embedding 做简单二次损失验证梯度流，而非重新调用 GNN。
+
+优势：
+* 消除了原位写状态与计算图耦合导致的版本冲突。
+* 降低了多 epoch 训练的重复 GNN 前向开销。
+* 简化了推理阶段权重加载（只需 actor/critic）。
+
+折中：GNN 在一个 episode 内的多 epoch 更新阶段不再重新对同一中间状态图进行前向；如果需要对同一图做多次再嵌入（例如为了 epoch 内特征扰动或正则），需重新引入图缓存并改用不可变特征写入策略（如 clone+no_grad 更新或把状态编码为独立 feature tensor）。
 
 ## 后续改进建议
 * 引入优势估计 (GAE) 提升策略梯度稳定性。

@@ -26,6 +26,8 @@ rag_training:
     top_k: 10
     scheduler_filter: HEFT
     reward_normalizer: 1000.0
+    debug: true
+    fallback_use_all_if_empty: true
 
 # Settings specific to the DRL-only PPO training loop (no teacher).
 drl_training:

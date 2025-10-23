@@ -64,38 +64,57 @@ class KnowledgeableTeacher:
         self.scheduler_filter = cfg.get("scheduler_filter", "HEFT")
         normalizer = cfg.get("reward_normalizer", 1000.0)
         self.reward_normalizer = float(normalizer) if normalizer not in (None, 0) else 1.0
+        # Debug flags
+        self.debug = bool(cfg.get("debug", False))
+        # Fallback: if filtered cases empty, optionally use all similar cases
+        self.fallback_use_all_if_empty = bool(cfg.get("fallback_use_all_if_empty", True))
 
     # --- 这是最终的奖励函数 ---
     def generate_rag_reward(self, current_graph: Data, agent_eft: float, task_name: str) -> float:
-        """根据当前标准化图（已将 COMPLETED 状态还原为 WAITING/READY）生成 RAG 奖励。"""
+        """根据当前标准化图（已将 COMPLETED 状态还原为 WAITING/READY）生成 RAG 奖励。包含可选调试输出和回退逻辑。"""
         with torch.no_grad():
             emb = self.gnn_encoder(current_graph).detach().cpu().numpy().flatten()
         similar_cases = self.kb.search(emb, k=self.top_k)
-        
+
         if similar_cases.empty:
+            if self.debug:
+                print(f"[TeacherDebug] similar_cases empty (index_size={self.kb.index.ntotal}) task={task_name}")
             return 0.0
 
-        # 2. 筛选出由HEFT调度器产生的、“好的”历史案例
         heft_cases = similar_cases[similar_cases['scheduler_used'] == self.scheduler_filter]
+        used_cases = heft_cases
         if heft_cases.empty:
-            return 0.0
+            if self.fallback_use_all_if_empty:
+                used_cases = similar_cases
+                if self.debug:
+                    print(f"[TeacherDebug] No cases after filter '{self.scheduler_filter}'. Fallback to all similar. count={len(similar_cases)} task={task_name}")
+            else:
+                if self.debug:
+                    print(f"[TeacherDebug] heft_cases empty after filter '{self.scheduler_filter}' task={task_name}")
+                return 0.0
 
-        # 3. 从这些好的案例中，找到针对当前任务的历史决策
         historical_efts = []
-        for _, row in heft_cases.iterrows():
+        unmatched_samples = []
+        for _, row in used_cases.iterrows():
             try:
                 decisions = json.loads(row['decisions'])
                 if task_name in decisions:
-                    historical_efts.append(decisions[task_name]['finish_time'])
-            except (json.JSONDecodeError, KeyError):
+                    historical_efts.append(decisions[task_name].get('finish_time', decisions[task_name].get('eft', 0.0)))
+                else:
+                    if len(unmatched_samples) < 5:
+                        unmatched_samples.append(list(decisions.keys())[:5])
+            except (json.JSONDecodeError, KeyError, TypeError):
                 continue
-        
+
         if not historical_efts:
-            return 0.0  # 知识库中没有关于这个任务的HEFT决策记录
+            if self.debug:
+                sample_str = '; '.join([','.join(s) for s in unmatched_samples]) if unmatched_samples else 'N/A'
+                print(f"[TeacherDebug] No historical EFTs for task={task_name}. Sample decision key sets: {sample_str}")
+            return 0.0
 
-        # 4. 找到历史上的最优EFT
         best_historical_eft = np.min(historical_efts)
-
-        # 5. 计算奖励 (并进行缩放，使其数值稳定)
         reward = (best_historical_eft - agent_eft) / self.reward_normalizer
+
+        if self.debug:
+            print(f"[TeacherDebug] task={task_name} similar={len(similar_cases)} used={len(used_cases)} matches={len(historical_efts)} best_hist_eft={best_historical_eft:.3f} agent_eft={agent_eft:.3f} reward={reward:.6f}")
         return reward
