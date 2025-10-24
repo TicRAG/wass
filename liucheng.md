@@ -13,6 +13,12 @@
 
 	当前管线不再自动拆分，确保实验集合与训练集合互不重叠。
 
+	# 生成更多的
+	python scripts/augment_workflows.py \
+  --source_dir data/workflows/training \
+  --output_dir data/workflows/training_aug \
+  --variants_per_workflow 5
+
 	```
 2. 校验转换结果：
 	```bash
