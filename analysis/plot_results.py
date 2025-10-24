@@ -42,7 +42,8 @@ def create_scheduler_performance_comparison(results):
     std_makespans = []
     
     # Sort by expected performance
-    scheduler_order = ['FIFO', 'HEFT', 'WASS-Heuristic', 'WASS-DRL', 'WASS-RAG']
+    # Unified scheduler naming: replace legacy 'WASS-Heuristic'/'WASS-DRL' with 'WASS_DRL'
+    scheduler_order = ['FIFO', 'HEFT', 'WASS_DRL', 'WASS_RAG']
     
     for scheduler in scheduler_order:
         if scheduler in scheduler_stats:
@@ -83,7 +84,8 @@ def create_makespan_distribution(results):
     fig, ax = plt.subplots(figsize=(12, 8))
     
     # Sort by expected performance
-    scheduler_order = ['FIFO', 'HEFT', 'WASS-Heuristic', 'WASS-DRL', 'WASS-RAG']
+    # Unified scheduler naming
+    scheduler_order = ['FIFO', 'HEFT', 'WASS_DRL', 'WASS_RAG']
     data_to_plot = [scheduler_data[scheduler] for scheduler in scheduler_order if scheduler in scheduler_data]
     labels = [scheduler for scheduler in scheduler_order if scheduler in scheduler_data]
     
@@ -119,7 +121,8 @@ def create_cpu_utilization_chart(results):
     schedulers = []
     avg_utils = []
     
-    scheduler_order = ['FIFO', 'HEFT', 'WASS-Heuristic', 'WASS-DRL', 'WASS-RAG']
+    # Unified scheduler naming
+    scheduler_order = ['FIFO', 'HEFT', 'WASS_DRL', 'WASS_RAG']
     
     for scheduler in scheduler_order:
         if scheduler in scheduler_utilization:
@@ -203,7 +206,8 @@ def create_performance_improvement_chart(results):
         return
     
     fifo_avg = avg_makespans['FIFO']
-    scheduler_order = ['HEFT', 'WASS-Heuristic', 'WASS-DRL', 'WASS-RAG']
+    # Unified scheduler naming
+    scheduler_order = ['HEFT', 'WASS_DRL', 'WASS_RAG']
     
     improvements = []
     labels = []
