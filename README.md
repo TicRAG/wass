@@ -6,19 +6,31 @@
 
 -----
 
-# WASS-RAG: 基于检索增强的深度强化学习工作流调度系统（使用 WFCommons 基准）
+# WASS-RAG: 基于 WFCommons 的检索增强深度强化学习工作流调度
 
-WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成（RAG）技术优化科学工作流调度的研究项目。本项目的核心目标是开发一个智能调度代理（Agent），它能够学习并做出比传统调度算法（如 FIFO 和 HEFT）更优的决策，从而最小化工作流的总执行时间（Makespan）。
+WASS-RAG 通过深度强化学习 (DRL) + 检索增强 (RAG) 的组合提升科学工作流调度性能。当前版本以真实 WFCommons 工作流基准为唯一数据来源，旧的“动态合成工作流生成”功能已弃用 (Deprecated)，仅保留历史代码供参考，不再在任何训练或实验脚本中调用。
 
-整个项目基于 [WRENCH](https://wrench-project.org/) 模拟框架构建，允许在可控的虚拟环境中生成、执行和评估复杂的工作流。
+核心目标：训练一个智能调度 Agent，相比传统调度算法（FIFO、HEFT）减少整体完成时间 (Makespan)。
 
-## 核心特性
+运行基础：基于 [WRENCH](https://wrench-project.org/) 模拟框架，在可控虚拟平台上加载转换后的 WFCommons 工作流并进行调度对比。
 
-  * **WFCommons 基准驱动**: 使用真实的 WFCommons 科学工作流 (epigenomics, montage, seismology 等) 转换为统一格式，不再依赖内部的合成生成器（该模块已标记为 Deprecated）。
-  * **基于GNN的状态编码**: 使用图注意力网络（GATv2）将复杂的工作流依赖关系编码为向量表示，为强化学习智能体提供决策依据。
-  * **PPO驱动的强化学习代理**: 采用近端策略优化（PPO）算法训练一个Actor-Critic模型，使其能够根据当前工作流的状态选择最佳的计算节点进行任务分配。
-  * **RAG增强的决策奖励**: 创新性地引入了检索增强生成（RAG）机制。通过构建一个存储历史最优调度经验的“知识库”，智能体在训练时可以参考相似工作流的“专家决策”（如HEFT算法的决策），从而获得更精确和动态的奖励信号，加速学习过程并提升最终性能。
-  * **全面的实验与评估**: 提供了一整套从生成数据、构建知识库、训练模型到最终进行多调度器性能对比的自动化脚本，并能生成详细的性能分析报告和图表。
+## 当前核心特性 (Active)
+
+  * **WFCommons 驱动数据**：仅使用真实工作流 (epigenomics, montage, seismology 等)；所有任务属性通过统一转换脚本生成。
+  * **图神经编码 (GNN)**：采用 GATv2 编码任务依赖结构，生成调度状态嵌入。
+  * **PPO 策略优化**：Actor-Critic 结构，支持 dense / final 两种奖励模式。
+  * **RAG 奖励教师**：基于 FAISS 的知识库检索相似已调度工作流案例，生成差异/比例改进奖励（支持 median/ratio/bonus/clamp 等配置）。
+  * **双编码器稳定性**：冻结检索 GNN + 可训练策略 GNN，避免训练期间嵌入漂移破坏检索一致性。
+  * **实验脚本一键链路**：`run_pipeline.sh` 串联转换→校验→知识库播种→RAG 训练→DRL 训练→终测对比。
+
+## 已弃用功能 (Deprecated)
+
+以下模块不再在主流程中使用，仅保留以供参考：
+
+  * `src/workflows/generator.py`: 合成工作流生成器（pipeline/montage/ligo 等模式）。
+  * `src/workflows/manager.py`: 旧的生成调度入口；当前仅使用其 `get_platform_file()`。
+
+请勿使用上述模块进行知识库构建或训练；所有新实验必须基于 WFCommons 转换结果。后续版本将移除这些文件。 
 
 ## 项目是如何工作的？
 
@@ -68,6 +80,17 @@ WASS-RAG 是一个旨在使用深度强化学习（DRL）和检索增强生成�
     bash bash.sh
     ```
 
+    可选环境变量覆盖训练轮数（无需修改配置文件）：
+
+    ```bash
+    RAG_EPISODES=50 DRL_EPISODES=30 bash run_pipeline.sh
+    ```
+
+    说明：
+    - RAG_EPISODES：`scripts/2_train_rag_agent.py` 使用的最大 episode 数 (`--max_episodes`)
+    - DRL_EPISODES：`scripts/3_train_drl_agent.py` 使用的最大 episode 数
+    - 若未设置，脚本内部使用各自配置文件中的默认 `total_episodes`。
+
 4.  **查看结果**:
     实验完成后，所有详细的性能数据和总结报告将保存在 `results/final_experiments/` 目录下。
 
@@ -107,6 +130,9 @@ python scripts/validate_workflows.py --dir data/workflows
 
 # 3. 开始训练 (示例：RAG 版本)
 python scripts/2_train_rag_agent.py
+
+# 3.a 覆盖训练轮数 (RAG / DRL)
+RAG_EPISODES=20 DRL_EPISODES=10 bash run_pipeline.sh
 
 # 4. 运行最终实验
 python scripts/4_run_experiments.py

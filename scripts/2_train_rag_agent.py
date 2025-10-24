@@ -136,6 +136,7 @@ def parse_args():
     parser.add_argument('--kb_refresh_interval', type=int, default=0, help='If >0, periodically rebuild KB entries using current GNN every N episodes (costly).')
     parser.add_argument('--reward_mode', choices=['dense','final'], default='dense', help='dense: use per-task RAG rewards + discount; final: only final aggregated reward.')
     parser.add_argument('--grad_check', action='store_true', help='Perform a one-off gradient flow check for policy GNN before PPO update.')
+    parser.add_argument('--include_aug', action='store_true', help='Include augmented workflows from data/workflows/training_aug.')
     return parser.parse_args()
 
 
@@ -184,8 +185,7 @@ def main():
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim, gnn_encoder=policy_gnn_encoder)
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
-    from torch.optim import Adam as _Adam
-    ppo_updater = PPOTrainer(policy_agent, _Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
+    ppo_updater = PPOTrainer(policy_agent, Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
     replay_buffer = ReplayBuffer()
     
     print("🧠 Initializing Knowledge Base and Teacher...")
@@ -229,6 +229,18 @@ def main():
     if not training_workflows:
         print(f"❌ No training workflows found in {workflows_dir}. Ensure files are placed under data/workflows/training.")
         return
+
+    # Optionally include augmented workflows
+    if args.include_aug:
+        aug_dir = Path("data/workflows/training_aug")
+        aug_files = sorted(str(p) for p in aug_dir.glob("*.json"))
+        if aug_files:
+            # Deduplicate while preserving order
+            training_workflows = list(dict.fromkeys(training_workflows + aug_files))
+            # Avoid surrogate escape issues in some terminals; use ASCII indicator
+            print(f"[AUG] Included {len(aug_files)} augmented workflows. Total training workflow count: {len(training_workflows)}")
+        else:
+            print(f"\u26a0\ufe0f No augmented workflows found in {aug_dir}; continuing without them.")
     load_elapsed = time.time() - t_load_start
     print(f"✅ Loaded {len(training_workflows)} workflows (elapsed {load_elapsed:.2f}s).")
     if args.profile:
@@ -274,11 +286,20 @@ def main():
 
         rag_rewards_for_logging = [r.item() for r in replay_buffer.rewards]
         avg_rag_reward = np.mean(rag_rewards_for_logging) if rag_rewards_for_logging else 0.0
+        # Additional reward distribution diagnostics (Option A):
+        if rag_rewards_for_logging:
+            min_rag = float(np.min(rag_rewards_for_logging))
+            max_rag = float(np.max(rag_rewards_for_logging))
+            std_rag = float(np.std(rag_rewards_for_logging))
+            clamped_floor = TEACHER_CFG.get('min_clamped_reward', -0.05)
+            clamped_count = sum(1 for v in rag_rewards_for_logging if v <= clamped_floor + 1e-9)
+            clamped_pct = (clamped_count / len(rag_rewards_for_logging)) * 100.0
+        else:
+            min_rag = max_rag = std_rag = 0.0
+            clamped_count = clamped_pct = 0.0
 
         if args.reward_mode == 'dense':
-            # Scale intermediate RAG rewards
-            for i in range(len(replay_buffer.rewards)):
-                replay_buffer.rewards[i] = torch.tensor(replay_buffer.rewards[i].item() * RAG_REWARD_MULTIPLIER)
+            # Remove secondary scaling to avoid double shrink; Teacher already normalized.
             # Add final penalty to last reward
             normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
             final_penalty = - (makespan / normalizer)
@@ -289,7 +310,7 @@ def main():
             normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
             final_penalty = - (makespan / normalizer)
             total_rag = sum([r.item() for r in replay_buffer.rewards]) if replay_buffer.rewards else 0.0
-            combined = total_rag * RAG_REWARD_MULTIPLIER + final_penalty
+            combined = total_rag + final_penalty  # Remove extra multiplier
             replay_buffer.rewards = [torch.tensor(combined)]
         
         # Gradient check for unfrozen GNN
@@ -352,7 +373,11 @@ def main():
                 except Exception as e:
                     print(f"[KB Refresh] Failed: {e}")
 
-        print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, tasks={task_count_selected}, Makespan: {makespan:.2f}s, Avg RAG Reward: {avg_rag_reward:.4f}, sim_time={sim_elapsed:.2f}s")
+        print(
+            f"  Episode {episode}, Workflow: {Path(workflow_file).name}, tasks={task_count_selected}, Makespan: {makespan:.2f}s, "
+            f"AvgRAG={avg_rag_reward:.4f} min={min_rag:.4f} max={max_rag:.4f} std={std_rag:.4f} "
+            f"clamped={clamped_count} ({clamped_pct:.1f}%), sim_time={sim_elapsed:.2f}s"
+        )
 
         if SAVE_INTERVAL and episode % SAVE_INTERVAL == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)

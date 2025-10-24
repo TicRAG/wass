@@ -8,6 +8,7 @@ from torch_geometric.data import Data
 from pathlib import Path
 from typing import Any, Dict, Optional
 import json
+import re
 
 class KnowledgeBase:
     """封装FAISS向量索引和元数据的知识库。"""
@@ -68,6 +69,14 @@ class KnowledgeableTeacher:
         self.debug = bool(cfg.get("debug", False))
         # Fallback: if filtered cases empty, optionally use all similar cases
         self.fallback_use_all_if_empty = bool(cfg.get("fallback_use_all_if_empty", True))
+        # If true, use median instead of min for historical EFT aggregation (reduces harsh negative bias)
+        self.use_median = bool(cfg.get("use_median", False))
+        # Ratio-based reward configuration
+        self.use_ratio = bool(cfg.get("use_ratio", False))
+        self.ratio_scale = float(cfg.get("ratio_scale", 0.5))  # updated via config
+        self.beat_tolerance = float(cfg.get("beat_tolerance", 0.02))
+        self.beat_bonus = float(cfg.get("beat_bonus", 0.0))
+        self.min_clamped_reward = -0.05  # clamp floor for ratio mode to avoid extreme negatives
 
     # --- 这是最终的奖励函数 ---
     def generate_rag_reward(self, current_graph: Data, agent_eft: float, task_name: str) -> float:
@@ -95,6 +104,7 @@ class KnowledgeableTeacher:
 
         historical_efts = []
         unmatched_samples = []
+        # First pass: exact key match
         for _, row in used_cases.iterrows():
             try:
                 decisions = json.loads(row['decisions'])
@@ -106,15 +116,54 @@ class KnowledgeableTeacher:
             except (json.JSONDecodeError, KeyError, TypeError):
                 continue
 
+        # Fallback: strip augmentation suffix (e.g., _AUG3) and retry if still empty
+        if not historical_efts and re.search(r'_AUG\d+$', task_name):
+            base_name = re.sub(r'_AUG\d+$', '', task_name)
+            for _, row in used_cases.iterrows():
+                try:
+                    decisions = json.loads(row['decisions'])
+                    if base_name in decisions:
+                        historical_efts.append(decisions[base_name].get('finish_time', decisions[base_name].get('eft', 0.0)))
+                except (json.JSONDecodeError, KeyError, TypeError):
+                    continue
+            if self.debug and historical_efts:
+                print(f"[TeacherDebug] Fallback matched base task name '{base_name}' for augmented task '{task_name}'. matches={len(historical_efts)}")
+
         if not historical_efts:
             if self.debug:
                 sample_str = '; '.join([','.join(s) for s in unmatched_samples]) if unmatched_samples else 'N/A'
                 print(f"[TeacherDebug] No historical EFTs for task={task_name}. Sample decision key sets: {sample_str}")
             return 0.0
 
-        best_historical_eft = np.min(historical_efts)
-        reward = (best_historical_eft - agent_eft) / self.reward_normalizer
+        if self.use_median:
+            agg_historical_eft = float(np.median(historical_efts))
+            agg_mode = 'median'
+        else:
+            agg_historical_eft = float(np.min(historical_efts))
+            agg_mode = 'min'
 
-        if self.debug:
-            print(f"[TeacherDebug] task={task_name} similar={len(similar_cases)} used={len(used_cases)} matches={len(historical_efts)} best_hist_eft={best_historical_eft:.3f} agent_eft={agent_eft:.3f} reward={reward:.6f}")
-        return reward
+        if self.use_ratio:
+            # ratio improvement: positive if agent faster (agent_eft < agg_hist)
+            base = max(agg_historical_eft, 1e-9)
+            ratio_improvement = (agg_historical_eft - agent_eft) / base  # e.g., 0.1 means 10% faster
+            reward = ratio_improvement * self.ratio_scale
+            beat_threshold = agg_historical_eft * (1 + self.beat_tolerance)
+            beat_applied = False
+            if agent_eft <= beat_threshold and reward > 0 and self.beat_bonus > 0:
+                reward += self.beat_bonus
+                beat_applied = True
+            # Clamp extreme negatives to stabilize PPO advantage estimates
+            if reward < self.min_clamped_reward:
+                reward = self.min_clamped_reward
+            if self.debug:
+                print(
+                    f"[TeacherDebug] task={task_name} similar={len(similar_cases)} used={len(used_cases)} matches={len(historical_efts)} {agg_mode}_hist_eft={agg_historical_eft:.3f} agent_eft={agent_eft:.3f} ratio_impr={ratio_improvement:.4f} reward={reward:.6f} beat={beat_applied}"
+                )
+            return reward
+        else:
+            reward = (agg_historical_eft - agent_eft) / self.reward_normalizer
+            if self.debug:
+                print(
+                    f"[TeacherDebug] task={task_name} similar={len(similar_cases)} used={len(used_cases)} matches={len(historical_efts)} {agg_mode}_hist_eft={agg_historical_eft:.3f} agent_eft={agent_eft:.3f} reward={reward:.6f}"
+                )
+            return reward

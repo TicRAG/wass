@@ -162,20 +162,25 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         # Filter out gnn_encoder.* keys if present (training saved full module) so ActorCritic can load cleanly
         state_dict = {k: v for k, v in raw_state_dict.items() if not k.startswith('gnn_encoder.')}
 
-        expected_actions = state_dict.get('actor.4.weight')
-        if expected_actions is None:
-            raise RuntimeError(
-                f"Checkpoint at {model_path} is missing 'actor.4.weight'; cannot infer required action dimension."
-            )
+        # Dynamically infer actor output dimension by scanning keys for the final Linear layer weight.
+        # Pattern: actor.*.weight where corresponding module is nn.Linear(out_features, ...)
+        actor_weight_keys = [k for k in state_dict.keys() if k.startswith('actor.') and k.endswith('.weight')]
+        if not actor_weight_keys:
+            raise RuntimeError(f"Checkpoint at {model_path} contains no actor layer weights; cannot infer action dimension.")
+        # Heuristic: the last sorted key is usually the final Linear before Softmax in nn.Sequential.
+        actor_weight_keys.sort()
+        final_actor_weight_key = actor_weight_keys[-1]
+        expected_actions = state_dict[final_actor_weight_key]
+        expected_action_dim = expected_actions.shape[0]
 
         action_dim = len(self.hosts)
-        expected_action_dim = expected_actions.shape[0]
         if expected_action_dim != action_dim:
             raise RuntimeError(
                 "DRL agent action dimension mismatch: "
-                f"checkpoint expects {expected_action_dim} compute hosts but platform exposes {action_dim}. "
-                "Select a platform XML with the same host count used during training or retrain the agent."
+                f"checkpoint actor final layer out_features={expected_action_dim} but platform exposes hosts={action_dim}. "
+                "Match host count used during training or retrain the agent with the new platform."
             )
+        # (Optional future extension) Could allow smaller actor outputs and map only a subset of hosts.
 
         self.gnn_encoder = GNNEncoder(DEFAULT_GNN_IN, DEFAULT_GNN_HIDDEN, DEFAULT_GNN_OUT)
         self.agent = ActorCritic(state_dim=DEFAULT_GNN_OUT, action_dim=action_dim, gnn_encoder=None)

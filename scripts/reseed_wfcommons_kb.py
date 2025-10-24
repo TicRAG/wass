@@ -3,6 +3,7 @@ import sys
 import json
 import time
 from pathlib import Path
+import re
 import numpy as np
 import torch
 import joblib
@@ -149,6 +150,24 @@ def main():
                 "scheduler_used": sched_name,
                 "decisions": json.dumps(decisions)
             })
+            # Optional duplication: if task keys include augmentation suffix _AUG\d+ create a second metadata entry
+            # that maps stripped base names to the same decision records to help retrieval fallback reward.
+            aug_suffix_pattern = r'_AUG\d+$'
+            has_aug = any(re.search(aug_suffix_pattern, k) for k in decisions.keys())
+            if has_aug:
+                base_decisions = {}
+                for k, v in decisions.items():
+                    base_k = re.sub(aug_suffix_pattern, '', k)
+                    # If both augmented and base already exist, prefer original base record
+                    if base_k not in base_decisions:
+                        base_decisions[base_k] = v
+                all_embeddings.append(emb)  # reuse same embedding for base-key mapping
+                all_metadata.append({
+                    "workflow_file": wf_path.name + "::basekeys",
+                    "makespan": makespan,
+                    "scheduler_used": sched_name,
+                    "decisions": json.dumps(base_decisions)
+                })
     if not all_embeddings:
         print("❌ No embeddings collected; aborting KB save.")
         return

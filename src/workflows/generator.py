@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-DEPRECATED MODULE: Synthetic Workflow Generator
-------------------------------------------------
-This module previously generated synthetic workflows (pipeline, montage-like, etc.)
-for experimentation. The project has migrated to use converted WFCommons workflows
-exclusively (see scripts/0_convert_wfcommons.py and data/workflows/*).
+"""DEPRECATED MODULE: Synthetic Workflow Generator
+===================================================
+This legacy module generated synthetic workflows (pipeline, montage-like, etc.)
+before migration to WFCommons-derived real scientific workflows.
 
-Status:
-    - Retained only for historical reference and potential future benchmarking.
-    - Not invoked by the current training or experiment pipeline.
-    - Will be removed in a future cleanup once WFCommons coverage is fully sufficient.
+Current Pipeline:
+    - Uses ONLY converted WFCommons JSON files under data/workflows/*.
+    - This generator is NOT imported or invoked by run_pipeline.sh or any
+        training/experiment scripts.
 
-Guidance:
-    - Do NOT use this to seed the knowledge base or training runs.
-    - Place WFCommons converted JSON files under data/workflows/training and
-        data/workflows/experiment manually.
+Do NOT Use:
+    - Not for knowledge base seeding.
+    - Not for RAG or DRL training runs.
+    - Not for experiment comparisons.
 
-If you need a synthetic workflow for a custom stress test, consider isolating it
-in a separate script so as not to interfere with RAG/DLR training reproducibility.
+Allowed Temporary Use (if absolutely needed):
+    - Manual, isolated synthetic stress tests in a separate branch or script.
+    - Must NOT commit generated synthetic workflows into training/experiment dirs.
+
+Removal Plan:
+    - Will be deleted once WFCommons coverage proves sufficient across scales.
+    - Keep minimal until then; refrain from extending functionality here.
+
+Rationale:
+    - Prevent README/code mismatch and avoid confusing new contributors.
+    - Ensure reproducibility and comparability anchored in real workflow benchmarks.
 """
 
 import json

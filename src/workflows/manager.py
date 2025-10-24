@@ -14,10 +14,14 @@ if project_root not in sys.path:
 from src.workflows.generator import WorkflowGenerator  # Deprecated synthetic generator (see module docstring)
 
 class WorkflowManager:
-    """管理工作流的生成，适配原始的WorkflowGenerator。"""
-    # NOTE: WorkflowManager synthetic generation methods are legacy and not used
-    # in the current WFCommons-based pipeline. They remain for optional synthetic
-    # benchmarking and will be removed once deprecated fully.
+    """WorkflowManager (LEGACY Synthetic Generation Layer)
+
+    DEPRECATED: Only `get_platform_file()` is used in the WFCommons-based pipeline.
+    Synthetic generation methods remain for historical benchmarking and will be
+    removed once confirmed unnecessary.
+    """
+    # NOTE: Not used by run_pipeline.sh except for platform resolution.
+
     def __init__(self, config_path="configs/workflow_config.yaml"):
         self.config_path = config_path
         print(f"🔄 [WorkflowManager] Loading config from: {self.config_path}")
@@ -27,44 +31,29 @@ class WorkflowManager:
             self.config = yaml.safe_load(f)
         print("✅ [WorkflowManager] Config loaded successfully.")
 
-    # ------------------------------------------------------------------
-    # Platform XML resolution helper
-    # 优先级: 传入参数 key > 环境变量 WASS_PLATFORM > 配置 default
-    # 使用示例: platform_file = wm.get_platform_file()  # 使用默认
-    #          platform_file = wm.get_platform_file('medium')
-    #          WASS_PLATFORM=large python script.py  (自动使用 large)
-    # ------------------------------------------------------------------
     def get_platform_file(self, key: str = None) -> str:
+        """Resolve platform XML path using config/env override."""
         px_cfg = self.config.get('platform_xml')
         if not px_cfg:
-            raise KeyError("platform_xml section missing in workflow config; please add it to use configurable platform XML files.")
+            raise KeyError("platform_xml section missing in workflow config; please add it.")
         base_dir = px_cfg.get('base_dir', 'configs')
         mapping = px_cfg.get('mapping', {})
-        # env override
         env_key = os.environ.get('WASS_PLATFORM')
         chosen = key or env_key or px_cfg.get('default', 'small')
         if chosen not in mapping:
-            raise ValueError(f"Platform key '{chosen}' not found in mapping. Available: {list(mapping.keys())}")
+            raise ValueError(f"Platform key '{chosen}' not found. Available: {list(mapping.keys())}")
         platform_path = os.path.join(base_dir, mapping[chosen])
         if not os.path.exists(platform_path):
-            # 仅警告，不立刻失败（文件可能稍后由生成脚本创建）
-            print(f"⚠️  Platform XML '{platform_path}' does not exist yet. Make sure to generate it if required.")
+            print(f"⚠️  Platform XML '{platform_path}' does not exist yet.")
         return platform_path
 
+    # Deprecated synthetic generation (unused in WFCommons flow)
     def _generate_workflows(self, workflow_type, config):
-        """内部辅助函数，用于生成特定类型的工作流。"""
+        """(Deprecated) Generate synthetic workflows (not used)."""
         generated_files = []
         output_dir = "data/workflows"
         Path(output_dir).mkdir(parents=True, exist_ok=True)
-        
-        # --- 这是修正的部分: 使用原始的WorkflowGenerator ---
-        # 创建一个生成器实例
-        # 注意：原版生成器的构造函数可能需要 output_dir 和 ccr
         generator = WorkflowGenerator(output_dir=output_dir, ccr=1.0)
-        # --- 修正结束 ---
-
-        print(f"  -> Generating '{workflow_type}' workflows into '{output_dir}'...")
-        
         for name, params in config.items():
             sizes = params.get("sizes", [])
             count = params.get("count", 1)
@@ -72,8 +61,6 @@ class WorkflowManager:
             for size in sizes:
                 for i in range(count):
                     current_seed = seed + i
-                    
-                    # --- 这是修正的部分: 调用正确的 generate_single_workflow 方法 ---
                     filename = f"{name}_{size}_seed{current_seed}_{workflow_type}.json"
                     output_file = generator.generate_single_workflow(
                         pattern=name,
@@ -81,19 +68,18 @@ class WorkflowManager:
                         random_seed=current_seed,
                         filename=filename
                     )
-                    # --- 修正结束 ---
                     generated_files.append(output_file)
         return generated_files
 
     def generate_experiment_workflows(self):
-        """生成用于最终对比实验的工作流。"""
+        """(Deprecated) Synthetic experiment workflows (unused)."""
         if "experiment_workflows" not in self.config:
             return []
         print("\n🔬 [WorkflowManager] Generating EXPERIMENT workflows...")
         return self._generate_workflows("experiment", self.config["experiment_workflows"])
 
     def generate_training_workflows(self):
-        """生成用于知识库和训练的工作流。"""
+        """(Deprecated) Synthetic training workflows (unused)."""
         if "training_workflows" not in self.config:
             return []
         print("\n📚 [WorkflowManager] Generating TRAINING workflows...")

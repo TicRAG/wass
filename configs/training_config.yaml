@@ -20,13 +20,22 @@ rag_training:
     save_dir: models/saved_models
     filename: drl_agent.pth
   reward_scaling:
-    rag_multiplier: 10.0
+    # rag_multiplier set to 1.0 (no secondary scaling; Teacher already normalizes)
+    rag_multiplier: 1.0
+    # Lower final normalizer if needed later; keep for now
     final_normalizer: 5000.0
   teacher:
     top_k: 10
     scheduler_filter: HEFT
-    reward_normalizer: 1000.0
-    debug: true
+    # Further reduced to amplify RAG signal; will produce ~10x larger magnitudes
+    reward_normalizer: 20.0
+    use_median: true  # if true, use median historical EFT instead of min to soften always-negative rewards
+    use_ratio: true   # if true, compute proportional improvement reward instead of absolute difference
+    ratio_scale: 0.3        # scaling factor for ratio-based reward (reduced to temper large negatives)
+    beat_tolerance: 0.03    # within +3% of historical agg considered a beat for bonus (slightly easier)
+    beat_bonus: 0.008       # reduced bonus to avoid overpowering small improvements
+    min_clamped_reward: -0.05  # floor to prevent extremely negative values (stability)
+    debug: false
     fallback_use_all_if_empty: true
 
 # Settings specific to the DRL-only PPO training loop (no teacher).

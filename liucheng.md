@@ -52,6 +52,7 @@ CLEAN=1              # 清理旧的 results / models（保留已转换工作流�
 示例：只重新跑最终实验：
 ```bash
 SKIP_CONVERT=1 SKIP_TRAIN_RAG=1 SKIP_TRAIN_DRL=1 bash run_pipeline.sh
+RAG_EPISODES=60 DRL_EPISODES=30 bash run_pipeline.sh
 ```
 
 ## 结果产物

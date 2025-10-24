@@ -17,6 +17,8 @@ set -euo pipefail
 #   SKIP_TRAIN_DRL=1       Skip DRL-only training
 #   SKIP_EXPERIMENTS=1     Skip final experiments
 #   CLEAN=1                Clean previous results/models (keeps converted workflows)
+#   RAG_EPISODES=50        Override total episodes for RAG training script
+#   DRL_EPISODES=50        Override total episodes for DRL-only training script
 #
 ###############################################################################
 
@@ -93,7 +95,12 @@ python scripts/1_seed_knowledge_base.py
 ###############################################################################
 if [[ "${SKIP_TRAIN_RAG:-0}" != "1" ]]; then
 	echo "🎓 [Step 4] Training RAG-enabled agent..."
-	python scripts/2_train_rag_agent.py
+	if [[ -n "${RAG_EPISODES:-}" ]]; then
+		echo "   ➤ Using RAG_EPISODES=${RAG_EPISODES} (override)"
+		python scripts/2_train_rag_agent.py --max_episodes "${RAG_EPISODES}" || { echo "❌ RAG training failed"; exit 1; }
+	else
+		python scripts/2_train_rag_agent.py || { echo "❌ RAG training failed"; exit 1; }
+	fi
 else
 	echo "⏭  Skipping RAG training (SKIP_TRAIN_RAG=1)."
 fi
@@ -103,7 +110,12 @@ fi
 ###############################################################################
 if [[ "${SKIP_TRAIN_DRL:-0}" != "1" ]]; then
 	echo "🤖 [Step 5] Training DRL-only (no-RAG) agent..."
-	python scripts/3_train_drl_agent.py
+	if [[ -n "${DRL_EPISODES:-}" ]]; then
+		echo "   ➤ Using DRL_EPISODES=${DRL_EPISODES} (override)"
+		python scripts/3_train_drl_agent.py --max_episodes "${DRL_EPISODES}" || { echo "❌ DRL-only training failed"; exit 1; }
+	else
+		python scripts/3_train_drl_agent.py || { echo "❌ DRL-only training failed"; exit 1; }
+	fi
 else
 	echo "⏭  Skipping DRL-only training (SKIP_TRAIN_DRL=1)."
 fi
