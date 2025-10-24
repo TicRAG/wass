@@ -26,6 +26,7 @@ from src.drl.agent import ActorCritic
 from src.drl.ppo import PPOTrainer, PPOConfig
 from src.drl.replay_buffer import ReplayBuffer
 from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
+import joblib
 from src.simulation.experiment_runner import WrenchExperimentRunner
 from src.utils.config import load_training_config
 
@@ -96,6 +97,17 @@ def main():
     platform_file = workflow_manager.get_platform_file()
     action_dim = infer_action_dim(platform_file)
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    # Load feature scaler for consistency with KB seeding
+    feature_scaler = None
+    scaler_path = Path("models/saved_models/feature_scaler.joblib")
+    if scaler_path.exists():
+        try:
+            feature_scaler = joblib.load(scaler_path)
+            print(f"🔄 Loaded feature scaler from {scaler_path}")
+        except Exception as e:
+            print(f"⚠️ Failed to load feature scaler ({e}); proceeding without scaling.")
+    else:
+        print(f"⚠️ Feature scaler not found at {scaler_path}; proceeding without scaling.")
     
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim, gnn_encoder=gnn_encoder)
@@ -133,7 +145,7 @@ def main():
             policy_gnn_encoder=gnn_encoder,
             workflow_file=workflow_file,
             rag_gnn_encoder=None,
-            feature_scaler=None
+            feature_scaler=feature_scaler
         )
         
         makespan, _ = wrench_runner.run_single_seeding_simulation(

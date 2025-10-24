@@ -196,7 +196,23 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
             print(f"  Missing keys: {missing}")
             print(f"  Unexpected keys: {unexpected}")
             raise RuntimeError("Failed to load full DRL agent with GNN weights.") from e
-        self.pyg_data = workflow_json_to_pyg_data(self.workflow_file)
+        # Load feature scaler for consistent preprocessing (fallback to None)
+        scaler = None
+        import joblib
+        scaler_override = self.extra_args.get("feature_scaler")  # allow caller to inject
+        if scaler_override is not None:
+            scaler = scaler_override
+        else:
+            scaler_path = PROJECT_ROOT / "models/saved_models/feature_scaler.joblib"
+            if scaler_path.exists():
+                try:
+                    scaler = joblib.load(scaler_path)
+                    print(f"[Inference] Loaded feature scaler from {scaler_path}")
+                except Exception as e:
+                    print(f"[Inference][WARN] Failed to load scaler ({e}); proceeding without scaling.")
+            else:
+                print(f"[Inference] No feature scaler found at {scaler_path}; proceeding without scaling.")
+        self.pyg_data = workflow_json_to_pyg_data(self.workflow_file, scaler)
         self.task_name_to_idx = {t.get_name(): i for i, t in enumerate(workflow_obj.get_tasks().values())}
         self.STATUS_WAITING, self.STATUS_READY, self.STATUS_COMPLETED = 0.0, 1.0, 2.0
     

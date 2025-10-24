@@ -259,19 +259,20 @@ def main():
             min_rag = max_rag = std_rag = 0.0
             clamped_count = clamped_pct = 0.0
 
+        normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
+        final_penalty = - (makespan / normalizer)
         if args.reward_mode == 'dense':
-            # Remove secondary scaling to avoid double shrink; Teacher already normalized.
-            # Add final penalty to last reward
-            normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
-            final_penalty = - (makespan / normalizer)
-            if replay_buffer.rewards:
-                replay_buffer.rewards[-1] = torch.tensor(replay_buffer.rewards[-1].item() + final_penalty)
+            # Distribute final penalty evenly across all collected RAG rewards for fairness
+            steps = len(replay_buffer.rewards)
+            if steps == 0:
+                replay_buffer.rewards = [torch.tensor(final_penalty)]
+            else:
+                per_step_penalty = final_penalty / steps
+                replay_buffer.rewards = [torch.tensor(r.item() + per_step_penalty) for r in replay_buffer.rewards]
         else:
-            # final mode: ignore intermediates, collapse to single combined reward
-            normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
-            final_penalty = - (makespan / normalizer)
-            total_rag = sum([r.item() for r in replay_buffer.rewards]) if replay_buffer.rewards else 0.0
-            combined = total_rag + final_penalty  # Remove extra multiplier
+            # Final mode collapses RAG intermediates + final penalty to single scalar
+            total_rag = sum(r.item() for r in replay_buffer.rewards) if replay_buffer.rewards else 0.0
+            combined = total_rag + final_penalty
             replay_buffer.rewards = [torch.tensor(combined)]
         
         # Gradient norm diagnostics (now meaningful because graphs are re-embedded during PPO update)

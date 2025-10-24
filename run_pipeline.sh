@@ -88,18 +88,26 @@ fi
 # Step 3: Seed Knowledge Base
 ###############################################################################
 echo "🧠 [Step 3] Seeding Knowledge Base..."
-python scripts/1_seed_knowledge_base.py
+# Allow override to use enhanced reseed script (handles augmented workflows)
+if [[ "${USE_RESEED:-0}" == "1" ]]; then
+	echo "   ➤ Using reseed_wfcommons_kb.py (USE_RESEED=1)"
+	python scripts/reseed_wfcommons_kb.py || { echo "❌ KB reseeding failed"; exit 1; }
+else
+	python scripts/1_seed_knowledge_base.py || { echo "❌ KB seeding failed"; exit 1; }
+fi
 
 ###############################################################################
 # Step 4: Train RAG-enabled agent (optional skip)
 ###############################################################################
 if [[ "${SKIP_TRAIN_RAG:-0}" != "1" ]]; then
 	echo "🎓 [Step 4] Training RAG-enabled agent..."
+	RAG_ARGS="--reward_mode=${REWARD_MODE:-final}"
 	if [[ -n "${RAG_EPISODES:-}" ]]; then
-		echo "   ➤ Using RAG_EPISODES=${RAG_EPISODES} (override)"
-		python scripts/2_train_rag_agent.py --max_episodes "${RAG_EPISODES}" || { echo "❌ RAG training failed"; exit 1; }
+		echo "   ➤ Using RAG_EPISODES=${RAG_EPISODES} (override) reward_mode=${REWARD_MODE:-final}"
+		python scripts/2_train_rag_agent.py --max_episodes "${RAG_EPISODES}" ${RAG_ARGS} || { echo "❌ RAG training failed"; exit 1; }
 	else
-		python scripts/2_train_rag_agent.py || { echo "❌ RAG training failed"; exit 1; }
+		echo "   ➤ reward_mode=${REWARD_MODE:-final}"
+		python scripts/2_train_rag_agent.py ${RAG_ARGS} || { echo "❌ RAG training failed"; exit 1; }
 	fi
 else
 	echo "⏭  Skipping RAG training (SKIP_TRAIN_RAG=1)."
@@ -110,11 +118,13 @@ fi
 ###############################################################################
 if [[ "${SKIP_TRAIN_DRL:-0}" != "1" ]]; then
 	echo "🤖 [Step 5] Training DRL-only (no-RAG) agent..."
+	DRL_ARGS="--reward_mode=${REWARD_MODE:-final}"
 	if [[ -n "${DRL_EPISODES:-}" ]]; then
-		echo "   ➤ Using DRL_EPISODES=${DRL_EPISODES} (override)"
-		python scripts/3_train_drl_agent.py --max_episodes "${DRL_EPISODES}" || { echo "❌ DRL-only training failed"; exit 1; }
+		echo "   ➤ Using DRL_EPISODES=${DRL_EPISODES} (override) reward_mode=${REWARD_MODE:-final}"
+		python scripts/3_train_drl_agent.py --max_episodes "${DRL_EPISODES}" ${DRL_ARGS} || { echo "❌ DRL-only training failed"; exit 1; }
 	else
-		python scripts/3_train_drl_agent.py || { echo "❌ DRL-only training failed"; exit 1; }
+		echo "   ➤ reward_mode=${REWARD_MODE:-final}"
+		python scripts/3_train_drl_agent.py ${DRL_ARGS} || { echo "❌ DRL-only training failed"; exit 1; }
 	fi
 else
 	echo "⏭  Skipping DRL-only training (SKIP_TRAIN_DRL=1)."

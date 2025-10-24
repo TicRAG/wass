@@ -45,6 +45,15 @@ def main():
     # Load pre-converted training workflows instead of generating new ones
     training_dir = Path("data/workflows/training")
     seeding_workflows = sorted(str(p) for p in training_dir.glob("*.json"))
+    # Optionally include augmented workflows to align KB coverage with training (if directory exists)
+    aug_dir = Path("data/workflows/training_aug")
+    if aug_dir.exists():
+        aug_files = sorted(str(p) for p in aug_dir.glob("*.json"))
+        if aug_files:
+            print(f"➕ Including {len(aug_files)} augmented workflow variants from {aug_dir}.")
+            # Preserve order while avoiding duplicates
+            combined = list(dict.fromkeys(seeding_workflows + aug_files))
+            seeding_workflows = combined
     if not seeding_workflows:
         print(f"❌ No training workflows found in {training_dir}. Ensure conversion placed files there.")
         return
@@ -90,12 +99,13 @@ def main():
     
     all_embeddings, all_metadata = [], []
 
+    # Correctly nest workflow processing inside each scheduler loop
     for scheduler_name, scheduler_class in seeding_schedulers.items():
         print(f"\n--- Seeding with {scheduler_name} Scheduler ---")
-    for i, wf_file in enumerate(seeding_workflows):
+        for i, wf_file in enumerate(seeding_workflows):
             wf_path = Path(wf_file)
             print(f"  Processing workflow {i+1}/{len(seeding_workflows)}: {wf_path.name}")
-            
+
             makespan, decisions = wrench_runner.run_single_seeding_simulation(
                 scheduler_class=scheduler_class,
                 workflow_file=str(wf_path)
@@ -104,9 +114,9 @@ def main():
             if makespan < 0:
                 print(f"  ❌ Simulation failed for {wf_path.name}. Skipping.")
                 continue
-            
+
             print(f"  ⏹️ Simulation finished. Makespan: {makespan:.2f}s.")
-            
+
             try:
                 pyg_data = workflow_json_to_pyg_data(str(wf_path), feature_scaler)
                 graph_embedding = gnn_encoder(pyg_data)
@@ -119,7 +129,7 @@ def main():
                 "workflow_file": wf_path.name,
                 "makespan": makespan,
                 "scheduler_used": scheduler_name,
-                "decisions": json.dumps(decisions) # This will now contain rich data
+                "decisions": json.dumps(decisions)
             })
             
     if not all_embeddings:
