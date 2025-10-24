@@ -113,7 +113,7 @@ def process_file(path: Path, output_dir: Path) -> None:
             # Runtime fallback if execution info missing
             task.setdefault("runtime", 0.0)
         else:
-            task["flops"] = compute_flops(exec_info, machine_info, task_id, filename) * 100.0
+            task["flops"] = compute_flops(exec_info, machine_info, task_id, filename)
             # Populate runtime from execution info for consistency with model features
             task["runtime"] = float(exec_info.get("runtimeInSeconds", 0.0))
         task["memory"] = compute_memory(task, file_sizes)
