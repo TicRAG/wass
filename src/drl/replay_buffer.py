@@ -1,28 +1,35 @@
 # src/drl/replay_buffer.py
 import torch
+from typing import List, Union, Any
+try:
+    from torch_geometric.data import Data  # type: ignore
+except ImportError:
+    Data = Any  # fallback placeholder
 
 class ReplayBuffer:
-    """
-    一个简单的经验回放池，用于收集一个episode内的轨迹数据。
-    PPO的更新是on-policy的，所以每个episode结束后会清空buffer。
+    """Single-episode on-policy storage for PPO.
+
+    Refactored: store raw PyG ``Data`` graphs (or embedding tensors) instead of only detached embeddings
+    so we can re-encode with the current GNN to maintain gradient flow.
     """
     def __init__(self):
+        # Raw graph states (PyG Data) or embedding tensors preserved for re-encoding
         self.states = []
         self.actions = []
         self.logprobs = []
         self.rewards = []
 
-    def add(self, state: torch.Tensor, action: int, logprob: torch.Tensor, reward: float):
-        """添加一条经验。存储状态嵌入张量（保持梯度链路）。"""
+    def add(self, state, action, logprob, reward):
         self.states.append(state)
-        self.actions.append(torch.tensor(action))
-        self.logprobs.append(logprob)
-        self.rewards.append(torch.tensor(reward))
+        self.actions.append(torch.tensor(action, dtype=torch.long))
+        self.logprobs.append(logprob if isinstance(logprob, torch.Tensor) else torch.tensor(logprob, dtype=torch.float32))
+        self.rewards.append(reward if isinstance(reward, torch.Tensor) else torch.tensor(reward, dtype=torch.float32))
 
-    def get_all(self) -> tuple[list, list, list, list]:
-        """获取所有存储的经验"""
-        return self.states, self.actions, self.logprobs, self.rewards
+    def __len__(self):
+        return len(self.actions)
 
     def clear(self):
-        """清空缓存"""
-        self.__init__()
+        self.states.clear()
+        self.actions.clear()
+        self.logprobs.clear()
+        self.rewards.clear()

@@ -70,9 +70,35 @@ class PPOTrainer:
 
         target_values_full = returns.view(-1, 1)  # [T,1]
 
-        embedded_states_full = torch.cat(memory.states).detach()  # detach to avoid multiple backward through same graph
+        # Re-embed graphs if raw Data objects stored; preserve gradient flow through GNN encoder
+        reencoded_states = []
+        for s in memory.states:
+            if hasattr(self.policy, 'gnn_encoder') and self.policy.gnn_encoder is not None:
+                try:
+                    from torch_geometric.data import Data  # type: ignore
+                    if isinstance(s, Data):
+                        # Clone to avoid in-place status mutations interfering with autograd versioning
+                        cloned = s.clone()
+                        if hasattr(cloned, 'x'):
+                            cloned.x = cloned.x.clone()
+                        emb = self.policy.gnn_encoder(cloned)
+                        reencoded_states.append(emb)
+                        continue
+                except Exception:
+                    pass
+            # Fallback: assume s already an embedding tensor
+            reencoded_states.append(s if isinstance(s, torch.Tensor) else torch.tensor(s, dtype=torch.float32))
+        # We only want gradients flowing once through the GNN; multiple backward passes on the same
+        # graph cause 'backward through the graph a second time'. Strategy:
+        # 1. First epoch uses full graph with grad.
+        # 2. Subsequent epochs reuse detached embeddings (no second backward through GNN).
+        embedded_states_full = torch.cat(reencoded_states)
+        original_embedded_states = embedded_states_full
         for epoch_i in range(self.cfg.epochs):
-            embedded_states = embedded_states_full  # already detached
+            if epoch_i == 0:
+                embedded_states = original_embedded_states  # gradient flows through encoder
+            else:
+                embedded_states = original_embedded_states.detach()  # cut graph for later epochs
             logprobs, state_values, dist_entropy = self.policy.evaluate(embedded_states, old_actions)
             # Ensure state_values shape matches
             if state_values.shape[0] != target_values_full.shape[0]:

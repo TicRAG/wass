@@ -76,41 +76,6 @@ def infer_action_dim(platform_path: str) -> int:
         raise ValueError(f"No compute hosts found in platform XML: {platform_path}")
     return len(host_ids)
 
-class PPO:
-    """Handles the PPO update."""
-    def __init__(self, policy_net, lr, gamma, epochs, eps_clip):
-        self.policy = policy_net
-        self.optimizer = Adam(policy_net.parameters(), lr=lr)
-        self.gamma = gamma
-        self.epochs = epochs
-        self.eps_clip = eps_clip
-        self.mse_loss = nn.MSELoss()
-
-    def update(self, memory):
-        # Reward calculation is based only on the final makespan
-        final_reward = memory.rewards[0]
-        rewards = [final_reward] * len(memory.actions)
-
-        rewards = torch.tensor(rewards, dtype=torch.float32)
-        # Normalize rewards only if there's more than one to avoid division by zero
-        if len(rewards) > 1:
-            rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-7)
-
-        old_states = torch.cat(memory.states).detach()
-        old_actions = torch.stack(memory.actions).detach()
-        old_logprobs = torch.stack(memory.logprobs).detach()
-
-        for _ in range(self.epochs):
-            logprobs, state_values, dist_entropy = self.policy.evaluate(old_states, old_actions)
-            rewards_reshaped = rewards.view(-1, 1)
-            advantages = rewards_reshaped - state_values.detach()
-            ratios = torch.exp(logprobs - old_logprobs.detach())
-            surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
-            loss = -torch.min(surr1, surr2) + 0.5 * self.mse_loss(state_values, rewards_reshaped) - 0.01 * dist_entropy
-            self.optimizer.zero_grad()
-            loss.mean().backward()
-            self.optimizer.step()
 
 import argparse
 
@@ -137,7 +102,7 @@ def main():
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
     ppo_updater = PPOTrainer(policy_agent, Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
     
-    replay_buffer = ReplayBuffer()
+    replay_buffer = ReplayBuffer()  # stores raw graph states for PPO re-embedding
     
     config_params = {"platform_file": platform_file}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
@@ -163,10 +128,12 @@ def main():
             hosts=hosts,
             workflow_obj=workflow_obj,
             agent=policy_agent,
-            teacher=None, # Teacher is disabled
+            teacher=None,
             replay_buffer=replay_buffer,
-            gnn_encoder=gnn_encoder,
-            workflow_file=workflow_file
+            policy_gnn_encoder=gnn_encoder,
+            workflow_file=workflow_file,
+            rag_gnn_encoder=None,
+            feature_scaler=None
         )
         
         makespan, _ = wrench_runner.run_single_seeding_simulation(
@@ -181,17 +148,16 @@ def main():
 
         final_reward = -makespan / MAKESPAN_NORMALIZER
         if args.reward_mode == 'final':
-            # Provide only terminal reward; PPOTrainer will discount across steps.
             replay_buffer.rewards = [torch.tensor(final_reward)]
         else:
-            # Dense: approximate shaping by distributing reward equally; PPO will still discount.
             steps = len(replay_buffer.actions)
             if steps <= 1:
                 replay_buffer.rewards = [torch.tensor(final_reward)]
             else:
                 per_step = final_reward / steps
                 replay_buffer.rewards = [torch.tensor(per_step) for _ in range(steps)]
-        
+
+        # PPO update (now re-embeds graph states via policy_agent.gnn_encoder)
         ppo_updater.update(replay_buffer)
         replay_buffer.clear()
 

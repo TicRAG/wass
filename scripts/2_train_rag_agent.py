@@ -85,45 +85,6 @@ def infer_action_dim(platform_path: str) -> int:
         raise ValueError(f"No compute hosts found in platform XML: {platform_path}")
     return len(host_ids)
 
-class PPO:
-    """Handles the PPO update."""
-    def __init__(self, policy_net, lr, gamma, epochs, eps_clip):
-        self.policy = policy_net
-        self.optimizer = Adam(policy_net.parameters(), lr=lr)
-        self.gamma = gamma
-        self.epochs = epochs
-        self.eps_clip = eps_clip
-        self.mse_loss = nn.MSELoss()
-
-    def update(self, memory):
-        rewards = []
-        discounted_reward = 0
-        for reward in reversed(memory.rewards):
-            reward_tensor = reward if isinstance(reward, torch.Tensor) else torch.tensor(reward, dtype=torch.float32)
-            discounted_reward = reward_tensor + (self.gamma * discounted_reward)
-            rewards.insert(0, discounted_reward)
-            
-        if not rewards:
-            return
-            
-        rewards = torch.tensor(rewards, dtype=torch.float32)
-        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-7)
-
-        old_states = torch.cat(memory.states).detach()
-        old_actions = torch.stack(memory.actions).detach()
-        old_logprobs = torch.stack(memory.logprobs).detach()
-
-        for _ in range(self.epochs):
-            logprobs, state_values, dist_entropy = self.policy.evaluate(old_states, old_actions)
-            rewards_reshaped = rewards.view(-1, 1)
-            advantages = rewards_reshaped - state_values.detach()
-            ratios = torch.exp(logprobs - old_logprobs.detach())
-            surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
-            loss = -torch.min(surr1, surr2) + 0.5 * self.mse_loss(state_values, rewards_reshaped) - 0.01 * dist_entropy
-            self.optimizer.zero_grad()
-            loss.mean().backward()
-            self.optimizer.step()
 
 FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
 
@@ -186,7 +147,7 @@ def main():
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim, gnn_encoder=policy_gnn_encoder)
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
     ppo_updater = PPOTrainer(policy_agent, Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
-    replay_buffer = ReplayBuffer()
+    replay_buffer = ReplayBuffer()  # now stores raw PyG Data graphs (not detached embeddings)
     
     print("🧠 Initializing Knowledge Base and Teacher...")
     kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
@@ -313,23 +274,10 @@ def main():
             combined = total_rag + final_penalty  # Remove extra multiplier
             replay_buffer.rewards = [torch.tensor(combined)]
         
-        # Gradient check for unfrozen GNN
+        # Gradient norm diagnostics (now meaningful because graphs are re-embedded during PPO update)
         if not args.freeze_gnn:
             with torch.no_grad():
                 pre_norm = sum(p.norm().item() for p in policy_gnn_encoder.parameters() if p.requires_grad)
-        # Optional gradient check: verify policy GNN parameters receive non-zero grads on a dummy loss
-        if args.grad_check and not args.freeze_gnn:
-            # Buffer now stores embeddings directly; run a simple dummy loss on last embedding requiring gradient through policy MLP (not GNN) to validate flow
-            if replay_buffer.states:
-                emb_test = replay_buffer.states[-1]
-                # Ensure embedding retains grad
-                emb_test = emb_test.requires_grad_(True)
-                dummy_loss = emb_test.pow(2).mean()
-                policy_gnn_encoder.zero_grad()
-                dummy_loss.backward(retain_graph=True)
-                grad_norm = sum((p.grad.norm().item() if p.grad is not None else 0.0) for p in policy_gnn_encoder.parameters() if p.requires_grad)
-                print(f"    [GradCheck] Dummy loss={dummy_loss.item():.6f} policy_gnn_grad_norm={grad_norm:.6f}")
-                policy_gnn_encoder.zero_grad()
         ppo_updater.update(replay_buffer)
         if not args.freeze_gnn:
             with torch.no_grad():

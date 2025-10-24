@@ -247,10 +247,10 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
 
     def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
         graph_state = self._update_and_get_state(workflow)
-        # Clone and detach node features to avoid autograd versioning issues due to in-place status updates
-        graph_state_embed = graph_state.clone()
-        graph_state_embed.x = graph_state.x.clone().detach()
-        policy_emb = self.policy_gnn_encoder(graph_state_embed)
+        # Clone graph to produce embedding while keeping original for storage
+        graph_for_embed = graph_state.clone()
+        graph_for_embed.x = graph_state.x.clone()
+        policy_emb = self.policy_gnn_encoder(graph_for_embed)
         action_index, action_logprob = self.agent.act(policy_emb, deterministic=False)
         chosen_host_name = list(self.hosts.keys())[action_index]
         host_speed = self.host_speeds.get(chosen_host_name, 1.0)
@@ -263,6 +263,8 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
             reward = self.teacher.generate_rag_reward(rag_graph, agent_eft, task.get_name())
         else:
             reward = 0.0
-        # Store embedding tensor directly (Plan B) to avoid autograd issues with in-place graph mutation
-        self.replay_buffer.add(policy_emb, action_index, action_logprob, reward=reward)
+        # Store raw graph state (not embedding) to allow PPO re-encoding with current GNN weights
+        graph_snapshot = graph_state.clone()
+        graph_snapshot.x = graph_state.x.clone()
+        self.replay_buffer.add(graph_snapshot, action_index, action_logprob, reward=reward)
         return chosen_host_name
