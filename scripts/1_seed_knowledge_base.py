@@ -1,149 +1,188 @@
-# scripts/seed_knowledge_base.py
 import os
 import sys
 import json
+import time
+from pathlib import Path
+import re
 import numpy as np
 import torch
 import joblib
-from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Ensure project root in path
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 from src.workflows.manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
 from src.rag.teacher import KnowledgeBase
 from src.drl.utils import workflow_json_to_pyg_data
-# --- FINAL FIX: Import the new Recording Schedulers ---
-from src.simulation.schedulers import RecordingHEFTScheduler, RecordingRandomScheduler
 from src.simulation.experiment_runner import WrenchExperimentRunner
+from src.simulation.schedulers import RecordingHEFTScheduler, RecordingRandomScheduler
 
-# Configuration
-GNN_IN_CHANNELS = 4
-GNN_HIDDEN_CHANNELS = 64
-GNN_OUT_CHANNELS = 32
-KB_DIMENSION = GNN_OUT_CHANNELS
-# 平台文件现在从 workflow_config.yaml 的 platform_xml 区块解析
-# 可通过环境变量 WASS_PLATFORM 覆盖 (small|medium|large|test)
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
-GNN_SEED_WEIGHTS_PATH = "models/saved_models/gnn_encoder_kb.pth"
+SEED_GNN_WEIGHTS_PATH = "models/saved_models/gnn_encoder_kb.pth"
+KB_DIM = 32  # Will be validated against encoder out_channels
+TRAINING_WORKFLOWS_DIR = Path("data/workflows/training")
+AUGMENTED_WORKFLOWS_DIR = Path("data/workflows/training_aug")
 
-def main():
-    print("🚀 [Phase 1] Starting Knowledge Base Seeding (with Decision Recording)...")
-    
-    workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
-    platform_file = workflow_manager.get_platform_file()
-    gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
-    knowledge_base = KnowledgeBase(dimension=KB_DIMENSION)
-    config_params = {"platform_file": platform_file}
-    wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
-    print("✅ Components initialized.")
+# Reseed options
+SCHEDULERS_TO_RUN = ["HEFT", "Random"]  # Order matters for deterministic logging
+LIMIT_WORKFLOWS = None  # Set to an int for quick debug
+PRINT_PROGRESS_EVERY = 1
 
-    # Load pre-converted training workflows instead of generating new ones
-    training_dir = Path("data/workflows/training")
-    seeding_workflows = sorted(str(p) for p in training_dir.glob("*.json"))
-    # Optionally include augmented workflows to align KB coverage with training (if directory exists)
-    aug_dir = Path("data/workflows/training_aug")
-    if aug_dir.exists():
-        aug_files = sorted(str(p) for p in aug_dir.glob("*.json"))
-        if aug_files:
-            print(f"➕ Including {len(aug_files)} augmented workflow variants from {aug_dir}.")
-            # Preserve order while avoiding duplicates
-            combined = list(dict.fromkeys(seeding_workflows + aug_files))
-            seeding_workflows = combined
-    if not seeding_workflows:
-        print(f"❌ No training workflows found in {training_dir}. Ensure conversion placed files there.")
-        return
-    print(f"✅ Loaded {len(seeding_workflows)} training workflows from {training_dir}.")
 
-    print("\n[Step 3a/6] Extracting features to fit the scaler...")
-    all_node_features = []
-    for wf_file in seeding_workflows:
+def load_or_fit_feature_scaler(workflow_files):
+    if Path(FEATURE_SCALER_PATH).exists():
         try:
-            with open(wf_file, 'r') as f:
-                wf_data = json.load(f)
-            wf_section = wf_data.get('workflow', {})
-            if 'tasks' in wf_section:
-                tasks = wf_section.get('tasks', [])
-            else:
-                tasks = wf_section.get('specification', {}).get('tasks', [])
-            for task in tasks:
-                if not isinstance(task, dict):
+            scaler = joblib.load(FEATURE_SCALER_PATH)
+            print(f"✅ Loaded existing feature scaler: {FEATURE_SCALER_PATH}")
+            return scaler
+        except Exception as e:
+            print(f"⚠️ Failed to load scaler ({e}), will refit.")
+    print("🔧 Fitting feature scaler from WFCommons task features...")
+    all_features = []
+    for wf in workflow_files:
+        try:
+            with open(wf, 'r') as f:
+                data = json.load(f)
+            wf_section = data.get('workflow', {})
+            tasks = wf_section.get('tasks') or wf_section.get('specification', {}).get('tasks', [])
+            for t in tasks:
+                if not isinstance(t, dict):
                     continue
-                all_node_features.append([
-                    float(task.get('runtime', 0.0)),
-                    float(task.get('flops', 0.0)),
-                    float(task.get('memory', 0.0))
+                all_features.append([
+                    float(t.get('runtime', 0.0)),
+                    float(t.get('flops', 0.0)),
+                    float(t.get('memory', 0.0))
                 ])
         except Exception:
             continue
-
-    if not all_node_features:
-        print("❌ Could not extract any features. Aborting.")
-        return
-
-    feature_scaler = StandardScaler()
-    feature_scaler.fit(all_node_features)
-    joblib.dump(feature_scaler, FEATURE_SCALER_PATH)
+    if not all_features:
+        raise RuntimeError("No task features extracted; cannot fit scaler.")
+    scaler = StandardScaler()
+    scaler.fit(all_features)
+    Path(FEATURE_SCALER_PATH).parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(scaler, FEATURE_SCALER_PATH)
     print(f"✅ Feature scaler fitted and saved to {FEATURE_SCALER_PATH}")
+    return scaler
 
-    # --- FINAL FIX: Use the new Recording Schedulers ---
-    seeding_schedulers = {
+
+def main():
+    start_time = time.time()
+    print("🚀 Reseeding Knowledge Base with WFCommons workflows (real task names)...")
+
+    if not TRAINING_WORKFLOWS_DIR.exists():
+        print(f"❌ Training workflows directory missing: {TRAINING_WORKFLOWS_DIR}")
+        return
+    workflow_files = sorted(str(p) for p in TRAINING_WORKFLOWS_DIR.glob("*.json"))
+    # Include augmented variants if present
+    if AUGMENTED_WORKFLOWS_DIR.exists():
+        aug_files = sorted(str(p) for p in AUGMENTED_WORKFLOWS_DIR.glob("*.json"))
+        if aug_files:
+            print(f"➕ Including {len(aug_files)} augmented workflow variants from {AUGMENTED_WORKFLOWS_DIR}.")
+            workflow_files.extend(aug_files)
+    if not workflow_files:
+        print(f"❌ No workflow JSON files found in {TRAINING_WORKFLOWS_DIR}")
+        return
+    if LIMIT_WORKFLOWS:
+        workflow_files = workflow_files[:LIMIT_WORKFLOWS]
+    print(f"📁 Found {len(workflow_files)} training workflows.")
+
+    workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
+    platform_file = workflow_manager.get_platform_file()
+
+    # Build components
+    gnn_encoder = GNNEncoder(in_channels=4, hidden_channels=64, out_channels=KB_DIM)
+    if Path(SEED_GNN_WEIGHTS_PATH).exists():
+        try:
+            gnn_encoder.load_state_dict(torch.load(SEED_GNN_WEIGHTS_PATH, map_location=torch.device('cpu')))
+            print(f"🔐 Loaded seed GNN weights from {SEED_GNN_WEIGHTS_PATH}")
+        except Exception as e:
+            print(f"⚠️ Failed to load seed GNN weights: {e}")
+    gnn_encoder.eval()
+
+    kb = KnowledgeBase(dimension=KB_DIM)
+    # Reset KB (start fresh)
+    if kb.index.ntotal > 0 or not kb.metadata.empty:
+        print("🧹 Clearing existing KB index & metadata...")
+        kb.index = type(kb.index)(KB_DIM)  # new flat index
+        kb.metadata = kb.metadata.iloc[0:0]
+
+    scaler = load_or_fit_feature_scaler(workflow_files)
+
+    runner = WrenchExperimentRunner(schedulers={}, config={"platform_file": platform_file})
+    scheduler_map = {
         "HEFT": RecordingHEFTScheduler,
         "Random": RecordingRandomScheduler
     }
-    print(f"\n[Step 3b/6] Simulating workflows with schedulers: {list(seeding_schedulers.keys())}...")
-    
-    all_embeddings, all_metadata = [], []
 
-    # Correctly nest workflow processing inside each scheduler loop
-    for scheduler_name, scheduler_class in seeding_schedulers.items():
-        print(f"\n--- Seeding with {scheduler_name} Scheduler ---")
-        for i, wf_file in enumerate(seeding_workflows):
-            wf_path = Path(wf_file)
-            print(f"  Processing workflow {i+1}/{len(seeding_workflows)}: {wf_path.name}")
+    all_embeddings = []
+    all_metadata = []
 
-            makespan, decisions = wrench_runner.run_single_seeding_simulation(
-                scheduler_class=scheduler_class,
-                workflow_file=str(wf_path)
-            )
-
+    for sched_name in SCHEDULERS_TO_RUN:
+        sched_cls = scheduler_map.get(sched_name)
+        if not sched_cls:
+            print(f"⚠️ Unknown scheduler '{sched_name}', skipping.")
+            continue
+        print(f"\n=== Seeding with {sched_name} Scheduler ===")
+        for i, wf in enumerate(workflow_files, 1):
+            wf_path = Path(wf)
+            if i % PRINT_PROGRESS_EVERY == 0:
+                print(f"[{sched_name}] {i}/{len(workflow_files)} -> {wf_path.name}")
+            makespan, decisions = runner.run_single_seeding_simulation(scheduler_class=sched_cls, workflow_file=str(wf_path))
             if makespan < 0:
-                print(f"  ❌ Simulation failed for {wf_path.name}. Skipping.")
+                print(f"  ❌ Simulation failed for {wf_path.name}, skipping.")
                 continue
-
-            print(f"  ⏹️ Simulation finished. Makespan: {makespan:.2f}s.")
-
+            # Encode graph
             try:
-                pyg_data = workflow_json_to_pyg_data(str(wf_path), feature_scaler)
-                graph_embedding = gnn_encoder(pyg_data)
+                pyg_data = workflow_json_to_pyg_data(str(wf_path), scaler)
+                emb = gnn_encoder(pyg_data).detach().cpu().numpy().flatten()
             except Exception as e:
-                print(f"  ❌ Error encoding workflow {wf_path.name} to graph: {e}")
+                print(f"  ❌ Graph encode failed for {wf_path.name}: {e}")
                 continue
-
-            all_embeddings.append(graph_embedding.detach().numpy().flatten())
+            all_embeddings.append(emb)
             all_metadata.append({
                 "workflow_file": wf_path.name,
                 "makespan": makespan,
-                "scheduler_used": scheduler_name,
+                "scheduler_used": sched_name,
                 "decisions": json.dumps(decisions)
             })
-            
+            # Optional duplication: if task keys include augmentation suffix _AUG\d+ create a second metadata entry
+            # that maps stripped base names to the same decision records to help retrieval fallback reward.
+            aug_suffix_pattern = r'_AUG\d+$'
+            has_aug = any(re.search(aug_suffix_pattern, k) for k in decisions.keys())
+            if has_aug:
+                base_decisions = {}
+                for k, v in decisions.items():
+                    base_k = re.sub(aug_suffix_pattern, '', k)
+                    # If both augmented and base already exist, prefer original base record
+                    if base_k not in base_decisions:
+                        base_decisions[base_k] = v
+                all_embeddings.append(emb)  # reuse same embedding for base-key mapping
+                all_metadata.append({
+                    "workflow_file": wf_path.name + "::basekeys",
+                    "makespan": makespan,
+                    "scheduler_used": sched_name,
+                    "decisions": json.dumps(base_decisions)
+                })
     if not all_embeddings:
-        print("❌ No experience was collected. Cannot build knowledge base.")
+        print("❌ No embeddings collected; aborting KB save.")
         return
-        
-    knowledge_base.add(np.array(all_embeddings), all_metadata)
-    knowledge_base.save()
-    # Save GNN encoder weights for RAG frozen encoder reuse
-    Path("models/saved_models").mkdir(parents=True, exist_ok=True)
-    torch.save(gnn_encoder.state_dict(), GNN_SEED_WEIGHTS_PATH)
-    print(f"💾 Saved seed GNN encoder weights to {GNN_SEED_WEIGHTS_PATH}")
-    print(f"\n✅ Knowledge Base saved with {len(all_embeddings)} entries from {len(seeding_schedulers)} schedulers.")
-    print("\n🎉 [Phase 1] Completed! 🎉")
+
+    kb.add(np.array(all_embeddings, dtype=np.float32), all_metadata)
+    kb.save()
+
+    # Save GNN encoder (update seed for consistency)
+    Path(SEED_GNN_WEIGHTS_PATH).parent.mkdir(parents=True, exist_ok=True)
+    torch.save(gnn_encoder.state_dict(), SEED_GNN_WEIGHTS_PATH)
+    print(f"💾 Saved updated seed GNN weights to {SEED_GNN_WEIGHTS_PATH}")
+
+    elapsed = time.time() - start_time
+    print(f"\n✅ Reseeding complete: {len(all_embeddings)} entries across {len(SCHEDULERS_TO_RUN)} schedulers (elapsed {elapsed:.2f}s).")
+    print("Next: run a short training to verify non-zero RAG rewards.")
 
 if __name__ == "__main__":
     main()

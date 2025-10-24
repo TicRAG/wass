@@ -87,14 +87,8 @@ fi
 ###############################################################################
 # Step 3: Seed Knowledge Base
 ###############################################################################
-echo "🧠 [Step 3] Seeding Knowledge Base..."
-# Allow override to use enhanced reseed script (handles augmented workflows)
-if [[ "${USE_RESEED:-0}" == "1" ]]; then
-	echo "   ➤ Using reseed_wfcommons_kb.py (USE_RESEED=1)"
-	python scripts/reseed_wfcommons_kb.py || { echo "❌ KB reseeding failed"; exit 1; }
-else
-	python scripts/1_seed_knowledge_base.py || { echo "❌ KB seeding failed"; exit 1; }
-fi
+echo "🧠 [Step 3] Seeding Knowledge Base (improved)..."
+python scripts/1_seed_knowledge_base.py || { echo "❌ KB seeding failed"; exit 1; }
 
 ###############################################################################
 # Step 4: Train RAG-enabled agent (optional skip)
