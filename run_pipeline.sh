@@ -55,14 +55,11 @@ echo "📁 Directory structure ready."
 ###############################################################################
 if [[ "${SKIP_CONVERT:-0}" != "1" ]]; then
 	echo "🔄 [Step 1] Converting WFCommons workflows..."
-	python scripts/0_convert_wfcommons.py --input_dir configs/wfcommons --output_dir data/workflows
+	python scripts/0_convert_wfcommons.py --input_dir configs/wfcommons --output_dir data/workflows/experiment
+	python scripts/augment_workflows.py --source_dir data/workflows/experiment --output_dir data/workflows/training --variants_per_workflow 5
 else
 	echo "⏭  Skipping conversion step (SKIP_CONVERT=1)."
 fi
-
-echo "ℹ️  手动划分模式: 本脚本不再自动复制/拆分 workflows。"
-echo "   你需要自行将训练集放入 data/workflows/training/ ，实验集放入 data/workflows/experiment/。"
-echo "   转换输出仍写入 data/workflows/ 根目录 (不会被移动)。"
 
 ###############################################################################
 # Step 2: Validate converted workflows

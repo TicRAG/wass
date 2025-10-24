@@ -15,9 +15,10 @@
 
 	# 生成更多的
 	python scripts/augment_workflows.py \
-  --source_dir data/workflows/training \
+  --source_dir data/workflows/ \
   --output_dir data/workflows/training_aug \
   --variants_per_workflow 5
+
 
 	```
 2. 校验转换结果：
