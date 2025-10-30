@@ -457,7 +457,7 @@
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
-    <link id="network_link" bandwidth="10GBps" latency="1ms"/>
+    <link id="network_link" bandwidth="100MBps" latency="1ms"/>
     <route src="ControllerHost" dst="cpu_host_0">
       <link_ctn id="network_link"/>
     </route>
