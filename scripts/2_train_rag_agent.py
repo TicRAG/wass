@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import argparse
+import random
 
 # --- 路径修正 ---
 # 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
@@ -24,7 +25,7 @@ if project_root not in sys.path:
 # -----------------
 
 from src.workflows.manager import WorkflowManager
-from src.drl.gnn_encoder import GNNEncoder
+from src.drl.gnn_encoder import DecoupledGNNEncoder
 from src.drl.agent import ActorCritic
 from src.drl.ppo import PPOTrainer, PPOConfig
 from src.drl.replay_buffer import ReplayBuffer
@@ -32,6 +33,7 @@ from src.rag.teacher import KnowledgeBase, KnowledgeableTeacher
 from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
 from src.simulation.experiment_runner import WrenchExperimentRunner
 from src.utils.config import load_training_config
+from src.utils.training_logger import TrainingLogger
 
 
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
@@ -98,6 +100,10 @@ def parse_args():
     parser.add_argument('--reward_mode', choices=['dense','final'], default='dense', help='dense: use per-task RAG rewards + discount; final: only final aggregated reward.')
     parser.add_argument('--grad_check', action='store_true', help='Perform a one-off gradient flow check for policy GNN before PPO update.')
     parser.add_argument('--include_aug', action='store_true', help='Include augmented workflows from data/workflows/training_aug.')
+    parser.add_argument('--disable_rag', action='store_true', help='Disable RAG-based potential shaping and fall back to vanilla DRL rewards.')
+    parser.add_argument('--seed', type=int, default=None, help='Random seed used for workflow sampling and PPO updates.')
+    parser.add_argument('--log_dir', default="results/training_runs", help='Directory where per-episode metrics will be recorded.')
+    parser.add_argument('--run_label', default=None, help='Custom label for this training run (overrides strategy name in logs).')
     return parser.parse_args()
 
 
@@ -119,6 +125,11 @@ def main():
     args = parse_args()
     print("🚀 [Phase 3] Starting DRL Agent Training (with Re-balanced Rewards)...")
     
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
+
     Path(MODEL_SAVE_DIR).mkdir(parents=True, exist_ok=True)
     
     print("\n[Step 1/4] Initializing components...")
@@ -126,23 +137,30 @@ def main():
     platform_file = workflow_manager.get_platform_file()
     action_dim = infer_action_dim(platform_file)
     # Dual encoders: policy (trainable) vs rag (frozen, matches KB space)
-    policy_gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
-    rag_gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    dual_gnn_encoder = DecoupledGNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
+    policy_gnn_encoder = dual_gnn_encoder.policy_encoder
+    rag_gnn_encoder = dual_gnn_encoder.retrieval_encoder
     if Path(GNN_SEED_WEIGHTS_PATH).exists():
         try:
-            rag_gnn_encoder.load_state_dict(torch.load(GNN_SEED_WEIGHTS_PATH, map_location=torch.device('cpu')))
-            print(f"🔐 Loaded seed GNN weights into frozen RAG encoder from {GNN_SEED_WEIGHTS_PATH}")
+            state_dict = torch.load(GNN_SEED_WEIGHTS_PATH, map_location=torch.device('cpu'))
+            policy_gnn_encoder.load_state_dict(state_dict)
+            dual_gnn_encoder.sync_retrieval_encoder()
+            print(f"🔐 Loaded seed GNN weights into policy encoder and mirrored retrieval encoder from {GNN_SEED_WEIGHTS_PATH}")
         except Exception as e:
             print(f"⚠️ Failed to load seed GNN weights ({e}); continuing with random init.")
-    for p in rag_gnn_encoder.parameters():
-        p.requires_grad = False
-    rag_gnn_encoder.eval()
+    dual_gnn_encoder.freeze_retrieval_encoder()
     if args.freeze_gnn:
-        for p in policy_gnn_encoder.parameters():
-            p.requires_grad = False
-        print("🧊 Policy GNN encoder frozen; using identical frozen encoder for RAG queries.")
+        dual_gnn_encoder.freeze_policy_encoder()
+        print("🧊 Policy GNN encoder frozen; both encoders remain static for drift-free experiments.")
     else:
         print("🔀 Using separate trainable policy GNN and frozen RAG GNN (pre-seeding weights).")
+    total_policy_params = sum(param.numel() for param in policy_gnn_encoder.parameters())
+    trainable_policy_params = sum(param.numel() for param in policy_gnn_encoder.parameters() if param.requires_grad)
+    trainable_retrieval_params = sum(param.numel() for param in rag_gnn_encoder.parameters() if param.requires_grad)
+    print(
+        f"🧮 Encoder status -> policy trainable {trainable_policy_params}/{total_policy_params} params; "
+        f"retrieval trainable {trainable_retrieval_params}/{total_policy_params} params"
+    )
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim, gnn_encoder=policy_gnn_encoder)
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
@@ -150,8 +168,15 @@ def main():
     replay_buffer = ReplayBuffer()  # now stores raw PyG Data graphs (not detached embeddings)
     
     print("🧠 Initializing Knowledge Base and Teacher...")
-    kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
-    teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb, gnn_encoder=rag_gnn_encoder, reward_config=TEACHER_CFG)
+    if args.disable_rag:
+        kb = None
+        teacher = None
+        rag_gnn_for_scheduler = None
+        print("🚫 RAG potential shaping disabled via CLI; training will rely on vanilla rewards only.")
+    else:
+        kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
+        teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb, gnn_encoder=rag_gnn_encoder, reward_config=TEACHER_CFG)
+        rag_gnn_for_scheduler = rag_gnn_encoder
 
     # Load feature scaler for consistent preprocessing with seeding phase
     feature_scaler = None
@@ -210,8 +235,29 @@ def main():
 
     effective_total_episodes = args.max_episodes if args.max_episodes is not None else TOTAL_EPISODES
     print(f"\n[Step 3/4] Starting main training loop... total_episodes={effective_total_episodes}")
+    strategy_label = "WASS-DRL (Vanilla)" if args.disable_rag else "WASS-RAG (Full)"
+    training_logger: TrainingLogger | None = None
+    try:
+        training_logger = TrainingLogger(
+            strategy_label=strategy_label,
+            output_dir=args.log_dir,
+            seed=args.seed,
+            run_label=args.run_label,
+            metadata={
+                "reward_mode": args.reward_mode,
+                "disable_rag": args.disable_rag,
+                "include_aug": args.include_aug,
+                "max_tasks": args.max_tasks,
+                "freeze_gnn": args.freeze_gnn,
+            },
+        )
+    except Exception as exc:  # pragma: no cover
+        print(f"⚠️ Failed to initialize training logger: {exc}")
+        training_logger = None
+
     loop_start = time.time()
     for episode in range(1, effective_total_episodes + 1):
+        episode_start = time.time()
         workflow_file = np.random.choice(training_workflows)
         task_count_selected = count_tasks_in_workflow(workflow_file)
         if args.profile:
@@ -228,20 +274,37 @@ def main():
             teacher=teacher,
             replay_buffer=replay_buffer,
             policy_gnn_encoder=policy_gnn_encoder,
-            rag_gnn_encoder=rag_gnn_encoder,
+            rag_gnn_encoder=rag_gnn_for_scheduler,
             workflow_file=workflow_file,
             feature_scaler=feature_scaler
         )
         
         t_sim_start = time.time()
-        makespan, _ = wrench_runner.run_single_seeding_simulation(
+        makespan, sim_details = wrench_runner.run_single_seeding_simulation(
             scheduler_class=trainable_scheduler_factory,
             workflow_file=workflow_file
         )
         sim_elapsed = time.time() - t_sim_start
 
+        potential_summary = (sim_details or {}).get('potential_summary') if sim_details else None
+
+        episode_duration = time.time() - episode_start
+
         if makespan < 0 or not replay_buffer.rewards:
             print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Status: FAILED. Skipping update.")
+            if training_logger:
+                training_logger.log_episode(
+                    episode=episode,
+                    workflow=workflow_file,
+                    metrics={
+                        "status": "failed",
+                        "task_count": task_count_selected,
+                        "makespan": makespan,
+                        "episode_wallclock": episode_duration,
+                        "reward_mode": args.reward_mode,
+                        "rag_enabled": 0 if args.disable_rag else 1,
+                    },
+                )
             replay_buffer.clear()
             continue
 
@@ -274,6 +337,11 @@ def main():
             total_rag = sum(r.item() for r in replay_buffer.rewards) if replay_buffer.rewards else 0.0
             combined = total_rag + final_penalty
             replay_buffer.rewards = [torch.tensor(combined)]
+
+        if replay_buffer.rewards:
+            reported_reward = float(sum(r.item() for r in replay_buffer.rewards))
+        else:
+            reported_reward = float(final_penalty)
         
         # Gradient norm diagnostics (now meaningful because graphs are re-embedded during PPO update)
         if not args.freeze_gnn:
@@ -286,9 +354,34 @@ def main():
             print(f"    [GradCheck] GNN param norm: pre={pre_norm:.4f} post={post_norm:.4f} delta={(post_norm - pre_norm):.4f}")
         replay_buffer.clear()
 
+        if potential_summary:
+            phi_min = potential_summary.get('phi_min')
+            phi_max = potential_summary.get('phi_max')
+            delta_min = potential_summary.get('delta_min')
+            delta_max = potential_summary.get('delta_max')
+            samples = potential_summary.get('samples', [])
+            sample_preview = []
+            for sample in samples[:2]:
+                task_name = sample.get('task_name')
+                delta_val = sample.get('delta')
+                reward_val = sample.get('reward')
+                sample_preview.append(f"{task_name}:Δφ={delta_val:.4f},r={reward_val:.4f}")
+            sample_str = '; '.join(sample_preview) if sample_preview else 'n/a'
+            print(
+                "    [PBRS] φ_range=[{:.4f}, {:.4f}] Δφ_range=[{:.4f}, {:.4f}] samples={}".format(
+                    phi_min if phi_min is not None else float('nan'),
+                    phi_max if phi_max is not None else float('nan'),
+                    delta_min if delta_min is not None else float('nan'),
+                    delta_max if delta_max is not None else float('nan'),
+                    sample_str,
+                )
+            )
+
         # Optional periodic KB refresh (expensive: re-encode all workflows with current GNN)
         if args.kb_refresh_interval and episode % args.kb_refresh_interval == 0:
-            if args.freeze_gnn:
+            if kb is None:
+                print("[KB Refresh] Skipped because RAG is disabled for this run.")
+            elif args.freeze_gnn:
                 print("[KB Refresh] Skipped because GNN is frozen (no drift).")
             else:
                 try:
@@ -328,6 +421,28 @@ def main():
             f"clamped={clamped_count} ({clamped_pct:.1f}%), sim_time={sim_elapsed:.2f}s"
         )
 
+        if training_logger:
+            training_logger.log_episode(
+                episode=episode,
+                workflow=workflow_file,
+                metrics={
+                    "status": "success",
+                    "task_count": task_count_selected,
+                    "makespan": makespan,
+                    "episode_reward": reported_reward,
+                    "avg_rag_reward": avg_rag_reward,
+                    "min_rag_reward": min_rag,
+                    "max_rag_reward": max_rag,
+                    "std_rag_reward": std_rag,
+                    "clamped_pct": clamped_pct,
+                    "sim_time": sim_elapsed,
+                    "episode_wallclock": episode_duration,
+                    "reward_mode": args.reward_mode,
+                    "rag_enabled": 0 if args.disable_rag else 1,
+                    "replay_steps": len(rag_rewards_for_logging),
+                },
+            )
+
         if SAVE_INTERVAL and episode % SAVE_INTERVAL == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
             print(f"💾 Model saved at episode {episode}")
@@ -336,6 +451,9 @@ def main():
     print(f"\n[Step 4/4] Training finished. Total loop time: {total_loop_elapsed:.2f}s")
     print(f"✅ Final model saved to: {AGENT_MODEL_PATH}")
     print("\n🎉 [Phase 3] DRL Agent Training Completed! 🎉")
+
+    if training_logger:
+        training_logger.close()
 
 if __name__ == "__main__":
     main()

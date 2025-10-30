@@ -7,6 +7,7 @@ import torch
 from torch_geometric.data import Data
 import random
 import json
+import numpy as np
 
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.agent import ActorCritic
@@ -52,6 +53,89 @@ _DEFAULT_MODEL_PATHS = {
     "rag": _default_model_path("rag"),
     "drl": _default_model_path("drl"),
 }
+
+
+class KnowledgeRecordingMixin:
+    STATUS_WAITING = 0.0
+    STATUS_READY = 1.0
+    STATUS_COMPLETED = 2.0
+
+    def __init__(self, *args, **kwargs):
+        self.knowledge_encoder = kwargs.pop('knowledge_encoder', None)
+        self.feature_scaler = kwargs.pop('feature_scaler', None)
+        super().__init__(*args, **kwargs)
+        self._knowledge_records: list[dict[str, Any]] = []
+        self._knowledge_graph: Data | None = None
+        self._task_name_to_idx: dict[str, int] | None = None
+        self.workflow_file = getattr(self, 'extra_args', {}).get('workflow_file')
+        self._init_knowledge_graph()
+
+    def _init_knowledge_graph(self) -> None:
+        if not self.workflow_file or self.knowledge_encoder is None:
+            return
+        try:
+            self._knowledge_graph = workflow_json_to_pyg_data(self.workflow_file, self.feature_scaler)
+        except Exception as exc:
+            print(f"[KnowledgeRecorder] Failed to build graph for {self.workflow_file}: {exc}")
+            self._knowledge_graph = None
+
+    def _prepare_graph_state(self, workflow: wrench.Workflow) -> Data | None:
+        if self._knowledge_graph is None or self.knowledge_encoder is None:
+            return None
+        if self._task_name_to_idx is None:
+            self._task_name_to_idx = {t.get_name(): i for i, t in enumerate(workflow.get_tasks().values())}
+        ready_tasks = {t.get_name() for t in workflow.get_ready_tasks()}
+        completed_tasks = {t.get_name() for t in getattr(self, 'completed_tasks', set())}
+        for name, idx in self._task_name_to_idx.items():
+            if name in completed_tasks:
+                state_value = self.STATUS_COMPLETED
+            elif name in ready_tasks:
+                state_value = self.STATUS_READY
+            else:
+                state_value = self.STATUS_WAITING
+            self._knowledge_graph.x[idx, 3] = state_value
+        graph_snapshot = self._knowledge_graph.clone()
+        graph_snapshot.x = self._knowledge_graph.x.clone()
+        return graph_snapshot
+
+    def _record_knowledge_state(
+        self,
+        workflow: wrench.Workflow,
+        task: wrench.Task,
+        decision_time: float,
+        host_name: str,
+        finish_time: float,
+    ) -> None:
+        graph_snapshot = self._prepare_graph_state(workflow)
+        if graph_snapshot is None:
+            return
+        with torch.no_grad():
+            embedding = self.knowledge_encoder(graph_snapshot).detach().cpu().numpy().flatten().astype(np.float32)
+        self._knowledge_records.append({
+            'task_name': task.get_name(),
+            'decision_time': float(decision_time),
+            'host': host_name,
+            'finish_time': float(finish_time),
+            'embedding': embedding,
+        })
+
+    def get_knowledge_records(self, final_makespan: float | None = None) -> list[dict[str, Any]]:
+        records: list[dict[str, Any]] = []
+        for item in self._knowledge_records:
+            remaining = None
+            if final_makespan is not None:
+                remaining = max(final_makespan - item['decision_time'], 0.0)
+            record = {
+                'task_name': item['task_name'],
+                'decision_time': item['decision_time'],
+                'host': item['host'],
+                'finish_time': item['finish_time'],
+                'embedding': item['embedding'].tolist(),
+            }
+            if remaining is not None:
+                record['remaining_makespan'] = remaining
+            records.append(record)
+        return records
 
 class BaseScheduler:
     """A final, fully compatible BaseScheduler."""
@@ -109,23 +193,30 @@ class HEFTScheduler(BaseScheduler):
                 earliest_finish_time, best_host = finish_time, host_name
         return best_host
 
-class RecordingHEFTScheduler(HEFTScheduler):
+class RecordingHEFTScheduler(KnowledgeRecordingMixin, HEFTScheduler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.decisions = {}
 
     def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
+        decision_time = self.simulation.get_simulated_time()
         best_host = super().get_scheduling_decision(task, workflow)
         speed = self.host_speeds.get(best_host, 1.0)
         compute_time = task.get_flops() / speed if speed > 0 else float('inf')
-        finish_time = self.simulation.get_simulated_time() + compute_time
-        self.decisions[task.get_name()] = {'host': best_host, 'finish_time': finish_time}
+        finish_time = decision_time + compute_time
+        self.decisions[task.get_name()] = {
+            'host': best_host,
+            'finish_time': finish_time,
+            'decision_time': decision_time,
+        }
+        if self.knowledge_encoder is not None:
+            self._record_knowledge_state(workflow, task, decision_time, best_host, finish_time)
         return best_host
 
     def get_recorded_decisions(self):
         return self.decisions
 
-class RecordingRandomScheduler(BaseScheduler):
+class RecordingRandomScheduler(KnowledgeRecordingMixin, BaseScheduler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.host_list = list(self.hosts.keys())
@@ -133,12 +224,143 @@ class RecordingRandomScheduler(BaseScheduler):
         self.decisions = {}
 
     def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
+        decision_time = self.simulation.get_simulated_time()
         chosen_host = random.choice(self.host_list)
         speed = self.host_speeds.get(chosen_host, 1.0)
         compute_time = task.get_flops() / speed if speed > 0 else float('inf')
-        finish_time = self.simulation.get_simulated_time() + compute_time
-        self.decisions[task.get_name()] = {'host': chosen_host, 'finish_time': finish_time}
+        finish_time = decision_time + compute_time
+        self.decisions[task.get_name()] = {
+            'host': chosen_host,
+            'finish_time': finish_time,
+            'decision_time': decision_time,
+        }
+        if self.knowledge_encoder is not None:
+            self._record_knowledge_state(workflow, task, decision_time, chosen_host, finish_time)
         return chosen_host
+
+    def get_recorded_decisions(self):
+        return self.decisions
+
+
+class MinMinScheduler(BaseScheduler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
+        self.host_available_times = {name: 0.0 for name in self.hosts.keys()}
+
+    def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
+        ready_tasks = list(workflow.get_ready_tasks())
+        if not ready_tasks:
+            return
+
+        current_time = self.simulation.get_simulated_time()
+        temp_available = self.host_available_times.copy()
+        assignments = []
+
+        remaining_tasks = ready_tasks.copy()
+        while remaining_tasks:
+            best_assignment = None
+            for task in remaining_tasks:
+                task_flops = task.get_flops()
+                for host_name, speed in self.host_speeds.items():
+                    compute_time = task_flops / speed if speed > 0 else float('inf')
+                    start_time = max(temp_available[host_name], current_time)
+                    finish_time = start_time + compute_time
+                    if best_assignment is None or finish_time < best_assignment['finish_time']:
+                        best_assignment = {
+                            'task': task,
+                            'host': host_name,
+                            'compute_time': compute_time,
+                            'start_time': start_time,
+                            'finish_time': finish_time,
+                        }
+            if best_assignment is None:
+                break
+            assignments.append(best_assignment)
+            temp_available[best_assignment['host']] = best_assignment['finish_time']
+            remaining_tasks.remove(best_assignment['task'])
+
+        for assignment in assignments:
+            task = assignment['task']
+            host_name = assignment['host']
+            file_locations = {}
+            for f in task.get_input_files():
+                file_locations[f] = storage_service
+            for f in task.get_output_files():
+                file_locations[f] = storage_service
+            job = self.simulation.create_standard_job([task], file_locations)
+            if host_name in self.compute_services:
+                self.compute_services[host_name].submit_standard_job(job)
+            else:
+                list(self.compute_services.values())[0].submit_standard_job(job)
+            self.host_available_times[host_name] = assignment['finish_time']
+
+
+class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.decisions = {}
+
+    def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
+        ready_tasks = list(workflow.get_ready_tasks())
+        if not ready_tasks:
+            return
+
+        current_time = self.simulation.get_simulated_time()
+        temp_available = self.host_available_times.copy()
+        assignments = []
+        remaining_tasks = ready_tasks.copy()
+
+        while remaining_tasks:
+            best_assignment = None
+            for task in remaining_tasks:
+                task_flops = task.get_flops()
+                for host_name, speed in self.host_speeds.items():
+                    compute_time = task_flops / speed if speed > 0 else float('inf')
+                    start_time = max(temp_available[host_name], current_time)
+                    finish_time = start_time + compute_time
+                    if best_assignment is None or finish_time < best_assignment['finish_time']:
+                        best_assignment = {
+                            'task': task,
+                            'host': host_name,
+                            'compute_time': compute_time,
+                            'start_time': start_time,
+                            'finish_time': finish_time,
+                        }
+            if best_assignment is None:
+                break
+            assignments.append(best_assignment)
+            temp_available[best_assignment['host']] = best_assignment['finish_time']
+            remaining_tasks.remove(best_assignment['task'])
+
+        for assignment in assignments:
+            task = assignment['task']
+            host_name = assignment['host']
+            task_name = task.get_name()
+            file_locations = {}
+            for f in task.get_input_files():
+                file_locations[f] = storage_service
+            for f in task.get_output_files():
+                file_locations[f] = storage_service
+            job = self.simulation.create_standard_job([task], file_locations)
+            if host_name in self.compute_services:
+                self.compute_services[host_name].submit_standard_job(job)
+            else:
+                list(self.compute_services.values())[0].submit_standard_job(job)
+            self.host_available_times[host_name] = assignment['finish_time']
+            self.decisions[task_name] = {
+                'host': host_name,
+                'finish_time': assignment['finish_time'],
+                'decision_time': assignment['start_time'],
+            }
+            if self.knowledge_encoder is not None:
+                self._record_knowledge_state(
+                    workflow,
+                    task,
+                    assignment['start_time'],
+                    host_name,
+                    assignment['finish_time'],
+                )
 
     def get_recorded_decisions(self):
         return self.decisions
@@ -256,8 +478,17 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         self.pyg_data = workflow_json_to_pyg_data(self.workflow_file, self.feature_scaler)
         self.task_name_to_idx = None
         self.STATUS_WAITING, self.STATUS_READY, self.STATUS_COMPLETED = 0.0, 1.0, 2.0
+        self.pending_rewards = {}
+        self._latest_workflow = None
+        self._potential_min = float('inf')
+        self._potential_max = float('-inf')
+        self._delta_min = float('inf')
+        self._delta_max = float('-inf')
+        self._potential_samples = []
+        self._max_potential_samples = 10
 
     def _update_and_get_state(self, workflow: wrench.Workflow) -> Data:
+        self._latest_workflow = workflow
         if self.task_name_to_idx is None:
             self.task_name_to_idx = {t.get_name(): i for i, t in enumerate(workflow.get_tasks().values())}
         ready_tasks = {t.get_name() for t in workflow.get_ready_tasks()}
@@ -267,6 +498,12 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
             elif name in ready_tasks: self.pyg_data.x[idx, 3] = self.STATUS_READY
             else: self.pyg_data.x[idx, 3] = self.STATUS_WAITING
         return self.pyg_data
+
+    def _build_rag_graph(self, graph_state: Data) -> Data:
+        # Use the live graph snapshot directly so retrieval encoder observes task-progress markers.
+        rag_graph = graph_state.clone()
+        rag_graph.x = graph_state.x.clone()
+        return rag_graph
 
     def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
         graph_state = self._update_and_get_state(workflow)
@@ -279,15 +516,64 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         host_speed = self.host_speeds.get(chosen_host_name, 1.0)
         compute_time = task.get_flops() / host_speed if host_speed > 0 else float('inf')
         agent_eft = self.simulation.get_simulated_time() + compute_time
-        # Teacher reward: normalize graph status for RAG query (convert COMPLETED->WAITING)
-        if self.teacher:
-            rag_graph = graph_state.clone()
-            rag_graph.x[:, 3][rag_graph.x[:, 3] == self.STATUS_COMPLETED] = self.STATUS_WAITING
-            reward = self.teacher.generate_rag_reward(rag_graph, agent_eft, task.get_name())
-        else:
-            reward = 0.0
+        # Potential-based reward will be finalized on completion; capture current potential now
+        current_potential = 0.0
+        if self.teacher is not None:
+            rag_graph = self._build_rag_graph(graph_state)
+            current_potential = self.teacher.calculate_potential(rag_graph)
+            self._potential_min = min(self._potential_min, current_potential)
+            self._potential_max = max(self._potential_max, current_potential)
         # Store raw graph state (not embedding) to allow PPO re-encoding with current GNN weights
         graph_snapshot = graph_state.clone()
         graph_snapshot.x = graph_state.x.clone()
-        self.replay_buffer.add(graph_snapshot, action_index, action_logprob, reward=reward)
+        self.replay_buffer.add(graph_snapshot, action_index, action_logprob, reward=torch.tensor(0.0))
+        buffer_index = len(self.replay_buffer.rewards) - 1
+        self.pending_rewards[task.get_name()] = {
+            'buffer_index': buffer_index,
+            'potential_before': current_potential,
+        }
         return chosen_host_name
+
+    def handle_completion(self, task: wrench.Task):
+        super().handle_completion(task)
+        pending = self.pending_rewards.pop(task.get_name(), None)
+        if pending is None or self.teacher is None:
+            return
+        workflow = self._latest_workflow
+        if workflow is None:
+            return
+        graph_state = self._update_and_get_state(workflow)
+        rag_graph_next = self._build_rag_graph(graph_state)
+        next_potential = self.teacher.calculate_potential(rag_graph_next)
+        self._potential_min = min(self._potential_min, next_potential)
+        self._potential_max = max(self._potential_max, next_potential)
+        delta = next_potential - pending['potential_before']
+        self._delta_min = min(self._delta_min, delta)
+        self._delta_max = max(self._delta_max, delta)
+        reward = self.teacher.lambda_scale * (self.teacher.gamma * next_potential - pending['potential_before'])
+        buffer_index = pending['buffer_index']
+        if 0 <= buffer_index < len(self.replay_buffer.rewards):
+            self.replay_buffer.rewards[buffer_index] = torch.tensor(reward, dtype=torch.float32)
+        if len(self._potential_samples) < self._max_potential_samples:
+            self._potential_samples.append({
+                'task_name': task.get_name(),
+                'phi_before': float(pending['potential_before']),
+                'phi_after': float(next_potential),
+                'delta': float(delta),
+                'reward': float(reward),
+            })
+
+    def get_potential_summary(self) -> dict[str, float | list[dict[str, float | str]]]:
+        if self.teacher is None:
+            return {}
+        phi_min = None if self._potential_min == float('inf') else self._potential_min
+        phi_max = None if self._potential_max == float('-inf') else self._potential_max
+        delta_min = None if self._delta_min == float('inf') else self._delta_min
+        delta_max = None if self._delta_max == float('-inf') else self._delta_max
+        return {
+            'phi_min': phi_min,
+            'phi_max': phi_max,
+            'delta_min': delta_min,
+            'delta_max': delta_max,
+            'samples': self._potential_samples,
+        }

@@ -1,278 +1,204 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Paper Chart Generation Script
-Generate ACM-standard charts based on experimental results
-"""
+"""Visualization utilities for Phase P1 experiments."""
 
-import json
+from __future__ import annotations
+
 import os
+from pathlib import Path
+from typing import Iterable
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from collections import defaultdict
-import seaborn as sns
 
-# Set font support for English
-plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans']
-plt.rcParams['axes.unicode_minus'] = False
 
-def load_experiment_results():
-    """Load experimental results data"""
-    results_file = "results/final_experiments/detailed_results.csv"
-    if not os.path.exists(results_file):
-        raise FileNotFoundError(f"Experimental results file does not exist: {results_file}")
-    
-    df = pd.read_csv(results_file)
-    return df.to_dict('records')
+RESULTS_DIR = Path("results/final_experiments")
+DETAILED_CSV = RESULTS_DIR / "detailed_results.csv"
+SUMMARY_CSV = RESULTS_DIR / "summary_results.csv"
+ABLATION_CSV = RESULTS_DIR / "ablation_summary.csv"
+CHART_DIR = Path("charts")
+TRAINING_LOG_DIR = Path("results/training_runs")
 
-def create_scheduler_performance_comparison(results):
-    """Create scheduler performance comparison chart"""
-    # Group makespan statistics by scheduler
-    scheduler_stats = defaultdict(list)
-    
-    for result in results:
-        scheduler = result['scheduler_name']
-        makespan = result['makespan']
-        scheduler_stats[scheduler].append(makespan)
-    
-    # Calculate mean and standard deviation
-    schedulers = []
-    avg_makespans = []
-    std_makespans = []
-    
-    # Sort by expected performance
-    # Unified scheduler naming: replace legacy 'WASS-Heuristic'/'WASS-DRL' with 'WASS_DRL'
-    scheduler_order = ['FIFO', 'HEFT', 'WASS_DRL', 'WASS_RAG']
-    
-    for scheduler in scheduler_order:
-        if scheduler in scheduler_stats:
-            schedulers.append(scheduler)
-            avg_makespans.append(np.mean(scheduler_stats[scheduler]))
-            std_makespans.append(np.std(scheduler_stats[scheduler]))
-    
-    # Create chart
-    fig, ax = plt.subplots(figsize=(10, 6))
-    bars = ax.bar(schedulers, avg_makespans, yerr=std_makespans, capsize=5, 
-                  color=['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#ff99cc'])
-    
-    ax.set_xlabel('Scheduler')
-    ax.set_ylabel('Average Makespan (seconds)')
-    ax.set_title('Scheduler Performance Comparison')
-    ax.grid(axis='y', alpha=0.3)
-    
-    # Add value labels on bars
-    for i, (avg, std) in enumerate(zip(avg_makespans, std_makespans)):
-        ax.text(i, avg + std + 0.1, f'{avg:.2f}', ha='center', va='bottom')
-    
-    plt.xticks(rotation=45)
+
+SCHEDULER_ORDER: list[str] = [
+    "WASS-RAG (Full)",
+    "WASS-RAG (HEFT-only)",
+    "WASS-DRL (Vanilla)",
+    "HEFT",
+    "MIN-MIN",
+]
+
+
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def _ensure_inputs() -> pd.DataFrame:
+    if not DETAILED_CSV.exists():
+        raise FileNotFoundError(f"Missing experimental results: {DETAILED_CSV}")
+    df = pd.read_csv(DETAILED_CSV)
+    expected_cols = {"scheduler", "workflow", "makespan", "status", "task_count", "seed"}
+    missing = expected_cols - set(df.columns)
+    if missing:
+        raise ValueError(f"detailed_results.csv missing columns: {sorted(missing)}")
+    df = df[df["status"] == "success"].copy()
+    return df
+
+
+def _order_schedulers(labels: Iterable[str]) -> list[str]:
+    present = [name for name in SCHEDULER_ORDER if name in labels]
+    absent = sorted(set(labels) - set(SCHEDULER_ORDER))
+    return present + absent
+
+
+def plot_overall_bar(df: pd.DataFrame) -> None:
+    grouped = df.groupby("scheduler")["makespan"].agg(["mean", "std", "count"])
+    grouped = grouped.reindex(_order_schedulers(grouped.index))
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.bar(grouped.index, grouped["mean"], yerr=grouped["std"], capsize=6, color="#6096ba")
+    ax.set_ylabel("Average Makespan")
+    ax.set_title("Overall Makespan Across Strategies")
+    ax.grid(axis="y", alpha=0.3)
+    for idx, (mean_val, std_val) in enumerate(zip(grouped["mean"], grouped["std"].fillna(0.0))):
+        ax.text(idx, mean_val + (std_val or 0) + 0.05, f"{mean_val:.3f}", ha="center", va="bottom")
+    plt.xticks(rotation=20, ha="right")
     plt.tight_layout()
-    plt.savefig('charts/scheduler_performance_comparison.png', dpi=300, bbox_inches='tight')
-    plt.close()
+    fig.savefig(CHART_DIR / "overall_makespan_bar.png", dpi=300)
+    plt.close(fig)
 
-def create_makespan_distribution(results):
-    """Create makespan distribution chart"""
-    # Group by scheduler
-    scheduler_data = defaultdict(list)
-    
-    for result in results:
-        scheduler = result['scheduler_name']
-        makespan = result['makespan']
-        scheduler_data[scheduler].append(makespan)
-    
-    # Create chart
-    fig, ax = plt.subplots(figsize=(12, 8))
-    
-    # Sort by expected performance
-    # Unified scheduler naming
-    scheduler_order = ['FIFO', 'HEFT', 'WASS_DRL', 'WASS_RAG']
-    data_to_plot = [scheduler_data[scheduler] for scheduler in scheduler_order if scheduler in scheduler_data]
-    labels = [scheduler for scheduler in scheduler_order if scheduler in scheduler_data]
-    
-    box_plot = ax.boxplot(data_to_plot, labels=labels, patch_artist=True)
-    
-    # Set colors
-    colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#ff99cc']
-    for patch, color in zip(box_plot['boxes'], colors):
-        patch.set_facecolor(color)
-    
-    ax.set_xlabel('Scheduler')
-    ax.set_ylabel('Makespan (seconds)')
-    ax.set_title('Makespan Distribution by Scheduler')
-    ax.grid(axis='y', alpha=0.3)
-    
-    plt.xticks(rotation=45)
+
+def plot_per_workflow(df: pd.DataFrame) -> None:
+    workflows = sorted(df["workflow"].unique())
+    fig, axes = plt.subplots(1, len(workflows), figsize=(5 * len(workflows), 5), sharey=True)
+    if len(workflows) == 1:
+        axes = [axes]
+    for ax, workflow in zip(axes, workflows):
+        subset = df[df["workflow"] == workflow]
+        stats = subset.groupby("scheduler")["makespan"].agg(["mean", "std"])
+        stats = stats.reindex(_order_schedulers(stats.index))
+        ax.bar(stats.index, stats["mean"], yerr=stats["std"], capsize=5, color="#c6def1")
+        ax.set_title(Path(workflow).stem)
+        ax.grid(axis="y", alpha=0.3)
+        ax.tick_params(axis="x", rotation=35, labelsize=9)
+    axes[0].set_ylabel("Average Makespan")
     plt.tight_layout()
-    plt.savefig('charts/makespan_distribution.png', dpi=300, bbox_inches='tight')
-    plt.close()
+    fig.savefig(CHART_DIR / "makespan_by_workflow.png", dpi=300)
+    plt.close(fig)
 
-def create_cpu_utilization_chart(results):
-    """Create CPU utilization chart"""
-    # Calculate average CPU utilization for each scheduler
-    scheduler_utilization = defaultdict(list)
-    
-    for result in results:
-        scheduler = result['scheduler_name']
-        # Calculate average CPU utilization across all nodes
-        avg_util = np.mean(list(result['cpu_utilization'].values()))
-        scheduler_utilization[scheduler].append(avg_util)
-    
-    # Calculate averages
-    schedulers = []
-    avg_utils = []
-    
-    # Unified scheduler naming
-    scheduler_order = ['FIFO', 'HEFT', 'WASS_DRL', 'WASS_RAG']
-    
-    for scheduler in scheduler_order:
-        if scheduler in scheduler_utilization:
-            schedulers.append(scheduler)
-            avg_utils.append(np.mean(scheduler_utilization[scheduler]) * 100)  # Convert to percentage
-    
-    # Create chart
-    fig, ax = plt.subplots(figsize=(10, 6))
-    bars = ax.bar(schedulers, avg_utils, color=['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#ff99cc'])
-    
-    ax.set_xlabel('Scheduler')
-    ax.set_ylabel('Average CPU Utilization (%)')
-    ax.set_title('CPU Utilization Comparison by Scheduler')
-    ax.grid(axis='y', alpha=0.3)
-    
-    # Add value labels on bars
-    for i, avg in enumerate(avg_utils):
-        ax.text(i, avg + 1, f'{avg:.1f}%', ha='center', va='bottom')
-    
-    plt.xticks(rotation=45)
+
+def plot_distribution_box(df: pd.DataFrame) -> None:
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ordered = _order_schedulers(df["scheduler"].unique())
+    data = [df.loc[df["scheduler"] == label, "makespan"].values for label in ordered]
+    ax.boxplot(data, labels=ordered, patch_artist=True, boxprops=dict(facecolor="#9ad1d4"))
+    ax.set_ylabel("Makespan")
+    ax.set_title("Makespan Distribution per Strategy")
+    ax.grid(axis="y", alpha=0.3)
+    plt.xticks(rotation=20, ha="right")
     plt.tight_layout()
-    plt.savefig('charts/cpu_utilization_comparison.png', dpi=300, bbox_inches='tight')
-    plt.close()
+    fig.savefig(CHART_DIR / "makespan_boxplot.png", dpi=300)
+    plt.close(fig)
 
-def create_task_scaling_analysis(results):
-    """Create task scaling analysis chart"""
-    # Group by task count and scheduler
-    task_scaling = defaultdict(lambda: defaultdict(list))
-    
-    for result in results:
-        scheduler = result['scheduler_name']
-        task_count = result['task_count']
-        makespan = result['makespan']
-        task_scaling[task_count][scheduler].append(makespan)
-    
-    # Calculate average makespan for each task scale and scheduler
-    task_counts = sorted(task_scaling.keys())
-    scheduler_order = ['FIFO', 'HEFT', 'WASS-Heuristic', 'WASS-DRL', 'WASS-RAG']
-    
-    # Create chart
-    fig, ax = plt.subplots(figsize=(12, 8))
-    
-    for scheduler in scheduler_order:
-        avg_makespans = []
-        for task_count in task_counts:
-            if scheduler in task_scaling[task_count]:
-                avg_makespans.append(np.mean(task_scaling[task_count][scheduler]))
-            else:
-                avg_makespans.append(0)
-        
-        # Only plot schedulers with data
-        if any(avg_makespans):
-            ax.plot(task_counts, avg_makespans, marker='o', label=scheduler, linewidth=2, markersize=8)
-    
-    ax.set_xlabel('Task Count')
-    ax.set_ylabel('Average Makespan (seconds)')
-    ax.set_title('Scheduler Performance Across Task Scales')
-    ax.legend()
-    ax.grid(alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig('charts/task_scaling_analysis.png', dpi=300, bbox_inches='tight')
-    plt.close()
 
-def create_performance_improvement_chart(results):
-    """Create performance improvement chart"""
-    # Calculate performance improvement relative to FIFO
-    scheduler_makespans = defaultdict(list)
-    
-    for result in results:
-        scheduler = result['scheduler_name']
-        makespan = result['makespan']
-        scheduler_makespans[scheduler].append(makespan)
-    
-    # Calculate average makespan
-    avg_makespans = {scheduler: np.mean(makespans) 
-                     for scheduler, makespans in scheduler_makespans.items()}
-    
-    if 'FIFO' not in avg_makespans:
-        print("Warning: Missing FIFO baseline data")
+def export_ablation_summary(df: pd.DataFrame) -> None:
+    baseline = "WASS-DRL (Vanilla)"
+    if baseline not in df["scheduler"].unique():
+        print("Baseline WASS-DRL (Vanilla) missing; skip ablation summary.")
         return
-    
-    fifo_avg = avg_makespans['FIFO']
-    # Unified scheduler naming
-    scheduler_order = ['HEFT', 'WASS_DRL', 'WASS_RAG']
-    
-    improvements = []
-    labels = []
-    
-    for scheduler in scheduler_order:
-        if scheduler in avg_makespans:
-            improvement = (fifo_avg - avg_makespans[scheduler]) / fifo_avg * 100
-            improvements.append(improvement)
-            labels.append(scheduler)
-    
-    # Create chart
-    fig, ax = plt.subplots(figsize=(10, 6))
-    bars = ax.bar(labels, improvements, color=['#66b3ff', '#99ff99', '#ffcc99', '#ff99cc'])
-    
-    ax.set_xlabel('Scheduler')
-    ax.set_ylabel('Performance Improvement (%)')
-    ax.set_title('Performance Improvement Relative to FIFO Scheduler')
-    ax.grid(axis='y', alpha=0.3)
-    
-    # Add value labels on bars
-    for i, improvement in enumerate(improvements):
-        ax.text(i, improvement + 1, f'{improvement:.1f}%', ha='center', va='bottom')
-    
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig('charts/performance_improvement.png', dpi=300, bbox_inches='tight')
-    plt.close()
+    summary = df.groupby(["workflow", "scheduler"])["makespan"].agg(["mean", "std"]).reset_index()
+    baseline_stats = summary[summary["scheduler"] == baseline][["workflow", "mean"]].rename(columns={"mean": "baseline_mean"})
+    merged = summary.merge(baseline_stats, on="workflow", how="left")
+    merged["delta_vs_baseline"] = merged["mean"] - merged["baseline_mean"]
+    merged["relative_improvement_pct"] = -(merged["delta_vs_baseline"] / merged["baseline_mean"]) * 100
+    merged.to_csv(ABLATION_CSV, index=False)
 
-def main():
-    """Main function"""
-    print("Starting paper chart generation...")
-    
-    # Ensure charts directory exists
-    os.makedirs('charts', exist_ok=True)
-    
-    try:
-        # Load experimental results
-        results = load_experiment_results()
-        print(f"Loaded {len(results)} experimental results")
-        
-        # Generate various charts
-        print("Generating scheduler performance comparison chart...")
-        create_scheduler_performance_comparison(results)
-        
-        print("Generating makespan distribution chart...")
-        create_makespan_distribution(results)
-        
-        # print("Generating CPU utilization chart...")
-        # create_cpu_utilization_chart(results)
-        
-        print("Generating task scaling analysis chart...")
-        create_task_scaling_analysis(results)
-        
-        print("Generating performance improvement chart...")
-        create_performance_improvement_chart(results)
-        
-        print("All charts generated successfully!")
-        print("\nGenerated charts:")
-        for chart_file in os.listdir('charts'):
-            if chart_file.endswith('.png'):
-                print(f"  - {chart_file}")
-                
-    except Exception as e:
-        print(f"Error during chart generation: {e}")
-        raise
+
+def load_training_logs() -> pd.DataFrame:
+    if not TRAINING_LOG_DIR.exists():
+        return pd.DataFrame()
+    frames: list[pd.DataFrame] = []
+    for csv_path in TRAINING_LOG_DIR.glob("*.csv"):
+        try:
+            df = pd.read_csv(csv_path)
+        except Exception as exc:  # pragma: no cover
+            print(f"⚠️ Unable to read training log {csv_path.name}: {exc}")
+            continue
+        df["log_file"] = csv_path.name
+        frames.append(df)
+    if not frames:
+        return pd.DataFrame()
+    combined = pd.concat(frames, ignore_index=True)
+    combined["episode"] = pd.to_numeric(combined.get("episode"), errors="coerce")
+    combined["episode_reward"] = pd.to_numeric(combined.get("episode_reward"), errors="coerce")
+    combined["status"] = combined.get("status", "success").fillna("success")
+    combined = combined[(combined["status"] == "success") & combined["episode"].notna() & combined["episode_reward"].notna()]
+    if combined.empty:
+        return pd.DataFrame()
+    if "strategy_label" not in combined.columns:
+        combined["strategy_label"] = combined.get("strategy", "unknown")
+    combined["seed"] = combined.get("seed").fillna(-1)
+    combined["seed"] = pd.to_numeric(combined["seed"], errors="coerce").fillna(-1).astype(int)
+    combined["episode"] = combined["episode"].astype(int)
+    return combined
+
+
+def plot_training_curves(log_df: pd.DataFrame, smoothing_window: int = 5) -> None:
+    if log_df.empty:
+        print("⚠️ No training logs found; skipping training curves.")
+        return
+
+    log_df = log_df.copy().sort_values(["strategy_label", "log_file", "episode"])
+    group_cols = ["strategy_label", "log_file"]
+    log_df["smoothed_reward"] = (
+        log_df.groupby(group_cols)["episode_reward"].transform(
+            lambda series: series.rolling(window=smoothing_window, min_periods=1).mean()
+        )
+    )
+    agg = log_df.groupby(["strategy_label", "episode"]) ["smoothed_reward"].agg(["mean", "std", "count"]).reset_index()
+    agg = agg.rename(columns={"mean": "reward_mean", "std": "reward_std", "count": "sample_count"})
+    agg["reward_std"] = agg["reward_std"].fillna(0.0)
+
+    ordered_labels = _order_schedulers(agg["strategy_label"].unique())
+    fig, ax = plt.subplots(figsize=(9, 5))
+    for label in ordered_labels:
+        subset = agg[agg["strategy_label"] == label]
+        if subset.empty:
+            continue
+        ax.plot(subset["episode"], subset["reward_mean"], label=label)
+        if (subset["reward_std"] > 0).any():
+            upper = subset["reward_mean"] + subset["reward_std"]
+            lower = subset["reward_mean"] - subset["reward_std"]
+            ax.fill_between(subset["episode"], lower, upper, alpha=0.2)
+
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Smoothed Episode Reward")
+    ax.set_title("Training Curves Across Strategies")
+    ax.grid(alpha=0.3)
+    ax.legend()
+    plt.tight_layout()
+    fig.savefig(CHART_DIR / "training_curves.png", dpi=300)
+    plt.close(fig)
+
+
+def main() -> None:
+    print("📊 Generating Phase P1 charts...")
+    df = _ensure_inputs()
+    CHART_DIR.mkdir(exist_ok=True)
+    plot_overall_bar(df)
+    plot_per_workflow(df)
+    plot_distribution_box(df)
+    export_ablation_summary(df)
+    training_logs = load_training_logs()
+    plot_training_curves(training_logs)
+    generated = [p.name for p in CHART_DIR.glob("*.png")]
+    if generated:
+        print("✅ Charts saved:")
+        for name in sorted(generated):
+            print(f"  - {name}")
+    if ABLATION_CSV.exists():
+        print(f"✅ Ablation summary: {ABLATION_CSV}")
+
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,7 @@
 import os
 import sys
+import time
+import random
 
 # --- 路径修正 ---
 # 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
@@ -13,6 +15,7 @@ from torch.optim import Adam
 import numpy as np
 from pathlib import Path
 import xml.etree.ElementTree as ET
+import json
 
 # --- Path fix ---
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
@@ -29,6 +32,7 @@ from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
 import joblib
 from src.simulation.experiment_runner import WrenchExperimentRunner
 from src.utils.config import load_training_config
+from src.utils.training_logger import TrainingLogger
 
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 
@@ -78,17 +82,38 @@ def infer_action_dim(platform_path: str) -> int:
     return len(host_ids)
 
 
+def count_tasks_in_workflow(path: str) -> int:
+    try:
+        with open(path, 'r') as fh:
+            data = json.load(fh)
+        workflow = data.get('workflow', {})
+        if 'tasks' in workflow and isinstance(workflow['tasks'], list):
+            return len(workflow['tasks'])
+        spec_tasks = workflow.get('specification', {}).get('tasks', [])
+        return len(spec_tasks) if isinstance(spec_tasks, list) else 0
+    except Exception:
+        return -1
+
+
 import argparse
 
 def parse_args():
     ap = argparse.ArgumentParser(description="Train DRL scheduler (no RAG) with unified PPO.")
     ap.add_argument('--max_episodes', type=int, default=None, help='Override TOTAL_EPISODES for quick runs.')
     ap.add_argument('--reward_mode', choices=['dense','final'], default='final', help='Reward shaping mode: dense (discount across steps) or final (single terminal reward).')
+    ap.add_argument('--seed', type=int, default=None, help='Random seed for workflow sampling and PPO updates.')
+    ap.add_argument('--log_dir', default="results/training_runs", help='Directory to persist per-episode metrics.')
+    ap.add_argument('--run_label', default=None, help='Custom label for this training session.')
     return ap.parse_args()
 
 def main():
     args = parse_args()
     print("🚀 [Phase 3.1] Starting DRL Agent Training (NO RAG)...")
+
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
     
     Path(MODEL_SAVE_DIR).mkdir(parents=True, exist_ok=True)
     
@@ -130,8 +155,23 @@ def main():
 
     effective_total = args.max_episodes if args.max_episodes is not None else TOTAL_EPISODES
     print(f"\n[Step 3/4] Starting main training loop... total_episodes={effective_total} mode={args.reward_mode}")
+    training_logger: TrainingLogger | None = None
+    try:
+        training_logger = TrainingLogger(
+            strategy_label="WASS-DRL (Vanilla)",
+            output_dir=args.log_dir,
+            seed=args.seed,
+            run_label=args.run_label,
+            metadata={"reward_mode": args.reward_mode},
+        )
+    except Exception as exc:  # pragma: no cover
+        print(f"⚠️ Failed to initialize training logger: {exc}")
+        training_logger = None
+
     for episode in range(1, effective_total + 1):
+        episode_start = time.time()
         workflow_file = np.random.choice(training_workflows)
+        task_count_selected = count_tasks_in_workflow(workflow_file)
         
         # --- THIS IS THE FIX: The lambda now accepts all keyword arguments from the caller ---
         trainable_scheduler_factory = lambda simulation, compute_services, hosts, workflow_obj, workflow_file: WASS_RAG_Scheduler_Trainable(
@@ -148,13 +188,28 @@ def main():
             feature_scaler=feature_scaler
         )
         
+        t_sim_start = time.time()
         makespan, _ = wrench_runner.run_single_seeding_simulation(
             scheduler_class=trainable_scheduler_factory,
             workflow_file=workflow_file
         )
+        sim_elapsed = time.time() - t_sim_start
 
         if makespan < 0 or not replay_buffer.actions:
             print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Status: FAILED. Skipping.")
+            if training_logger:
+                training_logger.log_episode(
+                    episode=episode,
+                    workflow=workflow_file,
+                    metrics={
+                        "status": "failed",
+                        "task_count": task_count_selected,
+                        "makespan": makespan,
+                        "reward_mode": args.reward_mode,
+                        "rag_enabled": 0,
+                        "episode_wallclock": time.time() - episode_start,
+                    },
+                )
             replay_buffer.clear()
             continue
 
@@ -179,6 +234,23 @@ def main():
             reported_reward = final_reward  # aggregate of per-step rewards equals final_reward
         print(f"  Episode {episode}, Workflow: {Path(workflow_file).name}, Makespan: {makespan:.2f}s, Reward: {reported_reward:.4f}")
 
+        if training_logger:
+            training_logger.log_episode(
+                episode=episode,
+                workflow=workflow_file,
+                metrics={
+                    "status": "success",
+                    "task_count": task_count_selected,
+                    "makespan": makespan,
+                    "episode_reward": reported_reward,
+                    "sim_time": sim_elapsed,
+                    "episode_wallclock": time.time() - episode_start,
+                    "reward_mode": args.reward_mode,
+                    "rag_enabled": 0,
+                    "replay_steps": len(replay_buffer.actions),
+                },
+            )
+
         if SAVE_INTERVAL and episode % SAVE_INTERVAL == 0:
             torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
             print(f"💾 NO-RAG Model saved at episode {episode}")
@@ -186,6 +258,9 @@ def main():
     print("\n[Step 4/4] Training finished.")
     print(f"✅ Final NO-RAG model saved to: {AGENT_MODEL_PATH}")
     print("\n🎉 [Phase 3.1] DRL Agent (NO RAG) Training Completed! 🎉")
+
+    if training_logger:
+        training_logger.close()
 
 if __name__ == "__main__":
     main()

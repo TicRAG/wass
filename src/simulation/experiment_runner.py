@@ -7,9 +7,11 @@ from contextlib import contextmanager
 from typing import Dict, Any, Generator, List
 from pathlib import Path
 import sys
+import random
 import wrench
 import pandas as pd
 import numpy as np
+import torch
 import json
 import importlib 
 
@@ -37,10 +39,25 @@ class WrenchExperimentRunner:
         self.repetitions = config.get("repetitions", 3)
         self.output_dir = Path(config.get("output_dir", "results/final_experiments"))
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.random_seeds = config.get("random_seeds")
+        self.include_aug = bool(config.get("include_aug", False))
 
-    def run_single_seeding_simulation(self, scheduler_class: Any, workflow_file: str) -> tuple[float, list]:
+    def _load_workflows(self, workflow_dir: Path) -> List[str]:
+        base = sorted(str(p) for p in workflow_dir.glob("*.json"))
+        if not base:
+            return []
+        if self.include_aug:
+            aug_dir = workflow_dir.parent / "training_aug"
+            if aug_dir.exists():
+                aug_files = sorted(str(p) for p in aug_dir.glob("*.json"))
+                if aug_files:
+                    base = list(dict.fromkeys(base + aug_files))
+        return base
+
+    def run_single_seeding_simulation(self, scheduler_class: Any, workflow_file: str, scheduler_kwargs: Dict[str, Any] | None = None) -> tuple[float, Dict[str, Any]]:
         """运行一次用于知识库“播种”的模拟。"""
         workflow_filename = Path(workflow_file).name
+        scheduler_kwargs = scheduler_kwargs or {}
         try:
             with open(self.platform_file, "r") as f:
                 platform_xml = f.read()
@@ -72,6 +89,7 @@ class WrenchExperimentRunner:
                 "workflow_obj": workflow,
                 "workflow_file": workflow_file
             }
+            scheduler_args.update(scheduler_kwargs)
             scheduler_instance = scheduler_class(**scheduler_args)
             
             for file in workflow.get_input_files():
@@ -90,16 +108,26 @@ class WrenchExperimentRunner:
                 elif event["event_type"] == "simulation_termination":
                     break
             makespan = simulation.get_simulated_time()
-            decisions = []
+            details: Dict[str, Any] = {}
             if hasattr(scheduler_instance, 'get_recorded_decisions'):
-                decisions = scheduler_instance.get_recorded_decisions()
+                details['decisions'] = scheduler_instance.get_recorded_decisions()
+            if hasattr(scheduler_instance, 'get_knowledge_records'):
+                try:
+                    details['knowledge_records'] = scheduler_instance.get_knowledge_records(makespan)
+                except TypeError:
+                    # Fallback for implementations that do not accept makespan argument
+                    details['knowledge_records'] = scheduler_instance.get_knowledge_records()
+            if hasattr(scheduler_instance, 'get_potential_summary'):
+                summary = scheduler_instance.get_potential_summary()
+                if summary:
+                    details['potential_summary'] = summary
             simulation.terminate()
-            return makespan, decisions
+            return makespan, details
         except Exception as e:
             import traceback
             print(f"ERROR running seeding simulation on {workflow_filename}: {e}")
             print(f"详细错误信息: {traceback.format_exc()}")
-            return -1.0, []
+            return -1.0, {}
 
     def create_workflow_from_json_data(self, simulation, workflow_data, workflow_file_path):
         """从 JSON 数据创建 WRENCH 工作流对象。
@@ -180,10 +208,14 @@ class WrenchExperimentRunner:
             max_cores_per_task=1, enforce_num_cores=True,
             ignore_avg_cpu=False, show_warnings=False)
 
-    def _run_single_simulation(self, scheduler_name: str, scheduler_impl: Any, workflow_file: str) -> Dict[str, Any]:
+    def _run_single_simulation(self, scheduler_name: str, scheduler_impl: Any, workflow_file: str, seed: int | None = None, extra_kwargs: Dict[str, Any] | None = None) -> Dict[str, Any]:
         """运行单个WRENCH模拟并返回结果。"""
         workflow_filename = Path(workflow_file).name
         try:
+            if seed is not None:
+                random.seed(seed)
+                np.random.seed(seed)
+                torch.manual_seed(seed)
             with open(self.platform_file, "r") as f:
                 platform_xml = f.read()
 
@@ -215,14 +247,12 @@ class WrenchExperimentRunner:
                 "simulation": simulation,
                 "compute_services": compute_services,
                 "hosts": hosts_properties,
-                "workflow_obj": workflow
+                "workflow_obj": workflow,
+                "workflow_file": workflow_file,
             }
-            
-            # --- 这是核心修复：确保所有DRL调度器都能收到 workflow_file ---
-            if scheduler_name in ["WASS_DRL", "WASS_RAG"]:
-                scheduler_args['workflow_file'] = workflow_file
-            # --- 修复结束 ---
 
+            if extra_kwargs:
+                scheduler_args.update(extra_kwargs)
             scheduler_instance = scheduler_impl(**scheduler_args)
 
             for file in workflow.get_input_files():
@@ -252,12 +282,30 @@ class WrenchExperimentRunner:
                 task_count_source = spec_tasks if isinstance(spec_tasks, list) else []
             task_count = len(task_count_source)
             simulation.terminate()
-            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": makespan, "status": "success", "task_count": task_count}
+            result = {
+                "scheduler": scheduler_name,
+                "workflow": workflow_filename,
+                "makespan": makespan,
+                "status": "success",
+                "task_count": task_count,
+                "seed": seed,
+            }
+            if seed is not None:
+                result["seed"] = seed
+            return result
         except Exception as e:
             import traceback
             print(f"ERROR running {scheduler_name} on {workflow_filename}: {e}")
             print(f"详细错误信息: {traceback.format_exc()}")
-            return {"scheduler": scheduler_name, "workflow": workflow_filename, "makespan": float('inf'), "status": "failed", "task_count": 0}
+            result = {
+                "scheduler": scheduler_name,
+                "workflow": workflow_filename,
+                "makespan": float('inf'),
+                "status": "failed",
+                "task_count": 0,
+                "seed": seed,
+            }
+            return result
 
     def analyze_results(self, results: List[Dict[str, Any]]):
         """分析、打印并保存实验结果摘要。"""

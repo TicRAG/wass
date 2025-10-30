@@ -138,6 +138,35 @@ RAG_EPISODES=20 DRL_EPISODES=10 bash run_pipeline.sh
 python scripts/4_run_experiments.py
 ```
 
+### 最终实验 CLI（P1 阶段）
+
+在比较五种调度策略之前，请确保已经激活包含 WRENCH 的 Python 环境：
+
+```bash
+source $HOME/venvs/wrench-env/bin/activate
+python scripts/4_run_experiments.py --help
+```
+
+典型的全量运行命令如下（三套工作流 × 五种策略 × 五个随机种子）：
+
+```bash
+python scripts/4_run_experiments.py \
+  --strategies WASS_RAG_FULL WASS_DRL_VANILLA WASS_RAG_HEFT HEFT MINMIN \
+  --seeds 0 1 2 3 4 \
+  --workflow-dir data/workflows/experiment \
+  --output-dir results/final_experiments
+```
+
+常用参数说明：
+
+- `--strategies`：可选子集，默认运行全部五种策略。
+- `--workflows`：按文件名（含或不含 `.json`）筛选特定工作流。
+- `--seeds`：为 DRL/RAG 策略指定随机种子列表。
+- `--include-aug`：将 `training_aug/` 中的增强工作流一并纳入。
+- `--rag-model` / `--drl-model`：覆盖默认推理检查点位置。
+
+脚本会把原始结果写入 `results/final_experiments/detailed_results.csv`，并在同目录生成 `summary_results.csv`，便于 `analysis/plot_results.py` 后续绘图。
+
 ### 字段说明 (转换后任务)
 | 字段 | 含义 |
 |------|------|

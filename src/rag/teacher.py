@@ -7,8 +7,6 @@ import torch.nn as nn
 from torch_geometric.data import Data
 from pathlib import Path
 from typing import Any, Dict, Optional
-import json
-import re
 
 class KnowledgeBase:
     """封装FAISS向量索引和元数据的知识库。"""
@@ -24,16 +22,23 @@ class KnowledgeBase:
             print("🧠 [Teacher] Loading existing Knowledge Base...")
             self.index = faiss.read_index(str(self.index_file))
             self.metadata = pd.read_csv(self.meta_file)
+            if not isinstance(self.index, faiss.IndexFlatIP):
+                print("⚠️ [Teacher] Existing FAISS index uses L2 metric; reinitializing with cosine metric. Rerun seeding to repopulate.")
+                self.index = faiss.IndexFlatIP(dimension)
+                self.metadata = pd.DataFrame()
             print("✅ [Teacher] Knowledge Base loaded.")
         else:
             print("⚠️ [Teacher] No existing Knowledge Base found. Initializing a new one.")
-            self.index = faiss.IndexFlatL2(dimension)
+            self.index = faiss.IndexFlatIP(dimension)
             self.metadata = pd.DataFrame()
 
     def add(self, vectors: np.ndarray, metadata_list: list[dict]):
         if not hasattr(vectors, 'shape') or vectors.shape[0] == 0:
             return
         vectors = np.ascontiguousarray(vectors, dtype=np.float32)
+        faiss.normalize_L2(vectors)
+        if not isinstance(self.index, faiss.IndexFlatIP):
+            self.index = faiss.IndexFlatIP(self.dimension)
         self.index.add(vectors)
         new_metadata = pd.DataFrame(metadata_list)
         self.metadata = pd.concat([self.metadata, new_metadata], ignore_index=True)
@@ -42,11 +47,16 @@ class KnowledgeBase:
         if self.index.ntotal == 0:
             return pd.DataFrame()
         query_vector = np.ascontiguousarray(query_vector.reshape(1, -1), dtype=np.float32)
+        faiss.normalize_L2(query_vector)
         distances, indices = self.index.search(query_vector, k)
-        valid_indices = indices[0][indices[0] != -1]
-        if len(valid_indices) == 0:
+        valid_mask = indices[0] != -1
+        if not np.any(valid_mask):
             return pd.DataFrame()
-        return self.metadata.iloc[valid_indices]
+        valid_indices = indices[0][valid_mask]
+        similarities = distances[0][valid_mask]
+        result = self.metadata.iloc[valid_indices].copy()
+        result['similarity'] = similarities
+        return result
 
     def save(self):
         print(f"💾 [KB] Saving Knowledge Base with {self.index.ntotal} entries...")
@@ -55,115 +65,70 @@ class KnowledgeBase:
         print("✅ [KB] Knowledge Base saved.")
 
 class KnowledgeableTeacher:
-    """知识引导教师，负责生成RAG奖励。现在自行对传入的标准化图执行冻结的GNN编码。"""
+    """知识引导教师，负责生成RAG奖励。负责计算潜势函数并提供奖励塑形所需的统计信息。"""
+
     def __init__(self, state_dim: int, knowledge_base: KnowledgeBase, gnn_encoder: nn.Module, reward_config: Optional[Dict[str, Any]] = None):
         self.kb = knowledge_base
         self.gnn_encoder = gnn_encoder
         self.gnn_encoder.eval()
         cfg = reward_config or {}
         self.top_k = int(cfg.get("top_k", 10))
-        self.scheduler_filter = cfg.get("scheduler_filter", "HEFT")
-        normalizer = cfg.get("reward_normalizer", 1000.0)
-        self.reward_normalizer = float(normalizer) if normalizer not in (None, 0) else 1.0
-        # Debug flags
+        self.temperature = float(cfg.get("temperature", 0.1))
+        scheduler_filter = cfg.get("scheduler_filter")
+        self.scheduler_filter = scheduler_filter if scheduler_filter else None
         self.debug = bool(cfg.get("debug", False))
-        # Fallback: if filtered cases empty, optionally use all similar cases
+        self.lambda_scale = float(cfg.get("lambda", 1.0))
+        self.gamma = float(cfg.get("gamma", 0.99))
         self.fallback_use_all_if_empty = bool(cfg.get("fallback_use_all_if_empty", True))
-        # If true, use median instead of min for historical EFT aggregation (reduces harsh negative bias)
-        self.use_median = bool(cfg.get("use_median", False))
-        # Ratio-based reward configuration
-        self.use_ratio = bool(cfg.get("use_ratio", False))
-        self.ratio_scale = float(cfg.get("ratio_scale", 0.5))  # updated via config
-        self.beat_tolerance = float(cfg.get("beat_tolerance", 0.02))
-        self.beat_bonus = float(cfg.get("beat_bonus", 0.0))
-        self.min_clamped_reward = -0.05  # clamp floor for ratio mode to avoid extreme negatives
 
-    # --- 这是最终的奖励函数 ---
-    def generate_rag_reward(self, current_graph: Data, agent_eft: float, task_name: str) -> float:
-        """根据当前标准化图（已将 COMPLETED 状态还原为 WAITING/READY）生成 RAG 奖励。包含可选调试输出和回退逻辑。"""
+    def _select_neighbors(self, neighbors: pd.DataFrame) -> pd.DataFrame:
+        if neighbors.empty:
+            return neighbors
+        if self.scheduler_filter:
+            filtered = neighbors[neighbors['scheduler_used'] == self.scheduler_filter]
+            if not filtered.empty:
+                return filtered
+            if not self.fallback_use_all_if_empty:
+                return pd.DataFrame()
+        return neighbors
+
+    def calculate_potential(self, state: Data) -> float:
+        if self.kb.index.ntotal == 0:
+            return 0.0
         with torch.no_grad():
-            emb = self.gnn_encoder(current_graph).detach().cpu().numpy().flatten()
-        similar_cases = self.kb.search(emb, k=self.top_k)
-
-        if similar_cases.empty:
+            query_embedding = self.gnn_encoder(state).detach().cpu().numpy().flatten()
+        neighbors = self.kb.search(query_embedding, k=self.top_k)
+        if neighbors.empty:
             if self.debug:
-                print(f"[TeacherDebug] similar_cases empty (index_size={self.kb.index.ntotal}) task={task_name}")
+                print("[TeacherDebug] No neighbors found for potential calculation.")
             return 0.0
-
-        heft_cases = similar_cases[similar_cases['scheduler_used'] == self.scheduler_filter]
-        used_cases = heft_cases
-        if heft_cases.empty:
-            if self.fallback_use_all_if_empty:
-                used_cases = similar_cases
-                if self.debug:
-                    print(f"[TeacherDebug] No cases after filter '{self.scheduler_filter}'. Fallback to all similar. count={len(similar_cases)} task={task_name}")
-            else:
-                if self.debug:
-                    print(f"[TeacherDebug] heft_cases empty after filter '{self.scheduler_filter}' task={task_name}")
-                return 0.0
-
-        historical_efts = []
-        unmatched_samples = []
-        # First pass: exact key match
-        for _, row in used_cases.iterrows():
-            try:
-                decisions = json.loads(row['decisions'])
-                if task_name in decisions:
-                    historical_efts.append(decisions[task_name].get('finish_time', decisions[task_name].get('eft', 0.0)))
-                else:
-                    if len(unmatched_samples) < 5:
-                        unmatched_samples.append(list(decisions.keys())[:5])
-            except (json.JSONDecodeError, KeyError, TypeError):
-                continue
-
-        # Fallback: strip augmentation suffix (e.g., _AUG3) and retry if still empty
-        if not historical_efts and re.search(r'_AUG\d+$', task_name):
-            base_name = re.sub(r'_AUG\d+$', '', task_name)
-            for _, row in used_cases.iterrows():
-                try:
-                    decisions = json.loads(row['decisions'])
-                    if base_name in decisions:
-                        historical_efts.append(decisions[base_name].get('finish_time', decisions[base_name].get('eft', 0.0)))
-                except (json.JSONDecodeError, KeyError, TypeError):
-                    continue
-            if self.debug and historical_efts:
-                print(f"[TeacherDebug] Fallback matched base task name '{base_name}' for augmented task '{task_name}'. matches={len(historical_efts)}")
-
-        if not historical_efts:
+        neighbors = self._select_neighbors(neighbors)
+        if neighbors.empty:
             if self.debug:
-                sample_str = '; '.join([','.join(s) for s in unmatched_samples]) if unmatched_samples else 'N/A'
-                print(f"[TeacherDebug] No historical EFTs for task={task_name}. Sample decision key sets: {sample_str}")
+                print(f"[TeacherDebug] Scheduler filter '{self.scheduler_filter}' removed all neighbors.")
             return 0.0
-
-        if self.use_median:
-            agg_historical_eft = float(np.median(historical_efts))
-            agg_mode = 'median'
-        else:
-            agg_historical_eft = float(np.min(historical_efts))
-            agg_mode = 'min'
-
-        if self.use_ratio:
-            # ratio improvement: positive if agent faster (agent_eft < agg_hist)
-            base = max(agg_historical_eft, 1e-9)
-            ratio_improvement = (agg_historical_eft - agent_eft) / base  # e.g., 0.1 means 10% faster
-            reward = ratio_improvement * self.ratio_scale
-            beat_threshold = agg_historical_eft * (1 + self.beat_tolerance)
-            beat_applied = False
-            if agent_eft <= beat_threshold and reward > 0 and self.beat_bonus > 0:
-                reward += self.beat_bonus
-                beat_applied = True
-            # Clamp extreme negatives to stabilize PPO advantage estimates
-            if reward < self.min_clamped_reward:
-                reward = self.min_clamped_reward
+        if 'q_value' not in neighbors.columns:
             if self.debug:
-                print(
-                    f"[TeacherDebug] task={task_name} similar={len(similar_cases)} used={len(used_cases)} matches={len(historical_efts)} {agg_mode}_hist_eft={agg_historical_eft:.3f} agent_eft={agent_eft:.3f} ratio_impr={ratio_improvement:.4f} reward={reward:.6f} beat={beat_applied}"
-                )
-            return reward
-        else:
-            reward = (agg_historical_eft - agent_eft) / self.reward_normalizer
-            if self.debug:
-                print(
-                    f"[TeacherDebug] task={task_name} similar={len(similar_cases)} used={len(used_cases)} matches={len(historical_efts)} {agg_mode}_hist_eft={agg_historical_eft:.3f} agent_eft={agent_eft:.3f} reward={reward:.6f}"
-                )
-            return reward
+                print("[TeacherDebug] Knowledge records lack 'q_value'; returning zero potential.")
+            return 0.0
+        similarities = neighbors['similarity'].to_numpy(dtype=np.float32)
+        q_values = neighbors['q_value'].to_numpy(dtype=np.float32)
+        tau = max(self.temperature, 1e-6)
+        scaled = similarities / tau
+        scaled -= scaled.max()
+        weights = np.exp(scaled)
+        weights_sum = weights.sum()
+        if weights_sum <= 0:
+            return float(q_values.mean())
+        weights /= weights_sum
+        potential = float(np.dot(weights, q_values))
+        if self.debug:
+            print(f"[TeacherDebug] potential={potential:.6f} neighbors={len(neighbors)} tau={tau}")
+        return potential
+
+    def generate_rag_reward(self, current_graph: Data, agent_eft: float, task_name: str) -> float:
+        potential = self.calculate_potential(current_graph)
+        shaped_reward = -self.lambda_scale * potential
+        if self.debug:
+            print(f"[TeacherDebug] task={task_name} potential={potential:.6f} reward={shaped_reward:.6f}")
+        return shaped_reward

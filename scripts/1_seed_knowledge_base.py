@@ -17,9 +17,8 @@ if PROJECT_ROOT not in sys.path:
 from src.workflows.manager import WorkflowManager
 from src.drl.gnn_encoder import GNNEncoder
 from src.rag.teacher import KnowledgeBase
-from src.drl.utils import workflow_json_to_pyg_data
 from src.simulation.experiment_runner import WrenchExperimentRunner
-from src.simulation.schedulers import RecordingHEFTScheduler, RecordingRandomScheduler
+from src.simulation.schedulers import RecordingHEFTScheduler, RecordingRandomScheduler, RecordingMinMinScheduler
 
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
@@ -29,7 +28,7 @@ TRAINING_WORKFLOWS_DIR = Path("data/workflows/training")
 AUGMENTED_WORKFLOWS_DIR = Path("data/workflows/training_aug")
 
 # Reseed options
-SCHEDULERS_TO_RUN = ["HEFT", "Random"]  # Order matters for deterministic logging
+SCHEDULERS_TO_RUN = ["HEFT", "MINMIN", "Random"]  # Order matters for deterministic logging
 LIMIT_WORKFLOWS = None  # Set to an int for quick debug
 PRINT_PROGRESS_EVERY = 1
 
@@ -103,6 +102,8 @@ def main():
         except Exception as e:
             print(f"⚠️ Failed to load seed GNN weights: {e}")
     gnn_encoder.eval()
+    for param in gnn_encoder.parameters():
+        param.requires_grad = False
 
     kb = KnowledgeBase(dimension=KB_DIM)
     # Reset KB (start fresh)
@@ -116,7 +117,12 @@ def main():
     runner = WrenchExperimentRunner(schedulers={}, config={"platform_file": platform_file})
     scheduler_map = {
         "HEFT": RecordingHEFTScheduler,
+        "MINMIN": RecordingMinMinScheduler,
         "Random": RecordingRandomScheduler
+    }
+    scheduler_kwargs = {
+        'knowledge_encoder': gnn_encoder,
+        'feature_scaler': scaler,
     }
 
     all_embeddings = []
@@ -132,42 +138,51 @@ def main():
             wf_path = Path(wf)
             if i % PRINT_PROGRESS_EVERY == 0:
                 print(f"[{sched_name}] {i}/{len(workflow_files)} -> {wf_path.name}")
-            makespan, decisions = runner.run_single_seeding_simulation(scheduler_class=sched_cls, workflow_file=str(wf_path))
+            makespan, details = runner.run_single_seeding_simulation(
+                scheduler_class=sched_cls,
+                workflow_file=str(wf_path),
+                scheduler_kwargs=scheduler_kwargs,
+            )
+            knowledge_records = details.get('knowledge_records', []) if isinstance(details, dict) else []
             if makespan < 0:
                 print(f"  ❌ Simulation failed for {wf_path.name}, skipping.")
                 continue
-            # Encode graph
-            try:
-                pyg_data = workflow_json_to_pyg_data(str(wf_path), scaler)
-                emb = gnn_encoder(pyg_data).detach().cpu().numpy().flatten()
-            except Exception as e:
-                print(f"  ❌ Graph encode failed for {wf_path.name}: {e}")
+            # Augment decisions with remaining makespan estimates
+            if not knowledge_records:
+                print(f"  ⚠️ No knowledge records captured for {wf_path.name} using {sched_name}.")
                 continue
-            all_embeddings.append(emb)
-            all_metadata.append({
-                "workflow_file": wf_path.name,
-                "makespan": makespan,
-                "scheduler_used": sched_name,
-                "decisions": json.dumps(decisions)
-            })
-            # Optional duplication: if task keys include augmentation suffix _AUG\d+ create a second metadata entry
-            # that maps stripped base names to the same decision records to help retrieval fallback reward.
             aug_suffix_pattern = r'_AUG\d+$'
-            has_aug = any(re.search(aug_suffix_pattern, k) for k in decisions.keys())
-            if has_aug:
-                base_decisions = {}
-                for k, v in decisions.items():
-                    base_k = re.sub(aug_suffix_pattern, '', k)
-                    # If both augmented and base already exist, prefer original base record
-                    if base_k not in base_decisions:
-                        base_decisions[base_k] = v
-                all_embeddings.append(emb)  # reuse same embedding for base-key mapping
-                all_metadata.append({
-                    "workflow_file": wf_path.name + "::basekeys",
-                    "makespan": makespan,
+            for record in knowledge_records:
+                embedding_list = record.get('embedding', [])
+                if not embedding_list:
+                    continue
+                embedding_vec = np.asarray(embedding_list, dtype=np.float32)
+                decision_time = float(record.get('decision_time', 0.0))
+                remaining_makespan = record.get('remaining_makespan')
+                if remaining_makespan is None:
+                    remaining_makespan = max(makespan - decision_time, 0.0)
+                normalized_q = (remaining_makespan / makespan) if makespan > 0 else 0.0
+                metadata_entry = {
+                    "workflow_file": wf_path.name,
                     "scheduler_used": sched_name,
-                    "decisions": json.dumps(base_decisions)
-                })
+                    "makespan": makespan,
+                    "task_name": record.get('task_name'),
+                    "host": record.get('host'),
+                    "decision_time": decision_time,
+                    "remaining_makespan": remaining_makespan,
+                    "q_value": normalized_q,
+                }
+                all_embeddings.append(embedding_vec)
+                all_metadata.append(metadata_entry)
+                task_name = record.get('task_name') or ""
+                if re.search(aug_suffix_pattern, task_name or ""):
+                    base_name = re.sub(aug_suffix_pattern, '', task_name)
+                    metadata_entry_base = {
+                        **metadata_entry,
+                        "task_name": base_name,
+                    }
+                    all_embeddings.append(embedding_vec.copy())
+                    all_metadata.append(metadata_entry_base)
     if not all_embeddings:
         print("❌ No embeddings collected; aborting KB save.")
         return
