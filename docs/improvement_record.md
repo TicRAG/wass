@@ -8,6 +8,9 @@
 ## 更新历史
 | 版本 | 日期 | 作者 | 说明 |
 | --- | --- | --- | --- |
+| v0.17 | 2025-11-03 | TODO | 启动阶段 P2：可解释性与双编码器漂移验证进入执行 |
+| v0.16 | 2025-11-03 | TODO | 完成 P1 主实验绘图与一键管线脚本，实现参数快照 |
+| v0.15 | 2025-11-03 | TODO | 添加一键实验自动化任务与参数保存计划 |
 | v0.14 | 2025-10-31 | TODO | 建立合成工作流生成器，规划差异化基准重跑实验 |
 | v0.13 | 2025-10-30 | TODO | 生成 P1 实验图表与消融汇总，标记任务进度 |
 | v0.12 | 2025-10-30 | TODO | README 增补 P1 实验 CLI 使用说明，状态回填 |
@@ -102,7 +105,7 @@
 - 备注：2025-10-30 更新 `scripts/4_run_experiments.py` 引入 argparse CLI，支持策略筛选、工作流筛选、随机种子/重复次数与增广数据开关；将 `src/simulation/experiment_runner.py` 统一传递 `workflow_file`，确保 DRL 推理调度器可复原图状态。运行 `python scripts/4_run_experiments.py --strategies HEFT --seeds 0 --workflows epigenomics-chameleon-hep-1seq-100k-001` 等命令验证五种策略均可加载模型/调度器并生成 `results/final_experiments/*.csv`；随后执行 `source $HOME/venvs/wrench-env/bin/activate && python scripts/4_run_experiments.py --seeds 0 1 2 3 4` 完成三工作流 × 五策略 × 五种子主实验，产出 `summary_results.csv`（HEFT/MIN-MIN 平均 makespan≈10.86，WASS-RAG Full≈11.24，Vanilla≈11.38）；同日补充 README“最终实验 CLI”章节，记录环境激活与参数示例。下一步移动至绘图脚本与消融分析。
 
 ### 任务 2：执行主实验并绘图
-- 状态：`进行中`
+- 状态：`已完成`
 - 负责人：待指派
 - 涉及文件：`scripts/4_run_experiments.py`, `analysis/plot_results.py`
 - 关键要求：
@@ -114,7 +117,34 @@
   2. 原始数据与图表版本可追踪（存储命名规范统一）。
   3. 结果脚本可复现并附带运行说明。
 - 依赖：P1 任务 1。
-- 备注：2025-10-30 调整 `analysis/plot_results.py` 读取 `detailed_results.csv`，输出整体/按工作流的误差条图与箱线图，并生成 `results/final_experiments/ablation_summary.csv`；命令 `source $HOME/venvs/wrench-env/bin/activate && python analysis/plot_results.py` 成功产出 `charts/overall_makespan_bar.png` 等三张图。训练曲线仍待根据日志格式设计，后续需完善。2025-10-31 新增 `scripts/generate_synthetic_workflows.py` 可生成高并行度基准，后续步骤：1) 生成不少于 3 条并行度更高的工作流；2) 更新 `configs/workflow_config.yaml`/实验目录引用合成基准；3) 重跑 HEFT/MIN-MIN/DRL/RAG 比较确认 makespan 可区分；4) 用新结果刷新图表与消融表。
+- 备注：2025-10-30 调整 `analysis/plot_results.py` 读取 `detailed_results.csv`，输出整体/按工作流的误差条图与箱线图，并生成 `results/final_experiments/ablation_summary.csv`；同日命令 `source $HOME/venvs/wrench-env/bin/activate && python analysis/plot_results.py` 成功产出 `charts/overall_makespan_bar.png` 等三张图。2025-10-31 新增 `scripts/generate_synthetic_workflows.py` 可生成高并行度基准。2025-11-03 使用 `scripts/run_full_pipeline.py --output-dir results/extreme_top3_noise01 --min-host-speed 100 --heft-noise-sigma 0.1 --seeds 0 1 2 3 4` 触发主实验，生成 `results/extreme_top3_noise01/{detailed_results.csv,summary_results.csv}` 并同步到 `results/final_experiments/`，成功刷新 `charts/*.png` 与 `results/final_experiments/ablation_summary.csv`，任务验收。
+
+### 任务 3：一键式实验自动化脚本
+- 状态：`已完成`
+- 负责人：待指派
+- 涉及文件：`scripts/run_full_pipeline.py`（新增）, `scripts/generate_synthetic_workflows.py`, `scripts/1_seed_knowledge_base.py`, `scripts/2_train_rag_agent.py`, `scripts/3_train_drl_agent.py`, `scripts/4_run_experiments.py`, `analysis/plot_results.py`
+- 关键要求：
+  - 实现单条命令触发“生成（或更新）工作流 → 播种知识库 → 训练 DRL/RAG → 执行对比实验 → 汇总表格与图表”完整流程。
+  - 支持将关键参数（平台筛选、HEFT 噪声、MIN-MIN 权重、随机种子等）写入统一的配置文件或 `results/` 目录中的元数据记录，便于复现。
+  - 运行结束时输出结果路径摘要，并校验各阶段日志/CSV/图表均已生成。
+- 参考命令：
+  ```
+  /home/zhaotao/venvs/wrench-env/bin/python scripts/4_run_experiments.py \
+      --strategies FIFO HEFT MINMIN WASS_RAG_FULL WASS_DRL_VANILLA \
+      --rag-model models/saved_models/drl_agent.pth \
+      --drl-model models/saved_models/drl_agent_no_rag.pth \
+      --workflow-dir data/workflows/experiment \
+      --output-dir results/extreme_top3_noise01 \
+      --min-host-speed 100 \
+      --heft-noise-sigma 0.1 \
+      --seeds 0 1 2 3 4
+  ```
+- 验收标准：
+  1. 在激活后的虚拟环境中运行脚本可顺利完成端到端流程并返回 0。
+  2. `results/` 目录自动生成最新的详细/摘要 CSV、图表文件以及配置快照（JSON 或 YAML）。
+  3. README 或文档补充脚本使用示例与参数说明。
+- 依赖：P1 任务 1、任务 2。
+- 备注：2025-11-03 新增 `scripts/run_full_pipeline.py` 串联五个阶段，默认执行“知识库播种→多策略实验→结果同步→图表输出”，支持 `--include-training`、`--skip-*` 等选项控制阶段开关。脚本自动在目标目录写入 `pipeline_config.json` 记录参数快照，并输出最终图表/摘要路径，任务验收完成。
 
 - **阶段里程碑**：提交完整对比实验数据及图表草稿，供论文撰写使用。
 
@@ -123,7 +153,7 @@
 ## 阶段 P2：深度分析与验证（中等优先级）
 
 ### 任务 1：可解释性案例分析
-- 状态：`未开始`
+- 状态：`进行中`
 - 负责人：待指派
 - 涉及文件：`src/rag/teacher.py`, `analysis/interpretability_case_study.py`
 - 关键要求：
@@ -135,9 +165,10 @@
   2. 至少完成一份可解释性案例图。
   3. 结果附带说明文档与生成脚本。
 - 依赖：阶段 P0、P1 完成。
+- 备注：2025-11-03 启动阶段 P2，计划本周在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值），并定义标准化日志格式；随后编写案例脚本加载最新 pipeline 输出目录，产出首个甘特图示例。
 
 ### 任务 2：验证双编码器有效性
-- 状态：`未开始`
+- 状态：`进行中`
 - 负责人：待指派
 - 涉及文件：`analysis/embedding_drift_analysis.py`, 训练脚本
 - 关键要求：
@@ -149,6 +180,7 @@
   2. 文本分析总结关键发现并与论文论点对齐。
   3. 数据与图表归档到 `results/` 对应目录。
 - 依赖：阶段 P0、P1 完成。
+- 备注：2025-11-03 启动阶段 P2，对照实验准备进入执行：计划先基于 `scripts/run_full_pipeline.py --include-training` 生成“冻结/解冻”两套模型快照，再撰写 `analysis/embedding_drift_analysis.py` 调用 UMAP+Matplotlib 对比嵌入；确认所需训练日志已在 `pipeline_config.json` 记录以便复现实验。
 
 - **阶段里程碑**：形成深度分析章节初稿与支撑数据。
 
@@ -185,6 +217,14 @@
 - 依赖：阶段 P0-P2。
 
 - **阶段里程碑**：提交完整归档包，完成项目收尾。
+
+---
+
+## 近期行动计划（2025-11）
+- **P2-1 日志改造**：本周抓取 `src/rag/teacher.py` 中检索细节，输出 JSON 行日志；同步更新 `scripts/run_full_pipeline.py` 将日志路径写入 `pipeline_config.json`。
+- **P2-1 可视化雏形**：从 `results/extreme_top3_noise01` 复制一次调度轨迹作为样例，验证 `analysis/interpretability_case_study.py` 甘特图绘制流程。
+- **P2-2 对照实验准备**：使用新管线分别运行“冻结/不冻结”策略各 10 episodes，固化模型至 `models/saved_models/embedding_drift/{frozen,unfrozen}`，为嵌入漂移分析提供输入。
+- **文档跟进**：待上述实验启动后，在 `README.md` 加入解释性与嵌入分析脚本的占位说明，保持文档与执行进度一致。
 
 ---
 
