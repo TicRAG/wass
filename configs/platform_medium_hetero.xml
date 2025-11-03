@@ -1,0 +1,100 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "https://simgrid.org/simgrid.dtd">
+<platform version="4.1">
+  <zone id="main" routing="Full">
+    <host id="ControllerHost" speed="1Gf" core="1"/>
+    <host id="StorageHost" speed="1Gf" core="1">
+      <disk id="storage_disk" read_bw="150MBps" write_bw="150MBps">
+        <prop id="size" value="1000GB"/>
+        <prop id="mount" value="/storage"/>
+      </disk>
+    </host>
+
+    <!-- Heterogeneous CPU hosts -->
+    <host id="cpu_host_0" speed="250Gf" core="16">
+      <prop id="ram" value="128GB"/>
+      <disk id="local_disk" read_bw="300MBps" write_bw="300MBps">
+        <prop id="size" value="400GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+    <host id="cpu_host_1" speed="180Gf" core="16">
+      <prop id="ram" value="96GB"/>
+      <disk id="local_disk" read_bw="260MBps" write_bw="260MBps">
+        <prop id="size" value="320GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+    <host id="cpu_host_2" speed="140Gf" core="16">
+      <prop id="ram" value="96GB"/>
+      <disk id="local_disk" read_bw="240MBps" write_bw="240MBps">
+        <prop id="size" value="320GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+    <host id="cpu_host_3" speed="100Gf" core="16">
+      <prop id="ram" value="64GB"/>
+      <disk id="local_disk" read_bw="220MBps" write_bw="220MBps">
+        <prop id="size" value="240GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+    <host id="cpu_host_4" speed="75Gf" core="16">
+      <prop id="ram" value="48GB"/>
+      <disk id="local_disk" read_bw="200MBps" write_bw="200MBps">
+        <prop id="size" value="200GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+    <host id="cpu_host_5" speed="50Gf" core="16">
+      <prop id="ram" value="48GB"/>
+      <disk id="local_disk" read_bw="180MBps" write_bw="180MBps">
+        <prop id="size" value="200GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <!-- GPU-accelerated hosts for diversity -->
+    <host id="gpu_host_0" speed="1500Gf" core="32">
+      <prop id="ram" value="256GB"/>
+      <disk id="local_disk" read_bw="350MBps" write_bw="350MBps">
+        <prop id="size" value="500GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+    <host id="gpu_host_1" speed="1200Gf" core="32">
+      <prop id="ram" value="192GB"/>
+      <disk id="local_disk" read_bw="320MBps" write_bw="320MBps">
+        <prop id="size" value="500GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <link id="network_link" bandwidth="120MBps" latency="1ms"/>
+
+    <!-- Routes from controller/storage to each compute host -->
+    <route src="ControllerHost" dst="cpu_host_0"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="cpu_host_0"><link_ctn id="network_link"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_1"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="cpu_host_1"><link_ctn id="network_link"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_2"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="cpu_host_2"><link_ctn id="network_link"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_3"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="cpu_host_3"><link_ctn id="network_link"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_4"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="cpu_host_4"><link_ctn id="network_link"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_5"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="cpu_host_5"><link_ctn id="network_link"/></route>
+
+    <route src="ControllerHost" dst="gpu_host_0"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="gpu_host_0"><link_ctn id="network_link"/></route>
+
+    <route src="ControllerHost" dst="gpu_host_1"><link_ctn id="network_link"/></route>
+    <route src="StorageHost" dst="gpu_host_1"><link_ctn id="network_link"/></route>
+  </zone>
+</platform>

@@ -1,12 +1,12 @@
 # src/wrench_schedulers.py
 from __future__ import annotations
 import wrench
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple, Set
 from pathlib import Path
+import json
 import torch
 from torch_geometric.data import Data
 import random
-import json
 import numpy as np
 
 from src.drl.gnn_encoder import GNNEncoder
@@ -145,6 +145,7 @@ class BaseScheduler:
         self.hosts = hosts
         self.extra_args = kwargs
         self.completed_tasks = set()
+        self._file_location_cache: Dict[Any, Any] = {}
 
     def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
         ready_tasks = workflow.get_ready_tasks()
@@ -153,9 +154,7 @@ class BaseScheduler:
                 continue
             host_name = self.get_scheduling_decision(task, workflow)
             if host_name:
-                file_locations = {}
-                for f in task.get_input_files(): file_locations[f] = storage_service
-                for f in task.get_output_files(): file_locations[f] = storage_service
+                file_locations = self._prepare_file_locations(task, storage_service, host_name)
                 job = self.simulation.create_standard_job([task], file_locations)
                 if host_name in self.compute_services:
                     self.compute_services[host_name].submit_standard_job(job)
@@ -167,6 +166,14 @@ class BaseScheduler:
 
     def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
         raise NotImplementedError
+
+    def _prepare_file_locations(self, task: wrench.Task, storage_service: wrench.StorageService, host_name: str) -> Dict[Any, Any]:
+        file_locations: Dict[Any, Any] = {}
+        for file_obj in task.get_input_files():
+            file_locations[file_obj] = storage_service
+        for file_obj in task.get_output_files():
+            file_locations[file_obj] = storage_service
+        return file_locations
 
 class FIFOScheduler(BaseScheduler):
     def __init__(self, *args, **kwargs):
@@ -183,35 +190,211 @@ class HEFTScheduler(BaseScheduler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
+        self.host_available_times = {name: 0.0 for name in self.hosts.keys()}
+        self.scheduled_tasks: Set[str] = set()
+        self.task_start_times: Dict[str, float] = {}
+        self.task_finish_times: Dict[str, float] = {}
+        self.task_host_assignment: Dict[str, str] = {}
+        # Default to a conservative bandwidth (≈0.1 MB/s) so communication cost meaningfully
+        # influences host selection unless the caller provides an explicit override.
+        self.network_bandwidth_bytes = float(self.extra_args.get('network_bandwidth', 1e5))
+        self.workflow_file_path = Path(self.extra_args.get('workflow_file', ''))
 
-    def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
-        best_host, earliest_finish_time = None, float('inf')
+        self.task_parents: Dict[str, List[str]] = {}
+        self.task_children: Dict[str, List[str]] = {}
+        self.task_input_files: Dict[str, List[str]] = {}
+        self.task_output_files: Dict[str, List[str]] = {}
+        self.task_flops: Dict[str, float] = {}
+        self.task_runtime: Dict[str, float] = {}
+        self.file_sizes: Dict[str, float] = {}
+        self.edge_transfer_sizes: Dict[Tuple[str, str], float] = {}
+        self._load_workflow_metadata()
+
+        self.upward_rank: Dict[str, float] = {}
+        for task_name in self.task_flops.keys():
+            self._compute_upward_rank(task_name)
+
+    def _load_workflow_metadata(self) -> None:
+        if not self.workflow_file_path or not self.workflow_file_path.exists():
+            return
+        try:
+            with self.workflow_file_path.open('r', encoding='utf-8') as handle:
+                data = json.load(handle)
+        except Exception:
+            return
+
+        spec = data.get('workflow', {}).get('specification', {})
+        files_section = spec.get('files', []) or []
+        for entry in files_section:
+            fid = entry.get('id')
+            if not fid:
+                continue
+            self.file_sizes[fid] = float(entry.get('sizeInBytes', 0.0))
+
+        tasks_section = spec.get('tasks', []) or []
+        for task_entry in tasks_section:
+            task_id = task_entry.get('id')
+            if not task_id:
+                continue
+            parents = list(task_entry.get('parents') or [])
+            children = list(task_entry.get('children') or [])
+            inputs = list(task_entry.get('inputFiles') or [])
+            outputs = list(task_entry.get('outputFiles') or [])
+            flops = float(task_entry.get('flops', 0.0))
+            runtime = float(task_entry.get('runtime', task_entry.get('runtimeInSeconds', 0.0)))
+
+            self.task_parents[task_id] = parents
+            self.task_children[task_id] = children
+            self.task_input_files[task_id] = inputs
+            self.task_output_files[task_id] = outputs
+            self.task_flops[task_id] = flops
+            self.task_runtime[task_id] = runtime
+
+        for child, parents in self.task_parents.items():
+            for parent in parents:
+                transfer_size = 0.0
+                parent_outputs = self.task_output_files.get(parent, [])
+                child_inputs = set(self.task_input_files.get(child, []))
+                for outfile in parent_outputs:
+                    if outfile in child_inputs:
+                        transfer_size += self.file_sizes.get(outfile, 0.0)
+                if transfer_size == 0.0 and parent_outputs:
+                    transfer_size = sum(self.file_sizes.get(ofile, 0.0) for ofile in parent_outputs)
+                self.edge_transfer_sizes[(parent, child)] = transfer_size
+
+    def _average_compute_cost(self, task_name: str) -> float:
+        flops = self.task_flops.get(task_name, 0.0)
+        if flops <= 0.0:
+            runtime = self.task_runtime.get(task_name)
+            return runtime if runtime is not None else 0.0
+        valid_times = [flops / speed for speed in self.host_speeds.values() if speed > 0]
+        if not valid_times:
+            return 0.0
+        return sum(valid_times) / len(valid_times)
+
+    def _average_comm_cost(self, parent: str, child: str) -> float:
+        size = self.edge_transfer_sizes.get((parent, child), 0.0)
+        if size <= 0.0 or self.network_bandwidth_bytes <= 0.0:
+            return 0.0
+        return size / self.network_bandwidth_bytes
+
+    def _compute_upward_rank(self, task_name: str) -> float:
+        if task_name in self.upward_rank:
+            return self.upward_rank[task_name]
+        base_cost = self._average_compute_cost(task_name)
+        children = self.task_children.get(task_name, [])
+        if not children:
+            rank_value = base_cost
+        else:
+            rank_value = base_cost + max(
+                self._average_comm_cost(task_name, child) + self._compute_upward_rank(child)
+                for child in children
+            )
+        self.upward_rank[task_name] = rank_value
+        return rank_value
+
+    def _get_comm_time(self, parent: str, child: str, host_name: str) -> float:
+        parent_host = self.task_host_assignment.get(parent)
+        if not parent_host or parent_host == host_name:
+            return 0.0
+        size = self.edge_transfer_sizes.get((parent, child), 0.0)
+        if size <= 0.0 or self.network_bandwidth_bytes <= 0.0:
+            return 0.0
+        return size / self.network_bandwidth_bytes
+
+    def _compute_time(self, task: wrench.Task, speed: float) -> float:
+        flops = task.get_flops()
+        if speed <= 0:
+            return float('inf')
+        if flops <= 0:
+            runtime = self.task_runtime.get(task.get_name(), 0.0)
+            return runtime
+        return flops / speed
+
+    def _select_host_for_task(self, task: wrench.Task) -> tuple[str | None, float, float]:
+        task_name = task.get_name()
+        best_host = None
+        best_finish = float('inf')
+        best_start = 0.0
         for host_name, speed in self.host_speeds.items():
-            compute_time = task.get_flops() / speed if speed > 0 else float('inf')
-            finish_time = self.simulation.get_simulated_time() + compute_time
-            if finish_time < earliest_finish_time:
-                earliest_finish_time, best_host = finish_time, host_name
-        return best_host
+            compute_time = self._compute_time(task, speed)
+            if compute_time == float('inf'):
+                continue
+            parent_ready = 0.0
+            for parent in self.task_parents.get(task_name, []):
+                finish = self.task_finish_times.get(parent, 0.0)
+                transfer = self._get_comm_time(parent, task_name, host_name)
+                parent_ready = max(parent_ready, finish + transfer)
+            earliest_start = max(self.host_available_times[host_name], parent_ready)
+            finish_time = earliest_start + compute_time
+            if finish_time < best_finish or (
+                finish_time == best_finish and earliest_start < best_start
+            ):
+                best_finish = finish_time
+                best_start = earliest_start
+                best_host = host_name
+        return best_host, best_start, best_finish
+
+    def _on_task_assigned(
+        self,
+        workflow: wrench.Workflow,
+        task: wrench.Task,
+        host_name: str,
+        start_time: float,
+        finish_time: float,
+    ) -> None:
+        # Subclasses can override to record scheduling decisions.
+        return
+
+    def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
+        ready_tasks = [t for t in workflow.get_ready_tasks() if t.get_name() not in self.scheduled_tasks]
+        if not ready_tasks:
+            return
+        ready_tasks.sort(key=lambda t: self.upward_rank.get(t.get_name(), 0.0), reverse=True)
+
+        for task in ready_tasks:
+            host_name, start_time, finish_time = self._select_host_for_task(task)
+            if host_name is None:
+                continue
+            file_locations = self._prepare_file_locations(task, storage_service, host_name)
+            job = self.simulation.create_standard_job([task], file_locations)
+            if host_name in self.compute_services:
+                self.compute_services[host_name].submit_standard_job(job)
+            else:
+                list(self.compute_services.values())[0].submit_standard_job(job)
+            task_name = task.get_name()
+            self.host_available_times[host_name] = finish_time
+            self.task_start_times[task_name] = start_time
+            self.task_finish_times[task_name] = finish_time
+            self.task_host_assignment[task_name] = host_name
+            self.scheduled_tasks.add(task_name)
+            self._on_task_assigned(workflow, task, host_name, start_time, finish_time)
+
+    def handle_completion(self, task: wrench.Task):
+        super().handle_completion(task)
+        self.scheduled_tasks.discard(task.get_name())
+
 
 class RecordingHEFTScheduler(KnowledgeRecordingMixin, HEFTScheduler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.decisions = {}
 
-    def get_scheduling_decision(self, task: wrench.Task, workflow: wrench.Workflow) -> str:
-        decision_time = self.simulation.get_simulated_time()
-        best_host = super().get_scheduling_decision(task, workflow)
-        speed = self.host_speeds.get(best_host, 1.0)
-        compute_time = task.get_flops() / speed if speed > 0 else float('inf')
-        finish_time = decision_time + compute_time
+    def _on_task_assigned(
+        self,
+        workflow: wrench.Workflow,
+        task: wrench.Task,
+        host_name: str,
+        start_time: float,
+        finish_time: float,
+    ) -> None:
         self.decisions[task.get_name()] = {
-            'host': best_host,
+            'host': host_name,
             'finish_time': finish_time,
-            'decision_time': decision_time,
+            'decision_time': start_time,
         }
         if self.knowledge_encoder is not None:
-            self._record_knowledge_state(workflow, task, decision_time, best_host, finish_time)
-        return best_host
+            self._record_knowledge_state(workflow, task, start_time, host_name, finish_time)
 
     def get_recorded_decisions(self):
         return self.decisions
@@ -247,6 +430,73 @@ class MinMinScheduler(BaseScheduler):
         super().__init__(*args, **kwargs)
         self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
         self.host_available_times = {name: 0.0 for name in self.hosts.keys()}
+        self.host_assignment_counts = {name: 0 for name in self.hosts.keys()}
+        self._inflight_assignments: dict[str, str] = {}
+        self.task_host_assignment: dict[str, str] = {}
+        self.completed_task_hosts: dict[str, str] = {}
+        self.task_finish_times: dict[str, float] = {}
+        self.workflow_file_path = Path(self.extra_args.get('workflow_file', ''))
+        self.network_bandwidth_bytes = float(self.extra_args.get('network_bandwidth', 1e5))
+        self.communication_scale = float(self.extra_args.get('communication_scale', 1.0))
+        self.default_remote_penalty = float(self.extra_args.get('default_remote_penalty', 0.0))
+        self.task_parents: Dict[str, List[str]] = {}
+        self.task_output_files: Dict[str, List[str]] = {}
+        self.task_input_files: Dict[str, List[str]] = {}
+        self.file_sizes: Dict[str, float] = {}
+        self.edge_transfer_sizes: Dict[Tuple[str, str], float] = {}
+        self._load_workflow_metadata()
+
+    def _load_workflow_metadata(self) -> None:
+        if not self.workflow_file_path or not self.workflow_file_path.exists():
+            return
+        try:
+            with self.workflow_file_path.open('r', encoding='utf-8') as handle:
+                data = json.load(handle)
+        except Exception:
+            return
+
+        spec = data.get('workflow', {}).get('specification', {})
+        for entry in spec.get('files', []) or []:
+            fid = entry.get('id')
+            if not fid:
+                continue
+            self.file_sizes[fid] = float(entry.get('sizeInBytes', 0.0))
+
+        for task_entry in spec.get('tasks', []) or []:
+            task_id = task_entry.get('id')
+            if not task_id:
+                continue
+            self.task_parents[task_id] = list(task_entry.get('parents') or [])
+            self.task_output_files[task_id] = list(task_entry.get('outputFiles') or [])
+            self.task_input_files[task_id] = list(task_entry.get('inputFiles') or [])
+
+        for child, parents in self.task_parents.items():
+            for parent in parents:
+                transfer_size = 0.0
+                parent_outputs = self.task_output_files.get(parent, [])
+                child_inputs = set(self.task_input_files.get(child, []))
+                for outfile in parent_outputs:
+                    if outfile in child_inputs:
+                        transfer_size += self.file_sizes.get(outfile, 0.0)
+                if transfer_size == 0.0 and parent_outputs:
+                    transfer_size = sum(self.file_sizes.get(ofile, 0.0) for ofile in parent_outputs)
+                self.edge_transfer_sizes[(parent, child)] = transfer_size
+
+    def _estimate_comm_penalty(self, task: wrench.Task, host_name: str) -> float:
+        if not self.task_parents:
+            return 0.0
+        task_name = task.get_name()
+        total_penalty = 0.0
+        for parent in self.task_parents.get(task_name, []):
+            parent_host = self.completed_task_hosts.get(parent) or self.task_host_assignment.get(parent)
+            if not parent_host or parent_host == host_name:
+                continue
+            transfer_size = self.edge_transfer_sizes.get((parent, task_name), 0.0)
+            if transfer_size > 0.0 and self.network_bandwidth_bytes > 0.0:
+                total_penalty += (transfer_size / self.network_bandwidth_bytes) * self.communication_scale
+            elif self.default_remote_penalty > 0.0:
+                total_penalty += self.default_remote_penalty
+        return total_penalty
 
     def schedule_ready_tasks(self, workflow: wrench.Workflow, storage_service: wrench.StorageService):
         ready_tasks = list(workflow.get_ready_tasks())
@@ -254,9 +504,9 @@ class MinMinScheduler(BaseScheduler):
             return
 
         current_time = self.simulation.get_simulated_time()
-        temp_available = self.host_available_times.copy()
         assignments = []
-
+        temp_available = self.host_available_times.copy()
+        temp_assignment_counts = self.host_assignment_counts.copy()
         remaining_tasks = ready_tasks.copy()
         while remaining_tasks:
             best_assignment = None
@@ -265,8 +515,27 @@ class MinMinScheduler(BaseScheduler):
                 for host_name, speed in self.host_speeds.items():
                     compute_time = task_flops / speed if speed > 0 else float('inf')
                     start_time = max(temp_available[host_name], current_time)
-                    finish_time = start_time + compute_time
-                    if best_assignment is None or finish_time < best_assignment['finish_time']:
+                    finish_time = start_time + compute_time + self._estimate_comm_penalty(task, host_name)
+                    # Prefer hosts that can start earlier when finish times tie to avoid queueing on the first entry.
+                    if (
+                        best_assignment is None
+                        or finish_time < best_assignment['finish_time']
+                        or (
+                            finish_time == best_assignment['finish_time']
+                            and start_time < best_assignment['start_time']
+                        )
+                        or (
+                            finish_time == best_assignment['finish_time']
+                            and start_time == best_assignment['start_time']
+                            and compute_time < best_assignment['compute_time']
+                        )
+                        or (
+                            finish_time == best_assignment['finish_time']
+                            and start_time == best_assignment['start_time']
+                            and compute_time == best_assignment['compute_time']
+                            and temp_assignment_counts[host_name] < temp_assignment_counts[best_assignment['host']]
+                        )
+                    ):
                         best_assignment = {
                             'task': task,
                             'host': host_name,
@@ -278,22 +547,33 @@ class MinMinScheduler(BaseScheduler):
                 break
             assignments.append(best_assignment)
             temp_available[best_assignment['host']] = best_assignment['finish_time']
+            temp_assignment_counts[best_assignment['host']] += 1
             remaining_tasks.remove(best_assignment['task'])
 
         for assignment in assignments:
             task = assignment['task']
             host_name = assignment['host']
-            file_locations = {}
-            for f in task.get_input_files():
-                file_locations[f] = storage_service
-            for f in task.get_output_files():
-                file_locations[f] = storage_service
+            file_locations = self._prepare_file_locations(task, storage_service, host_name)
             job = self.simulation.create_standard_job([task], file_locations)
             if host_name in self.compute_services:
                 self.compute_services[host_name].submit_standard_job(job)
             else:
                 list(self.compute_services.values())[0].submit_standard_job(job)
             self.host_available_times[host_name] = assignment['finish_time']
+            self.host_assignment_counts[host_name] += 1
+            task_name = task.get_name()
+            self.task_host_assignment[task_name] = host_name
+            self.task_finish_times[task_name] = assignment['finish_time']
+            self._inflight_assignments[task.get_name()] = host_name
+
+    def handle_completion(self, task: wrench.Task):
+        super().handle_completion(task)
+        # Decrement outstanding assignments so future ties favour less loaded hosts.
+        host = self._inflight_assignments.pop(task.get_name(), None)
+        if host in self.host_assignment_counts:
+            self.host_assignment_counts[host] = max(0, self.host_assignment_counts[host] - 1)
+        if host:
+            self.completed_task_hosts[task.get_name()] = host
 
 
 class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
@@ -308,6 +588,7 @@ class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
 
         current_time = self.simulation.get_simulated_time()
         temp_available = self.host_available_times.copy()
+        temp_assignment_counts = self.host_assignment_counts.copy()
         assignments = []
         remaining_tasks = ready_tasks.copy()
 
@@ -318,8 +599,26 @@ class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
                 for host_name, speed in self.host_speeds.items():
                     compute_time = task_flops / speed if speed > 0 else float('inf')
                     start_time = max(temp_available[host_name], current_time)
-                    finish_time = start_time + compute_time
-                    if best_assignment is None or finish_time < best_assignment['finish_time']:
+                    finish_time = start_time + compute_time + self._estimate_comm_penalty(task, host_name)
+                    if (
+                        best_assignment is None
+                        or finish_time < best_assignment['finish_time']
+                        or (
+                            finish_time == best_assignment['finish_time']
+                            and start_time < best_assignment['start_time']
+                        )
+                        or (
+                            finish_time == best_assignment['finish_time']
+                            and start_time == best_assignment['start_time']
+                            and compute_time < best_assignment['compute_time']
+                        )
+                        or (
+                            finish_time == best_assignment['finish_time']
+                            and start_time == best_assignment['start_time']
+                            and compute_time == best_assignment['compute_time']
+                            and temp_assignment_counts[host_name] < temp_assignment_counts[best_assignment['host']]
+                        )
+                    ):
                         best_assignment = {
                             'task': task,
                             'host': host_name,
@@ -331,17 +630,14 @@ class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
                 break
             assignments.append(best_assignment)
             temp_available[best_assignment['host']] = best_assignment['finish_time']
+            temp_assignment_counts[best_assignment['host']] += 1
             remaining_tasks.remove(best_assignment['task'])
 
         for assignment in assignments:
             task = assignment['task']
             host_name = assignment['host']
             task_name = task.get_name()
-            file_locations = {}
-            for f in task.get_input_files():
-                file_locations[f] = storage_service
-            for f in task.get_output_files():
-                file_locations[f] = storage_service
+            file_locations = self._prepare_file_locations(task, storage_service, host_name)
             job = self.simulation.create_standard_job([task], file_locations)
             if host_name in self.compute_services:
                 self.compute_services[host_name].submit_standard_job(job)
@@ -353,6 +649,10 @@ class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
                 'finish_time': assignment['finish_time'],
                 'decision_time': assignment['start_time'],
             }
+            self.host_assignment_counts[host_name] += 1
+            self.task_host_assignment[task_name] = host_name
+            self.task_finish_times[task_name] = assignment['finish_time']
+            self._inflight_assignments[task_name] = host_name
             if self.knowledge_encoder is not None:
                 self._record_knowledge_state(
                     workflow,

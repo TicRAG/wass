@@ -11,11 +11,15 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.simulation.experiment_runner import WrenchExperimentRunner
-from src.simulation.schedulers import HEFTScheduler, MinMinScheduler, WASS_DRL_Scheduler_Inference
+from src.simulation.schedulers import FIFOScheduler, HEFTScheduler, MinMinScheduler, WASS_DRL_Scheduler_Inference
 from src.workflows.manager import WorkflowManager
 
 
 STRATEGY_DEFINITIONS = {
+    "FIFO": {
+        "label": "FIFO",
+        "factory": lambda args: FIFOScheduler,
+    },
     "WASS_RAG_FULL": {
         "label": "WASS-RAG (Full)",
         "factory": lambda args: partial(WASS_DRL_Scheduler_Inference, variant="rag", model_path=args.rag_model),
@@ -38,6 +42,8 @@ STRATEGY_DEFINITIONS = {
     },
 }
 
+DEFAULT_STRATEGIES = ["FIFO", "HEFT", "MINMIN"]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run WASS-RAG comparison experiments across multiple strategies.")
@@ -45,7 +51,7 @@ def parse_args() -> argparse.Namespace:
         "--strategies",
         nargs="+",
         choices=list(STRATEGY_DEFINITIONS.keys()),
-        default=list(STRATEGY_DEFINITIONS.keys()),
+    default=DEFAULT_STRATEGIES,
         help="Subset of strategies to execute. Defaults to all.",
     )
     parser.add_argument(
@@ -87,6 +93,18 @@ def parse_args() -> argparse.Namespace:
         "--workflow-dir",
         default="data/workflows/experiment",
         help="Directory containing experiment workflows (default: data/workflows/experiment).",
+    )
+    parser.add_argument(
+        "--minmin-comm-scale",
+        type=float,
+        default=1.0,
+        help="Scaling factor for communication penalties inside Min-Min scheduler (default: 1.0).",
+    )
+    parser.add_argument(
+        "--minmin-remote-penalty",
+        type=float,
+        default=0.0,
+        help="Fixed penalty (seconds) added for each remote parent edge in Min-Min when transfer size is zero or bandwidth unknown (default: 0.0).",
     )
     return parser.parse_args()
 
@@ -131,7 +149,14 @@ def main():
     strategy_factories = {}
     for key in args.strategies:
         definition = STRATEGY_DEFINITIONS[key]
-        strategy_factories[definition["label"]] = definition["factory"](args)
+        # Inject Min-Min specific penalty parameters
+        if key == "MINMIN":
+            factory = definition["factory"](args)
+            def wrapped_factory(*f_args, **f_kwargs):
+                return factory(*f_args, communication_scale=args.minmin_comm_scale, default_remote_penalty=args.minmin_remote_penalty, **f_kwargs)
+            strategy_factories[definition["label"]] = wrapped_factory
+        else:
+            strategy_factories[definition["label"]] = definition["factory"](args)
     print(f"📊 Strategies to compare: {list(strategy_factories.keys())}")
 
     runner = WrenchExperimentRunner(schedulers=strategy_factories, config=experiment_config)

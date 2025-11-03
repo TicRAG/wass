@@ -18,6 +18,8 @@ small_sizes:
 - 20
 workflow_dir: workflows
 
+synthetic_dir: data/workflows/synthetic
+
 training_workflows:
   # comm_intensive:
   #   sizes: [20,40] 
@@ -41,6 +43,13 @@ experiment_workflows:
     sizes: [100]
     count: 1
     seed_start: 100
+  synthetic:
+    files:
+      - synthetic_workflow_000.json
+      - synthetic_workflow_001.json
+      - synthetic_workflow_002.json
+      - synthetic_workflow_003.json
+      - synthetic_workflow_004.json
   # montage:
   #   sizes: [20,40]
   #   count: 6
@@ -63,7 +72,10 @@ platform_xml:
   mapping:
     small: platform_small.xml
     medium: platform_medium.xml
+    medium_hetero: platform_medium_hetero.xml
+    tight: platform_tight.xml
+    extreme_hetero: platform_extreme_hetero.xml
     large: platform_large.xml
     test: test_platform.xml
-  default: small
+  default: extreme_hetero
 

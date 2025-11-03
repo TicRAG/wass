@@ -8,6 +8,7 @@
 ## 更新历史
 | 版本 | 日期 | 作者 | 说明 |
 | --- | --- | --- | --- |
+| v0.14 | 2025-10-31 | TODO | 建立合成工作流生成器，规划差异化基准重跑实验 |
 | v0.13 | 2025-10-30 | TODO | 生成 P1 实验图表与消融汇总，标记任务进度 |
 | v0.12 | 2025-10-30 | TODO | README 增补 P1 实验 CLI 使用说明，状态回填 |
 | v0.11 | 2025-10-30 | TODO | 启动 P1-1：实验运行器支持五策略 CLI，并完成单例 smoke test |
@@ -113,7 +114,7 @@
   2. 原始数据与图表版本可追踪（存储命名规范统一）。
   3. 结果脚本可复现并附带运行说明。
 - 依赖：P1 任务 1。
-- 备注：2025-10-30 调整 `analysis/plot_results.py` 读取 `detailed_results.csv`，输出整体/按工作流的误差条图与箱线图，并生成 `results/final_experiments/ablation_summary.csv`；命令 `source $HOME/venvs/wrench-env/bin/activate && python analysis/plot_results.py` 成功产出 `charts/overall_makespan_bar.png` 等三张图。训练曲线仍待根据日志格式设计，后续需完善。
+- 备注：2025-10-30 调整 `analysis/plot_results.py` 读取 `detailed_results.csv`，输出整体/按工作流的误差条图与箱线图，并生成 `results/final_experiments/ablation_summary.csv`；命令 `source $HOME/venvs/wrench-env/bin/activate && python analysis/plot_results.py` 成功产出 `charts/overall_makespan_bar.png` 等三张图。训练曲线仍待根据日志格式设计，后续需完善。2025-10-31 新增 `scripts/generate_synthetic_workflows.py` 可生成高并行度基准，后续步骤：1) 生成不少于 3 条并行度更高的工作流；2) 更新 `configs/workflow_config.yaml`/实验目录引用合成基准；3) 重跑 HEFT/MIN-MIN/DRL/RAG 比较确认 makespan 可区分；4) 用新结果刷新图表与消融表。
 
 - **阶段里程碑**：提交完整对比实验数据及图表草稿，供论文撰写使用。
 

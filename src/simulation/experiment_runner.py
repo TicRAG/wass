@@ -315,8 +315,27 @@ class WrenchExperimentRunner:
         detailed_csv_path = self.output_dir / "detailed_results.csv"
         df.to_csv(detailed_csv_path, index=False)
         print(f"✅ 详细实验结果已保存到: {detailed_csv_path}")
-        summary = df.groupby('scheduler')['makespan'].agg(['mean', 'std', 'min', 'count']).reset_index()
-        summary = summary.rename(columns={'scheduler': '调度器', 'mean': '平均Makespan', 'std': '标准差', 'min': '最佳', 'count': '实验次数'})
+        # 排除失败的运行，避免 inf 污染统计
+        success_df = df[df['status'] == 'success'].copy()
+        if success_df.empty:
+            print("⚠️ 全部实验均失败，无法生成成功统计摘要。")
+            summary = pd.DataFrame({
+                '调度器': df['scheduler'].unique(),
+                '平均Makespan': [float('inf')] * len(df['scheduler'].unique()),
+                '标准差': [None] * len(df['scheduler'].unique()),
+                '最佳': [float('inf')] * len(df['scheduler'].unique()),
+                '实验次数': [0] * len(df['scheduler'].unique()),
+                '成功次数': [0] * len(df['scheduler'].unique()),
+                '失败次数': [len(df[df['scheduler'] == s]) for s in df['scheduler'].unique()],
+            })
+        else:
+            summary = success_df.groupby('scheduler')['makespan'].agg(['mean', 'std', 'min', 'count']).reset_index()
+            summary = summary.rename(columns={'scheduler': '调度器', 'mean': '平均Makespan', 'std': '标准差', 'min': '最佳', 'count': '实验次数'})
+            # 附加成功/失败计数 (使用原始列名进行分组)
+            success_counts = success_df.groupby('scheduler').size().to_dict()
+            fail_counts = df[df['status'] != 'success'].groupby('scheduler').size().to_dict()
+            summary['成功次数'] = summary['调度器'].map(success_counts).fillna(0).astype(int)
+            summary['失败次数'] = summary['调度器'].map(fail_counts).fillna(0).astype(int)
         print("\n" + "="*60); print("📈 实验结果分析:"); print(summary.to_string(index=False)); print("="*60 + "\n")
         summary_csv_path = self.output_dir / "summary_results.csv"
         summary.to_csv(summary_csv_path, index=False)

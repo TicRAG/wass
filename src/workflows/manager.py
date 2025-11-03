@@ -30,6 +30,7 @@ class WorkflowManager:
         with open(self.config_path, 'r') as f:
             self.config = yaml.safe_load(f)
         print("✅ [WorkflowManager] Config loaded successfully.")
+        self.synthetic_dir = Path(self.config.get("synthetic_dir", ""))
 
     def get_platform_file(self, key: str = None) -> str:
         """Resolve platform XML path using config/env override."""
@@ -76,7 +77,23 @@ class WorkflowManager:
         if "experiment_workflows" not in self.config:
             return []
         print("\n🔬 [WorkflowManager] Generating EXPERIMENT workflows...")
-        return self._generate_workflows("experiment", self.config["experiment_workflows"])
+        workflows = []
+        experiment_cfg = self.config.get("experiment_workflows", {})
+        for name, params in experiment_cfg.items():
+            file_list = params.get("files")
+            if file_list:
+                base_dir = self.synthetic_dir if name == "synthetic" and self.synthetic_dir else "data/workflows/experiment"
+                for fname in file_list:
+                    workflows.append(str(Path(base_dir) / fname))
+                continue
+            sizes = params.get("sizes", [])
+            count = params.get("count", 0)
+            seed_start = params.get("seed_start", 0)
+            for idx in range(count):
+                size = sizes[min(idx, len(sizes) - 1)] if sizes else None
+                filename = f"{name}_{size}_{seed_start + idx}.json" if size else f"{name}_{seed_start + idx}.json"
+                workflows.append(str(Path("data/workflows/experiment") / filename))
+        return workflows
 
     def generate_training_workflows(self):
         """(Deprecated) Synthetic training workflows (unused)."""
