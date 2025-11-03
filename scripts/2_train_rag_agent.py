@@ -6,9 +6,9 @@ import random
 
 # --- 路径修正 ---
 # 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 # -----------------
 import torch
 import torch.nn as nn
@@ -19,9 +19,9 @@ import xml.etree.ElementTree as ET
 import joblib
 
 # --- Path fix ---
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
 # -----------------
 
 from src.workflows.manager import WorkflowManager
@@ -67,7 +67,7 @@ EPS_CLIP = float(PPO_CFG.get("eps_clip", 0.2))
 TOTAL_EPISODES = int(RAG_CFG.get("total_episodes", 200))
 SAVE_INTERVAL = int(RAG_CFG.get("save_interval", 50)) if RAG_CFG.get("save_interval") is not None else 0
 
-MODEL_SAVE_DIR = MODEL_CFG.get("save_dir", "models/saved_models")
+MODEL_SAVE_DIR = os.path.join(PROJECT_ROOT, MODEL_CFG.get("save_dir", "models/saved_models"))
 MODEL_FILENAME = MODEL_CFG.get("filename", "drl_agent.pth")
 AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, MODEL_FILENAME)
 
@@ -137,6 +137,7 @@ def main():
     platform_file = workflow_manager.get_platform_file()
     action_dim = infer_action_dim(platform_file)
     # Dual encoders: policy (trainable) vs rag (frozen, matches KB space)
+    print(f"🧮 Inferred action dimension from platform '{platform_file}': {action_dim}")
     dual_gnn_encoder = DecoupledGNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
     policy_gnn_encoder = dual_gnn_encoder.policy_encoder
     rag_gnn_encoder = dual_gnn_encoder.retrieval_encoder
@@ -449,6 +450,7 @@ def main():
 
     total_loop_elapsed = time.time() - loop_start
     print(f"\n[Step 4/4] Training finished. Total loop time: {total_loop_elapsed:.2f}s")
+    torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
     print(f"✅ Final model saved to: {AGENT_MODEL_PATH}")
     print("\n🎉 [Phase 3] DRL Agent Training Completed! 🎉")
 

@@ -96,7 +96,7 @@ def parse_args() -> argparse.Namespace:
     ], help="Strategies to evaluate (passed through to scripts/4_run_experiments.py)")
     parser.add_argument("--seeds", nargs="+", default=["0", "1", "2", "3", "4"], help="Random seeds for experiments.")
     parser.add_argument("--workflow-dir", default="data/workflows/experiment", help="Workflow directory for experiments.")
-    parser.add_argument("--min-host-speed", type=float, default=100.0, help="Minimum host speed (Gf/s) filter passed to experiment runner.")
+    parser.add_argument("--min-host-speed", type=float, default=0.0, help="Minimum host speed (Gf/s) filter passed to experiment runner.")
     parser.add_argument("--heft-noise-sigma", type=float, default=0.1, help="Noise sigma forwarded to HEFT scheduler.")
     parser.add_argument("--minmin-comm-scale", type=float, default=15.0, help="Communication scale for Min-Min scheduler.")
     parser.add_argument("--minmin-remote-penalty", type=float, default=20.0, help="Remote penalty for Min-Min scheduler.")
@@ -152,8 +152,6 @@ def main() -> None:
             args.workflow_dir,
             "--output-dir",
             str(output_dir.relative_to(PROJECT_ROOT) if output_dir.is_relative_to(PROJECT_ROOT) else output_dir),
-            "--min-host-speed",
-            str(args.min_host_speed),
             "--heft-noise-sigma",
             str(args.heft_noise_sigma),
             "--minmin-comm-scale",
@@ -173,6 +171,8 @@ def main() -> None:
             "--seeds",
             *args.seeds,
         ]
+        if args.min_host_speed > 0:
+            experiment_cmd.extend(["--min-host-speed", str(args.min_host_speed)])
         run_command(experiment_cmd, dry_run=args.dry_run, cwd=PROJECT_ROOT, description="Run comparison experiments")
         command_log.append({"stage": "experiments", "command": experiment_cmd})
 
@@ -193,7 +193,7 @@ def main() -> None:
         "strategies": args.strategies,
         "seeds": args.seeds,
         "workflow_dir": args.workflow_dir,
-        "min_host_speed": args.min_host_speed,
+    "min_host_speed": args.min_host_speed,
         "heft_noise_sigma": args.heft_noise_sigma,
         "minmin_comm_scale": args.minmin_comm_scale,
         "minmin_remote_penalty": args.minmin_remote_penalty,

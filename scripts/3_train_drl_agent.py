@@ -5,9 +5,9 @@ import random
 
 # --- 路径修正 ---
 # 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 # -----------------
 import torch
 import torch.nn as nn
@@ -18,9 +18,9 @@ import xml.etree.ElementTree as ET
 import json
 
 # --- Path fix ---
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
 # -----------------
 
 from src.workflows.manager import WorkflowManager
@@ -63,7 +63,7 @@ EPS_CLIP = float(PPO_CFG.get("eps_clip", 0.2))
 TOTAL_EPISODES = int(DRL_CFG.get("total_episodes", 200))
 SAVE_INTERVAL = int(DRL_CFG.get("save_interval", 50)) if DRL_CFG.get("save_interval") is not None else 0
 
-MODEL_SAVE_DIR = MODEL_CFG.get("save_dir", "models/saved_models")
+MODEL_SAVE_DIR = os.path.join(PROJECT_ROOT, MODEL_CFG.get("save_dir", "models/saved_models"))
 MODEL_FILENAME = MODEL_CFG.get("filename", "drl_agent_no_rag.pth")
 AGENT_MODEL_PATH = os.path.join(MODEL_SAVE_DIR, MODEL_FILENAME)
 
@@ -121,6 +121,7 @@ def main():
     workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
     platform_file = workflow_manager.get_platform_file()
     action_dim = infer_action_dim(platform_file)
+    print(f"🧮 Inferred action dimension from platform '{platform_file}': {action_dim}")
     gnn_encoder = GNNEncoder(GNN_IN_CHANNELS, GNN_HIDDEN_CHANNELS, GNN_OUT_CHANNELS)
     # Load feature scaler for consistency with KB seeding
     feature_scaler = None
@@ -256,6 +257,7 @@ def main():
             print(f"💾 NO-RAG Model saved at episode {episode}")
 
     print("\n[Step 4/4] Training finished.")
+    torch.save(policy_agent.state_dict(), AGENT_MODEL_PATH)
     print(f"✅ Final NO-RAG model saved to: {AGENT_MODEL_PATH}")
     print("\n🎉 [Phase 3.1] DRL Agent (NO RAG) Training Completed! 🎉")
 

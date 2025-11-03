@@ -81,12 +81,12 @@ WASS-RAG 通过深度强化学习 (DRL) + 检索增强 (RAG) 的组合提升科�
     python scripts/run_full_pipeline.py \
       --output-dir results/extreme_top3_noise01 \
       --workflow-dir data/workflows/experiment \
-      --min-host-speed 100 \
       --heft-noise-sigma 0.1 \
       --seeds 0 1 2 3 4
     ```
 
     - 默认启用知识库播种、实验与绘图阶段，可通过 `--include-training` 开启 RAG/DRL 训练，或使用 `--skip-*` 精细控制阶段。
+    - 如需过滤慢速主机，可显式传入 `--min-host-speed <阈值>`；未设置时保留完整平台，避免与预训练模型动作空间不匹配。
     - 关键参数与执行时间快照会写入目标结果目录中的 `pipeline_config.json`，便于复现。
     - 仍可使用旧的 `run_pipeline.sh` 达成类似效果，但推荐迁移到 Python 版本以获得更细粒度控制与日志输出。
 
