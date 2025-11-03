@@ -8,6 +8,7 @@ import torch
 from torch_geometric.data import Data
 import random
 import numpy as np
+import math
 
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.agent import ActorCritic
@@ -53,6 +54,59 @@ _DEFAULT_MODEL_PATHS = {
     "rag": _default_model_path("rag"),
     "drl": _default_model_path("drl"),
 }
+
+
+def _populate_missing_file_sizes(
+    file_sizes: Dict[str, float],
+    tasks_section: List[dict[str, Any]] | None,
+    default_per_file: float = 5e7,
+) -> None:
+    """Assign heuristic sizes to files that lack explicit metadata.
+
+    Synthetic workflows often omit `sizeInBytes`, which disables any
+    communication-aware behaviour in HEFT/MIN-MIN. This helper recovers a
+    reasonable signal from runtime/compute hints so schedulers can
+    differentiate host placement decisions.
+    """
+    if not tasks_section:
+        return
+
+    for task_entry in tasks_section:
+        if not isinstance(task_entry, dict):
+            continue
+        output_files = list(task_entry.get("outputFiles") or [])
+        if not output_files:
+            continue
+
+        runtime_candidates = []
+        for key in ("runtime", "runtimeInSeconds"):
+            value = task_entry.get(key)
+            if value is not None:
+                try:
+                    runtime_candidates.append(float(value))
+                except (TypeError, ValueError):
+                    continue
+        runtime_hint = max(runtime_candidates) if runtime_candidates else None
+
+        flops_hint = task_entry.get("flops")
+        if flops_hint is not None:
+            try:
+                flops_hint = float(flops_hint)
+            except (TypeError, ValueError):
+                flops_hint = None
+
+        estimated_total_size = None
+        if runtime_hint is not None and math.isfinite(runtime_hint) and runtime_hint > 0.0:
+            estimated_total_size = runtime_hint * 5e7  # ~50 MB/s equivalent
+        elif flops_hint is not None and math.isfinite(flops_hint) and flops_hint > 0.0:
+            estimated_total_size = max(flops_hint / 20.0, default_per_file)
+
+        if estimated_total_size is None or estimated_total_size <= 0.0:
+            estimated_total_size = default_per_file * len(output_files)
+
+        per_file_size = max(estimated_total_size / max(len(output_files), 1), default_per_file)
+        for outfile in output_files:
+            file_sizes.setdefault(outfile, per_file_size)
 
 
 class KnowledgeRecordingMixin:
@@ -199,6 +253,8 @@ class HEFTScheduler(BaseScheduler):
         # influences host selection unless the caller provides an explicit override.
         self.network_bandwidth_bytes = float(self.extra_args.get('network_bandwidth', 1e5))
         self.workflow_file_path = Path(self.extra_args.get('workflow_file', ''))
+        self.noise_sigma = float(self.extra_args.get('noise_sigma', 0.0))
+        self._cost_noise: Dict[tuple[str, str], float] = {}
 
         self.task_parents: Dict[str, List[str]] = {}
         self.task_children: Dict[str, List[str]] = {}
@@ -250,6 +306,8 @@ class HEFTScheduler(BaseScheduler):
             self.task_flops[task_id] = flops
             self.task_runtime[task_id] = runtime
 
+        _populate_missing_file_sizes(self.file_sizes, tasks_section)
+
         for child, parents in self.task_parents.items():
             for parent in parents:
                 transfer_size = 0.0
@@ -267,7 +325,13 @@ class HEFTScheduler(BaseScheduler):
         if flops <= 0.0:
             runtime = self.task_runtime.get(task_name)
             return runtime if runtime is not None else 0.0
-        valid_times = [flops / speed for speed in self.host_speeds.values() if speed > 0]
+        valid_times = []
+        for host_name, speed in self.host_speeds.items():
+            if speed <= 0:
+                continue
+            base_time = flops / speed
+            noise = self._get_noise_factor(task_name, host_name)
+            valid_times.append(base_time * noise)
         if not valid_times:
             return 0.0
         return sum(valid_times) / len(valid_times)
@@ -302,14 +366,27 @@ class HEFTScheduler(BaseScheduler):
             return 0.0
         return size / self.network_bandwidth_bytes
 
-    def _compute_time(self, task: wrench.Task, speed: float) -> float:
+    def _get_noise_factor(self, task_name: str, host_name: str) -> float:
+        if self.noise_sigma <= 0.0:
+            return 1.0
+        key = (task_name, host_name)
+        factor = self._cost_noise.get(key)
+        if factor is None:
+            sample = random.gauss(1.0, self.noise_sigma)
+            factor = max(sample, 0.1)
+            self._cost_noise[key] = factor
+        return factor
+
+    def _compute_time(self, task: wrench.Task, speed: float, host_name: str) -> float:
         flops = task.get_flops()
         if speed <= 0:
             return float('inf')
         if flops <= 0:
             runtime = self.task_runtime.get(task.get_name(), 0.0)
             return runtime
-        return flops / speed
+        base = flops / speed
+        noise = self._get_noise_factor(task.get_name(), host_name)
+        return base * noise
 
     def _select_host_for_task(self, task: wrench.Task) -> tuple[str | None, float, float]:
         task_name = task.get_name()
@@ -317,7 +394,7 @@ class HEFTScheduler(BaseScheduler):
         best_finish = float('inf')
         best_start = 0.0
         for host_name, speed in self.host_speeds.items():
-            compute_time = self._compute_time(task, speed)
+            compute_time = self._compute_time(task, speed, host_name)
             if compute_time == float('inf'):
                 continue
             parent_ready = 0.0
@@ -439,6 +516,8 @@ class MinMinScheduler(BaseScheduler):
         self.network_bandwidth_bytes = float(self.extra_args.get('network_bandwidth', 1e5))
         self.communication_scale = float(self.extra_args.get('communication_scale', 1.0))
         self.default_remote_penalty = float(self.extra_args.get('default_remote_penalty', 0.0))
+        self.balance_weight = float(self.extra_args.get('balance_weight', 0.0))
+        self.availability_weight = float(self.extra_args.get('availability_weight', 0.0))
         self.task_parents: Dict[str, List[str]] = {}
         self.task_output_files: Dict[str, List[str]] = {}
         self.task_input_files: Dict[str, List[str]] = {}
@@ -462,13 +541,16 @@ class MinMinScheduler(BaseScheduler):
                 continue
             self.file_sizes[fid] = float(entry.get('sizeInBytes', 0.0))
 
-        for task_entry in spec.get('tasks', []) or []:
+        tasks_section = spec.get('tasks', []) or []
+        for task_entry in tasks_section:
             task_id = task_entry.get('id')
             if not task_id:
                 continue
             self.task_parents[task_id] = list(task_entry.get('parents') or [])
             self.task_output_files[task_id] = list(task_entry.get('outputFiles') or [])
             self.task_input_files[task_id] = list(task_entry.get('inputFiles') or [])
+
+        _populate_missing_file_sizes(self.file_sizes, tasks_section)
 
         for child, parents in self.task_parents.items():
             for parent in parents:
@@ -516,21 +598,31 @@ class MinMinScheduler(BaseScheduler):
                     compute_time = task_flops / speed if speed > 0 else float('inf')
                     start_time = max(temp_available[host_name], current_time)
                     finish_time = start_time + compute_time + self._estimate_comm_penalty(task, host_name)
+                    queue_penalty = self.balance_weight * temp_assignment_counts[host_name]
+                    availability_penalty = self.availability_weight * max(temp_available[host_name] - current_time, 0.0)
+                    score = finish_time + queue_penalty + availability_penalty
                     # Prefer hosts that can start earlier when finish times tie to avoid queueing on the first entry.
                     if (
                         best_assignment is None
-                        or finish_time < best_assignment['finish_time']
+                        or score < best_assignment['score']
                         or (
-                            finish_time == best_assignment['finish_time']
+                            score == best_assignment['score']
+                            and finish_time < best_assignment['finish_time']
+                        )
+                        or (
+                            score == best_assignment['score']
+                            and finish_time == best_assignment['finish_time']
                             and start_time < best_assignment['start_time']
                         )
                         or (
-                            finish_time == best_assignment['finish_time']
+                            score == best_assignment['score']
+                            and finish_time == best_assignment['finish_time']
                             and start_time == best_assignment['start_time']
                             and compute_time < best_assignment['compute_time']
                         )
                         or (
-                            finish_time == best_assignment['finish_time']
+                            score == best_assignment['score']
+                            and finish_time == best_assignment['finish_time']
                             and start_time == best_assignment['start_time']
                             and compute_time == best_assignment['compute_time']
                             and temp_assignment_counts[host_name] < temp_assignment_counts[best_assignment['host']]
@@ -542,6 +634,7 @@ class MinMinScheduler(BaseScheduler):
                             'compute_time': compute_time,
                             'start_time': start_time,
                             'finish_time': finish_time,
+                            'score': score,
                         }
             if best_assignment is None:
                 break
@@ -600,20 +693,30 @@ class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
                     compute_time = task_flops / speed if speed > 0 else float('inf')
                     start_time = max(temp_available[host_name], current_time)
                     finish_time = start_time + compute_time + self._estimate_comm_penalty(task, host_name)
+                    queue_penalty = self.balance_weight * temp_assignment_counts[host_name]
+                    availability_penalty = self.availability_weight * max(temp_available[host_name] - current_time, 0.0)
+                    score = finish_time + queue_penalty + availability_penalty
                     if (
                         best_assignment is None
-                        or finish_time < best_assignment['finish_time']
+                        or score < best_assignment['score']
                         or (
-                            finish_time == best_assignment['finish_time']
+                            score == best_assignment['score']
+                            and finish_time < best_assignment['finish_time']
+                        )
+                        or (
+                            score == best_assignment['score']
+                            and finish_time == best_assignment['finish_time']
                             and start_time < best_assignment['start_time']
                         )
                         or (
-                            finish_time == best_assignment['finish_time']
+                            score == best_assignment['score']
+                            and finish_time == best_assignment['finish_time']
                             and start_time == best_assignment['start_time']
                             and compute_time < best_assignment['compute_time']
                         )
                         or (
-                            finish_time == best_assignment['finish_time']
+                            score == best_assignment['score']
+                            and finish_time == best_assignment['finish_time']
                             and start_time == best_assignment['start_time']
                             and compute_time == best_assignment['compute_time']
                             and temp_assignment_counts[host_name] < temp_assignment_counts[best_assignment['host']]
@@ -625,6 +728,7 @@ class RecordingMinMinScheduler(KnowledgeRecordingMixin, MinMinScheduler):
                             'compute_time': compute_time,
                             'start_time': start_time,
                             'finish_time': finish_time,
+                            'score': score,
                         }
             if best_assignment is None:
                 break

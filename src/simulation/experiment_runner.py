@@ -67,15 +67,29 @@ class WrenchExperimentRunner:
             all_hostnames = simulation.get_all_hostnames()
             compute_hosts = [host for host in all_hostnames if host not in [controller_host, "StorageHost"]]
             storage_service = simulation.create_simple_storage_service("StorageHost", ["/storage"])
-            compute_services = {}
+            min_host_speed = float(self.config.get("min_host_speed", 0.0) or 0.0)
+            compute_services: Dict[str, Any] = {}
+            hosts_properties: Dict[str, Dict[str, float]] = {}
+            filtered_hosts: list[tuple[str, float]] = []
             for host in compute_hosts:
-                compute_services[host] = simulation.create_bare_metal_compute_service(
+                service = simulation.create_bare_metal_compute_service(
                     host, {host: (-1, -1)}, "/scratch", {}, {})
-            hosts_properties = {}
-            for name, service in compute_services.items():
                 flop_rates = service.get_core_flop_rates()
                 speed = list(flop_rates.values())[0] if flop_rates else 0.0
-                hosts_properties[name] = {"speed": speed}
+                speed_gf = speed / 1e9 if speed else 0.0
+                if speed_gf < min_host_speed:
+                    filtered_hosts.append((host, speed_gf))
+                    continue
+                compute_services[host] = service
+                hosts_properties[host] = {"speed": speed}
+            if not compute_services:
+                raise RuntimeError(
+                    "No compute hosts available after applying min_host_speed="
+                    f"{min_host_speed}. Lower the threshold or adjust the platform configuration."
+                )
+            if filtered_hosts:
+                skipped = ", ".join(f"{name}({speed:.2f} Gf/s)" for name, speed in filtered_hosts)
+                print(f"⚖️  Filtered out slow hosts: {skipped}")
             
             with open(workflow_file, 'r') as f:
                 workflow_data = json.load(f)
@@ -226,17 +240,29 @@ class WrenchExperimentRunner:
             all_hostnames = simulation.get_all_hostnames()
             compute_hosts_names = [h for h in all_hostnames if h not in [controller_host, "StorageHost"]]
             storage_service = simulation.create_simple_storage_service("StorageHost", ["/storage"])
-
-            compute_services = {}
+            min_host_speed = float(self.config.get("min_host_speed", 0.0) or 0.0)
+            compute_services: Dict[str, Any] = {}
+            hosts_properties: Dict[str, Dict[str, float]] = {}
+            filtered_hosts: list[tuple[str, float]] = []
             for host_name in compute_hosts_names:
-                compute_services[host_name] = simulation.create_bare_metal_compute_service(
+                service = simulation.create_bare_metal_compute_service(
                     host_name, {host_name: (-1, -1)}, "/scratch", {}, {})
-
-            hosts_properties = {}
-            for name, service in compute_services.items():
                 flop_rates = service.get_core_flop_rates()
                 speed = list(flop_rates.values())[0] if flop_rates else 0.0
-                hosts_properties[name] = {"speed": speed}
+                speed_gf = speed / 1e9 if speed else 0.0
+                if speed_gf < min_host_speed:
+                    filtered_hosts.append((host_name, speed_gf))
+                    continue
+                compute_services[host_name] = service
+                hosts_properties[host_name] = {"speed": speed}
+            if not compute_services:
+                raise RuntimeError(
+                    "No compute hosts available after applying min_host_speed="
+                    f"{min_host_speed}. Lower the threshold or adjust the platform configuration."
+                )
+            if filtered_hosts:
+                skipped = ", ".join(f"{name}({speed:.2f} Gf/s)" for name, speed in filtered_hosts)
+                print(f"⚖️  Filtered out slow hosts: {skipped}")
             
             with open(workflow_file, 'r') as f:
                 workflow_data = json.load(f)

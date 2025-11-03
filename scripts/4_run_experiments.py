@@ -34,7 +34,7 @@ STRATEGY_DEFINITIONS = {
     },
     "HEFT": {
         "label": "HEFT",
-        "factory": lambda args: HEFTScheduler,
+        "factory": lambda args: partial(HEFTScheduler, noise_sigma=args.heft_noise_sigma),
     },
     "MINMIN": {
         "label": "MIN-MIN",
@@ -106,6 +106,35 @@ def parse_args() -> argparse.Namespace:
         default=0.0,
         help="Fixed penalty (seconds) added for each remote parent edge in Min-Min when transfer size is zero or bandwidth unknown (default: 0.0).",
     )
+    parser.add_argument(
+        "--platform-key",
+        default=None,
+        help="Override platform configuration key defined in configs/workflow_config.yaml (e.g., medium, tight).",
+    )
+    parser.add_argument(
+        "--heft-noise-sigma",
+        type=float,
+        default=0.0,
+        help="Standard deviation of Gaussian multiplicative noise applied to HEFT's predicted task durations (default: 0.0, i.e., perfect estimates).",
+    )
+    parser.add_argument(
+        "--minmin-balance-weight",
+        type=float,
+        default=0.0,
+        help="Penalty weight applied per in-flight assignment on a host in Min-Min (encourages load balancing).",
+    )
+    parser.add_argument(
+        "--minmin-availability-weight",
+        type=float,
+        default=0.0,
+        help="Penalty weight applied to a host's queued time beyond the current simulation time in Min-Min.",
+    )
+    parser.add_argument(
+        "--min-host-speed",
+        type=float,
+        default=0.0,
+        help="Exclude compute hosts whose reported flop-rate (in Gf/s) is below this threshold (default: keep all hosts).",
+    )
     return parser.parse_args()
 
 
@@ -135,7 +164,7 @@ def main():
     print("🚀 [P1] Starting comparison experiments...")
 
     workflow_manager = WorkflowManager(config_path="configs/workflow_config.yaml")
-    platform_file = workflow_manager.get_platform_file()
+    platform_file = workflow_manager.get_platform_file(key=args.platform_key)
     experiment_config = {
         "platform_file": platform_file,
         "workflow_dir": args.workflow_dir,
@@ -144,6 +173,7 @@ def main():
         "output_dir": args.output_dir,
         "random_seeds": args.seeds,
         "include_aug": args.include_aug,
+        "min_host_speed": args.min_host_speed,
     }
 
     strategy_factories = {}
@@ -153,7 +183,14 @@ def main():
         if key == "MINMIN":
             factory = definition["factory"](args)
             def wrapped_factory(*f_args, **f_kwargs):
-                return factory(*f_args, communication_scale=args.minmin_comm_scale, default_remote_penalty=args.minmin_remote_penalty, **f_kwargs)
+                return factory(
+                    *f_args,
+                    communication_scale=args.minmin_comm_scale,
+                    default_remote_penalty=args.minmin_remote_penalty,
+                    balance_weight=args.minmin_balance_weight,
+                    availability_weight=args.minmin_availability_weight,
+                    **f_kwargs,
+                )
             strategy_factories[definition["label"]] = wrapped_factory
         else:
             strategy_factories[definition["label"]] = definition["factory"](args)
