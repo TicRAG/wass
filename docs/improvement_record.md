@@ -8,25 +8,35 @@
 ## 更新历史
 | 版本 | 日期 | 作者 | 说明 |
 | --- | --- | --- | --- |
-| v0.18 | 2025-11-03 | TODO | 更新管线默认主机筛选逻辑，移除 min-host-speed 依赖 |
-| v0.17 | 2025-11-03 | TODO | 启动阶段 P2：可解释性与双编码器漂移验证进入执行 |
-| v0.16 | 2025-11-03 | TODO | 完成 P1 主实验绘图与一键管线脚本，实现参数快照 |
-| v0.15 | 2025-11-03 | TODO | 添加一键实验自动化任务与参数保存计划 |
-| v0.14 | 2025-10-31 | TODO | 建立合成工作流生成器，规划差异化基准重跑实验 |
-| v0.13 | 2025-10-30 | TODO | 生成 P1 实验图表与消融汇总，标记任务进度 |
-| v0.12 | 2025-10-30 | TODO | README 增补 P1 实验 CLI 使用说明，状态回填 |
-| v0.11 | 2025-10-30 | TODO | 启动 P1-1：实验运行器支持五策略 CLI，并完成单例 smoke test |
-| v0.10 | 2025-10-30 | TODO | 修复 PBRS 状态编码、补充教师单元测试，任务 3 验收 |
-| v0.9 | 2025-10-30 | TODO | 50-episode PBRS 长程训练验证奖励分布稳定，并新增 `Φ_t` 日志 |
-| v0.8 | 2025-10-30 | TODO | RAG/PBRS 与禁用回退 smoke test 完成，记录奖励区间 |
-| v0.7 | 2025-10-30 | TODO | 重新播种知识库并验证 `(s_key, q)` 统计与教师覆盖 |
-| v0.6 | 2025-10-30 | TODO | 完成双编码器单元测试覆盖并标记任务 1 已完成 |
-| v0.5 | 2025-10-30 | TODO | 训练脚本新增 `--disable_rag` 开关，支持回退至纯 DRL 流程 |
-| v0.4 | 2025-10-30 | TODO | 知识库改造：按决策采集嵌入与剩余工期，新增势函数实现 |
-| v0.4 | 2025-10-30 | TODO | 在训练调度器中接入 PBRS 势函数，更新奖励管线 |
-| v0.3 | 2025-10-30 | TODO | 扩展播种脚本支持 MIN-MIN，并记录剩余完工时间 |
-| v0.2 | 2025-10-30 | TODO | 完成双编码器架构初始实现，更新执行记录 |
-| v0.1 | 2025-10-30 | TODO | 根据改进计划生成初始执行记录框架 |
+| v0.28 | 2025-11-04 | GitHub Copilot | 扩展 WASS-RAG 推断温度/贪婪/Top-K 控制并运行首批性能扫描 |
+| v0.27 | 2025-11-04 | GitHub Copilot | 制定 WASS-RAG 性能优化与解释性串联执行计划 |
+| v0.26 | 2025-11-04 | GitHub Copilot | 为 WASS-RAG 推断新增随机化 tie-breaking 选项并完成 montage 随机探针 |
+| v0.25 | 2025-11-04 | GitHub Copilot | 批量解析 extreme_top3_noise01 trace，汇总摘要并生成甘特图 |
+| v0.24 | 2025-11-04 | GitHub Copilot | 新增 trace 甘特图脚本并跑通首个案例可视化 |
+| v0.23 | 2025-11-04 | GitHub Copilot | Trace 分析脚本支持 top-k 事件摘要并导出 CSV/JSON 汇总 |
+| v0.22 | 2025-11-04 | GitHub Copilot | 新增解释性日志分析脚本并产出 10-episode 样例 trace |
+| v0.21 | 2025-11-04 | GitHub Copilot | RAG 训练脚本开放 trace 日志开关，管线脚本传递 run_label 与 trace 路径 |
+| v0.20 | 2025-11-04 | GitHub Copilot | 宣布阶段 P2 全面启动，准备可解释性与嵌入漂移分析数据基线 |
+| v0.19 | 2025-11-03 | GitHub Copilot | 刷新 WASS DRL/RAG 模型至 6 主机动作空间，跑通完整管线并回填结果 |
+| v0.18 | 2025-11-03 | GitHub Copilot | 更新管线默认主机筛选逻辑，移除 min-host-speed 依赖 |
+| v0.17 | 2025-11-03 | GitHub Copilot | 启动阶段 P2：可解释性与双编码器漂移验证进入执行 |
+| v0.16 | 2025-11-03 | GitHub Copilot | 完成 P1 主实验绘图与一键管线脚本，实现参数快照 |
+| v0.15 | 2025-11-03 | GitHub Copilot | 添加一键实验自动化任务与参数保存计划 |
+| v0.14 | 2025-10-31 | GitHub Copilot | 建立合成工作流生成器，规划差异化基准重跑实验 |
+| v0.13 | 2025-10-30 | GitHub Copilot | 生成 P1 实验图表与消融汇总，标记任务进度 |
+| v0.12 | 2025-10-30 | GitHub Copilot | README 增补 P1 实验 CLI 使用说明，状态回填 |
+| v0.11 | 2025-10-30 | GitHub Copilot | 启动 P1-1：实验运行器支持五策略 CLI，并完成单例 smoke test |
+| v0.10 | 2025-10-30 | GitHub Copilot | 修复 PBRS 状态编码、补充教师单元测试，任务 3 验收 |
+| v0.9 | 2025-10-30 | GitHub Copilot | 50-episode PBRS 长程训练验证奖励分布稳定，并新增 `Φ_t` 日志 |
+| v0.8 | 2025-10-30 | GitHub Copilot | RAG/PBRS 与禁用回退 smoke test 完成，记录奖励区间 |
+| v0.7 | 2025-10-30 | GitHub Copilot | 重新播种知识库并验证 `(s_key, q)` 统计与教师覆盖 |
+| v0.6 | 2025-10-30 | GitHub Copilot | 完成双编码器单元测试覆盖并标记任务 1 已完成 |
+| v0.5 | 2025-10-30 | GitHub Copilot | 训练脚本新增 `--disable_rag` 开关，支持回退至纯 DRL 流程 |
+| v0.4 | 2025-10-30 | GitHub Copilot | 知识库改造：按决策采集嵌入与剩余工期，新增势函数实现 |
+| v0.4 | 2025-10-30 | GitHub Copilot | 在训练调度器中接入 PBRS 势函数，更新奖励管线 |
+| v0.3 | 2025-10-30 | GitHub Copilot | 扩展播种脚本支持 MIN-MIN，并记录剩余完工时间 |
+| v0.2 | 2025-10-30 | GitHub Copilot | 完成双编码器架构初始实现，更新执行记录 |
+| v0.1 | 2025-10-30 | GitHub Copilot | 根据改进计划生成初始执行记录框架 |
 
 ---
 
@@ -153,6 +163,8 @@
 
 ## 阶段 P2：深度分析与验证（中等优先级）
 
+2025-11-04：阶段 P2 正式启动。已将最新 `results/extreme_top3_noise01` 作为分析基线，后续任务将围绕该批数据产出可解释性日志与嵌入对照实验。
+
 ### 任务 1：可解释性案例分析
 - 状态：`进行中`
 - 负责人：待指派
@@ -166,7 +178,10 @@
   2. 至少完成一份可解释性案例图。
   3. 结果附带说明文档与生成脚本。
 - 依赖：阶段 P0、P1 完成。
-- 备注：2025-11-03 启动阶段 P2，计划本周在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值），并定义标准化日志格式；随后编写案例脚本加载最新 pipeline 输出目录，产出首个甘特图示例。
+- 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。
+- 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`。下一步提炼跨 seed 指标差异，撰写案例解读草稿并挑选对比图收录至文档。
+ - 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`；同日整理《Trace Case Study Notes》（`docs/interpretability_case_notes.md`）概括跨 workflow 奖励分布，选定 montage/epigenomics/seismology 作为主案例，并建议保留 synthetic 作为附录基线。下一步撰写案例解读草稿并从邻域明细抽取注释。
+ - 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`；同日整理《Trace Case Study Notes》（`docs/interpretability_case_notes.md`）概括跨 workflow 奖励分布，选定 montage/epigenomics/seismology 作为主案例，并建议保留 synthetic 作为附录基线。2025-11-04 新增 `--stochastic-tie-break` 开关并运行 montage 随机化探针（输出 `results/traces/extreme_top3_noise01_stochastic_summary/`、`results/stochastic_montage/`），对比展示随机打破 host 平局后的奖励跨度与主机分布。下一步撰写案例解读草稿并从邻域明细抽取注释；同时按性能优先级安排 WASS-RAG 参数调优（蒙太奇/地震工作流上扫描检索温度、动作贪婪阈值、批处理大小），锁定明显领先 HEFT 的配置后再整合解释性叙述与邻域注释。
 
 ### 任务 2：验证双编码器有效性
 - 状态：`进行中`
@@ -182,6 +197,7 @@
   3. 数据与图表归档到 `results/` 对应目录。
 - 依赖：阶段 P0、P1 完成。
 - 备注：2025-11-03 启动阶段 P2，对照实验准备进入执行：计划先基于 `scripts/run_full_pipeline.py --include-training` 生成“冻结/解冻”两套模型快照，再撰写 `analysis/embedding_drift_analysis.py` 调用 UMAP+Matplotlib 对比嵌入；确认所需训练日志已在 `pipeline_config.json` 记录以便复现实验。
+- 备注：2025-11-03 启动阶段 P2，对照实验准备进入执行：计划先基于 `scripts/run_full_pipeline.py --include-training` 生成“冻结/解冻”两套模型快照，再撰写 `analysis/embedding_drift_analysis.py` 调用 UMAP+Matplotlib 对比嵌入；确认所需训练日志已在 `pipeline_config.json` 记录以便复现实验。2025-11-04 已整理 6 主机新版模型权重作为对照实验基线。
 
 - **阶段里程碑**：形成深度分析章节初稿与支撑数据。
 
@@ -222,10 +238,56 @@
 ---
 
 ## 近期行动计划（2025-11）
-- **P2-1 日志改造**：本周抓取 `src/rag/teacher.py` 中检索细节，输出 JSON 行日志；同步更新 `scripts/run_full_pipeline.py` 将日志路径写入 `pipeline_config.json`。
-- **P2-1 可视化雏形**：从 `results/extreme_top3_noise01` 复制一次调度轨迹作为样例，验证 `analysis/interpretability_case_study.py` 甘特图绘制流程。
-- **P2-2 对照实验准备**：使用新管线分别运行“冻结/不冻结”策略各 10 episodes，固化模型至 `models/saved_models/embedding_drift/{frozen,unfrozen}`，为嵌入漂移分析提供输入。
-- **文档跟进**：待上述实验启动后，在 `README.md` 加入解释性与嵌入分析脚本的占位说明，保持文档与执行进度一致。
+- **性能优化冲刺**：针对 montage、epigenomics、seismology 工作流批量扫描检索温度、贪婪阈值、批处理大小与随机种子，锁定显著优于 HEFT 的 WASS-RAG 组合，并在 `results/stochastic_montage/` 基础上追加 makespan/奖励对照回归。
+- **解释性整合**：在确定领先配置后，回填对应 trace 至 `results/traces/extreme_top3_noise01`，从 `analysis/interpretability_case_study.py` 导出跨种子摘要，并在 `docs/interpretability_case_notes.md` 撰写案例解读草稿与邻域注释。
+- **嵌入漂移对照**：依据优化结果同步刷新冻结/解冻模型快照，运行 `analysis/embedding_drift_analysis.py` 生成 UMAP/t-SNE 图与量化指标，验证双编码器收益。
+- **文档与验收**：更新 `README.md` 与《改进计划》记录新参数、性能差异和复现步骤，确认 Task 1、Task 2 验收条件对齐最新实验。
+
+### 数据扩充计划（2025-11-04）
+- **负责人**：待指派
+- **目标**：扩充训练工作流与知识库数据量，为重新训练 WASS-RAG 提供更丰富样本。
+- **子任务**：
+  1. 运行 `scripts/augment_workflows.py` 为每个 WFCommons 基础工作流生成 ≥10 个扰动变体，写入 `data/workflows/training_aug/`。
+  2. 运行 `scripts/generate_synthetic_workflows.py` 追加 ≥20 个高并行度/高噪声合成工作流至 `data/workflows/training_aug/`。
+  3. 重新执行 `scripts/1_seed_knowledge_base.py`，将扩充后的训练集写入知识库（校验 `workflow_metadata.csv` 行数 ≥ 2× 当前规模）。
+  4. 使用 `scripts/2_train_rag_agent.py --include_aug` 启动新一轮训练，保存模型至 `models/saved_models/` 并记录日志至 `results/training_runs/`。
+ - **执行记录（2025-11-04）**：
+   - 运行 `python scripts/augment_workflows.py` 生成 150 个扰动变体，输出至 `data/workflows/training_aug/`（共 185 个训练工作流）。
+   - 运行 `python scripts/generate_synthetic_workflows.py --count 20` 追加 20 个合成工作流。
+   - 运行 `python scripts/1_seed_knowledge_base.py` 重新播种知识库，`workflow_metadata.csv` 行数增至 84,717（覆盖扩充语料）。
+   - 运行 `python scripts/2_train_rag_agent.py --include_aug --max_episodes 400 --log_dir results/training_runs/retrain_20251104 --run_label retrain_v1` 完成本轮训练，模型已保存至 `models/saved_models/drl_agent.pth`。
+  - **当前状态**：扩充与再训练已完成，但最新基准中 WASS-RAG 仍落后 HEFT（详见 `results/perf_sweep_extreme_top3/`），需继续执行性能调优与策略扫描以达到优势。
+- **验收指标**：
+  - `data/workflows/training_aug/` 含 ≥45 个新 JSON。
+  - 知识库记录数 ≥15k，覆盖新增工作流。
+  - 新训练日志与模型权重成功生成，makespan/奖励曲线稳定。
+
+### 近期重点行动拆解
+1. **优化试验矩阵执行（负责人待定，状态：`进行中`）**
+    - 批量运行 `scripts/4_run_experiments.py`，系统化扫描检索温度、贪婪阈值、批处理大小与随机种子组合。
+    - 将结果写入 `results/perf_sweep_extreme_top3/`，并与 HEFT 基线对比 makespan、奖励分布及主机利用率。
+    - 选定领先配置后，回填摘要至 `results/final_experiments/summary_results.csv` 并更新 `charts/`。
+  - 2025-11-04：已启动首轮组合（温度∈{0.5,0.7,0.9}×贪婪阈值∈{0.85,0.9}×批处理大小∈{64,96}×种子∈{0,1,2}），运行日志写入 `results/perf_sweep_extreme_top3/runlog_20251104T` 前缀。
+  - 当前执行命令示例：`python scripts/4_run_experiments.py --strategies WASS_RAG_FULL HEFT --workflows data/workflows/experiment/extreme_top3_noise01.json --seeds 0 1 2 --rag-temperature 0.7 --rag-greedy-threshold 0.9 --rag-sample-topk 3 --rag-epsilon 0.05 --stochastic-tie-break --output-dir results/perf_sweep_extreme_top3/temp0p7_top3_seed012`
+  - 2025-11-04：完成基线批次（WASS-RAG Full 随机平局 vs HEFT，工作流=epigenomics/montage/seismology，种子=0-2），输出至 `results/perf_sweep_extreme_top3/baseline_seed012/`，平均 makespan 显示 HEFT (22.64) 领先于 WASS-RAG (59.54)，需通过超参扫描继续缩小差距。
+  - 2025-11-04：新增 CLI 参数与调度器逻辑（温度、贪婪阈值、Top-K、epsilon），分别运行 `temp0p7_top3_seed012`、`temp0p9_top2_seed012` 组合；目前 WASS-RAG makespan 分别为 75.19/84.25，仍显著落后 HEFT，后续需调整参数网格与训练快照。
+2. **解释性案例跟进（负责人待定，状态：`待开始`）**
+    - 以领先配置重新生成 trace（保持原始与随机平局两套），整理至 `results/traces/extreme_top3_noise01` 与 `_stochastic_summary/`。
+    - 使用 `analysis/interpretability_case_study.py` 与 `analysis/plot_trace_gantt.py` 导出跨种子摘要及标注图，在 `docs/interpretability_case_notes.md` 完成案例解读初稿。
+    - 收敛后将关键邻域注释与图表纳入《改进计划》与论文草稿占位。
+3. **嵌入漂移对照实验（负责人待定，状态：`待开始`）**
+    - 激活 `scripts/run_full_pipeline.py --include-training` 生成冻结/解冻模型快照，存入 `models/saved_models/embedding_drift/{frozen,unfrozen}/`。
+    - 实现 `analysis/embedding_drift_analysis.py` 可复现流程，输出 UMAP/t-SNE 图与漂移指标表至 `results/embedding_drift/`。
+    - 汇总发现并在 Task 2 备注中记录与性能改进的因果关联。
+
+### 扩充计划（2025-11-04）
+- **目标**：扩大训练语料与知识库覆盖面，重新训练 WASS-RAG 以改善 HEFT 对比表现。
+- **步骤拆解**：
+  1. 运行 `augment_workflows.py` 生成 10 个扰动版本，输出至 `data/workflows/training_aug/`。
+  2. 运行 `generate_synthetic_workflows.py` 追加 20 个高并行结构，输出至同目录。
+  3. 重新执行 `scripts/1_seed_knowledge_base.py`，用扩充后的 workflow 集重建 KB。
+  4. 执行 `scripts/2_train_rag_agent.py --include_aug --max_episodes 400` 完成新一轮训练，记录日志至 `results/training_runs/retrain_20251104/`。
+  5. 完成后刷新性能 sweep 与解释性任务输入。
 
 ---
 

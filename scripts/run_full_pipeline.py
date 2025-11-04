@@ -106,6 +106,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--drl-model", default="models/saved_models/drl_agent_no_rag.pth", help="Checkpoint for WASS-DRL (Vanilla).")
     parser.add_argument("--platform-key", default="extreme_hetero", help="Platform key (configs/workflow_config.yaml) to use.")
     parser.add_argument("--include-training", action="store_true", help="If set, run DRL/RAG training stages before experiments.")
+    parser.add_argument("--rag-trace-log-dir", default=None, help="If set, pass directory to 2_train_rag_agent.py for interpretability traces.")
     parser.add_argument("--skip-workflow-generation", action="store_true", help="Skip synthetic workflow generation stage.")
     parser.add_argument("--skip-knowledge-seeding", action="store_true", help="Skip knowledge-base seeding stage.")
     parser.add_argument("--dry-run", action="store_true", help="Print commands without executing them.")
@@ -117,6 +118,11 @@ def main() -> None:
     args = parse_args()
     python = args.python
     output_dir = (PROJECT_ROOT / args.output_dir).resolve()
+    run_label = args.tag or output_dir.name
+    rag_trace_dir = None
+    if args.rag_trace_log_dir:
+        candidate = Path(args.rag_trace_log_dir)
+        rag_trace_dir = candidate if candidate.is_absolute() else (PROJECT_ROOT / candidate).resolve()
     timestamp = datetime.now(timezone.utc).isoformat()
 
     command_log: list[dict] = []
@@ -132,12 +138,21 @@ def main() -> None:
             run_command(cmd, dry_run=args.dry_run, cwd=PROJECT_ROOT, description="Seed scheduling knowledge base")
             command_log.append({"stage": "knowledge_seeding", "command": cmd})
 
+        if args.rag_trace_log_dir and not args.include_training:
+            print("⚠️ Provided --rag-trace-log-dir but training is skipped; no trace logs will be produced.")
+
         if args.include_training:
             train_drl_cmd = [python, "scripts/3_train_drl_agent.py"]
+            if run_label:
+                train_drl_cmd.extend(["--run_label", run_label])
             run_command(train_drl_cmd, dry_run=args.dry_run, cwd=PROJECT_ROOT, description="Train WASS-DRL (Vanilla) agent")
             command_log.append({"stage": "train_drl", "command": train_drl_cmd})
 
             train_rag_cmd = [python, "scripts/2_train_rag_agent.py"]
+            if run_label:
+                train_rag_cmd.extend(["--run_label", run_label])
+            if rag_trace_dir is not None:
+                train_rag_cmd.extend(["--trace_log_dir", str(rag_trace_dir)])
             run_command(train_rag_cmd, dry_run=args.dry_run, cwd=PROJECT_ROOT, description="Train WASS-RAG (Full) agent")
             command_log.append({"stage": "train_rag", "command": train_rag_cmd})
         else:
@@ -202,11 +217,13 @@ def main() -> None:
         "rag_model": args.rag_model,
         "drl_model": args.drl_model,
         "platform_key": args.platform_key,
+        "run_label": run_label,
         "include_training": args.include_training,
         "skip_workflow_generation": args.skip_workflow_generation,
         "skip_knowledge_seeding": args.skip_knowledge_seeding,
         "dry_run": args.dry_run,
         "python": args.python,
+        "rag_trace_log_dir": str(rag_trace_dir) if rag_trace_dir is not None else None,
         "commands": command_log,
     }
     write_metadata(output_dir, metadata, dry_run=args.dry_run)

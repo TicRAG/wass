@@ -3,6 +3,7 @@ import sys
 import time
 import argparse
 import random
+from datetime import datetime
 
 # --- 路径修正 ---
 # 将项目根目录 (上一级目录) 添加到 Python 的 sys.path 中
@@ -104,6 +105,7 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=None, help='Random seed used for workflow sampling and PPO updates.')
     parser.add_argument('--log_dir', default="results/training_runs", help='Directory where per-episode metrics will be recorded.')
     parser.add_argument('--run_label', default=None, help='Custom label for this training run (overrides strategy name in logs).')
+    parser.add_argument('--trace_log_dir', default=None, help='If set, write interpretability trace JSONL logs to this directory.')
     return parser.parse_args()
 
 
@@ -124,6 +126,7 @@ def count_tasks_in_workflow(path: str) -> int:
 def main():
     args = parse_args()
     print("🚀 [Phase 3] Starting DRL Agent Training (with Re-balanced Rewards)...")
+    trace_log_path: Path | None = None
     
     if args.seed is not None:
         random.seed(args.seed)
@@ -174,9 +177,23 @@ def main():
         teacher = None
         rag_gnn_for_scheduler = None
         print("🚫 RAG potential shaping disabled via CLI; training will rely on vanilla rewards only.")
+        if args.trace_log_dir:
+            print("⚠️ Trace logging directory provided but RAG is disabled; no trace logs will be generated.")
     else:
         kb = KnowledgeBase(dimension=GNN_OUT_CHANNELS)
-        teacher = KnowledgeableTeacher(state_dim=state_dim, knowledge_base=kb, gnn_encoder=rag_gnn_encoder, reward_config=TEACHER_CFG)
+        teacher = KnowledgeableTeacher(
+            state_dim=state_dim,
+            knowledge_base=kb,
+            gnn_encoder=rag_gnn_encoder,
+            reward_config=TEACHER_CFG,
+        )
+        if args.trace_log_dir:
+            trace_dir = Path(args.trace_log_dir)
+            trace_dir.mkdir(parents=True, exist_ok=True)
+            run_slug = args.run_label or "rag"
+            timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+            trace_log_path = trace_dir / f"{run_slug}_trace_{timestamp}.jsonl"
+            teacher.enable_trace_logging(trace_log_path)
         rag_gnn_for_scheduler = rag_gnn_encoder
 
     # Load feature scaler for consistent preprocessing with seeding phase
@@ -238,19 +255,24 @@ def main():
     print(f"\n[Step 3/4] Starting main training loop... total_episodes={effective_total_episodes}")
     strategy_label = "WASS-DRL (Vanilla)" if args.disable_rag else "WASS-RAG (Full)"
     training_logger: TrainingLogger | None = None
+    metadata = {
+        "reward_mode": args.reward_mode,
+        "disable_rag": args.disable_rag,
+        "include_aug": args.include_aug,
+        "max_tasks": args.max_tasks,
+        "freeze_gnn": args.freeze_gnn,
+    }
+    if args.trace_log_dir:
+        metadata["trace_log_dir"] = args.trace_log_dir
+    if trace_log_path is not None:
+        metadata["trace_log_path"] = str(trace_log_path)
     try:
         training_logger = TrainingLogger(
             strategy_label=strategy_label,
             output_dir=args.log_dir,
             seed=args.seed,
             run_label=args.run_label,
-            metadata={
-                "reward_mode": args.reward_mode,
-                "disable_rag": args.disable_rag,
-                "include_aug": args.include_aug,
-                "max_tasks": args.max_tasks,
-                "freeze_gnn": args.freeze_gnn,
-            },
+            metadata=metadata,
         )
     except Exception as exc:  # pragma: no cover
         print(f"⚠️ Failed to initialize training logger: {exc}")
@@ -263,6 +285,13 @@ def main():
         task_count_selected = count_tasks_in_workflow(workflow_file)
         if args.profile:
             print(f"[EP] {episode}/{effective_total_episodes} -> {Path(workflow_file).name} tasks={task_count_selected}")
+        if teacher is not None:
+            teacher.set_trace_context(
+                episode=episode,
+                workflow_file=Path(workflow_file).name,
+                run_label=args.run_label,
+                seed=args.seed,
+            )
         
         # --- THIS IS THE FIX: The lambda now accepts all keyword arguments from the caller ---
         # Inject feature_scaler & gnn_encoder so scheduler/teacher can produce scaled embeddings

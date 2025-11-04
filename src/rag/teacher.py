@@ -1,12 +1,33 @@
 # src/drl/knowledge_teacher.py
 import faiss
+import json
 import numpy as np
 import pandas as pd
+import threading
+import time
 import torch
 import torch.nn as nn
 from torch_geometric.data import Data
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+
+class TeacherTraceLogger:
+    """Simple JSONL logger for teacher interpretability traces."""
+
+    def __init__(self, output_path: str | Path):
+        self.output_path = Path(output_path)
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
+
+    def log(self, payload: Dict[str, Any]) -> None:
+        line = json.dumps(payload, ensure_ascii=False)
+        with self._lock:
+            with self.output_path.open("a", encoding="utf-8") as handle:
+                handle.write(line + "\n")
+
+    def __repr__(self) -> str:  # pragma: no cover - debug helper
+        return f"TeacherTraceLogger(output_path={self.output_path!s})"
 
 class KnowledgeBase:
     """封装FAISS向量索引和元数据的知识库。"""
@@ -65,9 +86,16 @@ class KnowledgeBase:
         print("✅ [KB] Knowledge Base saved.")
 
 class KnowledgeableTeacher:
-    """知识引导教师，负责生成RAG奖励。负责计算潜势函数并提供奖励塑形所需的统计信息。"""
+    """知识引导教师，负责生成RAG奖励并支持可解释性日志。"""
 
-    def __init__(self, state_dim: int, knowledge_base: KnowledgeBase, gnn_encoder: nn.Module, reward_config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        state_dim: int,
+        knowledge_base: KnowledgeBase,
+        gnn_encoder: nn.Module,
+        reward_config: Optional[Dict[str, Any]] = None,
+        trace_logger: Optional[TeacherTraceLogger] = None,
+    ):
         self.kb = knowledge_base
         self.gnn_encoder = gnn_encoder
         self.gnn_encoder.eval()
@@ -80,6 +108,18 @@ class KnowledgeableTeacher:
         self.lambda_scale = float(cfg.get("lambda", 1.0))
         self.gamma = float(cfg.get("gamma", 0.99))
         self.fallback_use_all_if_empty = bool(cfg.get("fallback_use_all_if_empty", True))
+        trace_cfg = cfg.get("trace_logging", {}) if isinstance(cfg.get("trace_logging", {}), dict) else {}
+        self.trace_logger = trace_logger
+        if trace_logger is None and trace_cfg.get("enabled"):
+            output_path = trace_cfg.get("output_path")
+            if output_path:
+                self.trace_logger = TeacherTraceLogger(output_path)
+                print(f"[TeacherTrace] Logging enabled -> {output_path}")
+            else:
+                print("[TeacherTrace] 'trace_logging.enabled' was true but no output_path provided; logging disabled.")
+        self._trace_context: Dict[str, Any] = {}
+        self._last_trace_payload: Optional[Dict[str, Any]] = None
+        self._trace_neighbor_limit = int(trace_cfg.get("max_neighbors", self.top_k))
 
     def _select_neighbors(self, neighbors: pd.DataFrame) -> pd.DataFrame:
         if neighbors.empty:
@@ -91,6 +131,44 @@ class KnowledgeableTeacher:
             if not self.fallback_use_all_if_empty:
                 return pd.DataFrame()
         return neighbors
+
+    def enable_trace_logging(self, output_path: str | Path, max_neighbors: Optional[int] = None) -> None:
+        self.trace_logger = TeacherTraceLogger(output_path)
+        if max_neighbors is not None:
+            self._trace_neighbor_limit = int(max_neighbors)
+        print(f"[TeacherTrace] Logging enabled -> {self.trace_logger.output_path}")
+
+    def set_trace_context(self, **context: Any) -> None:
+        """Attach contextual metadata (workflow, episode, seed, etc.) for subsequent trace entries."""
+        self._trace_context.update({k: v for k, v in context.items() if v is not None})
+
+    def _build_trace_payload(
+        self,
+        neighbors: pd.DataFrame,
+        weights: np.ndarray,
+        potential: float,
+        temperature: float,
+    ) -> Dict[str, Any]:
+        records = []
+        limit = min(len(neighbors), self._trace_neighbor_limit)
+        for idx in range(limit):
+            row = neighbors.iloc[idx]
+            records.append({
+                "workflow_file": row.get("workflow_file"),
+                "scheduler_used": row.get("scheduler_used"),
+                "q_value": float(row.get("q_value", 0.0)) if not pd.isna(row.get("q_value")) else None,
+                "similarity": float(row.get("similarity", 0.0)),
+                "weight": float(weights[idx]) if idx < len(weights) else None,
+            })
+        payload: Dict[str, Any] = {
+            "potential": float(potential),
+            "temperature": float(temperature),
+            "top_k": int(limit),
+            "neighbors": records,
+        }
+        if self._trace_context:
+            payload["context"] = dict(self._trace_context)
+        return payload
 
     def calculate_potential(self, state: Data) -> float:
         if self.kb.index.ntotal == 0:
@@ -119,9 +197,14 @@ class KnowledgeableTeacher:
         weights = np.exp(scaled)
         weights_sum = weights.sum()
         if weights_sum <= 0:
-            return float(q_values.mean())
-        weights /= weights_sum
-        potential = float(np.dot(weights, q_values))
+            potential = float(q_values.mean())
+            weights = np.full_like(q_values, fill_value=1.0 / len(q_values)) if len(q_values) else q_values
+        else:
+            weights /= weights_sum
+            potential = float(np.dot(weights, q_values))
+        self._last_trace_payload = None
+        if self.trace_logger is not None and len(q_values) > 0:
+            self._last_trace_payload = self._build_trace_payload(neighbors, weights, potential, tau)
         if self.debug:
             print(f"[TeacherDebug] potential={potential:.6f} neighbors={len(neighbors)} tau={tau}")
         return potential
