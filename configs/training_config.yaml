@@ -20,8 +20,8 @@ rag_training:
     save_dir: models/saved_models
     filename: drl_agent.pth
   reward_scaling:
-    # rag_multiplier set to 1.0 (no secondary scaling; Teacher already normalizes)
-    rag_multiplier: 1.0
+    # Increase multiplier again to strengthen PBRS guidance toward fast hosts
+    rag_multiplier: 1.9
     # Lower final normalizer if needed later; keep for now
     final_normalizer: 5000.0
   teacher:
@@ -31,10 +31,10 @@ rag_training:
     reward_normalizer: 20.0
     use_median: true  # if true, use median historical EFT instead of min to soften always-negative rewards
     use_ratio: true   # if true, compute proportional improvement reward instead of absolute difference
-    ratio_scale: 0.3        # scaling factor for ratio-based reward (reduced to temper large negatives)
+    ratio_scale: 0.6        # amplify proportional improvements so fast hosts earn clearer bonuses
     beat_tolerance: 0.03    # within +3% of historical agg considered a beat for bonus (slightly easier)
     beat_bonus: 0.008       # reduced bonus to avoid overpowering small improvements
-    min_clamped_reward: -0.05  # floor to prevent extremely negative values (stability)
+    min_clamped_reward: -0.16  # allow stronger penalties for slow-host assignments while staying stable
     debug: false
     fallback_use_all_if_empty: true
 

@@ -167,12 +167,26 @@ class KnowledgeRecordingMixin:
             return
         with torch.no_grad():
             embedding = self.knowledge_encoder(graph_snapshot).detach().cpu().numpy().flatten().astype(np.float32)
+        host_props = self.hosts.get(host_name, {}) if isinstance(self.hosts, dict) else {}
+        host_speed = float(host_props.get('speed', 0.0) or 0.0)
+        task_flops = 0.0
+        if hasattr(task, 'get_flops'):
+            try:
+                task_flops = float(task.get_flops() or 0.0)
+            except (TypeError, ValueError):
+                task_flops = 0.0
+        compute_duration = max(float(finish_time) - float(decision_time), 0.0)
+        host_type = host_props.get('type') if isinstance(host_props, dict) else None
         self._knowledge_records.append({
             'task_name': task.get_name(),
             'decision_time': float(decision_time),
             'host': host_name,
             'finish_time': float(finish_time),
             'embedding': embedding,
+            'host_speed': host_speed,
+            'task_flops': task_flops,
+            'compute_duration': compute_duration,
+            'host_type': host_type,
         })
 
     def get_knowledge_records(self, final_makespan: float | None = None) -> list[dict[str, Any]]:
@@ -190,6 +204,18 @@ class KnowledgeRecordingMixin:
             }
             if remaining is not None:
                 record['remaining_makespan'] = remaining
+            host_speed = item.get('host_speed')
+            if host_speed is not None:
+                record['host_speed'] = float(host_speed)
+            task_flops = item.get('task_flops')
+            if task_flops is not None:
+                record['task_flops'] = float(task_flops)
+            compute_duration = item.get('compute_duration')
+            if compute_duration is not None:
+                record['compute_duration'] = float(compute_duration)
+            host_type = item.get('host_type')
+            if host_type is not None:
+                record['host_type'] = host_type
             records.append(record)
         return records
 
@@ -845,6 +871,9 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         self.task_name_to_idx = {t.get_name(): i for i, t in enumerate(workflow_obj.get_tasks().values())}
         self.STATUS_WAITING, self.STATUS_READY, self.STATUS_COMPLETED = 0.0, 1.0, 2.0
         self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
+        # Debug instrumentation to inspect the exact host ordering assumed by the actor head.
+        self._host_order = list(self.hosts.keys())
+        print(f"[Inference][Debug] Host order ({len(self._host_order)}): {self._host_order}")
         self.teacher = self.extra_args.get("teacher")
         self.run_label = self.extra_args.get("run_label")
         self.seed = self.extra_args.get("seed")
@@ -868,6 +897,8 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         self._delta_max = float('-inf')
         self._potential_samples: list[dict[str, float | str]] = []
         self._max_potential_samples = 10
+        self._debug_action_logs = 0  # limit action-probability prints to avoid log spam
+        self._last_action_probs: list[float] | None = None
         if self.teacher is not None and hasattr(self.teacher, "set_trace_context"):
             self.teacher.set_trace_context(
                 workflow_file=Path(self.workflow_file).name,
@@ -877,6 +908,16 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
                 strategy=self.strategy_label,
                 trace_path=self.extra_args.get("trace_output_path"),
             )
+        print(
+            "[Inference][Debug] policy_flags: temperature=%.3f epsilon=%.3f greedy_threshold=%.3f sample_top_k=%s stochastic=%s"
+            % (
+                self.temperature,
+                self.epsilon,
+                self.greedy_threshold,
+                str(self.sample_top_k),
+                self.stochastic_tie_break,
+            )
+        )
     
     def _update_state(self, workflow: wrench.Workflow):
         self._latest_workflow = workflow
@@ -902,6 +943,15 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
             state_embedding = self.agent.gnn_encoder(self.pyg_data)
             action_index = self._select_action(state_embedding)
         chosen_host_name = list(self.hosts.keys())[action_index]
+        if self._last_action_probs is not None and self._debug_action_logs <= 5:
+            prob_value = None
+            if 0 <= action_index < len(self._last_action_probs):
+                prob_value = self._last_action_probs[action_index]
+            prob_str = f"{prob_value:.4f}" if isinstance(prob_value, (int, float)) else "n/a"
+            print(
+                f"[Inference][Debug] action_choice#{self._debug_action_logs}: "
+                f"host={chosen_host_name} (idx={action_index}) prob={prob_str}"
+            )
         if self.teacher is None:
             return chosen_host_name
         host_speed = self.host_speeds.get(chosen_host_name, 1.0)
@@ -913,12 +963,20 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         self._potential_max = max(self._potential_max, current_potential)
         last_payload = getattr(self.teacher, "_last_trace_payload", None)
         trace_snapshot = dict(last_payload) if isinstance(last_payload, dict) else None
-        self.pending_rewards[task.get_name()] = {
+        action_probs_snapshot = list(self._last_action_probs) if isinstance(self._last_action_probs, list) else None
+        pending_entry: dict[str, Any] = {
             "potential_before": float(current_potential),
             "agent_eft": float(agent_eft),
             "host_name": chosen_host_name,
             "trace_payload": trace_snapshot,
         }
+        if action_probs_snapshot is not None:
+            pending_entry.update({
+                "action_probs": action_probs_snapshot,
+                "action_choice_index": int(action_index),
+                "host_order": list(self._host_order),
+            })
+        self.pending_rewards[task.get_name()] = pending_entry
         return chosen_host_name
 
     def _select_action(self, state_embedding: torch.Tensor) -> int:
@@ -943,6 +1001,19 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
             uniform = torch.full_like(action_probs, 1.0 / action_probs.numel())
             action_probs = (1.0 - self.epsilon) * action_probs + self.epsilon * uniform
             action_probs = action_probs / action_probs.sum()
+
+        probs_snapshot = action_probs.detach().cpu().tolist()
+        self._last_action_probs = probs_snapshot
+
+        if self._debug_action_logs < 5:
+            debug_entries = []
+            for idx, (host, prob) in enumerate(zip(self._host_order, probs_snapshot)):
+                speed = self.host_speeds.get(host)
+                speed_str = f"{speed:.3f}" if isinstance(speed, (int, float)) else str(speed)
+                debug_entries.append(f"{idx}:{host}@{speed_str}:{prob:.4f}")
+            log_idx = self._debug_action_logs + 1
+            print(f"[Inference][Debug] action_probs#{log_idx}: {', '.join(debug_entries)}")
+        self._debug_action_logs += 1
 
         max_prob, max_idx = torch.max(action_probs, dim=0)
         if max_prob >= self.greedy_threshold:
@@ -997,6 +1068,12 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
                 "lambda": float(self.teacher.lambda_scale),
                 "gamma": float(self.teacher.gamma),
             })
+            if "action_probs" in pending:
+                trace_payload.update({
+                    "action_probs": pending["action_probs"],
+                    "action_choice_index": pending.get("action_choice_index"),
+                    "host_order": pending.get("host_order"),
+                })
             self.teacher.trace_logger.log(trace_payload)
 
     def get_potential_summary(self) -> dict[str, float | list[dict[str, float | str]]]:
@@ -1035,6 +1112,9 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         if self.teacher is not None and hasattr(self.teacher, "set_trace_context"):
             self.teacher.set_trace_context(workflow_file=self.workflow_file)
         self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
+        # Debug instrumentation mirroring inference scheduler host ordering.
+        self._host_order = list(self.hosts.keys())
+        print(f"[Training][Debug] Host order ({len(self._host_order)}): {self._host_order}")
         self.pyg_data = workflow_json_to_pyg_data(self.workflow_file, self.feature_scaler)
         self.task_name_to_idx = None
         self.STATUS_WAITING, self.STATUS_READY, self.STATUS_COMPLETED = 0.0, 1.0, 2.0
@@ -1046,6 +1126,8 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         self._delta_max = float('-inf')
         self._potential_samples = []
         self._max_potential_samples = 10
+        self._debug_action_logs = 0
+        self._last_action_probs: list[float] | None = None
 
     def _update_and_get_state(self, workflow: wrench.Workflow) -> Data:
         self._latest_workflow = workflow
@@ -1071,8 +1153,30 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         graph_for_embed = graph_state.clone()
         graph_for_embed.x = graph_state.x.clone()
         policy_emb = self.policy_gnn_encoder(graph_for_embed)
+        action_probs = self.agent.actor(policy_emb).view(-1)
+        probs_snapshot = action_probs.detach().cpu().tolist()
+        self._last_action_probs = probs_snapshot
+        if self._debug_action_logs < 5:
+            debug_entries = []
+            for idx, (host, prob) in enumerate(zip(self._host_order, probs_snapshot)):
+                speed = self.host_speeds.get(host)
+                speed_str = f"{speed:.3f}" if isinstance(speed, (int, float)) else str(speed)
+                debug_entries.append(f"{idx}:{host}@{speed_str}:{prob:.4f}")
+            log_idx = self._debug_action_logs + 1
+            print(f"[Training][Debug] action_probs#{log_idx}: {', '.join(debug_entries)}")
+        self._debug_action_logs += 1
         action_index, action_logprob = self.agent.act(policy_emb, deterministic=False)
+        logprob_value = float(action_logprob.item()) if torch.is_tensor(action_logprob) else float(action_logprob)
         chosen_host_name = list(self.hosts.keys())[action_index]
+        if self._last_action_probs is not None and self._debug_action_logs <= 5:
+            prob_value = None
+            if 0 <= action_index < len(self._last_action_probs):
+                prob_value = self._last_action_probs[action_index]
+            prob_str = f"{prob_value:.4f}" if isinstance(prob_value, (int, float)) else "n/a"
+            print(
+                f"[Training][Debug] action_choice#{self._debug_action_logs}: "
+                f"host={chosen_host_name} (idx={action_index}) prob={prob_str} logprob={logprob_value:.4f}"
+            )
         host_speed = self.host_speeds.get(chosen_host_name, 1.0)
         compute_time = task.get_flops() / host_speed if host_speed > 0 else float('inf')
         agent_eft = self.simulation.get_simulated_time() + compute_time
@@ -1092,13 +1196,21 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         graph_snapshot.x = graph_state.x.clone()
         self.replay_buffer.add(graph_snapshot, action_index, action_logprob, reward=torch.tensor(0.0))
         buffer_index = len(self.replay_buffer.rewards) - 1
-        self.pending_rewards[task.get_name()] = {
+        pending_entry = {
             'buffer_index': buffer_index,
             'potential_before': current_potential,
             'agent_eft': float(agent_eft),
             'host_name': chosen_host_name,
             'trace_payload': trace_snapshot,
         }
+        if self._last_action_probs is not None:
+            pending_entry.update({
+                'action_probs': list(self._last_action_probs),
+                'action_choice_index': int(action_index),
+                'action_logprob': logprob_value,
+                'host_order': list(self._host_order),
+            })
+        self.pending_rewards[task.get_name()] = pending_entry
         return chosen_host_name
 
     def handle_completion(self, task: wrench.Task):
@@ -1144,6 +1256,13 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
                 'lambda': float(self.teacher.lambda_scale),
                 'gamma': float(self.teacher.gamma),
             })
+            if 'action_probs' in pending:
+                trace_payload.update({
+                    'action_probs': pending['action_probs'],
+                    'action_choice_index': pending.get('action_choice_index'),
+                    'action_logprob': pending.get('action_logprob'),
+                    'host_order': pending.get('host_order'),
+                })
             self.teacher.trace_logger.log(trace_payload)
 
     def get_potential_summary(self) -> dict[str, float | list[dict[str, float | str]]]:

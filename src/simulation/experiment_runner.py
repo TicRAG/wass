@@ -131,6 +131,7 @@ class WrenchExperimentRunner:
                 except TypeError:
                     # Fallback for implementations that do not accept makespan argument
                     details['knowledge_records'] = scheduler_instance.get_knowledge_records()
+            details['host_speeds'] = {name: props.get('speed', 0.0) for name, props in hosts_properties.items()}
             if hasattr(scheduler_instance, 'get_potential_summary'):
                 summary = scheduler_instance.get_potential_summary()
                 if summary:

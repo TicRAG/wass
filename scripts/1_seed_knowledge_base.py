@@ -144,6 +144,8 @@ def main():
                 scheduler_kwargs=scheduler_kwargs,
             )
             knowledge_records = details.get('knowledge_records', []) if isinstance(details, dict) else []
+            host_speeds = details.get('host_speeds', {}) if isinstance(details, dict) else {}
+            max_host_speed = max(host_speeds.values()) if host_speeds else None
             if makespan < 0:
                 print(f"  ❌ Simulation failed for {wf_path.name}, skipping.")
                 continue
@@ -161,7 +163,47 @@ def main():
                 remaining_makespan = record.get('remaining_makespan')
                 if remaining_makespan is None:
                     remaining_makespan = max(makespan - decision_time, 0.0)
-                normalized_q = (remaining_makespan / makespan) if makespan > 0 else 0.0
+                host_name = record.get('host')
+                host_speed = float(record.get('host_speed', host_speeds.get(host_name, 0.0) if host_speeds else 0.0) or 0.0)
+                task_flops = float(record.get('task_flops', 0.0) or 0.0)
+                compute_duration = float(record.get('compute_duration', 0.0) or 0.0)
+                if compute_duration <= 0.0:
+                    finish_time = float(record.get('finish_time', decision_time))
+                    compute_duration = max(finish_time - decision_time, 0.0)
+                normalized_speed = None
+                if max_host_speed and max_host_speed > 0.0:
+                    raw_ratio = host_speed / max_host_speed if host_speed > 0.0 else 0.0
+                    if np.isfinite(raw_ratio):
+                        normalized_speed = max(min(raw_ratio, 1.0), 0.0)
+                    else:
+                        normalized_speed = 0.0
+                duration_efficiency = None
+                if task_flops > 0.0 and max_host_speed and max_host_speed > 0.0 and compute_duration > 0.0:
+                    optimal_duration = task_flops / max_host_speed
+                    if optimal_duration > 0.0 and np.isfinite(optimal_duration):
+                        ratio = optimal_duration / compute_duration if compute_duration > 0.0 else 0.0
+                        if np.isfinite(ratio):
+                            duration_efficiency = max(min(ratio, 1.0), 0.0)
+                progress_ratio = None
+                if makespan > 0.0:
+                    progress_ratio = 1.0 - min(max(remaining_makespan / makespan, 0.0), 1.0)
+                q_components = []
+                q_weights = []
+                if normalized_speed is not None and np.isfinite(normalized_speed):
+                    q_components.append(normalized_speed)
+                    q_weights.append(0.6)
+                if duration_efficiency is not None and np.isfinite(duration_efficiency):
+                    q_components.append(duration_efficiency)
+                    q_weights.append(0.3)
+                if progress_ratio is not None and np.isfinite(progress_ratio):
+                    q_components.append(progress_ratio)
+                    q_weights.append(0.1)
+                if q_components and q_weights and sum(q_weights) > 0:
+                    weighted = sum(comp * weight for comp, weight in zip(q_components, q_weights)) / sum(q_weights)
+                    normalized_q = float(max(min(weighted, 1.0), 0.0))
+                else:
+                    fallback_value = progress_ratio if progress_ratio is not None else 0.0
+                    normalized_q = float(max(min(fallback_value, 1.0), 0.0))
                 metadata_entry = {
                     "workflow_file": wf_path.name,
                     "scheduler_used": sched_name,
@@ -171,6 +213,13 @@ def main():
                     "decision_time": decision_time,
                     "remaining_makespan": remaining_makespan,
                     "q_value": normalized_q,
+                    "host_speed": host_speed,
+                    "compute_duration": compute_duration,
+                    "task_flops": task_flops,
+                    "normalized_speed": normalized_speed,
+                    "duration_efficiency": duration_efficiency,
+                    "progress_ratio": progress_ratio,
+                    "host_type": record.get('host_type'),
                 }
                 all_embeddings.append(embedding_vec)
                 all_metadata.append(metadata_entry)

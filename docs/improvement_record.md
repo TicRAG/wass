@@ -8,6 +8,7 @@
 ## 更新历史
 | 版本 | 日期 | 作者 | 说明 |
 | --- | --- | --- | --- |
+| v0.29 | 2025-11-05 | GitHub Copilot | 确认 WASS-RAG 慢主机偏好来源于知识库标签缺乏主机质量信号，制定“重构 q_value + 重新播种”即时任务 |
 | v0.28 | 2025-11-04 | GitHub Copilot | 扩展 WASS-RAG 推断温度/贪婪/Top-K 控制并运行首批性能扫描 |
 | v0.27 | 2025-11-04 | GitHub Copilot | 制定 WASS-RAG 性能优化与解释性串联执行计划 |
 | v0.26 | 2025-11-04 | GitHub Copilot | 为 WASS-RAG 推断新增随机化 tie-breaking 选项并完成 montage 随机探针 |
@@ -198,6 +199,21 @@
 - 依赖：阶段 P0、P1 完成。
 - 备注：2025-11-03 启动阶段 P2，对照实验准备进入执行：计划先基于 `scripts/run_full_pipeline.py --include-training` 生成“冻结/解冻”两套模型快照，再撰写 `analysis/embedding_drift_analysis.py` 调用 UMAP+Matplotlib 对比嵌入；确认所需训练日志已在 `pipeline_config.json` 记录以便复现实验。
 - 备注：2025-11-03 启动阶段 P2，对照实验准备进入执行：计划先基于 `scripts/run_full_pipeline.py --include-training` 生成“冻结/解冻”两套模型快照，再撰写 `analysis/embedding_drift_analysis.py` 调用 UMAP+Matplotlib 对比嵌入；确认所需训练日志已在 `pipeline_config.json` 记录以便复现实验。2025-11-04 已整理 6 主机新版模型权重作为对照实验基线。
+
+### 任务 3：知识库奖励信号重构（新增）
+- 状态：`待验收`
+- 负责人：待指派
+- 涉及文件：`scripts/1_seed_knowledge_base.py`, `src/simulation/schedulers.py`, `data/knowledge_base/*`
+- 关键要求：
+  - 将知识库 `q_value` 从“剩余工期比例”改为显式反映主机算力/执行效率的指标。
+  - 播种阶段补充主机速度、任务 FLOPs 等元信息，保证教师在推断期能区分快慢节点。
+  - 重新运行播种脚本生成新版 KB，并输出前后统计对比（host 采样次数、q 值统计）。
+- 验收标准：
+  1. `workflow_metadata.csv` 中各主机的 `q_value` 分布与速度正相关（快节点均值更高）。
+  2. 教师检索日志包含新的主机质量信号（如 `host_speed`）。
+  3. 播种脚本与调度器改动通过 lint/单元测试，运行 `python scripts/1_seed_knowledge_base.py` 成功落盘。
+- 依赖：阶段 P0 完成。
+- 备注：2025-11-05 基于推断/训练 trace 差异定位慢主机偏好，决定立即执行“重构 q_value + 重播种”两步动作，并在 `results/tmp/instrumentation_trace` 验证原始偏差。首要步骤：扩展 `KnowledgeRecordingMixin` 记录 `host_speed`, `task_flops`，修改播种脚本按主机速度归一化写入 `q_value`，随后重新播种生成新版知识库。2025-11-05 运行 `python scripts/1_seed_knowledge_base.py` 重新播种，生成 84,717 条记录并将 `data/knowledge_base/workflow_metadata.csv` 主机均值调整为 `ultra=0.9151 > fast=0.5167 > balanced=0.2976 > slow=0.1225 > bottleneck=0.0728 > micro=0.0442`；教师记录现包含 `host_speed/task_flops/compute_duration`。同日执行 `python scripts/2_train_rag_agent.py --max_episodes 60 --include_aug --reward_mode dense --run_label host_q_refresh` 重新训练策略，并用 `python scripts/4_run_experiments.py --strategies WASS_RAG_FULL --workflows montage-chameleon-2mass-01d-001.json --seeds 0 --trace-log-dir results/tmp/inference_traces --trace-run-label host_q_refresh --stochastic-tie-break` 采集推断日志。最新 trace (`results/tmp/inference_traces/montage-chameleon-2mass-01d-001_seed0_rep0_20251105T033520.jsonl`) 中主机选择频次 `ultra:22 / fast:19 / balanced:20 / micro:20 / slow:13 / bottleneck:9`，慢主机不再占主导；待更多工作流与种子验证通过后可正式验收。
 
 - **阶段里程碑**：形成深度分析章节初稿与支撑数据。
 
