@@ -11,6 +11,7 @@ import numpy as np
 import math
 import time
 from torch.distributions import Categorical
+from collections import OrderedDict
 
 from src.drl.gnn_encoder import GNNEncoder
 from src.drl.agent import ActorCritic
@@ -1109,6 +1110,20 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         self.rag_gnn_encoder = self.extra_args.get('rag_gnn_encoder')  # may be None
         self.workflow_file = self.extra_args.get("workflow_file")
         self.feature_scaler = self.extra_args.get('feature_scaler')
+        randomize_host_order = bool(self.extra_args.get('randomize_host_order', False))
+        if randomize_host_order:
+            shuffled_hosts = list(self.hosts.items())
+            random.shuffle(shuffled_hosts)
+            reordered_hosts = OrderedDict(shuffled_hosts)
+            self.hosts = reordered_hosts
+            if isinstance(self.compute_services, dict):
+                cs_items = []
+                for host_name, _ in shuffled_hosts:
+                    if host_name in self.compute_services:
+                        cs_items.append((host_name, self.compute_services[host_name]))
+                if cs_items:
+                    self.compute_services = OrderedDict(cs_items)
+            print(f"[Training][Debug] Randomized host order -> {[name for name, _ in shuffled_hosts]}")
         if self.teacher is not None and hasattr(self.teacher, "set_trace_context"):
             self.teacher.set_trace_context(workflow_file=self.workflow_file)
         self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}

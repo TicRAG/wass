@@ -20,14 +20,14 @@ rag_training:
     save_dir: models/saved_models
     filename: drl_agent.pth
   reward_scaling:
-    rag_multiplier: 1.9
+    rag_multiplier: 1.5
     # Retain final makespan penalty scaling; higher rag weight handled via teacher.lambda
     final_normalizer: 5000.0
   teacher:
     top_k: 6
     temperature: 0.05
-    scheduler_filter: HEFT
-    lambda: 1.5
+    scheduler_filter: null
+    lambda: 0.8
     gamma: 0.995
     debug: false
     fallback_use_all_if_empty: false

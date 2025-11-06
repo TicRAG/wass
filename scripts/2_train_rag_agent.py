@@ -106,6 +106,8 @@ def parse_args():
     parser.add_argument('--log_dir', default="results/training_runs", help='Directory where per-episode metrics will be recorded.')
     parser.add_argument('--run_label', default=None, help='Custom label for this training run (overrides strategy name in logs).')
     parser.add_argument('--trace_log_dir', default=None, help='If set, write interpretability trace JSONL logs to this directory.')
+    parser.add_argument('--randomize_hosts', action='store_true', help='Shuffle host ordering each episode to reduce index-specific bias.')
+    parser.add_argument('--resume-from', dest='resume_from', default=None, help='Optional path to an existing policy checkpoint for warm-start fine-tuning.')
     return parser.parse_args()
 
 
@@ -167,6 +169,20 @@ def main():
     )
     state_dim = GNN_OUT_CHANNELS
     policy_agent = ActorCritic(state_dim=state_dim, action_dim=action_dim, gnn_encoder=policy_gnn_encoder)
+    checkpoint_candidate = None
+    if args.resume_from:
+        checkpoint_candidate = Path(args.resume_from).expanduser()
+    else:
+        saved_path = Path(AGENT_MODEL_PATH)
+        if saved_path.exists():
+            checkpoint_candidate = saved_path
+    if checkpoint_candidate and checkpoint_candidate.exists():
+        try:
+            state_dict = torch.load(checkpoint_candidate, map_location=torch.device('cpu'))
+            policy_agent.load_state_dict(state_dict, strict=True)
+            print(f"♻️  Warm-started policy weights from {checkpoint_candidate}")
+        except Exception as exc:
+            print(f"⚠️ Failed to load checkpoint {checkpoint_candidate} ({exc}); continuing with fresh initialization.")
     ppo_cfg = PPOConfig(gamma=GAMMA, epochs=EPOCHS, eps_clip=EPS_CLIP, reward_mode=args.reward_mode)
     ppo_updater = PPOTrainer(policy_agent, Adam(policy_agent.parameters(), lr=LEARNING_RATE), ppo_cfg)
     replay_buffer = ReplayBuffer()  # now stores raw PyG Data graphs (not detached embeddings)
@@ -306,7 +322,8 @@ def main():
             policy_gnn_encoder=policy_gnn_encoder,
             rag_gnn_encoder=rag_gnn_for_scheduler,
             workflow_file=workflow_file,
-            feature_scaler=feature_scaler
+            feature_scaler=feature_scaler,
+            randomize_host_order=args.randomize_hosts,
         )
         
         t_sim_start = time.time()
