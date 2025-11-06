@@ -153,12 +153,19 @@ class KnowledgeableTeacher:
         limit = min(len(neighbors), self._trace_neighbor_limit)
         for idx in range(limit):
             row = neighbors.iloc[idx]
+            q_value = row.get("q_value", 0.0)
+            bias_multiplier = row.get("bias_multiplier", 1.0)
+            if pd.isna(bias_multiplier):
+                bias_multiplier = 1.0
+            biased_q_value = row.get("biased_q_value", q_value)
             records.append({
                 "workflow_file": row.get("workflow_file"),
                 "scheduler_used": row.get("scheduler_used"),
-                "q_value": float(row.get("q_value", 0.0)) if not pd.isna(row.get("q_value")) else None,
+                "q_value": float(q_value) if not pd.isna(q_value) else None,
                 "similarity": float(row.get("similarity", 0.0)),
                 "weight": float(weights[idx]) if idx < len(weights) else None,
+                "bias_multiplier": float(bias_multiplier),
+                "biased_q_value": float(biased_q_value) if not pd.isna(biased_q_value) else None,
             })
         payload: Dict[str, Any] = {
             "potential": float(potential),
@@ -189,19 +196,27 @@ class KnowledgeableTeacher:
             if self.debug:
                 print("[TeacherDebug] Knowledge records lack 'q_value'; returning zero potential.")
             return 0.0
+        neighbors = neighbors.copy().reset_index(drop=True)
         similarities = neighbors['similarity'].to_numpy(dtype=np.float32)
         q_values = neighbors['q_value'].to_numpy(dtype=np.float32)
+        if 'bias_multiplier' in neighbors.columns:
+            multipliers = neighbors['bias_multiplier'].fillna(1.0).to_numpy(dtype=np.float32)
+        else:
+            multipliers = np.ones_like(q_values, dtype=np.float32)
+            neighbors['bias_multiplier'] = multipliers
+        biased_q_values = q_values * multipliers
+        neighbors['biased_q_value'] = biased_q_values
         tau = max(self.temperature, 1e-6)
         scaled = similarities / tau
         scaled -= scaled.max()
         weights = np.exp(scaled)
         weights_sum = weights.sum()
         if weights_sum <= 0:
-            potential = float(q_values.mean())
-            weights = np.full_like(q_values, fill_value=1.0 / len(q_values)) if len(q_values) else q_values
+            potential = float(biased_q_values.mean())
+            weights = np.full_like(biased_q_values, fill_value=1.0 / len(biased_q_values)) if len(biased_q_values) else biased_q_values
         else:
             weights /= weights_sum
-            potential = float(np.dot(weights, q_values))
+            potential = float(np.dot(weights, biased_q_values))
         self._last_trace_payload = None
         if self.trace_logger is not None and len(q_values) > 0:
             self._last_trace_payload = self._build_trace_payload(neighbors, weights, potential, tau)

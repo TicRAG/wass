@@ -1043,7 +1043,7 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         delta = next_potential - pending["potential_before"]
         self._delta_min = min(self._delta_min, delta)
         self._delta_max = max(self._delta_max, delta)
-        shaped_reward = self.teacher.lambda_scale * (
+        shaped_reward = -self.teacher.lambda_scale * (
             self.teacher.gamma * next_potential - pending["potential_before"]
         )
         if len(self._potential_samples) < self._max_potential_samples:
@@ -1229,7 +1229,9 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         delta = next_potential - pending['potential_before']
         self._delta_min = min(self._delta_min, delta)
         self._delta_max = max(self._delta_max, delta)
-        reward = self.teacher.lambda_scale * (self.teacher.gamma * next_potential - pending['potential_before'])
+        reward = -self.teacher.lambda_scale * (
+            self.teacher.gamma * next_potential - pending['potential_before']
+        )
         buffer_index = pending['buffer_index']
         if 0 <= buffer_index < len(self.replay_buffer.rewards):
             self.replay_buffer.rewards[buffer_index] = torch.tensor(reward, dtype=torch.float32)
