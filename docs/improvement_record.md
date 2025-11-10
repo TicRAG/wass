@@ -8,6 +8,10 @@
 ## 更新历史
 | 版本 | 日期 | 作者 | 说明 |
 | --- | --- | --- | --- |
+| v0.33 | 2025-11-10 | GitHub Copilot | 启动任务 5：WASS-RAG 双教师兼容调优执行阶段 |
+| v0.32 | 2025-11-06 | GitHub Copilot | 开始执行 HEFT/MIN-MIN 三流程对照基准筛选，进入候选扫描 |
+| v0.31 | 2025-11-06 | GitHub Copilot | 启动“三流程对照与 WASS-RAG 联合调优”执行，进入数据扫描阶段 |
+| v0.30 | 2025-11-06 | GitHub Copilot | 制定 HEFT/MIN-MIN 三流程对照基准与 WASS-RAG 联合调优计划 |
 | v0.29 | 2025-11-05 | GitHub Copilot | 确认 WASS-RAG 慢主机偏好来源于知识库标签缺乏主机质量信号，制定“重构 q_value + 重新播种”即时任务 |
 | v0.28 | 2025-11-04 | GitHub Copilot | 扩展 WASS-RAG 推断温度/贪婪/Top-K 控制并运行首批性能扫描 |
 | v0.27 | 2025-11-04 | GitHub Copilot | 制定 WASS-RAG 性能优化与解释性串联执行计划 |
@@ -180,9 +184,9 @@
   3. 结果附带说明文档与生成脚本。
 - 依赖：阶段 P0、P1 完成。
 - 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。
-- 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`。下一步提炼跨 seed 指标差异，撰写案例解读草稿并挑选对比图收录至文档。
- - 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`；同日整理《Trace Case Study Notes》（`docs/interpretability_case_notes.md`）概括跨 workflow 奖励分布，选定 montage/epigenomics/seismology 作为主案例，并建议保留 synthetic 作为附录基线。下一步撰写案例解读草稿并从邻域明细抽取注释。
- - 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`；可视化示例：`charts/trace_regression_episode1.png`、`charts/trace_long_episode1_montage.png`、`charts/trace_long_episode1_montage_refined.png`）。2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`；同日整理《Trace Case Study Notes》（`docs/interpretability_case_notes.md`）概括跨 workflow 奖励分布，选定 montage/epigenomics/seismology 作为主案例，并建议保留 synthetic 作为附录基线。2025-11-04 新增 `--stochastic-tie-break` 开关并运行 montage 随机化探针（输出 `results/traces/extreme_top3_noise01_stochastic_summary/`、`results/stochastic_montage/`），对比展示随机打破 host 平局后的奖励跨度与主机分布。下一步撰写案例解读草稿并从邻域明细抽取注释；同时按性能优先级安排 WASS-RAG 参数调优（蒙太奇/地震工作流上扫描检索温度、动作贪婪阈值、批处理大小），锁定明显领先 HEFT 的配置后再整合解释性叙述与邻域注释。
+- 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`）；2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`。下一步提炼跨 seed 指标差异，撰写案例解读草稿并挑选对比图收录至文档。
+ - 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`）；2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`；同日整理《Trace Case Study Notes》（`docs/interpretability_case_notes.md`）概括跨 workflow 奖励分布，选定 montage/epigenomics/seismology 作为主案例，并建议保留 synthetic 作为附录基线。下一步撰写案例解读草稿并从邻域明细抽取注释。
+ - 备注：2025-11-03 启动阶段 P2，计划在 `calculate_potential` 调用栈中插入检索明细（top-k 相似度、教师标签、q 值）并定义标准化日志格式；2025-11-04 将 `results/extreme_top3_noise01` 运行记录登记为案例分析输入，完成 `TeacherTraceLogger` 接线（训练脚本新增 `--trace_log_dir`，`run_full_pipeline.py` 自动传递 `run_label` 与日志目录），落地日志解析脚本 `analysis/interpretability_case_study.py`（含 top-k 摘要/导出）、可视化脚本 `analysis/plot_trace_gantt.py`，并分别运行 `python scripts/2_train_rag_agent.py --max_episodes 3 --trace_log_dir results/traces --run_label trace_smoke`、`python scripts/2_train_rag_agent.py --max_episodes 10 --trace_log_dir results/traces --run_label trace_long`、`python scripts/2_train_rag_agent.py --max_episodes 1 --trace_log_dir results/traces --run_label trace_regression` 产出样例（`results/traces/trace_smoke_trace_20251104T094635.jsonl`、`results/traces/trace_long_trace_20251104T101208.jsonl`、`results/traces/trace_regression_trace_20251104T103147.jsonl`）；2025-11-04 批量运行 `scripts/4_run_experiments.py --strategies WASS_RAG_FULL --trace-log-dir results/traces/extreme_top3_noise01` 收集 8 workflow × 5 seeds JSONL，统一落地至 `results/traces/extreme_top3_noise01_summary/`（含 `aggregate_metrics.csv`、`workflow_summary.csv`），并生成首批基线甘特图 `charts/trace_extreme_top3/{epigenomics_seed0,montage_seed0,seismology_seed0}.png`；同日整理《Trace Case Study Notes》（`docs/interpretability_case_notes.md`）概括跨 workflow 奖励分布，选定 montage/epigenomics/seismology 作为主案例，并建议保留 synthetic 作为附录基线。2025-11-04 新增 `--stochastic-tie-break` 开关并运行 montage 随机化探针（输出 `results/traces/extreme_top3_noise01_stochastic_summary/`、`results/stochastic_montage/`），对比展示随机打破 host 平局后的奖励跨度与主机分布。下一步撰写案例解读草稿并从邻域明细抽取注释；同时按性能优先级安排 WASS-RAG 参数调优（蒙太奇/地震工作流上扫描检索温度、动作贪婪阈值、批处理大小），锁定明显领先 HEFT 的配置后再整合解释性叙述与邻域注释。
 
 ### 任务 2：验证双编码器有效性
 - 状态：`进行中`
@@ -214,6 +218,74 @@
   3. 播种脚本与调度器改动通过 lint/单元测试，运行 `python scripts/1_seed_knowledge_base.py` 成功落盘。
 - 依赖：阶段 P0 完成。
 - 备注：2025-11-05 基于推断/训练 trace 差异定位慢主机偏好，决定立即执行“重构 q_value + 重播种”两步动作，并在 `results/tmp/instrumentation_trace` 验证原始偏差。首要步骤：扩展 `KnowledgeRecordingMixin` 记录 `host_speed`, `task_flops`，修改播种脚本按主机速度归一化写入 `q_value`，随后重新播种生成新版知识库。2025-11-05 运行 `python scripts/1_seed_knowledge_base.py` 重新播种，生成 84,717 条记录并将 `data/knowledge_base/workflow_metadata.csv` 主机均值调整为 `ultra=0.9151 > fast=0.5167 > balanced=0.2976 > slow=0.1225 > bottleneck=0.0728 > micro=0.0442`；教师记录现包含 `host_speed/task_flops/compute_duration`。同日执行 `python scripts/2_train_rag_agent.py --max_episodes 60 --include_aug --reward_mode dense --run_label host_q_refresh` 重新训练策略，并用 `python scripts/4_run_experiments.py --strategies WASS_RAG_FULL --workflows montage-chameleon-2mass-01d-001.json --seeds 0 --trace-log-dir results/tmp/inference_traces --trace-run-label host_q_refresh --stochastic-tie-break` 采集推断日志。最新 trace (`results/tmp/inference_traces/montage-chameleon-2mass-01d-001_seed0_rep0_20251105T033520.jsonl`) 中主机选择频次 `ultra:22 / fast:19 / balanced:20 / micro:20 / slow:13 / bottleneck:9`，慢主机不再占主导；待更多工作流与种子验证通过后可正式验收。
+
+### 任务 4：构建 HEFT/MIN-MIN 三流程对照基准
+- 状态：`已完成`
+- 负责人：待指派
+- 涉及文件：`scripts/4_run_experiments.py`, `analysis/plot_results.py`, `results/baselines/heft_vs_minmin_triplet/`
+- 关键要求：
+  - 从 `data/workflows/`（含 `experiment/`, `synthetic/`, `training_aug/`）筛选候选工作流，运行 HEFT 与 MIN-MIN 基线对比。
+  - 固化 3 个流程，其中至少 2 个 HEFT 优于 MIN-MIN，至少 1 个 MIN-MIN 优于 HEFT，记录 makespan 差值与主机占用差异。
+  - 找不到满足的流程，新建流程类型
+  - 生成 `results/baselines/heft_vs_minmin_triplet/summary.csv` 与可视化图表，写明版本与测试参数。
+- 验收标准：
+  1. `summary.csv` 显示 3 个流程满足相对表现约束，并包含 ≥3 个随机种子的均值与方差。
+  2. `charts/heft_vs_minmin_triplet/*.png` 展示 HEFT/MIN-MIN 的对比误差条或箱线图。
+  3. 文档在“备注”中记录筛选逻辑、命令与数据路径，便于后续复现。
+- 依赖：阶段 P1 完成。
+- 备注：
+  - **目标**：筛选并固化三个代表性工作流，分别体现 MIN-MIN 优势和 HEFT 优势，为后续 WASS-RAG 调优提供基准。
+  - **实验参数**：
+    - **平台配置**：`configs/platform_extreme_hetero.xml` (6 个异构主机)。
+    - **随机种子**：`0, 1, 2` (共 3 次重复实验)。
+    - **调度策略**：`HEFT`, `MINMIN`。
+  - **筛选过程**：
+    1. **初次扫描 (Scan 1)**：扫描 `data/workflows/experiment` 目录。
+       - **命令**：`python scripts/4_run_experiments.py --strategies HEFT MINMIN --workflow-dir data/workflows/experiment --output-dir results/baselines/heft_vs_minmin_triplet/scans/scan1 --seeds 0 1 2`
+       - **产物**：`results/baselines/heft_vs_minmin_triplet/scans/scan1/detailed_results.csv`
+       - **发现**：找到 MIN-MIN 优势流程 `montage-chameleon-2mass-01d-001.json` (优势 1.6%)，但优势不显著，且未发现 HEFT 优势流程。
+    2. **增广扫描 (Scan 3)**：为寻找更优的 MIN-MIN 案例，扫描 `data/workflows/training` 目录。
+       - **命令**：`python scripts/4_run_experiments.py --strategies HEFT MINMIN --workflow-dir data/workflows/training --output-dir results/baselines/heft_vs_minmin_triplet/scans/scan3_training_aug --seeds 0 1 2`
+       - **产物**：`results/baselines/heft_vs_minmin_triplet/scans/scan3_training_aug/detailed_results.csv`
+       - **发现**：找到 `montage-chameleon-2mass-01d-001_aug1.json`，其 MIN-MIN 策略 makespan (35.49) 显著优于 HEFT (45.95)，优势达 **29.5%**。
+    3. **综合流程生成与扫描 (Scan 2)**：为寻找 HEFT 优势案例，生成高并行度、高关键路径权重的综合工作流。
+       - **生成命令**：`python scripts/generate_synthetic_workflows.py --count 5 --min-layers 5 --max-layers 10 --min-width 10 --max-width 20 --heavy-layer-multiplier 3.0 --critical-multiplier 1.5 --output-dir data/workflows/synthetic_test/ --seed 20251106`
+       - **产物**：`data/workflows/synthetic_test/` 目录下的 5 个 `synthetic_workflow_*.json` 文件。
+       - **扫描命令**：`python scripts/4_run_experiments.py --strategies HEFT MINMIN --workflow-dir data/workflows/synthetic_test --output-dir results/baselines/heft_vs_minmin_triplet/scans/scan2_synthetic --seeds 0 1 2`
+       - **发现**：找到多个 HEFT 强优势流程。
+  - **最终基准组合**：
+    - **MIN-MIN 优势流程**: `montage-chameleon-2mass-01d-001_aug1.json`
+      - HEFT Makespan: 45.95 (std: 1.81)
+      - MIN-MIN Makespan: 35.49 (std: 0.98)
+      - **MIN-MIN 优势: 29.5%**
+    - **HEFT 优势流程 1**: `synthetic_workflow_001.json`
+      - HEFT Makespan: 911.24 (std: 101.3)
+      - MIN-MIN Makespan: 7224.49 (std: 859.2)
+      - **HEFT 优势: 87.4%**
+    - **HEFT 优势流程 2**: `synthetic_workflow_000.json`
+      - HEFT Makespan: 2446.00 (std: 259.8)
+      - MIN-MIN Makespan: 4108.46 (std: 430.1)
+      - **HEFT 优势: 40.5%**
+  - **结论**：已成功筛选出三个满足约束且差异显著的工作流，可用于下一阶段的 WASS-RAG 针对性调优。任务验收完成。
+
+### 任务 5：WASS-RAG 双教师兼容调优
+- 状态：`进行中`
+- 负责人：待指派
+- 涉及文件：`scripts/2_train_rag_agent.py`, `scripts/4_run_experiments.py`, `analysis/interpretability_case_study.py`, `models/saved_models/`
+- 关键要求：
+  - 基于任务 4 固化的 3 个流程，开展 WASS-RAG 训练与推理参数扫描，使其在 HEFT 优势流程与 MIN-MIN 优势流程中均取得不劣于最佳传统策略的表现。
+  - 设计包含温度、贪婪阈值、Top-K、epsilon 及奖励权重的网格，并按流程分别记录最优配置。
+  - 输出 `results/wass_rag_dual_teacher/summary.csv` 与 `charts/wass_rag_dual_teacher/*.png`，对比 WASS-RAG 与 HEFT/MIN-MIN。
+- 验收标准：
+  1. 在 3 个目标流程上，WASS-RAG 的平均 makespan ≤ `min(HEFT, MIN-MIN) × 1.05`，并列出 seed 级别置信区间。
+  2. `pipeline_config.json` 与训练日志记录最优配置及模型快照路径（含冻结/解冻变体）。
+  3. 解释性日志至少对每个流程提供 1 次邻域对齐分析（TeacherTrace），确认策略选择合理。
+- 依赖：阶段 P0-P1 完成，任务 4 结果可用。
+- 备注：拟采用两阶段策略：先固定当前模型权重做推理调参，若无法满足阈值则以 `--include_aug` 重训并引入 HEFT/MIN-MIN 伪标签强化；最终选定的模型需保存为 `models/saved_models/drl_agent_dual_teacher.pth` 并回填至对照实验脚本。
+ - 备注：2025-11-10 启动执行阶段，首批动作是基于三流程基准（`montage-chameleon-2mass-01d-001_aug1.json`、`synthetic_workflow_001.json`、`synthetic_workflow_000.json`）建立调参网格，计划优先扫描温度∈{0.6,0.7,0.8}×贪婪阈值∈{0.85,0.9}×Top-K∈{2,3,4}×epsilon∈{0.0,0.05} 组合，并在 `results/wass_rag_dual_teacher/scans/` 下同步记录 makespan 与 TeacherTrace 摘要。
+ - 备注：2025-11-10 完成 warm-up（montage_aug1, seed=0, 温度 0.7/贪婪 0.85/Top-K=3/epsilon=0），产出 `results/wass_rag_dual_teacher/scans/temp0p7_g085_top3_eps0_seed0`；WASS-RAG makespan 135.48 仍远高于 HEFT/MIN-MIN，trace 显示持续偏向 `cpu_host_micro`，后续按网格扩展与再训练方案推进。
+ - 备注：2025-11-10 批量脚本 `scripts/run_dual_teacher_grid.py` 扫描完成（温度∈{0.6,0.7,0.8} × 贪婪阈值∈{0.85,0.9} × Top-K∈{2,3,4} × epsilon∈{0.0,0.05}，三流程×三种子，共 108 组合），`sensitivity_20251110.csv` 显示 WASS-RAG / 最优传统策略平均比值最低仍≈3.82，全部远超 1.05 阈值；`summarize_dual_teacher_traces.py` 输出的 `trace_summary_20251110.csv` 进一步确认 montage/synthetic 案例每回合 103 次决策中有 84 次落到 `cpu_host_micro`，需启动 dual-teacher 再训练与策略重播种。
+ - 备注：拟采用两阶段策略：先固定当前模型权重做推理调参，若无法满足阈值则以 `--include_aug` 重训并引入 HEFT/MIN-MIN 伪标签强化；必要时可配合任务 4 追加新流程类型或平台设置，确保三流程覆盖度；最终选定的模型需保存为 `models/saved_models/drl_agent_dual_teacher.pth` 并回填至对照实验脚本。2025-11-06 已启动对照流程扫描，准备基于现有模型运行首批 HEFT/MIN-MIN/WASS-RAG 对比并收集参数灵敏度报告。首批命令将以 `/home/zhaotao/venvs/wrench-env/bin/python scripts/4_run_experiments.py --strategies HEFT MINMIN WASS_RAG_FULL --workflows <triplet_candidate> --seeds 0 1 2 --rag-temperature <grid> --rag-greedy-threshold <grid> --rag-sample-topk <grid> --rag-epsilon <grid> --output-dir results/wass_rag_dual_teacher/scans/<tag>` 方式运行，并将指标汇总至 `results/wass_rag_dual_teacher/sensitivity_<tag>.csv`。
 
 - **阶段里程碑**：形成深度分析章节初稿与支撑数据。
 
@@ -254,6 +326,7 @@
 ---
 
 ## 近期行动计划（2025-11）
+- **三流程对照基准**：按任务 4 扫描并定稿 HEFT 优势与 MIN-MIN 优势流程三元组，生成汇总表与图表支撑后续调优。
 - **性能优化冲刺**：针对 montage、epigenomics、seismology 工作流批量扫描检索温度、贪婪阈值、批处理大小与随机种子，锁定显著优于 HEFT 的 WASS-RAG 组合，并在 `results/stochastic_montage/` 基础上追加 makespan/奖励对照回归。
 - **解释性整合**：在确定领先配置后，回填对应 trace 至 `results/traces/extreme_top3_noise01`，从 `analysis/interpretability_case_study.py` 导出跨种子摘要，并在 `docs/interpretability_case_notes.md` 撰写案例解读草稿与邻域注释。
 - **嵌入漂移对照**：依据优化结果同步刷新冻结/解冻模型快照，运行 `analysis/embedding_drift_analysis.py` 生成 UMAP/t-SNE 图与量化指标，验证双编码器收益。
@@ -295,6 +368,12 @@
     - 激活 `scripts/run_full_pipeline.py --include-training` 生成冻结/解冻模型快照，存入 `models/saved_models/embedding_drift/{frozen,unfrozen}/`。
     - 实现 `analysis/embedding_drift_analysis.py` 可复现流程，输出 UMAP/t-SNE 图与漂移指标表至 `results/embedding_drift/`。
     - 汇总发现并在 Task 2 备注中记录与性能改进的因果关联。
+
+4. **三流程对照与 WASS-RAG 联合调优（负责人待定，状态：`进行中`）**
+  - 基于任务 4 三流程基准，依次运行 HEFT/MIN-MIN/WASS-RAG，验证 makespan 阈值并记录失败案例。
+  - 组织 WASS-RAG 超参扫描批次（温度、贪婪阈值、Top-K、epsilon、λ），记录最优组合与稳定性报告。
+  - 规范化输出：将每一批扫描结果汇总为 `results/wass_rag_dual_teacher/sensitivity_<date>.csv` 与 `charts/wass_rag_dual_teacher/<date>_*.png`，并在 `results/wass_rag_dual_teacher/runlog_<date>.md` 记录参数网格与关键观察。
+  - 若仍无法满足阈值，触发针对性再训练或新增流程类型/平台配置，并落盘模型权重与 trace，对达标配置输出 `summary.csv` 与图表。
 
 ### 扩充计划（2025-11-04）
 - **目标**：扩大训练语料与知识库覆盖面，重新训练 WASS-RAG 以改善 HEFT 对比表现。
