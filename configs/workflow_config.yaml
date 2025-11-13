@@ -77,5 +77,7 @@ platform_xml:
     extreme_hetero: platform_extreme_hetero.xml
     large: platform_large.xml
     test: test_platform.xml
+    ultra_bias: platform_ultra_bias.xml
+    ultra_bias_slow: platform_ultra_bias_slow.xml
   default: extreme_hetero
 

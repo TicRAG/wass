@@ -19,6 +19,7 @@ from src.drl.utils import workflow_json_to_pyg_data
 from src.drl.replay_buffer import ReplayBuffer
 from src.rag.teacher import KnowledgeableTeacher
 from src.utils.config import load_training_config
+from src.utils.workflow_family import infer_workflow_family
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -802,6 +803,45 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
     def __init__(self, simulation: wrench.Simulation, compute_services: Dict[str, Any], hosts: Dict[str, Any], workflow_obj: wrench.Workflow, **kwargs):
         super().__init__(simulation, compute_services, hosts, workflow_obj, **kwargs)
         self.workflow_file = self.extra_args.get("workflow_file")
+        host_order_mode = (self.extra_args.get("host_order_mode") or "platform").lower()
+        host_items_original = list(self.hosts.items())
+        if host_order_mode in ("speed_desc", "speed_asc", "policy_ultra"):
+            try:
+                if host_order_mode == "policy_ultra":
+                    desired_sequence = [
+                        "cpu_host_micro",
+                        "cpu_host_bottleneck",
+                        "cpu_host_slow",
+                        "cpu_host_balanced",
+                        "cpu_host_ultra",
+                        "cpu_host_fast",
+                    ]
+                    host_map = dict(host_items_original)
+                    host_items = [(name, host_map[name]) for name in desired_sequence if name in host_map]
+                    seen_names = {name for name, _ in host_items}
+                    for name, props in host_items_original:
+                        if name not in seen_names:
+                            host_items.append((name, props))
+                else:
+                    reverse = host_order_mode == "speed_desc"
+                    host_items = list(host_items_original)
+                    host_items.sort(key=lambda item: float(item[1].get("speed", 0.0) or 0.0), reverse=reverse)
+
+                reordered_hosts = OrderedDict(host_items)
+                self.hosts = reordered_hosts
+                if isinstance(self.compute_services, dict):
+                    reordered_services = OrderedDict()
+                    for host_name, _ in host_items:
+                        if host_name in self.compute_services:
+                            reordered_services[host_name] = self.compute_services[host_name]
+                    if reordered_services:
+                        self.compute_services = reordered_services
+                print(
+                    f"[Inference][Debug] host_order_mode={host_order_mode} -> {[name for name, _ in host_items]}"
+                )
+            except Exception as exc:  # pragma: no cover - defensive fallback
+                print(f"⚠️ Failed to reorder hosts for mode='{host_order_mode}': {exc}; using platform order.")
+        self.host_order_mode = host_order_mode
         if not self.workflow_file:
             raise ValueError("WASS_DRL_Scheduler_Inference requires a 'workflow_file' argument.")
 
@@ -880,6 +920,11 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         self.seed = self.extra_args.get("seed")
         self.repeat_index = self.extra_args.get("repeat_index")
         self.strategy_label = self.extra_args.get("strategy_label")
+        self.workflow_family = (
+            infer_workflow_family(self.workflow_file)
+            if getattr(self, "workflow_file", None)
+            else None
+        )
         self.stochastic_tie_break = bool(self.extra_args.get("stochastic_tie_break", False))
         self.temperature = float(self.extra_args.get("temperature", 1.0))
         if self.temperature <= 0.0:
@@ -903,6 +948,7 @@ class WASS_DRL_Scheduler_Inference(BaseScheduler):
         if self.teacher is not None and hasattr(self.teacher, "set_trace_context"):
             self.teacher.set_trace_context(
                 workflow_file=Path(self.workflow_file).name,
+                workflow_family=self.workflow_family,
                 run_label=self.run_label,
                 seed=self.seed,
                 repeat=self.repeat_index,
@@ -1109,6 +1155,9 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
         self.policy_gnn_encoder = self.extra_args.get('policy_gnn_encoder') or self.extra_args.get('gnn_encoder')
         self.rag_gnn_encoder = self.extra_args.get('rag_gnn_encoder')  # may be None
         self.workflow_file = self.extra_args.get("workflow_file")
+        self.workflow_family = (
+            infer_workflow_family(self.workflow_file) if self.workflow_file else None
+        )
         self.feature_scaler = self.extra_args.get('feature_scaler')
         randomize_host_order = bool(self.extra_args.get('randomize_host_order', False))
         if randomize_host_order:
@@ -1125,7 +1174,10 @@ class WASS_RAG_Scheduler_Trainable(BaseScheduler):
                     self.compute_services = OrderedDict(cs_items)
             print(f"[Training][Debug] Randomized host order -> {[name for name, _ in shuffled_hosts]}")
         if self.teacher is not None and hasattr(self.teacher, "set_trace_context"):
-            self.teacher.set_trace_context(workflow_file=self.workflow_file)
+            self.teacher.set_trace_context(
+                workflow_file=self.workflow_file,
+                workflow_family=self.workflow_family,
+            )
         self.host_speeds = {name: props['speed'] for name, props in self.hosts.items()}
         # Debug instrumentation mirroring inference scheduler host ordering.
         self._host_order = list(self.hosts.keys())

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 from pathlib import Path
 from typing import Iterable
@@ -13,10 +14,7 @@ import numpy as np
 import pandas as pd
 
 
-RESULTS_DIR = Path("results/final_experiments")
-DETAILED_CSV = RESULTS_DIR / "detailed_results.csv"
-SUMMARY_CSV = RESULTS_DIR / "summary_results.csv"
-ABLATION_CSV = RESULTS_DIR / "ablation_summary.csv"
+DEFAULT_RESULTS_DIR = Path("results/final_experiments")
 CHART_DIR = Path("charts")
 TRAINING_LOG_DIR = Path("results/training_runs")
 
@@ -34,10 +32,10 @@ plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans"]
 plt.rcParams["axes.unicode_minus"] = False
 
 
-def _ensure_inputs() -> pd.DataFrame:
-    if not DETAILED_CSV.exists():
-        raise FileNotFoundError(f"Missing experimental results: {DETAILED_CSV}")
-    df = pd.read_csv(DETAILED_CSV)
+def _ensure_inputs(detailed_csv: Path) -> pd.DataFrame:
+    if not detailed_csv.exists():
+        raise FileNotFoundError(f"Missing experimental results: {detailed_csv}")
+    df = pd.read_csv(detailed_csv)
     expected_cols = {"scheduler", "workflow", "makespan", "status", "task_count", "seed"}
     missing = expected_cols - set(df.columns)
     if missing:
@@ -101,7 +99,7 @@ def plot_distribution_box(df: pd.DataFrame) -> None:
     plt.close(fig)
 
 
-def export_ablation_summary(df: pd.DataFrame) -> None:
+def export_ablation_summary(df: pd.DataFrame, output_csv: Path) -> None:
     baseline = "WASS-DRL (Vanilla)"
     if baseline not in df["scheduler"].unique():
         print("Baseline WASS-DRL (Vanilla) missing; skip ablation summary.")
@@ -111,7 +109,7 @@ def export_ablation_summary(df: pd.DataFrame) -> None:
     merged = summary.merge(baseline_stats, on="workflow", how="left")
     merged["delta_vs_baseline"] = merged["mean"] - merged["baseline_mean"]
     merged["relative_improvement_pct"] = -(merged["delta_vs_baseline"] / merged["baseline_mean"]) * 100
-    merged.to_csv(ABLATION_CSV, index=False)
+    merged.to_csv(output_csv, index=False)
 
 
 def load_training_logs() -> pd.DataFrame:
@@ -140,6 +138,30 @@ def load_training_logs() -> pd.DataFrame:
     combined["seed"] = combined.get("seed").fillna(-1)
     combined["seed"] = pd.to_numeric(combined["seed"], errors="coerce").fillna(-1).astype(int)
     combined["episode"] = combined["episode"].astype(int)
+    # Normalize optional numeric fields introduced by reward normalization logging.
+    numeric_cols = [
+        "rag_mean",
+        "rag_std",
+        "rag_positive_frac",
+        "rag_negative_frac",
+        "rag_min",
+        "rag_max",
+        "reward_mean",
+        "reward_std",
+        "reward_positive_frac",
+        "reward_negative_frac",
+        "final_reward_component",
+        "clamped_pct",
+    ]
+    for col in numeric_cols:
+        if col in combined.columns:
+            combined[col] = pd.to_numeric(combined[col], errors="coerce")
+    if "workflow_band" not in combined.columns:
+        combined["workflow_band"] = "unknown"
+    else:
+        combined["workflow_band"] = combined["workflow_band"].fillna("unknown")
+    if "workflow" not in combined.columns:
+        combined["workflow"] = ""
     return combined
 
 
@@ -181,24 +203,116 @@ def plot_training_curves(log_df: pd.DataFrame, smoothing_window: int = 5) -> Non
     plt.close(fig)
 
 
-def main() -> None:
+def export_reward_norm_summary(log_df: pd.DataFrame, output_csv: Path) -> None:
+    if log_df.empty:
+        return
+
+    required_cols = {
+        "workflow_band",
+        "rag_mean",
+        "rag_std",
+        "rag_positive_frac",
+        "rag_negative_frac",
+        "reward_mean",
+        "reward_std",
+        "reward_positive_frac",
+        "reward_negative_frac",
+        "final_reward_component",
+    }
+    missing = required_cols - set(log_df.columns)
+    if missing:
+        print(f"⚠️ Reward normalization columns missing ({sorted(missing)}); skip summary export.")
+        return
+
+    df = log_df.copy()
+    df["family"] = df.get("workflow", "").fillna("").astype(str).str.split("-", n=1).str[0]
+
+    metric_cols = [
+        "rag_mean",
+        "rag_std",
+        "rag_positive_frac",
+        "rag_negative_frac",
+        "reward_mean",
+        "reward_std",
+        "reward_positive_frac",
+        "reward_negative_frac",
+        "final_reward_component",
+    ]
+
+    records: list[pd.DataFrame] = []
+
+    def append_group(scope: str, group_cols: list[str] | None) -> None:
+        ordered_cols = ["scope", "workflow_band", "family", *metric_cols]
+        if not group_cols:
+            metrics = df[metric_cols].mean().to_frame().T
+            metrics.insert(0, "scope", scope)
+            metrics["workflow_band"] = None
+            metrics["family"] = None
+            metrics = metrics[[col for col in ordered_cols if col in metrics.columns]]
+            records.append(metrics)
+            return
+        grouped = df.groupby(group_cols)[metric_cols].mean().reset_index()
+        grouped.insert(0, "scope", scope)
+        if "workflow_band" not in group_cols:
+            grouped["workflow_band"] = None
+        if "family" not in group_cols:
+            grouped["family"] = None
+        # Ensure column ordering is consistent before appending.
+        grouped = grouped[[col for col in ordered_cols if col in grouped.columns]]
+        records.append(grouped)
+
+    append_group("overall", None)
+    append_group("by_band", ["workflow_band"])
+    append_group("by_family", ["family"])
+    append_group("by_family_band", ["family", "workflow_band"])
+
+    summary_df = pd.concat(records, ignore_index=True)
+    # Sort for readability: scope order plus alphabetical keys.
+    scope_order = {"overall": 0, "by_band": 1, "by_family": 2, "by_family_band": 3}
+    summary_df["scope_rank"] = summary_df["scope"].map(scope_order).fillna(99)
+    summary_df = summary_df.sort_values(["scope_rank", "family", "workflow_band"], na_position="last")
+    summary_df = summary_df.drop(columns=["scope_rank"])
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    summary_df.to_csv(output_csv, index=False)
+    print(f"✅ Reward normalization summary: {output_csv}")
+
+
+def main(results_dir: Path) -> None:
+    detailed_csv = results_dir / "detailed_results.csv"
+    summary_csv = results_dir / "summary_results.csv"
+    ablation_csv = results_dir / "ablation_summary.csv"
     print("📊 Generating Phase P1 charts...")
-    df = _ensure_inputs()
-    CHART_DIR.mkdir(exist_ok=True)
-    plot_overall_bar(df)
-    plot_per_workflow(df)
-    plot_distribution_box(df)
-    export_ablation_summary(df)
+    try:
+        df = _ensure_inputs(detailed_csv)
+    except FileNotFoundError as exc:
+        print(f"⚠️ {exc}")
+        df = pd.DataFrame()
+
+    if not df.empty:
+        CHART_DIR.mkdir(exist_ok=True)
+        plot_overall_bar(df)
+        plot_per_workflow(df)
+        plot_distribution_box(df)
+        export_ablation_summary(df, ablation_csv)
     training_logs = load_training_logs()
     plot_training_curves(training_logs)
+    export_reward_norm_summary(training_logs, TRAINING_LOG_DIR / "reward_norm_summary.csv")
     generated = [p.name for p in CHART_DIR.glob("*.png")]
     if generated:
         print("✅ Charts saved:")
         for name in sorted(generated):
             print(f"  - {name}")
-    if ABLATION_CSV.exists():
-        print(f"✅ Ablation summary: {ABLATION_CSV}")
+    if ablation_csv.exists():
+        print(f"✅ Ablation summary: {ablation_csv}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Plot experiment comparisons from detailed_results.csv")
+    parser.add_argument(
+        "--results-dir",
+        type=Path,
+        default=DEFAULT_RESULTS_DIR,
+        help="Directory containing detailed_results.csv (default: results/final_experiments)",
+    )
+    args = parser.parse_args()
+    main(args.results_dir)

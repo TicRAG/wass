@@ -120,10 +120,21 @@ class KnowledgeableTeacher:
         self._trace_context: Dict[str, Any] = {}
         self._last_trace_payload: Optional[Dict[str, Any]] = None
         self._trace_neighbor_limit = int(trace_cfg.get("max_neighbors", self.top_k))
+        self._current_workflow_family: Optional[str] = None
 
     def _select_neighbors(self, neighbors: pd.DataFrame) -> pd.DataFrame:
         if neighbors.empty:
             return neighbors
+        family_hint = self._current_workflow_family or self._trace_context.get("workflow_family")
+        if family_hint and "workflow_family" in neighbors.columns:
+            mask = neighbors["workflow_family"].fillna("") == family_hint
+            if mask.any():
+                prioritized = neighbors[mask]
+                remainder = neighbors[~mask]
+                if remainder.empty:
+                    neighbors = prioritized
+                else:
+                    neighbors = pd.concat([prioritized, remainder], ignore_index=True)
         if self.scheduler_filter:
             filtered = neighbors[neighbors['scheduler_used'] == self.scheduler_filter]
             if not filtered.empty:
@@ -140,7 +151,11 @@ class KnowledgeableTeacher:
 
     def set_trace_context(self, **context: Any) -> None:
         """Attach contextual metadata (workflow, episode, seed, etc.) for subsequent trace entries."""
-        self._trace_context.update({k: v for k, v in context.items() if v is not None})
+        clean_items = {k: v for k, v in context.items() if v is not None}
+        family = clean_items.get("workflow_family")
+        if isinstance(family, str) and family:
+            self._current_workflow_family = family
+        self._trace_context.update(clean_items)
 
     def _build_trace_payload(
         self,
@@ -160,6 +175,7 @@ class KnowledgeableTeacher:
             biased_q_value = row.get("biased_q_value", q_value)
             records.append({
                 "workflow_file": row.get("workflow_file"),
+                "workflow_family": row.get("workflow_family"),
                 "scheduler_used": row.get("scheduler_used"),
                 "q_value": float(q_value) if not pd.isna(q_value) else None,
                 "similarity": float(row.get("similarity", 0.0)),

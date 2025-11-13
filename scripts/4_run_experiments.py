@@ -38,6 +38,7 @@ STRATEGY_DEFINITIONS = {
             greedy_threshold=args.rag_greedy_threshold,
             epsilon=args.rag_epsilon,
             sample_top_k=args.rag_sample_topk,
+            host_order_mode=args.rag_host_order,
         ),
     },
     "WASS_DRL_VANILLA": {
@@ -51,6 +52,7 @@ STRATEGY_DEFINITIONS = {
             greedy_threshold=args.rag_greedy_threshold,
             epsilon=args.rag_epsilon,
             sample_top_k=args.rag_sample_topk,
+            host_order_mode=args.rag_host_order,
         ),
     },
     "WASS_RAG_HEFT": {
@@ -64,6 +66,7 @@ STRATEGY_DEFINITIONS = {
             greedy_threshold=args.rag_greedy_threshold,
             epsilon=args.rag_epsilon,
             sample_top_k=args.rag_sample_topk,
+            host_order_mode=args.rag_host_order,
         ),
     },
     "HEFT": {
@@ -189,6 +192,12 @@ def parse_args() -> argparse.Namespace:
         "--stochastic-tie-break",
         action="store_true",
         help="Sample actions from the WASS DRL policy instead of argmax to inject stochastic host tie-breaking.",
+    )
+    parser.add_argument(
+        "--rag-host-order",
+    choices=["platform", "speed_desc", "speed_asc", "policy_ultra"],
+        default="platform",
+        help="Optional WASS host ordering: keep platform order (default) or sort hosts by speed descending/ascending.",
     )
     parser.add_argument(
         "--rag-temperature",

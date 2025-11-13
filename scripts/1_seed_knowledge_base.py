@@ -4,9 +4,10 @@ import json
 import time
 from pathlib import Path
 import re
+
+import joblib
 import numpy as np
 import torch
-import joblib
 from sklearn.preprocessing import StandardScaler
 
 # Ensure project root in path
@@ -19,6 +20,7 @@ from src.drl.gnn_encoder import GNNEncoder
 from src.rag.teacher import KnowledgeBase
 from src.simulation.experiment_runner import WrenchExperimentRunner
 from src.simulation.schedulers import RecordingHEFTScheduler, RecordingRandomScheduler, RecordingMinMinScheduler
+from src.utils.workflow_family import infer_workflow_family
 
 WORKFLOW_CONFIG_FILE = "configs/workflow_config.yaml"
 FEATURE_SCALER_PATH = "models/saved_models/feature_scaler.joblib"
@@ -89,6 +91,12 @@ def main():
     if LIMIT_WORKFLOWS:
         workflow_files = workflow_files[:LIMIT_WORKFLOWS]
     print(f"📁 Found {len(workflow_files)} training workflows.")
+    workflow_family_map: dict[str, str] = {}
+    for path_str in workflow_files:
+        wf_path = Path(path_str)
+        family = infer_workflow_family(wf_path)
+        workflow_family_map[str(wf_path)] = family
+        workflow_family_map[wf_path.name] = family
 
     workflow_manager = WorkflowManager(WORKFLOW_CONFIG_FILE)
     platform_file = workflow_manager.get_platform_file()
@@ -206,6 +214,7 @@ def main():
                     normalized_q = float(max(min(fallback_value, 1.0), 0.0))
                 metadata_entry = {
                     "workflow_file": wf_path.name,
+                    "workflow_family": workflow_family_map.get(str(wf_path), workflow_family_map.get(wf_path.name)),
                     "scheduler_used": sched_name,
                     "makespan": makespan,
                     "task_name": record.get('task_name'),

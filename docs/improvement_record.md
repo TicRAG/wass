@@ -8,6 +8,9 @@
 ## 更新历史
 | 版本 | 日期 | 作者 | 说明 |
 | --- | --- | --- | --- |
+| v0.36 | 2025-11-11 | GitHub Copilot | 规划为知识库补充 `workflow_family` 标记，强化流程族检索 |
+| v0.35 | 2025-11-11 | GitHub Copilot | 制定 montage 表现提升先行方案并安排执行 |
+| v0.34 | 2025-11-10 | GitHub Copilot | 记录双教师网格复跑结果：synthetic 组超越基线，montage 仍落后 |
 | v0.33 | 2025-11-10 | GitHub Copilot | 启动任务 5：WASS-RAG 双教师兼容调优执行阶段 |
 | v0.32 | 2025-11-06 | GitHub Copilot | 开始执行 HEFT/MIN-MIN 三流程对照基准筛选，进入候选扫描 |
 | v0.31 | 2025-11-06 | GitHub Copilot | 启动“三流程对照与 WASS-RAG 联合调优”执行，进入数据扫描阶段 |
@@ -218,6 +221,7 @@
   3. 播种脚本与调度器改动通过 lint/单元测试，运行 `python scripts/1_seed_knowledge_base.py` 成功落盘。
 - 依赖：阶段 P0 完成。
 - 备注：2025-11-05 基于推断/训练 trace 差异定位慢主机偏好，决定立即执行“重构 q_value + 重播种”两步动作，并在 `results/tmp/instrumentation_trace` 验证原始偏差。首要步骤：扩展 `KnowledgeRecordingMixin` 记录 `host_speed`, `task_flops`，修改播种脚本按主机速度归一化写入 `q_value`，随后重新播种生成新版知识库。2025-11-05 运行 `python scripts/1_seed_knowledge_base.py` 重新播种，生成 84,717 条记录并将 `data/knowledge_base/workflow_metadata.csv` 主机均值调整为 `ultra=0.9151 > fast=0.5167 > balanced=0.2976 > slow=0.1225 > bottleneck=0.0728 > micro=0.0442`；教师记录现包含 `host_speed/task_flops/compute_duration`。同日执行 `python scripts/2_train_rag_agent.py --max_episodes 60 --include_aug --reward_mode dense --run_label host_q_refresh` 重新训练策略，并用 `python scripts/4_run_experiments.py --strategies WASS_RAG_FULL --workflows montage-chameleon-2mass-01d-001.json --seeds 0 --trace-log-dir results/tmp/inference_traces --trace-run-label host_q_refresh --stochastic-tie-break` 采集推断日志。最新 trace (`results/tmp/inference_traces/montage-chameleon-2mass-01d-001_seed0_rep0_20251105T033520.jsonl`) 中主机选择频次 `ultra:22 / fast:19 / balanced:20 / micro:20 / slow:13 / bottleneck:9`，慢主机不再占主导；待更多工作流与种子验证通过后可正式验收。
+  - 备注：2025-11-11 将播种脚本新增 `workflow_family` 字段列入行动项，后续通过工作流管理器导出流程族标签并写入 `workflow_metadata.csv`，用于提升检索阶段对流程结构的判别能力。
 
 ### 任务 4：构建 HEFT/MIN-MIN 三流程对照基准
 - 状态：`已完成`
@@ -282,9 +286,17 @@
   3. 解释性日志至少对每个流程提供 1 次邻域对齐分析（TeacherTrace），确认策略选择合理。
 - 依赖：阶段 P0-P1 完成，任务 4 结果可用。
 - 备注：拟采用两阶段策略：先固定当前模型权重做推理调参，若无法满足阈值则以 `--include_aug` 重训并引入 HEFT/MIN-MIN 伪标签强化；最终选定的模型需保存为 `models/saved_models/drl_agent_dual_teacher.pth` 并回填至对照实验脚本。
+ - 备注：2025-11-10 基于刷新后的 `drl_agent.pth` 复跑 108 组双教师网格，`sensitivity_20251110.csv` 表明 synthetic 组 `WASS-RAG (Full)` 平均 985.32，较最佳基线（HEFT）快 41.3%（比值 0.59）；montage 组仍为 87.29，比 `MIN-MIN` 慢 2.46×，差值 51.79。同步生成 `trace_summary_20251110.csv` 以定位主机偏好，下一步需触发 dual-teacher 再训练与偏差 trace 审计。
  - 备注：2025-11-10 启动执行阶段，首批动作是基于三流程基准（`montage-chameleon-2mass-01d-001_aug1.json`、`synthetic_workflow_001.json`、`synthetic_workflow_000.json`）建立调参网格，计划优先扫描温度∈{0.6,0.7,0.8}×贪婪阈值∈{0.85,0.9}×Top-K∈{2,3,4}×epsilon∈{0.0,0.05} 组合，并在 `results/wass_rag_dual_teacher/scans/` 下同步记录 makespan 与 TeacherTrace 摘要。
  - 备注：2025-11-10 完成 warm-up（montage_aug1, seed=0, 温度 0.7/贪婪 0.85/Top-K=3/epsilon=0），产出 `results/wass_rag_dual_teacher/scans/temp0p7_g085_top3_eps0_seed0`；WASS-RAG makespan 135.48 仍远高于 HEFT/MIN-MIN，trace 显示持续偏向 `cpu_host_micro`，后续按网格扩展与再训练方案推进。
  - 备注：2025-11-10 批量脚本 `scripts/run_dual_teacher_grid.py` 扫描完成（温度∈{0.6,0.7,0.8} × 贪婪阈值∈{0.85,0.9} × Top-K∈{2,3,4} × epsilon∈{0.0,0.05}，三流程×三种子，共 108 组合），`sensitivity_20251110.csv` 显示 WASS-RAG / 最优传统策略平均比值最低仍≈3.82，全部远超 1.05 阈值；`summarize_dual_teacher_traces.py` 输出的 `trace_summary_20251110.csv` 进一步确认 montage/synthetic 案例每回合 103 次决策中有 84 次落到 `cpu_host_micro`，需启动 dual-teacher 再训练与策略重播种。
+  - 备注：2025-11-11 提炼 montage 表现提升先行方案：先调整 workflow 缩放与关键路径（限制 HEFT 超高 makespan）、补充 montage 相似样本至知识库并重建嵌入、清理历史低质量 trace 摘要、复核 feature scaler 覆盖范围，以提升 RAG 检索质量再进入再训练/调参阶段。
+  - 计划（2025-11-11）：
+    1. Workflow 正常化：针对 `montage_aug1` 微调 FLOPs/Runtime，使 HEFT 与 MIN-MIN makespan 落在同级别（目标 < 2.2k），并重新确认基线统计写入 `results/baselines/heft_vs_minmin_triplet/`。
+    2. 知识库增广：收集旧版 montage trace 或人工合成结构，运行 `scripts/1_seed_knowledge_base.py` 重新播种 KB，保证 `workflow_metadata.csv` 中 montage 类条目 ≥5% 且 `q_value` 与 host_speed 正相关。
+    3. Trace 清理与摘要刷新：清空 `results/wass_rag_dual_teacher/traces/montage-chameleon-2mass-01d-001_aug1/` 旧日志，复跑最新组合再使用 `scripts/summarize_dual_teacher_traces.py` 生成摘要，避免旧策略持续放大慢主机偏好。
+    4. 特征缩放审计：验证 `feature_scaler.joblib` 训练数据覆盖 montage 分布，必要时以扩充样本重训 scaler，确保检索特征不过度偏移。
+    5. 诊断回归：在 KB/Trace 更新后运行小规模推理（种子 0,1）确认主机分布回归正常，再开启 dual-teacher 再训练与超参调优。
  - 备注：拟采用两阶段策略：先固定当前模型权重做推理调参，若无法满足阈值则以 `--include_aug` 重训并引入 HEFT/MIN-MIN 伪标签强化；必要时可配合任务 4 追加新流程类型或平台设置，确保三流程覆盖度；最终选定的模型需保存为 `models/saved_models/drl_agent_dual_teacher.pth` 并回填至对照实验脚本。2025-11-06 已启动对照流程扫描，准备基于现有模型运行首批 HEFT/MIN-MIN/WASS-RAG 对比并收集参数灵敏度报告。首批命令将以 `/home/zhaotao/venvs/wrench-env/bin/python scripts/4_run_experiments.py --strategies HEFT MINMIN WASS_RAG_FULL --workflows <triplet_candidate> --seeds 0 1 2 --rag-temperature <grid> --rag-greedy-threshold <grid> --rag-sample-topk <grid> --rag-epsilon <grid> --output-dir results/wass_rag_dual_teacher/scans/<tag>` 方式运行，并将指标汇总至 `results/wass_rag_dual_teacher/sensitivity_<tag>.csv`。
 
 - **阶段里程碑**：形成深度分析章节初稿与支撑数据。

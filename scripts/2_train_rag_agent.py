@@ -3,6 +3,7 @@ import sys
 import time
 import argparse
 import random
+from collections import defaultdict, deque
 from datetime import datetime
 
 # --- 路径修正 ---
@@ -34,6 +35,7 @@ from src.rag.teacher import KnowledgeBase, KnowledgeableTeacher
 from src.simulation.schedulers import WASS_RAG_Scheduler_Trainable
 from src.simulation.experiment_runner import WrenchExperimentRunner
 from src.utils.config import load_training_config
+from src.utils.reward_normalizer import FamilyRewardNormalizer
 from src.utils.training_logger import TrainingLogger
 
 
@@ -108,6 +110,18 @@ def parse_args():
     parser.add_argument('--trace_log_dir', default=None, help='If set, write interpretability trace JSONL logs to this directory.')
     parser.add_argument('--randomize_hosts', action='store_true', help='Shuffle host ordering each episode to reduce index-specific bias.')
     parser.add_argument('--resume-from', dest='resume_from', default=None, help='Optional path to an existing policy checkpoint for warm-start fine-tuning.')
+    parser.add_argument(
+        '--family-filter',
+        nargs='+',
+        default=None,
+        help='Optional whitelist of workflow families to train on (case-insensitive).',
+    )
+    parser.add_argument('--rag-multiplier', type=float, default=None, help='Override dense reward multiplier applied after normalization.')
+    parser.add_argument('--final-normalizer', type=float, default=None, help='Override final makespan reward normalizer (base 5000).')
+    parser.add_argument('--teacher-lambda', type=float, default=None, help='Override teacher lambda scaling factor.')
+    parser.add_argument('--teacher-top-k', type=int, default=None, help='Override teacher neighbor top-k during retrieval.')
+    parser.add_argument('--teacher-temperature', type=float, default=None, help='Override teacher softmax temperature for similarity weighting.')
+    parser.add_argument('--teacher-gamma', type=float, default=None, help='Override teacher exponential moving average gamma.')
     return parser.parse_args()
 
 
@@ -129,6 +143,26 @@ def main():
     args = parse_args()
     print("🚀 [Phase 3] Starting DRL Agent Training (with Re-balanced Rewards)...")
     trace_log_path: Path | None = None
+
+    rag_multiplier = RAG_REWARD_MULTIPLIER if args.rag_multiplier is None else float(args.rag_multiplier)
+    if args.rag_multiplier is not None:
+        print(f"[Override] rag_multiplier set to {rag_multiplier:.4f}")
+    final_normalizer = FINAL_REWARD_NORMALIZER if args.final_normalizer is None else float(args.final_normalizer)
+    if args.final_normalizer is not None:
+        print(f"[Override] final_normalizer set to {final_normalizer:.4f}")
+    teacher_config = dict(TEACHER_CFG)
+    if args.teacher_lambda is not None:
+        teacher_config["lambda"] = float(args.teacher_lambda)
+        print(f"[Override] teacher.lambda set to {teacher_config['lambda']:.4f}")
+    if args.teacher_top_k is not None:
+        teacher_config["top_k"] = int(args.teacher_top_k)
+        print(f"[Override] teacher.top_k set to {teacher_config['top_k']}")
+    if args.teacher_temperature is not None:
+        teacher_config["temperature"] = float(args.teacher_temperature)
+        print(f"[Override] teacher.temperature set to {teacher_config['temperature']:.4f}")
+    if args.teacher_gamma is not None:
+        teacher_config["gamma"] = float(args.teacher_gamma)
+        print(f"[Override] teacher.gamma set to {teacher_config['gamma']:.4f}")
     
     if args.seed is not None:
         random.seed(args.seed)
@@ -201,7 +235,7 @@ def main():
             state_dim=state_dim,
             knowledge_base=kb,
             gnn_encoder=rag_gnn_encoder,
-            reward_config=TEACHER_CFG,
+            reward_config=teacher_config,
         )
         if args.trace_log_dir:
             trace_dir = Path(args.trace_log_dir)
@@ -225,6 +259,9 @@ def main():
     
     config_params = {"platform_file": platform_file}
     wrench_runner = WrenchExperimentRunner(schedulers={}, config=config_params)
+    reward_normalizer = FamilyRewardNormalizer(
+        metadata_path="data/knowledge_base/workflow_metadata.csv"
+    )
     print("✅ Components initialized.")
 
     t_load_start = time.time()
@@ -267,6 +304,32 @@ def main():
         for wf in training_workflows:
             print(f"    • {Path(wf).name} tasks={count_tasks_in_workflow(wf)}")
 
+    if args.family_filter:
+        allowed_families = {fam.lower() for fam in args.family_filter}
+        filtered_workflows: list[str] = []
+        for wf in training_workflows:
+            family_name = reward_normalizer.get_family(wf)
+            if family_name.lower() in allowed_families:
+                filtered_workflows.append(wf)
+        removed = len(training_workflows) - len(filtered_workflows)
+        training_workflows = filtered_workflows
+        print(
+            f"[Filter] Retained {len(training_workflows)} workflows after family filter {sorted(allowed_families)} (removed {removed})."
+        )
+        if not training_workflows:
+            print("❌ Family filter removed all workflows; aborting.")
+            return
+
+    band_assignments = reward_normalizer.assign_bands(training_workflows)
+    band_to_workflows: defaultdict[str, list[str]] = defaultdict(list)
+    for wf in training_workflows:
+        band = band_assignments.get(wf, "medium")
+        band_to_workflows[band].append(wf)
+    if args.profile:
+        for band_name in ("short", "medium", "long"):
+            print(f"[Curriculum] band={band_name} size={len(band_to_workflows.get(band_name, []))}")
+    band_cycle = deque(["short", "medium", "long"])
+
     effective_total_episodes = args.max_episodes if args.max_episodes is not None else TOTAL_EPISODES
     print(f"\n[Step 3/4] Starting main training loop... total_episodes={effective_total_episodes}")
     strategy_label = "WASS-DRL (Vanilla)" if args.disable_rag else "WASS-RAG (Full)"
@@ -277,7 +340,15 @@ def main():
         "include_aug": args.include_aug,
         "max_tasks": args.max_tasks,
         "freeze_gnn": args.freeze_gnn,
+        "rag_multiplier": rag_multiplier,
+        "final_normalizer": final_normalizer,
+        "teacher_lambda": teacher_config.get("lambda"),
+        "teacher_top_k": teacher_config.get("top_k"),
+        "teacher_temperature": teacher_config.get("temperature"),
+        "teacher_gamma": teacher_config.get("gamma"),
     }
+    if args.family_filter:
+        metadata["family_filter"] = list(args.family_filter)
     if args.trace_log_dir:
         metadata["trace_log_dir"] = args.trace_log_dir
     if trace_log_path is not None:
@@ -297,16 +368,34 @@ def main():
     loop_start = time.time()
     for episode in range(1, effective_total_episodes + 1):
         episode_start = time.time()
-        workflow_file = np.random.choice(training_workflows)
+        selected_workflow: str | None = None
+        for _ in range(len(band_cycle)):
+            candidate_band = band_cycle[0]
+            candidates = band_to_workflows.get(candidate_band, [])
+            if candidates:
+                selected_workflow = str(np.random.choice(candidates))
+                band_cycle.rotate(-1)
+                break
+            band_cycle.rotate(-1)
+        if selected_workflow is None:
+            selected_workflow = str(np.random.choice(training_workflows))
+        workflow_file = selected_workflow
+        workflow_band = band_assignments.get(workflow_file, "medium")
+        family_name = reward_normalizer.get_family(workflow_file)
         task_count_selected = count_tasks_in_workflow(workflow_file)
         if args.profile:
-            print(f"[EP] {episode}/{effective_total_episodes} -> {Path(workflow_file).name} tasks={task_count_selected}")
+            print(
+                f"[EP] {episode}/{effective_total_episodes} -> {Path(workflow_file).name} "
+                f"tasks={task_count_selected} band={workflow_band}"
+            )
         if teacher is not None:
             teacher.set_trace_context(
                 episode=episode,
                 workflow_file=Path(workflow_file).name,
+                workflow_band=workflow_band,
                 run_label=args.run_label,
                 seed=args.seed,
+                workflow_family=family_name,
             )
         
         # --- THIS IS THE FIX: The lambda now accepts all keyword arguments from the caller ---
@@ -355,40 +444,54 @@ def main():
             replay_buffer.clear()
             continue
 
-        rag_rewards_for_logging = [r.item() for r in replay_buffer.rewards]
-        avg_rag_reward = np.mean(rag_rewards_for_logging) if rag_rewards_for_logging else 0.0
-        # Additional reward distribution diagnostics (Option A):
-        if rag_rewards_for_logging:
-            min_rag = float(np.min(rag_rewards_for_logging))
-            max_rag = float(np.max(rag_rewards_for_logging))
-            std_rag = float(np.std(rag_rewards_for_logging))
-            clamped_floor = TEACHER_CFG.get('min_clamped_reward', -0.05)
-            clamped_count = sum(1 for v in rag_rewards_for_logging if v <= clamped_floor + 1e-9)
-            clamped_pct = (clamped_count / len(rag_rewards_for_logging)) * 100.0
-        else:
-            min_rag = max_rag = std_rag = 0.0
-            clamped_count = clamped_pct = 0.0
+        raw_rag_rewards = [float(r.item()) for r in replay_buffer.rewards]
+        scaled_rag_rewards = reward_normalizer.normalize_dense_rewards(
+            workflow_file,
+            raw_rag_rewards,
+            multiplier=rag_multiplier,
+        )
+        dense_stats = reward_normalizer.summarize_rewards(workflow_file, scaled_rag_rewards)
+        scaled_array = np.asarray(scaled_rag_rewards, dtype=np.float64)
+        rag_min = float(scaled_array.min()) if scaled_array.size else 0.0
+        rag_max = float(scaled_array.max()) if scaled_array.size else 0.0
+        final_reward_component = reward_normalizer.compute_final_reward(workflow_file, makespan)
+        if final_normalizer and final_normalizer > 0:
+            final_reward_component *= (1000.0 / final_normalizer)
 
-        normalizer = FINAL_REWARD_NORMALIZER if FINAL_REWARD_NORMALIZER != 0 else 1.0
-        final_penalty = - (makespan / normalizer)
         if args.reward_mode == 'dense':
-            # Distribute final penalty evenly across all collected RAG rewards for fairness
-            steps = len(replay_buffer.rewards)
+            steps = len(scaled_rag_rewards)
             if steps == 0:
-                replay_buffer.rewards = [torch.tensor(final_penalty)]
+                replay_buffer.rewards = [torch.tensor(final_reward_component, dtype=torch.float32)]
             else:
-                per_step_penalty = final_penalty / steps
-                replay_buffer.rewards = [torch.tensor(r.item() + per_step_penalty) for r in replay_buffer.rewards]
+                per_step_bonus = final_reward_component / steps
+                replay_buffer.rewards = [
+                    torch.tensor(val + per_step_bonus, dtype=torch.float32)
+                    for val in scaled_rag_rewards
+                ]
         else:
-            # Final mode collapses RAG intermediates + final penalty to single scalar
-            total_rag = sum(r.item() for r in replay_buffer.rewards) if replay_buffer.rewards else 0.0
-            combined = total_rag + final_penalty
-            replay_buffer.rewards = [torch.tensor(combined)]
+            total_dense = float(np.sum(scaled_rag_rewards)) if scaled_rag_rewards else 0.0
+            combined = total_dense + final_reward_component
+            replay_buffer.rewards = [torch.tensor(combined, dtype=torch.float32)]
 
-        if replay_buffer.rewards:
-            reported_reward = float(sum(r.item() for r in replay_buffer.rewards))
-        else:
-            reported_reward = float(final_penalty)
+        normalized_rewards = [float(r.item()) for r in replay_buffer.rewards]
+        reward_stats = reward_normalizer.summarize_rewards(workflow_file, normalized_rewards)
+        clip_low, clip_high = reward_normalizer.get_ratio_clip(workflow_file)
+        print(
+            "    [RewardNorm] family=%s band=%s mean=%.3f std=%.3f pos=%.1f%% neg=%.1f%% clip=(%.2f,%.2f) final=%.3f"
+            % (
+                family_name,
+                workflow_band,
+                reward_stats["mean"],
+                reward_stats["std"],
+                reward_stats["positive_frac"] * 100.0,
+                reward_stats["negative_frac"] * 100.0,
+                clip_low,
+                clip_high,
+                final_reward_component,
+            )
+        )
+
+        reported_reward = float(sum(normalized_rewards)) if normalized_rewards else 0.0
         
         # Gradient norm diagnostics (now meaningful because graphs are re-embedded during PPO update)
         if not args.freeze_gnn:
@@ -464,8 +567,9 @@ def main():
 
         print(
             f"  Episode {episode}, Workflow: {Path(workflow_file).name}, tasks={task_count_selected}, Makespan: {makespan:.2f}s, "
-            f"AvgRAG={avg_rag_reward:.4f} min={min_rag:.4f} max={max_rag:.4f} std={std_rag:.4f} "
-            f"clamped={clamped_count} ({clamped_pct:.1f}%), sim_time={sim_elapsed:.2f}s"
+            f"ScaledRAG mean={dense_stats['mean']:.4f} min={rag_min:.4f} max={rag_max:.4f} std={dense_stats['std']:.4f} "
+            f"pos={dense_stats['positive_frac']*100:.1f}% neg={dense_stats['negative_frac']*100:.1f}% "
+            f"reported={reported_reward:.4f}, sim_time={sim_elapsed:.2f}s"
         )
 
         if training_logger:
@@ -477,16 +581,24 @@ def main():
                     "task_count": task_count_selected,
                     "makespan": makespan,
                     "episode_reward": reported_reward,
-                    "avg_rag_reward": avg_rag_reward,
-                    "min_rag_reward": min_rag,
-                    "max_rag_reward": max_rag,
-                    "std_rag_reward": std_rag,
-                    "clamped_pct": clamped_pct,
+                    "rag_mean": dense_stats["mean"],
+                    "rag_std": dense_stats["std"],
+                    "rag_positive_frac": dense_stats["positive_frac"],
+                    "rag_negative_frac": dense_stats["negative_frac"],
+                    "rag_min": rag_min,
+                    "rag_max": rag_max,
                     "sim_time": sim_elapsed,
                     "episode_wallclock": episode_duration,
                     "reward_mode": args.reward_mode,
                     "rag_enabled": 0 if args.disable_rag else 1,
-                    "replay_steps": len(rag_rewards_for_logging),
+                    "workflow_band": workflow_band,
+                    "workflow_family": family_name,
+                    "final_reward_component": final_reward_component,
+                    "reward_mean": reward_stats["mean"],
+                    "reward_std": reward_stats["std"],
+                    "reward_positive_frac": reward_stats["positive_frac"],
+                    "reward_negative_frac": reward_stats["negative_frac"],
+                    "replay_steps": len(scaled_rag_rewards),
                 },
             )
 

@@ -1,0 +1,90 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "https://simgrid.org/simgrid.dtd">
+<platform version="4.1">
+  <zone id="main" routing="Full">
+    <host id="ControllerHost" speed="1Gf" core="1"/>
+    <host id="StorageHost" speed="1Gf" core="1">
+      <disk id="storage_disk" read_bw="120MBps" write_bw="120MBps">
+        <prop id="size" value="1000GB"/>
+        <prop id="mount" value="/storage"/>
+      </disk>
+    </host>
+
+    <!-- Speeds uniformly scaled down (≈2.96e-5× original) so WASS makespans land near 3k. -->
+  <host id="cpu_host_ultra" speed="0.001183Gf" core="32">
+      <prop id="ram" value="256GB"/>
+      <disk id="local_disk" read_bw="380MBps" write_bw="380MBps">
+        <prop id="size" value="600GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+  <host id="cpu_host_fast" speed="0.000650Gf" core="24">
+      <prop id="ram" value="192GB"/>
+      <disk id="local_disk" read_bw="320MBps" write_bw="320MBps">
+        <prop id="size" value="480GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+  <host id="cpu_host_balanced" speed="0.000355Gf" core="16">
+      <prop id="ram" value="128GB"/>
+      <disk id="local_disk" read_bw="220MBps" write_bw="220MBps">
+        <prop id="size" value="320GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+  <host id="cpu_host_bottleneck" speed="0.000053Gf" core="8">
+      <prop id="ram" value="48GB"/>
+      <disk id="local_disk" read_bw="90MBps" write_bw="90MBps">
+        <prop id="size" value="160GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+  <host id="cpu_host_micro" speed="0.000018Gf" core="4">
+      <prop id="ram" value="24GB"/>
+      <disk id="local_disk" read_bw="60MBps" write_bw="60MBps">
+        <prop id="size" value="120GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+  <host id="cpu_host_zzslow" speed="0.000118Gf" core="12">
+      <prop id="ram" value="64GB"/>
+      <disk id="local_disk" read_bw="140MBps" write_bw="140MBps">
+        <prop id="size" value="200GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <link id="backbone_fast" bandwidth="220MBps" latency="0.5ms"/>
+    <link id="backbone_regular" bandwidth="80MBps" latency="2ms"/>
+    <link id="bottleneck_link" bandwidth="10MBps" latency="8ms"/>
+
+    <route src="ControllerHost" dst="cpu_host_ultra"><link_ctn id="backbone_fast"/></route>
+    <route src="StorageHost" dst="cpu_host_ultra"><link_ctn id="backbone_fast"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_fast"><link_ctn id="backbone_fast"/></route>
+    <route src="StorageHost" dst="cpu_host_fast"><link_ctn id="backbone_fast"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_balanced"><link_ctn id="backbone_regular"/></route>
+    <route src="StorageHost" dst="cpu_host_balanced"><link_ctn id="backbone_regular"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_zzslow">
+      <link_ctn id="backbone_regular"/>
+      <link_ctn id="bottleneck_link"/>
+    </route>
+    <route src="StorageHost" dst="cpu_host_zzslow">
+      <link_ctn id="backbone_regular"/>
+      <link_ctn id="bottleneck_link"/>
+    </route>
+
+    <route src="ControllerHost" dst="cpu_host_bottleneck"><link_ctn id="bottleneck_link"/></route>
+    <route src="StorageHost" dst="cpu_host_bottleneck"><link_ctn id="bottleneck_link"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_micro"><link_ctn id="bottleneck_link"/></route>
+    <route src="StorageHost" dst="cpu_host_micro"><link_ctn id="bottleneck_link"/></route>
+  </zone>
+</platform>
