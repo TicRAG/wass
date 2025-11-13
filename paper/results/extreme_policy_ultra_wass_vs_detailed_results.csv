@@ -1,0 +1,7 @@
+scheduler,workflow,makespan,status,task_count,seed
+WASS-RAG (Full),synthetic_workflow_001.json,3075.3397490416523,success,40,0
+WASS-RAG (Full),seismology-chameleon-100p-001.json,1098.940222000025,success,101,0
+WASS-RAG (Full),montage-chameleon-2mass-01d-001_aug1.json,347.7019221030123,success,103,0
+WASS-DRL (Vanilla),synthetic_workflow_001.json,3075.3397490416523,success,40,0
+WASS-DRL (Vanilla),seismology-chameleon-100p-001.json,1098.9403913636836,success,101,0
+WASS-DRL (Vanilla),montage-chameleon-2mass-01d-001_aug1.json,629.9436809645667,success,103,0

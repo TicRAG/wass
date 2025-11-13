@@ -1,0 +1,1316 @@
+{
+  "name": "synthetic_workflow_001",
+  "description": "Synthetic workflow with controllable parallelism (generated programmatically).",
+  "createdAt": "2025-11-03T02:01:38+00:00",
+  "schemaVersion": "1.5",
+  "author": {
+    "name": "synthetic-generator",
+    "email": "support@example.com"
+  },
+  "workflow_name": "synthetic_workflow_001",
+  "workflow": {
+    "specification": {
+      "tasks": [
+        {
+          "name": "L00_T000",
+          "id": "L00_T000",
+          "children": [
+            "L01_T000",
+            "L01_T001",
+            "L01_T004"
+          ],
+          "inputFiles": [
+            "L00_T000_input.dat"
+          ],
+          "outputFiles": [
+            "L00_T000_out.dat"
+          ],
+          "parents": [],
+          "flops": 2131781017.159156,
+          "runtime": 3.0115617875128664,
+          "memory": 296754504.8391443
+        },
+        {
+          "name": "L00_T001",
+          "id": "L00_T001",
+          "children": [
+            "L01_T000",
+            "L01_T001",
+            "L01_T003",
+            "L01_T004",
+            "L00_T001_DECOY_001",
+            "L00_T001_DECOY_002",
+            "L00_T001_DECOY_003"
+          ],
+          "inputFiles": [
+            "L00_T001_input.dat"
+          ],
+          "outputFiles": [
+            "L00_T001_out.dat"
+          ],
+          "parents": [],
+          "flops": 65462828075.67297,
+          "runtime": 86.25545817257603,
+          "memory": 163990694.37612808
+        },
+        {
+          "name": "L00_T002",
+          "id": "L00_T002",
+          "children": [
+            "L01_T000",
+            "L01_T001",
+            "L01_T002"
+          ],
+          "inputFiles": [
+            "L00_T002_input.dat"
+          ],
+          "outputFiles": [
+            "L00_T002_out.dat"
+          ],
+          "parents": [],
+          "flops": 6482368866.751142,
+          "runtime": 6.684649209567343,
+          "memory": 146379755.2130636
+        },
+        {
+          "name": "L01_T000",
+          "id": "L01_T000",
+          "children": [],
+          "inputFiles": [
+            "L00_T001_out.dat",
+            "L00_T002_out.dat",
+            "L00_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T000_out.dat"
+          ],
+          "parents": [
+            "L00_T001",
+            "L00_T002",
+            "L00_T000"
+          ],
+          "flops": 10488367333.065912,
+          "runtime": 13.511659526567087,
+          "memory": 260588152.38195956
+        },
+        {
+          "name": "L01_T001",
+          "id": "L01_T001",
+          "children": [
+            "L02_T002"
+          ],
+          "inputFiles": [
+            "L00_T001_out.dat",
+            "L00_T002_out.dat",
+            "L00_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T001_out.dat"
+          ],
+          "parents": [
+            "L00_T001",
+            "L00_T002",
+            "L00_T000"
+          ],
+          "flops": 3710922319.223369,
+          "runtime": 3.990994635086949,
+          "memory": 181418835.78982213
+        },
+        {
+          "name": "L01_T002",
+          "id": "L01_T002",
+          "children": [
+            "L02_T000",
+            "L02_T001"
+          ],
+          "inputFiles": [
+            "L00_T002_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T002_out.dat"
+          ],
+          "parents": [
+            "L00_T002"
+          ],
+          "flops": 3168359954.9141955,
+          "runtime": 4.517490973634384,
+          "memory": 198571967.0095034
+        },
+        {
+          "name": "L01_T003",
+          "id": "L01_T003",
+          "children": [
+            "L02_T000",
+            "L01_T003_DECOY_004",
+            "L01_T003_DECOY_005",
+            "L01_T003_DECOY_006"
+          ],
+          "inputFiles": [
+            "L00_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T003_out.dat"
+          ],
+          "parents": [
+            "L00_T001"
+          ],
+          "flops": 180567457169.49258,
+          "runtime": 196.9100285142645,
+          "memory": 300269507.71862733
+        },
+        {
+          "name": "L01_T004",
+          "id": "L01_T004",
+          "children": [],
+          "inputFiles": [
+            "L00_T001_out.dat",
+            "L00_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T004_out.dat"
+          ],
+          "parents": [
+            "L00_T001",
+            "L00_T000"
+          ],
+          "flops": 14356945426.597418,
+          "runtime": 16.32883393007375,
+          "memory": 227133189.89173952
+        },
+        {
+          "name": "L02_T000",
+          "id": "L02_T000",
+          "children": [
+            "L03_T000",
+            "L03_T002",
+            "L03_T003",
+            "L03_T004",
+            "L02_T000_DECOY_007",
+            "L02_T000_DECOY_008",
+            "L02_T000_DECOY_009"
+          ],
+          "inputFiles": [
+            "L01_T003_out.dat",
+            "L01_T002_out.dat"
+          ],
+          "outputFiles": [
+            "L02_T000_out.dat"
+          ],
+          "parents": [
+            "L01_T003",
+            "L01_T002"
+          ],
+          "flops": 62596140003.952995,
+          "runtime": 66.94524004175364,
+          "memory": 83586685.85500433
+        },
+        {
+          "name": "L02_T001",
+          "id": "L02_T001",
+          "children": [
+            "L03_T000",
+            "L03_T002",
+            "L03_T004"
+          ],
+          "inputFiles": [
+            "L01_T002_out.dat"
+          ],
+          "outputFiles": [
+            "L02_T001_out.dat"
+          ],
+          "parents": [
+            "L01_T002"
+          ],
+          "flops": 5875232783.670906,
+          "runtime": 6.375477055223097,
+          "memory": 89255283.35649364
+        },
+        {
+          "name": "L02_T002",
+          "id": "L02_T002",
+          "children": [
+            "L03_T000",
+            "L03_T001",
+            "L03_T004"
+          ],
+          "inputFiles": [
+            "L01_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L02_T002_out.dat"
+          ],
+          "parents": [
+            "L01_T001"
+          ],
+          "flops": 10947477842.247574,
+          "runtime": 14.127685769275114,
+          "memory": 258761460.50612137
+        },
+        {
+          "name": "L03_T000",
+          "id": "L03_T000",
+          "children": [
+            "L04_T000",
+            "L04_T001",
+            "L03_T000_DECOY_010",
+            "L03_T000_DECOY_011",
+            "L03_T000_DECOY_012"
+          ],
+          "inputFiles": [
+            "L02_T001_out.dat",
+            "L02_T002_out.dat",
+            "L02_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T000_out.dat"
+          ],
+          "parents": [
+            "L02_T001",
+            "L02_T002",
+            "L02_T000"
+          ],
+          "flops": 807581063172.3279,
+          "runtime": 1011.1669066287131,
+          "memory": 188516340.61960906
+        },
+        {
+          "name": "L03_T001",
+          "id": "L03_T001",
+          "children": [
+            "L04_T000",
+            "L04_T001",
+            "L04_T003",
+            "L04_T004",
+            "L04_T005"
+          ],
+          "inputFiles": [
+            "L02_T002_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T001_out.dat"
+          ],
+          "parents": [
+            "L02_T002"
+          ],
+          "flops": 70534566192.76527,
+          "runtime": 85.93437904458484,
+          "memory": 255987335.30349696
+        },
+        {
+          "name": "L03_T002",
+          "id": "L03_T002",
+          "children": [],
+          "inputFiles": [
+            "L02_T000_out.dat",
+            "L02_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T002_out.dat"
+          ],
+          "parents": [
+            "L02_T000",
+            "L02_T001"
+          ],
+          "flops": 46239397903.10076,
+          "runtime": 66.89192147407147,
+          "memory": 108461535.56815642
+        },
+        {
+          "name": "L03_T003",
+          "id": "L03_T003",
+          "children": [
+            "L04_T002"
+          ],
+          "inputFiles": [
+            "L02_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T003_out.dat"
+          ],
+          "parents": [
+            "L02_T000"
+          ],
+          "flops": 82030557154.19217,
+          "runtime": 91.27652941965354,
+          "memory": 137335593.51103795
+        },
+        {
+          "name": "L03_T004",
+          "id": "L03_T004",
+          "children": [
+            "L04_T001",
+            "L04_T002"
+          ],
+          "inputFiles": [
+            "L02_T001_out.dat",
+            "L02_T000_out.dat",
+            "L02_T002_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T004_out.dat"
+          ],
+          "parents": [
+            "L02_T001",
+            "L02_T000",
+            "L02_T002"
+          ],
+          "flops": 107933069658.46858,
+          "runtime": 128.70324146282508,
+          "memory": 223586286.75403982
+        },
+        {
+          "name": "L04_T000",
+          "id": "L04_T000",
+          "children": [
+            "L05_T001",
+            "L05_T002",
+            "L04_T000_DECOY_013",
+            "L04_T000_DECOY_014",
+            "L04_T000_DECOY_015"
+          ],
+          "inputFiles": [
+            "L03_T001_out.dat",
+            "L03_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T000_out.dat"
+          ],
+          "parents": [
+            "L03_T001",
+            "L03_T000"
+          ],
+          "flops": 127125905972.04425,
+          "runtime": 134.22498672306236,
+          "memory": 191621221.8295253
+        },
+        {
+          "name": "L04_T001",
+          "id": "L04_T001",
+          "children": [],
+          "inputFiles": [
+            "L03_T004_out.dat",
+            "L03_T000_out.dat",
+            "L03_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T001_out.dat"
+          ],
+          "parents": [
+            "L03_T004",
+            "L03_T000",
+            "L03_T001"
+          ],
+          "flops": 2598557598.084414,
+          "runtime": 3.550793959309603,
+          "memory": 149104732.86496598
+        },
+        {
+          "name": "L04_T002",
+          "id": "L04_T002",
+          "children": [],
+          "inputFiles": [
+            "L03_T004_out.dat",
+            "L03_T003_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T002_out.dat"
+          ],
+          "parents": [
+            "L03_T004",
+            "L03_T003"
+          ],
+          "flops": 8704212567.038403,
+          "runtime": 10.25392872554102,
+          "memory": 98349206.64470157
+        },
+        {
+          "name": "L04_T003",
+          "id": "L04_T003",
+          "children": [
+            "L05_T002"
+          ],
+          "inputFiles": [
+            "L03_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T003_out.dat"
+          ],
+          "parents": [
+            "L03_T001"
+          ],
+          "flops": 6898418840.619847,
+          "runtime": 8.656722473987866,
+          "memory": 91467849.28213438
+        },
+        {
+          "name": "L04_T004",
+          "id": "L04_T004",
+          "children": [
+            "L05_T000",
+            "L05_T002"
+          ],
+          "inputFiles": [
+            "L03_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T004_out.dat"
+          ],
+          "parents": [
+            "L03_T001"
+          ],
+          "flops": 8785206199.511745,
+          "runtime": 8.817382296188576,
+          "memory": 203813739.7986802
+        },
+        {
+          "name": "L04_T005",
+          "id": "L04_T005",
+          "children": [],
+          "inputFiles": [
+            "L03_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T005_out.dat"
+          ],
+          "parents": [
+            "L03_T001"
+          ],
+          "flops": 12351468731.477613,
+          "runtime": 14.889680861098807,
+          "memory": 211859173.22604764
+        },
+        {
+          "name": "L05_T000",
+          "id": "L05_T000",
+          "children": [],
+          "inputFiles": [
+            "L04_T004_out.dat",
+            "L00_T001_DECOY_001_out.dat",
+            "L01_T003_DECOY_004_out.dat",
+            "L02_T000_DECOY_007_out.dat",
+            "L03_T000_DECOY_010_out.dat",
+            "L04_T000_DECOY_013_out.dat"
+          ],
+          "outputFiles": [
+            "L05_T000_out.dat"
+          ],
+          "parents": [
+            "L04_T004",
+            "L00_T001_DECOY_001",
+            "L01_T003_DECOY_004",
+            "L02_T000_DECOY_007",
+            "L03_T000_DECOY_010",
+            "L04_T000_DECOY_013"
+          ],
+          "flops": 20376362156.076702,
+          "runtime": 22.986875439069316,
+          "memory": 302431972.50492275
+        },
+        {
+          "name": "L05_T001",
+          "id": "L05_T001",
+          "children": [],
+          "inputFiles": [
+            "L04_T000_out.dat",
+            "L00_T001_DECOY_002_out.dat",
+            "L01_T003_DECOY_005_out.dat",
+            "L02_T000_DECOY_008_out.dat",
+            "L03_T000_DECOY_011_out.dat",
+            "L04_T000_DECOY_014_out.dat"
+          ],
+          "outputFiles": [
+            "L05_T001_out.dat"
+          ],
+          "parents": [
+            "L04_T000",
+            "L00_T001_DECOY_002",
+            "L01_T003_DECOY_005",
+            "L02_T000_DECOY_008",
+            "L03_T000_DECOY_011",
+            "L04_T000_DECOY_014"
+          ],
+          "flops": 180338567939.00113,
+          "runtime": 247.2963834200846,
+          "memory": 128311413.48617992
+        },
+        {
+          "name": "L05_T002",
+          "id": "L05_T002",
+          "children": [],
+          "inputFiles": [
+            "L04_T000_out.dat",
+            "L04_T003_out.dat",
+            "L04_T004_out.dat",
+            "L00_T001_DECOY_003_out.dat",
+            "L01_T003_DECOY_006_out.dat",
+            "L02_T000_DECOY_009_out.dat",
+            "L03_T000_DECOY_012_out.dat",
+            "L04_T000_DECOY_015_out.dat"
+          ],
+          "outputFiles": [
+            "L05_T002_out.dat"
+          ],
+          "parents": [
+            "L04_T000",
+            "L04_T003",
+            "L04_T004",
+            "L00_T001_DECOY_003",
+            "L01_T003_DECOY_006",
+            "L02_T000_DECOY_009",
+            "L03_T000_DECOY_012",
+            "L04_T000_DECOY_015"
+          ],
+          "flops": 10097698737.11393,
+          "runtime": 14.623610799486503,
+          "memory": 280027970.1285437
+        },
+        {
+          "name": "L00_T001_DECOY_001",
+          "id": "L00_T001_DECOY_001",
+          "children": [
+            "L05_T000"
+          ],
+          "inputFiles": [
+            "L00_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L00_T001_DECOY_001_out.dat"
+          ],
+          "parents": [
+            "L00_T001"
+          ],
+          "flops": 13092565615.134596,
+          "runtime": 17.251091634515205,
+          "memory": 163990694.37612808
+        },
+        {
+          "name": "L00_T001_DECOY_002",
+          "id": "L00_T001_DECOY_002",
+          "children": [
+            "L05_T001"
+          ],
+          "inputFiles": [
+            "L00_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L00_T001_DECOY_002_out.dat"
+          ],
+          "parents": [
+            "L00_T001"
+          ],
+          "flops": 13092565615.134596,
+          "runtime": 17.251091634515205,
+          "memory": 163990694.37612808
+        },
+        {
+          "name": "L00_T001_DECOY_003",
+          "id": "L00_T001_DECOY_003",
+          "children": [
+            "L05_T002"
+          ],
+          "inputFiles": [
+            "L00_T001_out.dat"
+          ],
+          "outputFiles": [
+            "L00_T001_DECOY_003_out.dat"
+          ],
+          "parents": [
+            "L00_T001"
+          ],
+          "flops": 13092565615.134596,
+          "runtime": 17.251091634515205,
+          "memory": 163990694.37612808
+        },
+        {
+          "name": "L01_T003_DECOY_004",
+          "id": "L01_T003_DECOY_004",
+          "children": [
+            "L05_T000"
+          ],
+          "inputFiles": [
+            "L01_T003_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T003_DECOY_004_out.dat"
+          ],
+          "parents": [
+            "L01_T003"
+          ],
+          "flops": 36113491433.89852,
+          "runtime": 39.3820057028529,
+          "memory": 300269507.71862733
+        },
+        {
+          "name": "L01_T003_DECOY_005",
+          "id": "L01_T003_DECOY_005",
+          "children": [
+            "L05_T001"
+          ],
+          "inputFiles": [
+            "L01_T003_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T003_DECOY_005_out.dat"
+          ],
+          "parents": [
+            "L01_T003"
+          ],
+          "flops": 36113491433.89852,
+          "runtime": 39.3820057028529,
+          "memory": 300269507.71862733
+        },
+        {
+          "name": "L01_T003_DECOY_006",
+          "id": "L01_T003_DECOY_006",
+          "children": [
+            "L05_T002"
+          ],
+          "inputFiles": [
+            "L01_T003_out.dat"
+          ],
+          "outputFiles": [
+            "L01_T003_DECOY_006_out.dat"
+          ],
+          "parents": [
+            "L01_T003"
+          ],
+          "flops": 36113491433.89852,
+          "runtime": 39.3820057028529,
+          "memory": 300269507.71862733
+        },
+        {
+          "name": "L02_T000_DECOY_007",
+          "id": "L02_T000_DECOY_007",
+          "children": [
+            "L05_T000"
+          ],
+          "inputFiles": [
+            "L02_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L02_T000_DECOY_007_out.dat"
+          ],
+          "parents": [
+            "L02_T000"
+          ],
+          "flops": 12519228000.7906,
+          "runtime": 13.389048008350727,
+          "memory": 83586685.85500433
+        },
+        {
+          "name": "L02_T000_DECOY_008",
+          "id": "L02_T000_DECOY_008",
+          "children": [
+            "L05_T001"
+          ],
+          "inputFiles": [
+            "L02_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L02_T000_DECOY_008_out.dat"
+          ],
+          "parents": [
+            "L02_T000"
+          ],
+          "flops": 12519228000.7906,
+          "runtime": 13.389048008350727,
+          "memory": 83586685.85500433
+        },
+        {
+          "name": "L02_T000_DECOY_009",
+          "id": "L02_T000_DECOY_009",
+          "children": [
+            "L05_T002"
+          ],
+          "inputFiles": [
+            "L02_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L02_T000_DECOY_009_out.dat"
+          ],
+          "parents": [
+            "L02_T000"
+          ],
+          "flops": 12519228000.7906,
+          "runtime": 13.389048008350727,
+          "memory": 83586685.85500433
+        },
+        {
+          "name": "L03_T000_DECOY_010",
+          "id": "L03_T000_DECOY_010",
+          "children": [
+            "L05_T000"
+          ],
+          "inputFiles": [
+            "L03_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T000_DECOY_010_out.dat"
+          ],
+          "parents": [
+            "L03_T000"
+          ],
+          "flops": 161516212634.46558,
+          "runtime": 202.23338132574264,
+          "memory": 188516340.61960906
+        },
+        {
+          "name": "L03_T000_DECOY_011",
+          "id": "L03_T000_DECOY_011",
+          "children": [
+            "L05_T001"
+          ],
+          "inputFiles": [
+            "L03_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T000_DECOY_011_out.dat"
+          ],
+          "parents": [
+            "L03_T000"
+          ],
+          "flops": 161516212634.46558,
+          "runtime": 202.23338132574264,
+          "memory": 188516340.61960906
+        },
+        {
+          "name": "L03_T000_DECOY_012",
+          "id": "L03_T000_DECOY_012",
+          "children": [
+            "L05_T002"
+          ],
+          "inputFiles": [
+            "L03_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L03_T000_DECOY_012_out.dat"
+          ],
+          "parents": [
+            "L03_T000"
+          ],
+          "flops": 161516212634.46558,
+          "runtime": 202.23338132574264,
+          "memory": 188516340.61960906
+        },
+        {
+          "name": "L04_T000_DECOY_013",
+          "id": "L04_T000_DECOY_013",
+          "children": [
+            "L05_T000"
+          ],
+          "inputFiles": [
+            "L04_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T000_DECOY_013_out.dat"
+          ],
+          "parents": [
+            "L04_T000"
+          ],
+          "flops": 25425181194.40885,
+          "runtime": 26.844997344612473,
+          "memory": 191621221.8295253
+        },
+        {
+          "name": "L04_T000_DECOY_014",
+          "id": "L04_T000_DECOY_014",
+          "children": [
+            "L05_T001"
+          ],
+          "inputFiles": [
+            "L04_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T000_DECOY_014_out.dat"
+          ],
+          "parents": [
+            "L04_T000"
+          ],
+          "flops": 25425181194.40885,
+          "runtime": 26.844997344612473,
+          "memory": 191621221.8295253
+        },
+        {
+          "name": "L04_T000_DECOY_015",
+          "id": "L04_T000_DECOY_015",
+          "children": [
+            "L05_T002"
+          ],
+          "inputFiles": [
+            "L04_T000_out.dat"
+          ],
+          "outputFiles": [
+            "L04_T000_DECOY_015_out.dat"
+          ],
+          "parents": [
+            "L04_T000"
+          ],
+          "flops": 25425181194.40885,
+          "runtime": 26.844997344612473,
+          "memory": 191621221.8295253
+        }
+      ],
+      "files": [
+        {
+          "id": "L00_T000_input.dat",
+          "name": "L00_T000_input.dat",
+          "sizeInBytes": 142809821.22119397
+        },
+        {
+          "id": "L00_T000_out.dat",
+          "name": "L00_T000_out.dat",
+          "sizeInBytes": 72488250.26118556
+        },
+        {
+          "id": "L00_T001_input.dat",
+          "name": "L00_T001_input.dat",
+          "sizeInBytes": 83191295.35443315
+        },
+        {
+          "id": "L00_T001_out.dat",
+          "name": "L00_T001_out.dat",
+          "sizeInBytes": 1221455767.9900322
+        },
+        {
+          "id": "L00_T002_input.dat",
+          "name": "L00_T002_input.dat",
+          "sizeInBytes": 232037521.1380619
+        },
+        {
+          "id": "L00_T002_out.dat",
+          "name": "L00_T002_out.dat",
+          "sizeInBytes": 248140742.83047584
+        },
+        {
+          "id": "L01_T000_out.dat",
+          "name": "L01_T000_out.dat",
+          "sizeInBytes": 152753964.6615394
+        },
+        {
+          "id": "L01_T001_out.dat",
+          "name": "L01_T001_out.dat",
+          "sizeInBytes": 159325439.75712207
+        },
+        {
+          "id": "L01_T002_out.dat",
+          "name": "L01_T002_out.dat",
+          "sizeInBytes": 176828975.36029437
+        },
+        {
+          "id": "L01_T003_out.dat",
+          "name": "L01_T003_out.dat",
+          "sizeInBytes": 2264307757.205961
+        },
+        {
+          "id": "L01_T004_out.dat",
+          "name": "L01_T004_out.dat",
+          "sizeInBytes": 112850171.1131781
+        },
+        {
+          "id": "L02_T000_out.dat",
+          "name": "L02_T000_out.dat",
+          "sizeInBytes": 1780528205.898284
+        },
+        {
+          "id": "L02_T001_out.dat",
+          "name": "L02_T001_out.dat",
+          "sizeInBytes": 76649017.11530936
+        },
+        {
+          "id": "L02_T002_out.dat",
+          "name": "L02_T002_out.dat",
+          "sizeInBytes": 170333338.83829856
+        },
+        {
+          "id": "L03_T000_out.dat",
+          "name": "L03_T000_out.dat",
+          "sizeInBytes": 20296864088.984856
+        },
+        {
+          "id": "L03_T001_out.dat",
+          "name": "L03_T001_out.dat",
+          "sizeInBytes": 1826543230.3325126
+        },
+        {
+          "id": "L03_T002_out.dat",
+          "name": "L03_T002_out.dat",
+          "sizeInBytes": 1480287778.078579
+        },
+        {
+          "id": "L03_T003_out.dat",
+          "name": "L03_T003_out.dat",
+          "sizeInBytes": 1157891731.1542072
+        },
+        {
+          "id": "L03_T004_out.dat",
+          "name": "L03_T004_out.dat",
+          "sizeInBytes": 1295002095.4370897
+        },
+        {
+          "id": "L04_T000_out.dat",
+          "name": "L04_T000_out.dat",
+          "sizeInBytes": 1314646884.377497
+        },
+        {
+          "id": "L04_T001_out.dat",
+          "name": "L04_T001_out.dat",
+          "sizeInBytes": 171400512.06145936
+        },
+        {
+          "id": "L04_T002_out.dat",
+          "name": "L04_T002_out.dat",
+          "sizeInBytes": 213527391.69063768
+        },
+        {
+          "id": "L04_T003_out.dat",
+          "name": "L04_T003_out.dat",
+          "sizeInBytes": 149902121.1984179
+        },
+        {
+          "id": "L04_T004_out.dat",
+          "name": "L04_T004_out.dat",
+          "sizeInBytes": 114602790.4223115
+        },
+        {
+          "id": "L04_T005_out.dat",
+          "name": "L04_T005_out.dat",
+          "sizeInBytes": 156497823.72494572
+        },
+        {
+          "id": "L05_T000_out.dat",
+          "name": "L05_T000_out.dat",
+          "sizeInBytes": 236329482.3388018
+        },
+        {
+          "id": "L05_T001_out.dat",
+          "name": "L05_T001_out.dat",
+          "sizeInBytes": 1533336427.7279427
+        },
+        {
+          "id": "L05_T002_out.dat",
+          "name": "L05_T002_out.dat",
+          "sizeInBytes": 132767435.73449902
+        },
+        {
+          "id": "L00_T001_DECOY_001_out.dat",
+          "name": "L00_T001_DECOY_001_out.dat",
+          "sizeInBytes": 3664367303.9700966
+        },
+        {
+          "id": "L00_T001_DECOY_002_out.dat",
+          "name": "L00_T001_DECOY_002_out.dat",
+          "sizeInBytes": 3664367303.9700966
+        },
+        {
+          "id": "L00_T001_DECOY_003_out.dat",
+          "name": "L00_T001_DECOY_003_out.dat",
+          "sizeInBytes": 3664367303.9700966
+        },
+        {
+          "id": "L01_T003_DECOY_004_out.dat",
+          "name": "L01_T003_DECOY_004_out.dat",
+          "sizeInBytes": 6792923271.617884
+        },
+        {
+          "id": "L01_T003_DECOY_005_out.dat",
+          "name": "L01_T003_DECOY_005_out.dat",
+          "sizeInBytes": 6792923271.617884
+        },
+        {
+          "id": "L01_T003_DECOY_006_out.dat",
+          "name": "L01_T003_DECOY_006_out.dat",
+          "sizeInBytes": 6792923271.617884
+        },
+        {
+          "id": "L02_T000_DECOY_007_out.dat",
+          "name": "L02_T000_DECOY_007_out.dat",
+          "sizeInBytes": 5341584617.694852
+        },
+        {
+          "id": "L02_T000_DECOY_008_out.dat",
+          "name": "L02_T000_DECOY_008_out.dat",
+          "sizeInBytes": 5341584617.694852
+        },
+        {
+          "id": "L02_T000_DECOY_009_out.dat",
+          "name": "L02_T000_DECOY_009_out.dat",
+          "sizeInBytes": 5341584617.694852
+        },
+        {
+          "id": "L03_T000_DECOY_010_out.dat",
+          "name": "L03_T000_DECOY_010_out.dat",
+          "sizeInBytes": 10000000000.0
+        },
+        {
+          "id": "L03_T000_DECOY_011_out.dat",
+          "name": "L03_T000_DECOY_011_out.dat",
+          "sizeInBytes": 10000000000.0
+        },
+        {
+          "id": "L03_T000_DECOY_012_out.dat",
+          "name": "L03_T000_DECOY_012_out.dat",
+          "sizeInBytes": 10000000000.0
+        },
+        {
+          "id": "L04_T000_DECOY_013_out.dat",
+          "name": "L04_T000_DECOY_013_out.dat",
+          "sizeInBytes": 3943940653.132491
+        },
+        {
+          "id": "L04_T000_DECOY_014_out.dat",
+          "name": "L04_T000_DECOY_014_out.dat",
+          "sizeInBytes": 3943940653.132491
+        },
+        {
+          "id": "L04_T000_DECOY_015_out.dat",
+          "name": "L04_T000_DECOY_015_out.dat",
+          "sizeInBytes": 3943940653.132491
+        }
+      ]
+    },
+    "execution": {
+      "tasks": [
+        {
+          "id": "L00_T000",
+          "runtimeInSeconds": 3.0115617875128664,
+          "cores": 1,
+          "avgCPU": 0.8328500851562507
+        },
+        {
+          "id": "L00_T001",
+          "runtimeInSeconds": 86.25545817257603,
+          "cores": 1,
+          "avgCPU": 0.7541052782412522
+        },
+        {
+          "id": "L00_T002",
+          "runtimeInSeconds": 6.684649209567343,
+          "cores": 1,
+          "avgCPU": 0.8235449352958921
+        },
+        {
+          "id": "L01_T000",
+          "runtimeInSeconds": 13.511659526567087,
+          "cores": 1,
+          "avgCPU": 0.8446762320536336
+        },
+        {
+          "id": "L01_T001",
+          "runtimeInSeconds": 3.990994635086949,
+          "cores": 1,
+          "avgCPU": 0.7741629539871775
+        },
+        {
+          "id": "L01_T002",
+          "runtimeInSeconds": 4.517490973634384,
+          "cores": 1,
+          "avgCPU": 0.8406032012938118
+        },
+        {
+          "id": "L01_T003",
+          "runtimeInSeconds": 196.9100285142645,
+          "cores": 1,
+          "avgCPU": 0.8683325060383963
+        },
+        {
+          "id": "L01_T004",
+          "runtimeInSeconds": 16.32883393007375,
+          "cores": 1,
+          "avgCPU": 0.9111293226850906
+        },
+        {
+          "id": "L02_T000",
+          "runtimeInSeconds": 66.94524004175364,
+          "cores": 1,
+          "avgCPU": 0.8454556996497135
+        },
+        {
+          "id": "L02_T001",
+          "runtimeInSeconds": 6.375477055223097,
+          "cores": 1,
+          "avgCPU": 0.9295242473027945
+        },
+        {
+          "id": "L02_T002",
+          "runtimeInSeconds": 14.127685769275114,
+          "cores": 1,
+          "avgCPU": 0.8422511420782665
+        },
+        {
+          "id": "L03_T000",
+          "runtimeInSeconds": 1011.1669066287131,
+          "cores": 1,
+          "avgCPU": 0.8197278999506497
+        },
+        {
+          "id": "L03_T001",
+          "runtimeInSeconds": 85.93437904458484,
+          "cores": 1,
+          "avgCPU": 0.8483008975614403
+        },
+        {
+          "id": "L03_T002",
+          "runtimeInSeconds": 66.89192147407147,
+          "cores": 1,
+          "avgCPU": 0.9221636250601116
+        },
+        {
+          "id": "L03_T003",
+          "runtimeInSeconds": 91.27652941965354,
+          "cores": 1,
+          "avgCPU": 0.9351365035311231
+        },
+        {
+          "id": "L03_T004",
+          "runtimeInSeconds": 128.70324146282508,
+          "cores": 1,
+          "avgCPU": 0.7695442150473073
+        },
+        {
+          "id": "L04_T000",
+          "runtimeInSeconds": 134.22498672306236,
+          "cores": 1,
+          "avgCPU": 0.8870515218518501
+        },
+        {
+          "id": "L04_T001",
+          "runtimeInSeconds": 3.550793959309603,
+          "cores": 1,
+          "avgCPU": 0.9246894214322844
+        },
+        {
+          "id": "L04_T002",
+          "runtimeInSeconds": 10.25392872554102,
+          "cores": 1,
+          "avgCPU": 0.9246669170850468
+        },
+        {
+          "id": "L04_T003",
+          "runtimeInSeconds": 8.656722473987866,
+          "cores": 1,
+          "avgCPU": 0.9177759357733825
+        },
+        {
+          "id": "L04_T004",
+          "runtimeInSeconds": 8.817382296188576,
+          "cores": 1,
+          "avgCPU": 0.7680214133234029
+        },
+        {
+          "id": "L04_T005",
+          "runtimeInSeconds": 14.889680861098807,
+          "cores": 1,
+          "avgCPU": 0.9495002936791214
+        },
+        {
+          "id": "L05_T000",
+          "runtimeInSeconds": 22.986875439069316,
+          "cores": 1,
+          "avgCPU": 0.8786573472841716
+        },
+        {
+          "id": "L05_T001",
+          "runtimeInSeconds": 247.2963834200846,
+          "cores": 1,
+          "avgCPU": 0.9493438152435856
+        },
+        {
+          "id": "L05_T002",
+          "runtimeInSeconds": 14.623610799486503,
+          "cores": 1,
+          "avgCPU": 0.9319587099061689
+        },
+        {
+          "id": "L00_T001_DECOY_001",
+          "runtimeInSeconds": 17.251091634515205,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L00_T001_DECOY_002",
+          "runtimeInSeconds": 17.251091634515205,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L00_T001_DECOY_003",
+          "runtimeInSeconds": 17.251091634515205,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L01_T003_DECOY_004",
+          "runtimeInSeconds": 39.3820057028529,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L01_T003_DECOY_005",
+          "runtimeInSeconds": 39.3820057028529,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L01_T003_DECOY_006",
+          "runtimeInSeconds": 39.3820057028529,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L02_T000_DECOY_007",
+          "runtimeInSeconds": 13.389048008350727,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L02_T000_DECOY_008",
+          "runtimeInSeconds": 13.389048008350727,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L02_T000_DECOY_009",
+          "runtimeInSeconds": 13.389048008350727,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L03_T000_DECOY_010",
+          "runtimeInSeconds": 202.23338132574264,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L03_T000_DECOY_011",
+          "runtimeInSeconds": 202.23338132574264,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L03_T000_DECOY_012",
+          "runtimeInSeconds": 202.23338132574264,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L04_T000_DECOY_013",
+          "runtimeInSeconds": 26.844997344612473,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L04_T000_DECOY_014",
+          "runtimeInSeconds": 26.844997344612473,
+          "cores": 1,
+          "avgCPU": 0.5
+        },
+        {
+          "id": "L04_T000_DECOY_015",
+          "runtimeInSeconds": 26.844997344612473,
+          "cores": 1,
+          "avgCPU": 0.5
+        }
+      ]
+    }
+  }
+}

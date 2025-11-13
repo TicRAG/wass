@@ -1,0 +1,5015 @@
+{
+  "name": "seismology-0",
+  "description": "Trace generated with wrench-pegasus-parser.py from http://wrench-project.org",
+  "createdAt": "2020-04-15T13:23:10.415984Z",
+  "schemaVersion": "1.5",
+  "author": {
+    "name": "rafsilva",
+    "email": "support@wrench-project.org"
+  },
+  "workflow": {
+    "specification": {
+      "tasks": [
+        {
+          "name": "sG1IterDecon_ID0000001",
+          "id": "sG1IterDecon_ID0000001",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-mkva-xv-_ldsp.lht",
+            "egf-mkva-xv-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "mkva-xv-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 122566520317500.0,
+          "runtime": 165060.0,
+          "memory": 100043432.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000002",
+          "id": "sG1IterDecon_ID0000002",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-246a-ta-_ldsp.lht",
+            "mshock-246a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "246a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 24853480155000.0,
+          "runtime": 40200.00000000001,
+          "memory": 100013504.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000003",
+          "id": "sG1IterDecon_ID0000003",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-sm17-xi-_ldsp.lht",
+            "mshock-sm17-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sm17-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 42997496220000.0,
+          "runtime": 39540.0,
+          "memory": 100011488.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000004",
+          "id": "sG1IterDecon_ID0000004",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-bbgh-cu-00_ldsp.lht",
+            "mshock-bbgh-cu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "bbgh-cu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 68228958420000.0,
+          "runtime": 70020.0,
+          "memory": 100023192.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000005",
+          "id": "sG1IterDecon_ID0000005",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-f44a-ta-_ldsp.lht",
+            "mshock-f44a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "f44a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 40068000000000.0,
+          "runtime": 25440.0,
+          "memory": 100012080.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000006",
+          "id": "sG1IterDecon_ID0000006",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-d46a-ta-_ldsp.lht",
+            "mshock-d46a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d46a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 41768980627500.01,
+          "runtime": 38700.0,
+          "memory": 100012228.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000007",
+          "id": "sG1IterDecon_ID0000007",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-sn46-xi-_ldsp.lht",
+            "egf-sn46-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sn46-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 42903037611000.0,
+          "runtime": 51540.0,
+          "memory": 100011356.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000008",
+          "id": "sG1IterDecon_ID0000008",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-x41a-ta-_ldsp.lht",
+            "egf-x41a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "x41a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 21262496597999.996,
+          "runtime": 25620.0,
+          "memory": 100012844.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000009",
+          "id": "sG1IterDecon_ID0000009",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-x46a-ta-_ldsp.lht",
+            "egf-x46a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "x46a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 24947989605000.0,
+          "runtime": 15900.0,
+          "memory": 100013220.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000010",
+          "id": "sG1IterDecon_ID0000010",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-meck-yt-_ldsp.lht",
+            "egf-meck-yt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "meck-yt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 140269482042000.02,
+          "runtime": 88860.0,
+          "memory": 100043076.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000011",
+          "id": "sG1IterDecon_ID0000011",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-sspa-iu-10_ldsp.lht",
+            "mshock-sspa-iu-10_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sspa-iu-10_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 21133511388000.004,
+          "runtime": 23760.0,
+          "memory": 100013536.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000012",
+          "id": "sG1IterDecon_ID0000012",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-lao-us-00_ldsp.lht",
+            "mshock-lao-us-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "lao-us-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 16206035477999.998,
+          "runtime": 79980.0,
+          "memory": 100007968.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000013",
+          "id": "sG1IterDecon_ID0000013",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-d15-xt-_ldsp.lht",
+            "mshock-d15-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d15-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 33288006569999.996,
+          "runtime": 54600.0,
+          "memory": 100007368.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000014",
+          "id": "sG1IterDecon_ID0000014",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-k02d-ta-_ldsp.lht",
+            "mshock-k02d-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "k02d-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 35587482480000.01,
+          "runtime": 31680.0,
+          "memory": 100007040.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000015",
+          "id": "sG1IterDecon_ID0000015",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-a21-xd-_ldsp.lht",
+            "egf-a21-xd-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "a21-xd-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 25403989926000.0,
+          "runtime": 26040.0,
+          "memory": 100011148.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000016",
+          "id": "sG1IterDecon_ID0000016",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-cngn-nu-_ldsp.lht",
+            "egf-cngn-nu-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "cngn-nu-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 27484502409000.0,
+          "runtime": 39480.0,
+          "memory": 100020668.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000017",
+          "id": "sG1IterDecon_ID0000017",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-d41-xt-_ldsp.lht",
+            "mshock-d41-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d41-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 33178473719999.996,
+          "runtime": 42660.0,
+          "memory": 100007300.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000018",
+          "id": "sG1IterDecon_ID0000018",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-t49a-ta-_ldsp.lht",
+            "mshock-t49a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "t49a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 35696985984000.01,
+          "runtime": 31680.0,
+          "memory": 100013192.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000019",
+          "id": "sG1IterDecon_ID0000019",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-g05d-ta-_ldsp.lht",
+            "egf-g05d-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "g05d-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 33616482042000.004,
+          "runtime": 42540.0,
+          "memory": 100006808.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000020",
+          "id": "sG1IterDecon_ID0000020",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-ksp-pl-_ldsp.lht",
+            "egf-ksp-pl-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "ksp-pl-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 80482533725999.98,
+          "runtime": 58380.0,
+          "memory": 100023280.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000021",
+          "id": "sG1IterDecon_ID0000021",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-b082-pb-_ldsp.lht",
+            "egf-b082-pb-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "b082-pb-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 12373494524999.998,
+          "runtime": 9000.0,
+          "memory": 100010968.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000022",
+          "id": "sG1IterDecon_ID0000022",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-d48-xt-_ldsp.lht",
+            "mshock-d48-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d48-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 20914500000000.0,
+          "runtime": 11460.0,
+          "memory": 100007064.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000023",
+          "id": "sG1IterDecon_ID0000023",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-k46a-ta-_ldsp.lht",
+            "mshock-k46a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "k46a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 31864553545500.004,
+          "runtime": 121140.0,
+          "memory": 100012504.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000024",
+          "id": "sG1IterDecon_ID0000024",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-m46a-ta-_ldsp.lht",
+            "mshock-m46a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "m46a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 23980477005000.0,
+          "runtime": 62099.99999999999,
+          "memory": 100012588.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000025",
+          "id": "sG1IterDecon_ID0000025",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-makz-iu-00_ldsp.lht",
+            "egf-makz-iu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "makz-iu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 83110484888999.98,
+          "runtime": 74520.0,
+          "memory": 100023656.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000026",
+          "id": "sG1IterDecon_ID0000026",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-sci2-ci-_ldsp.lht",
+            "mshock-sci2-ci-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sci2-ci-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 24199517191500.0,
+          "runtime": 25380.0,
+          "memory": 100010956.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000027",
+          "id": "sG1IterDecon_ID0000027",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-ss65-xi-_ldsp.lht",
+            "egf-ss65-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "ss65-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 17957995839000.004,
+          "runtime": 12120.0,
+          "memory": 100011440.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000028",
+          "id": "sG1IterDecon_ID0000028",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-w47a-ta-_ldsp.lht",
+            "egf-w47a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "w47a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 23104499562000.0,
+          "runtime": 12720.0,
+          "memory": 100013224.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000029",
+          "id": "sG1IterDecon_ID0000029",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-k41a-ta-_ldsp.lht",
+            "mshock-k41a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "k41a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 31207495401000.0,
+          "runtime": 29340.0,
+          "memory": 100012056.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000030",
+          "id": "sG1IterDecon_ID0000030",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-255a-ta-_ldsp.lht",
+            "mshock-255a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "255a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 34163895756000.008,
+          "runtime": 130080.0,
+          "memory": 100014176.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000031",
+          "id": "sG1IterDecon_ID0000031",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-k52a-ta-_ldsp.lht",
+            "egf-k52a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "k52a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 36354000876000.0,
+          "runtime": 32160.0,
+          "memory": 100013008.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000032",
+          "id": "sG1IterDecon_ID0000032",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-mwc-ci-_ldsp.lht",
+            "egf-mwc-ci-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "mwc-ci-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 26389470982500.004,
+          "runtime": 38700.0,
+          "memory": 100010784.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000033",
+          "id": "sG1IterDecon_ID0000033",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-x53a-ta-_ldsp.lht",
+            "mshock-x53a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "x53a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 24637500000000.0,
+          "runtime": 13500.0,
+          "memory": 100013752.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000034",
+          "id": "sG1IterDecon_ID0000034",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-kiri-xv-_ldsp.lht",
+            "egf-kiri-xv-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "kiri-xv-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 71065491678000.0,
+          "runtime": 51120.0,
+          "memory": 100044512.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000035",
+          "id": "sG1IterDecon_ID0000035",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-p51a-ta-_ldsp.lht",
+            "egf-p51a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "p51a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 48727531426500.01,
+          "runtime": 103860.0,
+          "memory": 100013152.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000036",
+          "id": "sG1IterDecon_ID0000036",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-b088-pb-_ldsp.lht",
+            "mshock-b088-pb-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "b088-pb-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 12373499124000.0,
+          "runtime": 6840.0,
+          "memory": 100011004.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000037",
+          "id": "sG1IterDecon_ID0000037",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-sm25-xi-_ldsp.lht",
+            "egf-sm25-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sm25-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 48179975910000.0,
+          "runtime": 46860.0,
+          "memory": 100011464.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000038",
+          "id": "sG1IterDecon_ID0000038",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-whit-yt-_ldsp.lht",
+            "egf-whit-yt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "whit-yt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 80811000000000.0,
+          "runtime": 44280.0,
+          "memory": 100043448.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000039",
+          "id": "sG1IterDecon_ID0000039",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-dec-ci-_ldsp.lht",
+            "egf-dec-ci-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "dec-ci-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 13578000000000.0,
+          "runtime": 7440.0,
+          "memory": 100010760.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000040",
+          "id": "sG1IterDecon_ID0000040",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-b921-pb-_ldsp.lht",
+            "egf-b921-pb-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "b921-pb-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 13249500000000.0,
+          "runtime": 7260.0,
+          "memory": 100010596.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000041",
+          "id": "sG1IterDecon_ID0000041",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-ulm-cn-_ldsp.lht",
+            "egf-ulm-cn-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "ulm-cn-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 49932041609999.99,
+          "runtime": 51600.0,
+          "memory": 100010728.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000042",
+          "id": "sG1IterDecon_ID0000042",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-j54a-ta-_ldsp.lht",
+            "mshock-j54a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "j54a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 48070489050000.01,
+          "runtime": 30960.0,
+          "memory": 100013164.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000043",
+          "id": "sG1IterDecon_ID0000043",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-a20-xd-_ldsp.lht",
+            "egf-a20-xd-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "a20-xd-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 48946500000000.0,
+          "runtime": 26820.0,
+          "memory": 100011148.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000044",
+          "id": "sG1IterDecon_ID0000044",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-i46a-ta-_ldsp.lht",
+            "egf-i46a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "i46a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 49932000000000.0,
+          "runtime": 27360.0,
+          "memory": 100012400.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000045",
+          "id": "sG1IterDecon_ID0000045",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-tin-ci-_ldsp.lht",
+            "mshock-tin-ci-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "tin-ci-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 47084981166000.0,
+          "runtime": 30960.0,
+          "memory": 100010312.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000046",
+          "id": "sG1IterDecon_ID0000046",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-senin-ch-_ldsp.lht",
+            "mshock-senin-ch-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "senin-ch-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 30550496277000.004,
+          "runtime": 27660.0,
+          "memory": 100023688.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000047",
+          "id": "sG1IterDecon_ID0000047",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-go05-c-_ldsp.lht",
+            "mshock-go05-c-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "go05-c-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 146292021571500.0,
+          "runtime": 144660.0,
+          "memory": 100037420.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000048",
+          "id": "sG1IterDecon_ID0000048",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-tro-az-_ldsp.lht",
+            "mshock-tro-az-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "tro-az-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 13513499999999.998,
+          "runtime": 8579.999999999998,
+          "memory": 100010996.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000049",
+          "id": "sG1IterDecon_ID0000049",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-d01-xt-_ldsp.lht",
+            "mshock-d01-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d01-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 14931000000000.0,
+          "runtime": 9480.0,
+          "memory": 100007628.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000050",
+          "id": "sG1IterDecon_ID0000050",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-058a-ta-_ldsp.lht",
+            "egf-058a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "058a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 78073465617000.0,
+          "runtime": 42840.0,
+          "memory": 100019000.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000051",
+          "id": "sG1IterDecon_ID0000051",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-mtdj-cu-00_ldsp.lht",
+            "egf-mtdj-cu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "mtdj-cu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 53326484013000.0,
+          "runtime": 105240.0,
+          "memory": 100020672.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000052",
+          "id": "sG1IterDecon_ID0000052",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-r48a-ta-_ldsp.lht",
+            "mshock-r48a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "r48a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 51136468792500.0,
+          "runtime": 52260.0,
+          "memory": 100013000.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000053",
+          "id": "sG1IterDecon_ID0000053",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-s22a-ta-_ldsp.lht",
+            "mshock-s22a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "s22a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 21829500000000.0,
+          "runtime": 13860.0,
+          "memory": 100011084.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000054",
+          "id": "sG1IterDecon_ID0000054",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-pig2-xc-_ldsp.lht",
+            "mshock-pig2-xc-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "pig2-xc-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 126724502268000.02,
+          "runtime": 138840.0,
+          "memory": 100042268.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000055",
+          "id": "sG1IterDecon_ID0000055",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-t42a-ta-_ldsp.lht",
+            "egf-t42a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "t42a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 9450000000000.0,
+          "runtime": 6000.0,
+          "memory": 100012648.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000056",
+          "id": "sG1IterDecon_ID0000056",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-kono-iu-00_ldsp.lht",
+            "egf-kono-iu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "kono-iu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 66622530429000.01,
+          "runtime": 46020.0,
+          "memory": 100021576.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000057",
+          "id": "sG1IterDecon_ID0000057",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-d03-xt-_ldsp.lht",
+            "egf-d03-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d03-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 31374012757500.004,
+          "runtime": 32100.0,
+          "memory": 100007556.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000058",
+          "id": "sG1IterDecon_ID0000058",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-h41a-ta-_ldsp.lht",
+            "egf-h41a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "h41a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 43280975430000.0,
+          "runtime": 39600.0,
+          "memory": 100011896.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000059",
+          "id": "sG1IterDecon_ID0000059",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-sm18-xi-_ldsp.lht",
+            "mshock-sm18-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sm18-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 42241506048000.01,
+          "runtime": 26880.0,
+          "memory": 100011488.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000060",
+          "id": "sG1IterDecon_ID0000060",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-i41a-ta-_ldsp.lht",
+            "egf-i41a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "i41a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 37800000000000.0,
+          "runtime": 24000.0,
+          "memory": 100011936.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000061",
+          "id": "sG1IterDecon_ID0000061",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-m54a-ta-_ldsp.lht",
+            "mshock-m54a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "m54a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 42241503402000.01,
+          "runtime": 39060.0,
+          "memory": 100013260.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000062",
+          "id": "sG1IterDecon_ID0000062",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-tpub-tw-_ldsp.lht",
+            "mshock-tpub-tw-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "tpub-tw-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 67378566717000.0,
+          "runtime": 109140.0,
+          "memory": 100024620.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000063",
+          "id": "sG1IterDecon_ID0000063",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-121a-ta-_ldsp.lht",
+            "mshock-121a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "121a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 42713969760000.0,
+          "runtime": 75899.99999999999,
+          "memory": 100011768.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000064",
+          "id": "sG1IterDecon_ID0000064",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-cel-mn-_ldsp.lht",
+            "egf-cel-mn-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "cel-mn-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 54904499999999.99,
+          "runtime": 34859.99999999999,
+          "memory": 100025412.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000065",
+          "id": "sG1IterDecon_ID0000065",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-uoss-ii-00_ldsp.lht",
+            "mshock-uoss-ii-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "uoss-ii-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 39973495747500.01,
+          "runtime": 44820.0,
+          "memory": 100036452.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000066",
+          "id": "sG1IterDecon_ID0000066",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-bill-iu-00_ldsp.lht",
+            "egf-bill-iu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "bill-iu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 34303513040999.996,
+          "runtime": 33959.99999999999,
+          "memory": 100011684.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000067",
+          "id": "sG1IterDecon_ID0000067",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-y41a-ta-_ldsp.lht",
+            "egf-y41a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "y41a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 19845003685499.996,
+          "runtime": 24660.0,
+          "memory": 100012920.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000068",
+          "id": "sG1IterDecon_ID0000068",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-hda-ta-_ldsp.lht",
+            "mshock-hda-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "hda-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 32602495464000.0,
+          "runtime": 110280.0,
+          "memory": 100006364.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000069",
+          "id": "sG1IterDecon_ID0000069",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-h47a-ta-_ldsp.lht",
+            "egf-h47a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "h47a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 20411972311500.004,
+          "runtime": 37380.0,
+          "memory": 100012448.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000070",
+          "id": "sG1IterDecon_ID0000070",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-g42a-ta-_ldsp.lht",
+            "mshock-g42a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "g42a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 48946507008000.0,
+          "runtime": 26880.0,
+          "memory": 100011952.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000071",
+          "id": "sG1IterDecon_ID0000071",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-d04e-ta-_ldsp.lht",
+            "egf-d04e-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d04e-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 19381506898500.004,
+          "runtime": 22020.0,
+          "memory": 100006424.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000072",
+          "id": "sG1IterDecon_ID0000072",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-qrz-nz-10_ldsp.lht",
+            "mshock-qrz-nz-10_ldsp.lht"
+          ],
+          "outputFiles": [
+            "qrz-nz-10_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 125118044887500.0,
+          "runtime": 118740.0,
+          "memory": 100037592.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000073",
+          "id": "sG1IterDecon_ID0000073",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-mpat-yt-_ldsp.lht",
+            "mshock-mpat-yt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "mpat-yt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 142350025184999.97,
+          "runtime": 77940.0,
+          "memory": 100042568.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000074",
+          "id": "sG1IterDecon_ID0000074",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-l29-xt-_ldsp.lht",
+            "egf-l29-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "l29-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 34601985217500.0,
+          "runtime": 19020.0,
+          "memory": 100007096.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000075",
+          "id": "sG1IterDecon_ID0000075",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-d08-xt-_ldsp.lht",
+            "egf-d08-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d08-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 9733503779999.998,
+          "runtime": 6240.0,
+          "memory": 100007548.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000076",
+          "id": "sG1IterDecon_ID0000076",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-fs10-zd-_ldsp.lht",
+            "mshock-fs10-zd-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "fs10-zd-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 36098961916500.01,
+          "runtime": 59220.0,
+          "memory": 100025932.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000077",
+          "id": "sG1IterDecon_ID0000077",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-b946-pb-_ldsp.lht",
+            "mshock-b946-pb-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "b946-pb-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 10206000000000.0,
+          "runtime": 6480.0,
+          "memory": 100010984.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000078",
+          "id": "sG1IterDecon_ID0000078",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-h46a-ta-_ldsp.lht",
+            "egf-h46a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "h46a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 18711002362500.004,
+          "runtime": 11940.0,
+          "memory": 100012360.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000079",
+          "id": "sG1IterDecon_ID0000079",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-i45a-ta-_ldsp.lht",
+            "mshock-i45a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "i45a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 14269489794000.0,
+          "runtime": 21360.0,
+          "memory": 100012304.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000080",
+          "id": "sG1IterDecon_ID0000080",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-sm19-xi-_ldsp.lht",
+            "egf-sm19-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sm19-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 40540500000000.0,
+          "runtime": 25740.0,
+          "memory": 100011468.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000081",
+          "id": "sG1IterDecon_ID0000081",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-b027-pb-_ldsp.lht",
+            "egf-b027-pb-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "b027-pb-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 9922500000000.0,
+          "runtime": 6300.0,
+          "memory": 100006800.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000082",
+          "id": "sG1IterDecon_ID0000082",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-958a-ta-_ldsp.lht",
+            "mshock-958a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "958a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 78435014364000.02,
+          "runtime": 158520.0,
+          "memory": 100018932.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000083",
+          "id": "sG1IterDecon_ID0000083",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-b019-pb-_ldsp.lht",
+            "egf-b019-pb-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "b019-pb-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 9544500000000.0,
+          "runtime": 6060.0,
+          "memory": 100006432.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000084",
+          "id": "sG1IterDecon_ID0000084",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-x43a-ta-_ldsp.lht",
+            "mshock-x43a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "x43a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 28161003024000.0,
+          "runtime": 42480.0,
+          "memory": 100013000.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000085",
+          "id": "sG1IterDecon_ID0000085",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-a27-xd-_ldsp.lht",
+            "egf-a27-xd-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "a27-xd-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 17765989605000.0,
+          "runtime": 23400.0,
+          "memory": 100011156.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000086",
+          "id": "sG1IterDecon_ID0000086",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-a18-xd-_ldsp.lht",
+            "mshock-a18-xd-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "a18-xd-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 23152494708000.0,
+          "runtime": 39060.0,
+          "memory": 100011144.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000087",
+          "id": "sG1IterDecon_ID0000087",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-b001-pb-_ldsp.lht",
+            "egf-b001-pb-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "b001-pb-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 9733500000000.0,
+          "runtime": 6180.0,
+          "memory": 100006272.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000088",
+          "id": "sG1IterDecon_ID0000088",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-j39a-ta-_ldsp.lht",
+            "mshock-j39a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "j39a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 42713969193000.01,
+          "runtime": 39240.0,
+          "memory": 100011832.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000089",
+          "id": "sG1IterDecon_ID0000089",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-knw-az-_ldsp.lht",
+            "mshock-knw-az-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "knw-az-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 11812500000000.0,
+          "runtime": 7500.0,
+          "memory": 100010948.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000090",
+          "id": "sG1IterDecon_ID0000090",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-sc12-xi-_ldsp.lht",
+            "mshock-sc12-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sc12-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 43847989038000.01,
+          "runtime": 40020.0,
+          "memory": 100011940.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000091",
+          "id": "sG1IterDecon_ID0000091",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-isa-ci-_ldsp.lht",
+            "mshock-isa-ci-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "isa-ci-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 41957987525999.99,
+          "runtime": 38820.0,
+          "memory": 100010520.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000092",
+          "id": "sG1IterDecon_ID0000092",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-sm34-xi-_ldsp.lht",
+            "egf-sm34-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sm34-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 21924008505000.004,
+          "runtime": 66360.00000000001,
+          "memory": 100011504.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000093",
+          "id": "sG1IterDecon_ID0000093",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-sm21-xi-_ldsp.lht",
+            "mshock-sm21-xi-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "sm21-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 24003010395000.0,
+          "runtime": 27300.0,
+          "memory": 100011472.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000094",
+          "id": "sG1IterDecon_ID0000094",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-d27-xt-_ldsp.lht",
+            "egf-d27-xt-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "d27-xt-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 11529000000000.0,
+          "runtime": 7320.0,
+          "memory": 100007236.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000095",
+          "id": "sG1IterDecon_ID0000095",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-kbs-iu-00_ldsp.lht",
+            "egf-kbs-iu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "kbs-iu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 65772027216000.01,
+          "runtime": 53880.0,
+          "memory": 100018484.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000096",
+          "id": "sG1IterDecon_ID0000096",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-p50a-ta-_ldsp.lht",
+            "egf-p50a-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "p50a-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 26554521073500.0,
+          "runtime": 28980.0,
+          "memory": 100013064.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000097",
+          "id": "sG1IterDecon_ID0000097",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-o02d-ta-_ldsp.lht",
+            "egf-o02d-ta-_ldsp.lht"
+          ],
+          "outputFiles": [
+            "o02d-ta-_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 12921000000000.0,
+          "runtime": 7080.0,
+          "memory": 100007496.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000098",
+          "id": "sG1IterDecon_ID0000098",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-ccm-iu-00_ldsp.lht",
+            "egf-ccm-iu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "ccm-iu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 13468513797000.0,
+          "runtime": 19560.0,
+          "memory": 100012504.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000099",
+          "id": "sG1IterDecon_ID0000099",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "egf-ptga-iu-00_ldsp.lht",
+            "mshock-ptga-iu-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "ptga-iu-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 80482463427000.02,
+          "runtime": 56220.0,
+          "memory": 100025172.0
+        },
+        {
+          "name": "sG1IterDecon_ID0000100",
+          "id": "sG1IterDecon_ID0000100",
+          "children": [
+            "wrapper_siftSTFByMisfit_ID0000101"
+          ],
+          "inputFiles": [
+            "mshock-biny-us-00_ldsp.lht",
+            "egf-biny-us-00_ldsp.lht"
+          ],
+          "outputFiles": [
+            "biny-us-00_ldsp.lht_iter_g1.stf"
+          ],
+          "parents": [],
+          "flops": 17388000000000.0,
+          "runtime": 11040.0,
+          "memory": 100013552.0
+        },
+        {
+          "name": "wrapper_siftSTFByMisfit_ID0000101",
+          "id": "wrapper_siftSTFByMisfit_ID0000101",
+          "children": [],
+          "inputFiles": [
+            "b027-pb-_ldsp.lht_iter_g1.stf",
+            "h46a-ta-_ldsp.lht_iter_g1.stf",
+            "tro-az-_ldsp.lht_iter_g1.stf",
+            "mkva-xv-_ldsp.lht_iter_g1.stf",
+            "p50a-ta-_ldsp.lht_iter_g1.stf",
+            "tpub-tw-_ldsp.lht_iter_g1.stf",
+            "958a-ta-_ldsp.lht_iter_g1.stf",
+            "qrz-nz-10_ldsp.lht_iter_g1.stf",
+            "t42a-ta-_ldsp.lht_iter_g1.stf",
+            "makz-iu-00_ldsp.lht_iter_g1.stf",
+            "058a-ta-_ldsp.lht_iter_g1.stf",
+            "k52a-ta-_ldsp.lht_iter_g1.stf",
+            "pig2-xc-_ldsp.lht_iter_g1.stf",
+            "mpat-yt-_ldsp.lht_iter_g1.stf",
+            "d08-xt-_ldsp.lht_iter_g1.stf",
+            "f44a-ta-_ldsp.lht_iter_g1.stf",
+            "i41a-ta-_ldsp.lht_iter_g1.stf",
+            "k41a-ta-_ldsp.lht_iter_g1.stf",
+            "a20-xd-_ldsp.lht_iter_g1.stf",
+            "b001-pb-_ldsp.lht_iter_g1.stf",
+            "r48a-ta-_ldsp.lht_iter_g1.stf",
+            "d01-xt-_ldsp.lht_iter_g1.stf",
+            "mtdj-cu-00_ldsp.lht_iter_g1.stf",
+            "sm19-xi-_ldsp.lht_iter_g1.stf",
+            "sci2-ci-_ldsp.lht_iter_g1.stf",
+            "b088-pb-_ldsp.lht_iter_g1.stf",
+            "tin-ci-_ldsp.lht_iter_g1.stf",
+            "a27-xd-_ldsp.lht_iter_g1.stf",
+            "255a-ta-_ldsp.lht_iter_g1.stf",
+            "x41a-ta-_ldsp.lht_iter_g1.stf",
+            "lao-us-00_ldsp.lht_iter_g1.stf",
+            "sm25-xi-_ldsp.lht_iter_g1.stf",
+            "x46a-ta-_ldsp.lht_iter_g1.stf",
+            "mwc-ci-_ldsp.lht_iter_g1.stf",
+            "sm17-xi-_ldsp.lht_iter_g1.stf",
+            "go05-c-_ldsp.lht_iter_g1.stf",
+            "b082-pb-_ldsp.lht_iter_g1.stf",
+            "d15-xt-_ldsp.lht_iter_g1.stf",
+            "d03-xt-_ldsp.lht_iter_g1.stf",
+            "senin-ch-_ldsp.lht_iter_g1.stf",
+            "m46a-ta-_ldsp.lht_iter_g1.stf",
+            "g42a-ta-_ldsp.lht_iter_g1.stf",
+            "isa-ci-_ldsp.lht_iter_g1.stf",
+            "sc12-xi-_ldsp.lht_iter_g1.stf",
+            "x53a-ta-_ldsp.lht_iter_g1.stf",
+            "b921-pb-_ldsp.lht_iter_g1.stf",
+            "ccm-iu-00_ldsp.lht_iter_g1.stf",
+            "ulm-cn-_ldsp.lht_iter_g1.stf",
+            "sspa-iu-10_ldsp.lht_iter_g1.stf",
+            "k46a-ta-_ldsp.lht_iter_g1.stf",
+            "knw-az-_ldsp.lht_iter_g1.stf",
+            "d04e-ta-_ldsp.lht_iter_g1.stf",
+            "sm21-xi-_ldsp.lht_iter_g1.stf",
+            "kono-iu-00_ldsp.lht_iter_g1.stf",
+            "sn46-xi-_ldsp.lht_iter_g1.stf",
+            "b019-pb-_ldsp.lht_iter_g1.stf",
+            "t49a-ta-_ldsp.lht_iter_g1.stf",
+            "kiri-xv-_ldsp.lht_iter_g1.stf",
+            "siftSTFByMisfit",
+            "cel-mn-_ldsp.lht_iter_g1.stf",
+            "g05d-ta-_ldsp.lht_iter_g1.stf",
+            "pysacio.py",
+            "k02d-ta-_ldsp.lht_iter_g1.stf",
+            "bill-iu-00_ldsp.lht_iter_g1.stf",
+            "sm34-xi-_ldsp.lht_iter_g1.stf",
+            "whit-yt-_ldsp.lht_iter_g1.stf",
+            "kbs-iu-00_ldsp.lht_iter_g1.stf",
+            "p51a-ta-_ldsp.lht_iter_g1.stf",
+            "246a-ta-_ldsp.lht_iter_g1.stf",
+            "w47a-ta-_ldsp.lht_iter_g1.stf",
+            "a21-xd-_ldsp.lht_iter_g1.stf",
+            "pytutil.py",
+            "uoss-ii-00_ldsp.lht_iter_g1.stf",
+            "bbgh-cu-00_ldsp.lht_iter_g1.stf",
+            "biny-us-00_ldsp.lht_iter_g1.stf",
+            "d27-xt-_ldsp.lht_iter_g1.stf",
+            "j54a-ta-_ldsp.lht_iter_g1.stf",
+            "b946-pb-_ldsp.lht_iter_g1.stf",
+            "cngn-nu-_ldsp.lht_iter_g1.stf",
+            "i46a-ta-_ldsp.lht_iter_g1.stf",
+            "y41a-ta-_ldsp.lht_iter_g1.stf",
+            "ss65-xi-_ldsp.lht_iter_g1.stf",
+            "l29-xt-_ldsp.lht_iter_g1.stf",
+            "i45a-ta-_ldsp.lht_iter_g1.stf",
+            "s22a-ta-_ldsp.lht_iter_g1.stf",
+            "d41-xt-_ldsp.lht_iter_g1.stf",
+            "x43a-ta-_ldsp.lht_iter_g1.stf",
+            "o02d-ta-_ldsp.lht_iter_g1.stf",
+            "m54a-ta-_ldsp.lht_iter_g1.stf",
+            "j39a-ta-_ldsp.lht_iter_g1.stf",
+            "a18-xd-_ldsp.lht_iter_g1.stf",
+            "121a-ta-_ldsp.lht_iter_g1.stf",
+            "hda-ta-_ldsp.lht_iter_g1.stf",
+            "dec-ci-_ldsp.lht_iter_g1.stf",
+            "meck-yt-_ldsp.lht_iter_g1.stf",
+            "h47a-ta-_ldsp.lht_iter_g1.stf",
+            "fs10-zd-_ldsp.lht_iter_g1.stf",
+            "h41a-ta-_ldsp.lht_iter_g1.stf",
+            "d48-xt-_ldsp.lht_iter_g1.stf",
+            "ptga-iu-00_ldsp.lht_iter_g1.stf",
+            "ksp-pl-_ldsp.lht_iter_g1.stf",
+            "d46a-ta-_ldsp.lht_iter_g1.stf",
+            "sm18-xi-_ldsp.lht_iter_g1.stf"
+          ],
+          "outputFiles": [
+            "good-fits.tar.gz"
+          ],
+          "parents": [
+            "sG1IterDecon_ID0000079",
+            "sG1IterDecon_ID0000076",
+            "sG1IterDecon_ID0000075",
+            "sG1IterDecon_ID0000078",
+            "sG1IterDecon_ID0000077",
+            "sG1IterDecon_ID0000083",
+            "sG1IterDecon_ID0000082",
+            "sG1IterDecon_ID0000085",
+            "sG1IterDecon_ID0000084",
+            "sG1IterDecon_ID0000081",
+            "sG1IterDecon_ID0000080",
+            "sG1IterDecon_ID0000003",
+            "sG1IterDecon_ID0000002",
+            "sG1IterDecon_ID0000005",
+            "sG1IterDecon_ID0000004",
+            "sG1IterDecon_ID0000087",
+            "sG1IterDecon_ID0000086",
+            "sG1IterDecon_ID0000001",
+            "sG1IterDecon_ID0000089",
+            "sG1IterDecon_ID0000088",
+            "sG1IterDecon_ID0000007",
+            "sG1IterDecon_ID0000006",
+            "sG1IterDecon_ID0000009",
+            "sG1IterDecon_ID0000008",
+            "sG1IterDecon_ID0000094",
+            "sG1IterDecon_ID0000093",
+            "sG1IterDecon_ID0000096",
+            "sG1IterDecon_ID0000095",
+            "sG1IterDecon_ID0000090",
+            "sG1IterDecon_ID0000092",
+            "sG1IterDecon_ID0000091",
+            "sG1IterDecon_ID0000058",
+            "sG1IterDecon_ID0000057",
+            "sG1IterDecon_ID0000059",
+            "sG1IterDecon_ID0000054",
+            "sG1IterDecon_ID0000053",
+            "sG1IterDecon_ID0000056",
+            "sG1IterDecon_ID0000055",
+            "sG1IterDecon_ID0000061",
+            "sG1IterDecon_ID0000060",
+            "sG1IterDecon_ID0000063",
+            "sG1IterDecon_ID0000062",
+            "sG1IterDecon_ID0000069",
+            "sG1IterDecon_ID0000068",
+            "sG1IterDecon_ID0000065",
+            "sG1IterDecon_ID0000064",
+            "sG1IterDecon_ID0000067",
+            "sG1IterDecon_ID0000100",
+            "sG1IterDecon_ID0000066",
+            "sG1IterDecon_ID0000072",
+            "sG1IterDecon_ID0000071",
+            "sG1IterDecon_ID0000074",
+            "sG1IterDecon_ID0000073",
+            "sG1IterDecon_ID0000070",
+            "sG1IterDecon_ID0000036",
+            "sG1IterDecon_ID0000035",
+            "sG1IterDecon_ID0000038",
+            "sG1IterDecon_ID0000037",
+            "sG1IterDecon_ID0000032",
+            "sG1IterDecon_ID0000031",
+            "sG1IterDecon_ID0000034",
+            "sG1IterDecon_ID0000033",
+            "sG1IterDecon_ID0000039",
+            "sG1IterDecon_ID0000041",
+            "sG1IterDecon_ID0000040",
+            "sG1IterDecon_ID0000047",
+            "sG1IterDecon_ID0000046",
+            "sG1IterDecon_ID0000049",
+            "sG1IterDecon_ID0000048",
+            "sG1IterDecon_ID0000043",
+            "sG1IterDecon_ID0000042",
+            "sG1IterDecon_ID0000045",
+            "sG1IterDecon_ID0000044",
+            "sG1IterDecon_ID0000050",
+            "sG1IterDecon_ID0000052",
+            "sG1IterDecon_ID0000051",
+            "sG1IterDecon_ID0000014",
+            "sG1IterDecon_ID0000013",
+            "sG1IterDecon_ID0000016",
+            "sG1IterDecon_ID0000015",
+            "sG1IterDecon_ID0000010",
+            "sG1IterDecon_ID0000098",
+            "sG1IterDecon_ID0000097",
+            "sG1IterDecon_ID0000012",
+            "sG1IterDecon_ID0000011",
+            "sG1IterDecon_ID0000099",
+            "sG1IterDecon_ID0000018",
+            "sG1IterDecon_ID0000017",
+            "sG1IterDecon_ID0000019",
+            "sG1IterDecon_ID0000025",
+            "sG1IterDecon_ID0000024",
+            "sG1IterDecon_ID0000027",
+            "sG1IterDecon_ID0000026",
+            "sG1IterDecon_ID0000021",
+            "sG1IterDecon_ID0000020",
+            "sG1IterDecon_ID0000023",
+            "sG1IterDecon_ID0000022",
+            "sG1IterDecon_ID0000029",
+            "sG1IterDecon_ID0000028",
+            "sG1IterDecon_ID0000030"
+          ],
+          "flops": 4968000648000.0,
+          "runtime": 5340.0,
+          "memory": 100670777.0
+        }
+      ],
+      "files": [
+        {
+          "id": "mshock-mkva-xv-_ldsp.lht",
+          "sizeInBytes": 792720000
+        },
+        {
+          "id": "egf-mkva-xv-_ldsp.lht",
+          "sizeInBytes": 792240000
+        },
+        {
+          "id": "mkva-xv-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "egf-246a-ta-_ldsp.lht",
+          "sizeInBytes": 263760000
+        },
+        {
+          "id": "mshock-246a-ta-_ldsp.lht",
+          "sizeInBytes": 262800000
+        },
+        {
+          "id": "246a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-sm17-xi-_ldsp.lht",
+          "sizeInBytes": 203280000
+        },
+        {
+          "id": "mshock-sm17-xi-_ldsp.lht",
+          "sizeInBytes": 202320000
+        },
+        {
+          "id": "sm17-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-bbgh-cu-00_ldsp.lht",
+          "sizeInBytes": 431520000
+        },
+        {
+          "id": "mshock-bbgh-cu-00_ldsp.lht",
+          "sizeInBytes": 430560000
+        },
+        {
+          "id": "bbgh-cu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-f44a-ta-_ldsp.lht",
+          "sizeInBytes": 221040000
+        },
+        {
+          "id": "mshock-f44a-ta-_ldsp.lht",
+          "sizeInBytes": 220080000
+        },
+        {
+          "id": "f44a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-d46a-ta-_ldsp.lht",
+          "sizeInBytes": 225600000
+        },
+        {
+          "id": "mshock-d46a-ta-_ldsp.lht",
+          "sizeInBytes": 224400000
+        },
+        {
+          "id": "d46a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-sn46-xi-_ldsp.lht",
+          "sizeInBytes": 198240000
+        },
+        {
+          "id": "egf-sn46-xi-_ldsp.lht",
+          "sizeInBytes": 199440000
+        },
+        {
+          "id": "sn46-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-x41a-ta-_ldsp.lht",
+          "sizeInBytes": 242880000
+        },
+        {
+          "id": "egf-x41a-ta-_ldsp.lht",
+          "sizeInBytes": 244080000
+        },
+        {
+          "id": "x41a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-x46a-ta-_ldsp.lht",
+          "sizeInBytes": 254160000
+        },
+        {
+          "id": "egf-x46a-ta-_ldsp.lht",
+          "sizeInBytes": 255360000
+        },
+        {
+          "id": "x46a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-meck-yt-_ldsp.lht",
+          "sizeInBytes": 781440000
+        },
+        {
+          "id": "egf-meck-yt-_ldsp.lht",
+          "sizeInBytes": 782160000
+        },
+        {
+          "id": "meck-yt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "egf-sspa-iu-10_ldsp.lht",
+          "sizeInBytes": 264720000
+        },
+        {
+          "id": "mshock-sspa-iu-10_ldsp.lht",
+          "sizeInBytes": 263760000
+        },
+        {
+          "id": "sspa-iu-10_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-lao-us-00_ldsp.lht",
+          "sizeInBytes": 159360000
+        },
+        {
+          "id": "mshock-lao-us-00_ldsp.lht",
+          "sizeInBytes": 157920000
+        },
+        {
+          "id": "lao-us-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-d15-xt-_ldsp.lht",
+          "sizeInBytes": 141120000
+        },
+        {
+          "id": "mshock-d15-xt-_ldsp.lht",
+          "sizeInBytes": 140160000
+        },
+        {
+          "id": "d15-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-k02d-ta-_ldsp.lht",
+          "sizeInBytes": 131040000
+        },
+        {
+          "id": "mshock-k02d-ta-_ldsp.lht",
+          "sizeInBytes": 130560000
+        },
+        {
+          "id": "k02d-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-a21-xd-_ldsp.lht",
+          "sizeInBytes": 192240000
+        },
+        {
+          "id": "egf-a21-xd-_ldsp.lht",
+          "sizeInBytes": 192960000
+        },
+        {
+          "id": "a21-xd-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-cngn-nu-_ldsp.lht",
+          "sizeInBytes": 354720000
+        },
+        {
+          "id": "egf-cngn-nu-_ldsp.lht",
+          "sizeInBytes": 355920000
+        },
+        {
+          "id": "cngn-nu-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-d41-xt-_ldsp.lht",
+          "sizeInBytes": 139200000
+        },
+        {
+          "id": "mshock-d41-xt-_ldsp.lht",
+          "sizeInBytes": 138000000
+        },
+        {
+          "id": "d41-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-t49a-ta-_ldsp.lht",
+          "sizeInBytes": 254400000
+        },
+        {
+          "id": "mshock-t49a-ta-_ldsp.lht",
+          "sizeInBytes": 253440000
+        },
+        {
+          "id": "t49a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-g05d-ta-_ldsp.lht",
+          "sizeInBytes": 123360000
+        },
+        {
+          "id": "egf-g05d-ta-_ldsp.lht",
+          "sizeInBytes": 124320000
+        },
+        {
+          "id": "g05d-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-ksp-pl-_ldsp.lht",
+          "sizeInBytes": 433680000
+        },
+        {
+          "id": "egf-ksp-pl-_ldsp.lht",
+          "sizeInBytes": 433680000
+        },
+        {
+          "id": "ksp-pl-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "mshock-b082-pb-_ldsp.lht",
+          "sizeInBytes": 186720000
+        },
+        {
+          "id": "egf-b082-pb-_ldsp.lht",
+          "sizeInBytes": 187680000
+        },
+        {
+          "id": "b082-pb-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-d48-xt-_ldsp.lht",
+          "sizeInBytes": 132000000
+        },
+        {
+          "id": "mshock-d48-xt-_ldsp.lht",
+          "sizeInBytes": 131040000
+        },
+        {
+          "id": "d48-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-k46a-ta-_ldsp.lht",
+          "sizeInBytes": 233760000
+        },
+        {
+          "id": "mshock-k46a-ta-_ldsp.lht",
+          "sizeInBytes": 232800000
+        },
+        {
+          "id": "k46a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-m46a-ta-_ldsp.lht",
+          "sizeInBytes": 236400000
+        },
+        {
+          "id": "mshock-m46a-ta-_ldsp.lht",
+          "sizeInBytes": 235200000
+        },
+        {
+          "id": "m46a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-makz-iu-00_ldsp.lht",
+          "sizeInBytes": 445200000
+        },
+        {
+          "id": "egf-makz-iu-00_ldsp.lht",
+          "sizeInBytes": 444720000
+        },
+        {
+          "id": "makz-iu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-sci2-ci-_ldsp.lht",
+          "sizeInBytes": 187200000
+        },
+        {
+          "id": "mshock-sci2-ci-_ldsp.lht",
+          "sizeInBytes": 186480000
+        },
+        {
+          "id": "sci2-ci-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-ss65-xi-_ldsp.lht",
+          "sizeInBytes": 200880000
+        },
+        {
+          "id": "egf-ss65-xi-_ldsp.lht",
+          "sizeInBytes": 201840000
+        },
+        {
+          "id": "ss65-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-w47a-ta-_ldsp.lht",
+          "sizeInBytes": 254400000
+        },
+        {
+          "id": "egf-w47a-ta-_ldsp.lht",
+          "sizeInBytes": 255360000
+        },
+        {
+          "id": "w47a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-k41a-ta-_ldsp.lht",
+          "sizeInBytes": 220320000
+        },
+        {
+          "id": "mshock-k41a-ta-_ldsp.lht",
+          "sizeInBytes": 219360000
+        },
+        {
+          "id": "k41a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-255a-ta-_ldsp.lht",
+          "sizeInBytes": 283920000
+        },
+        {
+          "id": "mshock-255a-ta-_ldsp.lht",
+          "sizeInBytes": 282960000
+        },
+        {
+          "id": "255a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-k52a-ta-_ldsp.lht",
+          "sizeInBytes": 247920000
+        },
+        {
+          "id": "egf-k52a-ta-_ldsp.lht",
+          "sizeInBytes": 248880000
+        },
+        {
+          "id": "k52a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-mwc-ci-_ldsp.lht",
+          "sizeInBytes": 181200000
+        },
+        {
+          "id": "egf-mwc-ci-_ldsp.lht",
+          "sizeInBytes": 182160000
+        },
+        {
+          "id": "mwc-ci-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-x53a-ta-_ldsp.lht",
+          "sizeInBytes": 271440000
+        },
+        {
+          "id": "mshock-x53a-ta-_ldsp.lht",
+          "sizeInBytes": 270000000
+        },
+        {
+          "id": "x53a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-kiri-xv-_ldsp.lht",
+          "sizeInBytes": 825120000
+        },
+        {
+          "id": "egf-kiri-xv-_ldsp.lht",
+          "sizeInBytes": 824640000
+        },
+        {
+          "id": "kiri-xv-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "mshock-p51a-ta-_ldsp.lht",
+          "sizeInBytes": 252000000
+        },
+        {
+          "id": "egf-p51a-ta-_ldsp.lht",
+          "sizeInBytes": 253440000
+        },
+        {
+          "id": "p51a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-b088-pb-_ldsp.lht",
+          "sizeInBytes": 188640000
+        },
+        {
+          "id": "mshock-b088-pb-_ldsp.lht",
+          "sizeInBytes": 187920000
+        },
+        {
+          "id": "b088-pb-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-sm25-xi-_ldsp.lht",
+          "sizeInBytes": 201600000
+        },
+        {
+          "id": "egf-sm25-xi-_ldsp.lht",
+          "sizeInBytes": 202560000
+        },
+        {
+          "id": "sm25-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-whit-yt-_ldsp.lht",
+          "sizeInBytes": 792720000
+        },
+        {
+          "id": "egf-whit-yt-_ldsp.lht",
+          "sizeInBytes": 793200000
+        },
+        {
+          "id": "whit-yt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "mshock-dec-ci-_ldsp.lht",
+          "sizeInBytes": 180720000
+        },
+        {
+          "id": "egf-dec-ci-_ldsp.lht",
+          "sizeInBytes": 181200000
+        },
+        {
+          "id": "dec-ci-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-b921-pb-_ldsp.lht",
+          "sizeInBytes": 175680000
+        },
+        {
+          "id": "egf-b921-pb-_ldsp.lht",
+          "sizeInBytes": 176400000
+        },
+        {
+          "id": "b921-pb-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-ulm-cn-_ldsp.lht",
+          "sizeInBytes": 179520000
+        },
+        {
+          "id": "egf-ulm-cn-_ldsp.lht",
+          "sizeInBytes": 180480000
+        },
+        {
+          "id": "ulm-cn-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-j54a-ta-_ldsp.lht",
+          "sizeInBytes": 253680000
+        },
+        {
+          "id": "mshock-j54a-ta-_ldsp.lht",
+          "sizeInBytes": 252480000
+        },
+        {
+          "id": "j54a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-a20-xd-_ldsp.lht",
+          "sizeInBytes": 192240000
+        },
+        {
+          "id": "egf-a20-xd-_ldsp.lht",
+          "sizeInBytes": 192960000
+        },
+        {
+          "id": "a20-xd-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-i46a-ta-_ldsp.lht",
+          "sizeInBytes": 229680000
+        },
+        {
+          "id": "egf-i46a-ta-_ldsp.lht",
+          "sizeInBytes": 230640000
+        },
+        {
+          "id": "i46a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-tin-ci-_ldsp.lht",
+          "sizeInBytes": 168000000
+        },
+        {
+          "id": "mshock-tin-ci-_ldsp.lht",
+          "sizeInBytes": 167040000
+        },
+        {
+          "id": "tin-ci-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-senin-ch-_ldsp.lht",
+          "sizeInBytes": 446160000
+        },
+        {
+          "id": "mshock-senin-ch-_ldsp.lht",
+          "sizeInBytes": 445680000
+        },
+        {
+          "id": "senin-ch-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-go05-c-_ldsp.lht",
+          "sizeInBytes": 612720000
+        },
+        {
+          "id": "mshock-go05-c-_ldsp.lht",
+          "sizeInBytes": 611520000
+        },
+        {
+          "id": "go05-c-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "egf-tro-az-_ldsp.lht",
+          "sizeInBytes": 188400000
+        },
+        {
+          "id": "mshock-tro-az-_ldsp.lht",
+          "sizeInBytes": 187680000
+        },
+        {
+          "id": "tro-az-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-d01-xt-_ldsp.lht",
+          "sizeInBytes": 149040000
+        },
+        {
+          "id": "mshock-d01-xt-_ldsp.lht",
+          "sizeInBytes": 147840000
+        },
+        {
+          "id": "d01-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-058a-ta-_ldsp.lht",
+          "sizeInBytes": 304560000
+        },
+        {
+          "id": "egf-058a-ta-_ldsp.lht",
+          "sizeInBytes": 306000000
+        },
+        {
+          "id": "058a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "mshock-mtdj-cu-00_ldsp.lht",
+          "sizeInBytes": 354960000
+        },
+        {
+          "id": "egf-mtdj-cu-00_ldsp.lht",
+          "sizeInBytes": 355920000
+        },
+        {
+          "id": "mtdj-cu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-r48a-ta-_ldsp.lht",
+          "sizeInBytes": 248880000
+        },
+        {
+          "id": "mshock-r48a-ta-_ldsp.lht",
+          "sizeInBytes": 247440000
+        },
+        {
+          "id": "r48a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-s22a-ta-_ldsp.lht",
+          "sizeInBytes": 191280000
+        },
+        {
+          "id": "mshock-s22a-ta-_ldsp.lht",
+          "sizeInBytes": 190080000
+        },
+        {
+          "id": "s22a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-pig2-xc-_ldsp.lht",
+          "sizeInBytes": 757680000
+        },
+        {
+          "id": "mshock-pig2-xc-_ldsp.lht",
+          "sizeInBytes": 757440000
+        },
+        {
+          "id": "pig2-xc-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "mshock-t42a-ta-_ldsp.lht",
+          "sizeInBytes": 237120000
+        },
+        {
+          "id": "egf-t42a-ta-_ldsp.lht",
+          "sizeInBytes": 238080000
+        },
+        {
+          "id": "t42a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-kono-iu-00_ldsp.lht",
+          "sizeInBytes": 382320000
+        },
+        {
+          "id": "egf-kono-iu-00_ldsp.lht",
+          "sizeInBytes": 382800000
+        },
+        {
+          "id": "kono-iu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "mshock-d03-xt-_ldsp.lht",
+          "sizeInBytes": 145680000
+        },
+        {
+          "id": "egf-d03-xt-_ldsp.lht",
+          "sizeInBytes": 146880000
+        },
+        {
+          "id": "d03-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-h41a-ta-_ldsp.lht",
+          "sizeInBytes": 214560000
+        },
+        {
+          "id": "egf-h41a-ta-_ldsp.lht",
+          "sizeInBytes": 215520000
+        },
+        {
+          "id": "h41a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-sm18-xi-_ldsp.lht",
+          "sizeInBytes": 203280000
+        },
+        {
+          "id": "mshock-sm18-xi-_ldsp.lht",
+          "sizeInBytes": 202320000
+        },
+        {
+          "id": "sm18-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-i41a-ta-_ldsp.lht",
+          "sizeInBytes": 215520000
+        },
+        {
+          "id": "egf-i41a-ta-_ldsp.lht",
+          "sizeInBytes": 216960000
+        },
+        {
+          "id": "i41a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-m54a-ta-_ldsp.lht",
+          "sizeInBytes": 256560000
+        },
+        {
+          "id": "mshock-m54a-ta-_ldsp.lht",
+          "sizeInBytes": 255360000
+        },
+        {
+          "id": "m54a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-tpub-tw-_ldsp.lht",
+          "sizeInBytes": 473280000
+        },
+        {
+          "id": "mshock-tpub-tw-_ldsp.lht",
+          "sizeInBytes": 474480000
+        },
+        {
+          "id": "tpub-tw-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-121a-ta-_ldsp.lht",
+          "sizeInBytes": 211680000
+        },
+        {
+          "id": "mshock-121a-ta-_ldsp.lht",
+          "sizeInBytes": 210720000
+        },
+        {
+          "id": "121a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-cel-mn-_ldsp.lht",
+          "sizeInBytes": 497520000
+        },
+        {
+          "id": "egf-cel-mn-_ldsp.lht",
+          "sizeInBytes": 497760000
+        },
+        {
+          "id": "cel-mn-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-uoss-ii-00_ldsp.lht",
+          "sizeInBytes": 582960000
+        },
+        {
+          "id": "mshock-uoss-ii-00_ldsp.lht",
+          "sizeInBytes": 583200000
+        },
+        {
+          "id": "uoss-ii-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "mshock-bill-iu-00_ldsp.lht",
+          "sizeInBytes": 209040000
+        },
+        {
+          "id": "egf-bill-iu-00_ldsp.lht",
+          "sizeInBytes": 208320000
+        },
+        {
+          "id": "bill-iu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-y41a-ta-_ldsp.lht",
+          "sizeInBytes": 245280000
+        },
+        {
+          "id": "egf-y41a-ta-_ldsp.lht",
+          "sizeInBytes": 246240000
+        },
+        {
+          "id": "y41a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-hda-ta-_ldsp.lht",
+          "sizeInBytes": 110160000
+        },
+        {
+          "id": "mshock-hda-ta-_ldsp.lht",
+          "sizeInBytes": 110880000
+        },
+        {
+          "id": "hda-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-h47a-ta-_ldsp.lht",
+          "sizeInBytes": 231120000
+        },
+        {
+          "id": "egf-h47a-ta-_ldsp.lht",
+          "sizeInBytes": 232080000
+        },
+        {
+          "id": "h47a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-g42a-ta-_ldsp.lht",
+          "sizeInBytes": 217200000
+        },
+        {
+          "id": "mshock-g42a-ta-_ldsp.lht",
+          "sizeInBytes": 216240000
+        },
+        {
+          "id": "g42a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-d04e-ta-_ldsp.lht",
+          "sizeInBytes": 111840000
+        },
+        {
+          "id": "egf-d04e-ta-_ldsp.lht",
+          "sizeInBytes": 112800000
+        },
+        {
+          "id": "d04e-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-qrz-nz-10_ldsp.lht",
+          "sizeInBytes": 617040000
+        },
+        {
+          "id": "mshock-qrz-nz-10_ldsp.lht",
+          "sizeInBytes": 617520000
+        },
+        {
+          "id": "qrz-nz-10_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "egf-mpat-yt-_ldsp.lht",
+          "sizeInBytes": 766560000
+        },
+        {
+          "id": "mshock-mpat-yt-_ldsp.lht",
+          "sizeInBytes": 766560000
+        },
+        {
+          "id": "mpat-yt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 1020960000
+        },
+        {
+          "id": "mshock-l29-xt-_ldsp.lht",
+          "sizeInBytes": 132000000
+        },
+        {
+          "id": "egf-l29-xt-_ldsp.lht",
+          "sizeInBytes": 132960000
+        },
+        {
+          "id": "l29-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-d08-xt-_ldsp.lht",
+          "sizeInBytes": 145440000
+        },
+        {
+          "id": "egf-d08-xt-_ldsp.lht",
+          "sizeInBytes": 146640000
+        },
+        {
+          "id": "d08-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-fs10-zd-_ldsp.lht",
+          "sizeInBytes": 513840000
+        },
+        {
+          "id": "mshock-fs10-zd-_ldsp.lht",
+          "sizeInBytes": 512640000
+        },
+        {
+          "id": "fs10-zd-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "egf-b946-pb-_ldsp.lht",
+          "sizeInBytes": 188160000
+        },
+        {
+          "id": "mshock-b946-pb-_ldsp.lht",
+          "sizeInBytes": 187200000
+        },
+        {
+          "id": "b946-pb-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-h46a-ta-_ldsp.lht",
+          "sizeInBytes": 228480000
+        },
+        {
+          "id": "egf-h46a-ta-_ldsp.lht",
+          "sizeInBytes": 229440000
+        },
+        {
+          "id": "h46a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-i45a-ta-_ldsp.lht",
+          "sizeInBytes": 227760000
+        },
+        {
+          "id": "mshock-i45a-ta-_ldsp.lht",
+          "sizeInBytes": 226800000
+        },
+        {
+          "id": "i45a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-sm19-xi-_ldsp.lht",
+          "sizeInBytes": 201600000
+        },
+        {
+          "id": "egf-sm19-xi-_ldsp.lht",
+          "sizeInBytes": 202800000
+        },
+        {
+          "id": "sm19-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-b027-pb-_ldsp.lht",
+          "sizeInBytes": 123120000
+        },
+        {
+          "id": "egf-b027-pb-_ldsp.lht",
+          "sizeInBytes": 124080000
+        },
+        {
+          "id": "b027-pb-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-958a-ta-_ldsp.lht",
+          "sizeInBytes": 303840000
+        },
+        {
+          "id": "mshock-958a-ta-_ldsp.lht",
+          "sizeInBytes": 302640000
+        },
+        {
+          "id": "958a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "mshock-b019-pb-_ldsp.lht",
+          "sizeInBytes": 112080000
+        },
+        {
+          "id": "egf-b019-pb-_ldsp.lht",
+          "sizeInBytes": 113040000
+        },
+        {
+          "id": "b019-pb-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-x43a-ta-_ldsp.lht",
+          "sizeInBytes": 248880000
+        },
+        {
+          "id": "mshock-x43a-ta-_ldsp.lht",
+          "sizeInBytes": 247440000
+        },
+        {
+          "id": "x43a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-a27-xd-_ldsp.lht",
+          "sizeInBytes": 192480000
+        },
+        {
+          "id": "egf-a27-xd-_ldsp.lht",
+          "sizeInBytes": 193200000
+        },
+        {
+          "id": "a27-xd-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-a18-xd-_ldsp.lht",
+          "sizeInBytes": 192960000
+        },
+        {
+          "id": "mshock-a18-xd-_ldsp.lht",
+          "sizeInBytes": 192000000
+        },
+        {
+          "id": "a18-xd-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-b001-pb-_ldsp.lht",
+          "sizeInBytes": 107280000
+        },
+        {
+          "id": "egf-b001-pb-_ldsp.lht",
+          "sizeInBytes": 108240000
+        },
+        {
+          "id": "b001-pb-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "egf-j39a-ta-_ldsp.lht",
+          "sizeInBytes": 213600000
+        },
+        {
+          "id": "mshock-j39a-ta-_ldsp.lht",
+          "sizeInBytes": 212640000
+        },
+        {
+          "id": "j39a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-knw-az-_ldsp.lht",
+          "sizeInBytes": 186960000
+        },
+        {
+          "id": "mshock-knw-az-_ldsp.lht",
+          "sizeInBytes": 186240000
+        },
+        {
+          "id": "knw-az-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-sc12-xi-_ldsp.lht",
+          "sizeInBytes": 216960000
+        },
+        {
+          "id": "mshock-sc12-xi-_ldsp.lht",
+          "sizeInBytes": 215760000
+        },
+        {
+          "id": "sc12-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-isa-ci-_ldsp.lht",
+          "sizeInBytes": 174240000
+        },
+        {
+          "id": "mshock-isa-ci-_ldsp.lht",
+          "sizeInBytes": 173280000
+        },
+        {
+          "id": "isa-ci-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-sm34-xi-_ldsp.lht",
+          "sizeInBytes": 202560000
+        },
+        {
+          "id": "egf-sm34-xi-_ldsp.lht",
+          "sizeInBytes": 204000000
+        },
+        {
+          "id": "sm34-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-sm21-xi-_ldsp.lht",
+          "sizeInBytes": 202800000
+        },
+        {
+          "id": "mshock-sm21-xi-_ldsp.lht",
+          "sizeInBytes": 201840000
+        },
+        {
+          "id": "sm21-xi-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-d27-xt-_ldsp.lht",
+          "sizeInBytes": 136320000
+        },
+        {
+          "id": "egf-d27-xt-_ldsp.lht",
+          "sizeInBytes": 137040000
+        },
+        {
+          "id": "d27-xt-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-kbs-iu-00_ldsp.lht",
+          "sizeInBytes": 289920000
+        },
+        {
+          "id": "egf-kbs-iu-00_ldsp.lht",
+          "sizeInBytes": 289680000
+        },
+        {
+          "id": "kbs-iu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "mshock-p50a-ta-_ldsp.lht",
+          "sizeInBytes": 249600000
+        },
+        {
+          "id": "egf-p50a-ta-_ldsp.lht",
+          "sizeInBytes": 250560000
+        },
+        {
+          "id": "p50a-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "mshock-o02d-ta-_ldsp.lht",
+          "sizeInBytes": 144240000
+        },
+        {
+          "id": "egf-o02d-ta-_ldsp.lht",
+          "sizeInBytes": 144720000
+        },
+        {
+          "id": "o02d-ta-_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 160800000
+        },
+        {
+          "id": "mshock-ccm-iu-00_ldsp.lht",
+          "sizeInBytes": 232800000
+        },
+        {
+          "id": "egf-ccm-iu-00_ldsp.lht",
+          "sizeInBytes": 233760000
+        },
+        {
+          "id": "ccm-iu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "egf-ptga-iu-00_ldsp.lht",
+          "sizeInBytes": 491040000
+        },
+        {
+          "id": "mshock-ptga-iu-00_ldsp.lht",
+          "sizeInBytes": 489840000
+        },
+        {
+          "id": "ptga-iu-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 529440000
+        },
+        {
+          "id": "mshock-biny-us-00_ldsp.lht",
+          "sizeInBytes": 264240000
+        },
+        {
+          "id": "egf-biny-us-00_ldsp.lht",
+          "sizeInBytes": 265200000
+        },
+        {
+          "id": "biny-us-00_ldsp.lht_iter_g1.stf",
+          "sizeInBytes": 283680000
+        },
+        {
+          "id": "siftSTFByMisfit",
+          "sizeInBytes": 83160000
+        },
+        {
+          "id": "pysacio.py",
+          "sizeInBytes": 0
+        },
+        {
+          "id": "pytutil.py",
+          "sizeInBytes": 0
+        },
+        {
+          "id": "good-fits.tar.gz",
+          "sizeInBytes": 3808260000
+        }
+      ]
+    },
+    "execution": {
+      "makespanInSeconds": 354,
+      "executedAt": "20200415T183333+0000",
+      "tasks": [
+        {
+          "id": "sG1IterDecon_ID0000001",
+          "runtimeInSeconds": 2.751,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-mkva-xv-_ldsp.lht",
+              "egf-mkva-xv-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 47.1465,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000002",
+          "runtimeInSeconds": 0.67,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-246a-ta-_ldsp.lht",
+              "egf-246a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 39.2537,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000003",
+          "runtimeInSeconds": 0.659,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sm17-xi-_ldsp.lht",
+              "egf-sm17-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 69.044,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000004",
+          "runtimeInSeconds": 1.167,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-bbgh-cu-00_ldsp.lht",
+              "egf-bbgh-cu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 61.868,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000005",
+          "runtimeInSeconds": 0.424,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-f44a-ta-_ldsp.lht",
+              "egf-f44a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000006",
+          "runtimeInSeconds": 0.645,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d46a-ta-_ldsp.lht",
+              "egf-d46a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 68.5271,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000007",
+          "runtimeInSeconds": 0.859,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sn46-xi-_ldsp.lht",
+              "egf-sn46-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 52.8522,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000008",
+          "runtimeInSeconds": 0.427,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-x41a-ta-_ldsp.lht",
+              "egf-x41a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 52.6932,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000009",
+          "runtimeInSeconds": 0.265,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-x46a-ta-_ldsp.lht",
+              "egf-x46a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.6226,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000010",
+          "runtimeInSeconds": 1.481,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-meck-yt-_ldsp.lht",
+              "egf-meck-yt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 86.4956,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000011",
+          "runtimeInSeconds": 0.396,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sspa-iu-10_ldsp.lht",
+              "egf-sspa-iu-10_ldsp.lht"
+            ]
+          },
+          "avgCPU": 48.7374,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000012",
+          "runtimeInSeconds": 1.333,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-lao-us-00_ldsp.lht",
+              "egf-lao-us-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 11.1028,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000013",
+          "runtimeInSeconds": 0.91,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d15-xt-_ldsp.lht",
+              "egf-d15-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 33.4066,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000014",
+          "runtimeInSeconds": 0.528,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-k02d-ta-_ldsp.lht",
+              "egf-k02d-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 61.553,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000015",
+          "runtimeInSeconds": 0.434,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-a21-xd-_ldsp.lht",
+              "egf-a21-xd-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 53.4562,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000016",
+          "runtimeInSeconds": 0.658,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-cngn-nu-_ldsp.lht",
+              "egf-cngn-nu-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 38.1459,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000017",
+          "runtimeInSeconds": 0.711,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d41-xt-_ldsp.lht",
+              "egf-d41-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 42.616,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000018",
+          "runtimeInSeconds": 0.528,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-t49a-ta-_ldsp.lht",
+              "egf-t49a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 61.7424,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000019",
+          "runtimeInSeconds": 0.709,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-g05d-ta-_ldsp.lht",
+              "egf-g05d-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 43.3004,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000020",
+          "runtimeInSeconds": 0.973,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-ksp-pl-_ldsp.lht",
+              "egf-ksp-pl-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 75.5396,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000021",
+          "runtimeInSeconds": 0.15,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-b082-pb-_ldsp.lht",
+              "egf-b082-pb-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 75.3333,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000022",
+          "runtimeInSeconds": 0.191,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d48-xt-_ldsp.lht",
+              "egf-d48-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000023",
+          "runtimeInSeconds": 2.019,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-k46a-ta-_ldsp.lht",
+              "egf-k46a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 14.4131,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000024",
+          "runtimeInSeconds": 1.035,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-m46a-ta-_ldsp.lht",
+              "egf-m46a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 21.1594,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000025",
+          "runtimeInSeconds": 1.242,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-makz-iu-00_ldsp.lht",
+              "egf-makz-iu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 61.1111,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000026",
+          "runtimeInSeconds": 0.423,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sci2-ci-_ldsp.lht",
+              "egf-sci2-ci-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 52.2459,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000027",
+          "runtimeInSeconds": 0.202,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-ss65-xi-_ldsp.lht",
+              "egf-ss65-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 81.1881,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000028",
+          "runtimeInSeconds": 0.212,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-w47a-ta-_ldsp.lht",
+              "egf-w47a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.5283,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000029",
+          "runtimeInSeconds": 0.489,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-k41a-ta-_ldsp.lht",
+              "egf-k41a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 58.2822,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000030",
+          "runtimeInSeconds": 2.168,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-255a-ta-_ldsp.lht",
+              "egf-255a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 14.3911,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000031",
+          "runtimeInSeconds": 0.536,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-k52a-ta-_ldsp.lht",
+              "egf-k52a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 61.9403,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000032",
+          "runtimeInSeconds": 0.645,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-mwc-ci-_ldsp.lht",
+              "egf-mwc-ci-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 37.3643,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000033",
+          "runtimeInSeconds": 0.225,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-x53a-ta-_ldsp.lht",
+              "egf-x53a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000034",
+          "runtimeInSeconds": 0.852,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-kiri-xv-_ldsp.lht",
+              "egf-kiri-xv-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 76.1737,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000035",
+          "runtimeInSeconds": 1.731,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-p51a-ta-_ldsp.lht",
+              "egf-p51a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 25.7077,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000036",
+          "runtimeInSeconds": 0.114,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-b088-pb-_ldsp.lht",
+              "egf-b088-pb-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.1228,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000037",
+          "runtimeInSeconds": 0.781,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sm25-xi-_ldsp.lht",
+              "egf-sm25-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 56.338,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000038",
+          "runtimeInSeconds": 0.738,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-whit-yt-_ldsp.lht",
+              "egf-whit-yt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000039",
+          "runtimeInSeconds": 0.124,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-dec-ci-_ldsp.lht",
+              "egf-dec-ci-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000040",
+          "runtimeInSeconds": 0.121,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-b921-pb-_ldsp.lht",
+              "egf-b921-pb-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000041",
+          "runtimeInSeconds": 0.86,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-ulm-cn-_ldsp.lht",
+              "egf-ulm-cn-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 53.0233,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000042",
+          "runtimeInSeconds": 0.516,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-j54a-ta-_ldsp.lht",
+              "egf-j54a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 85.0775,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000043",
+          "runtimeInSeconds": 0.447,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-a20-xd-_ldsp.lht",
+              "egf-a20-xd-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000044",
+          "runtimeInSeconds": 0.456,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-i46a-ta-_ldsp.lht",
+              "egf-i46a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000045",
+          "runtimeInSeconds": 0.516,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-tin-ci-_ldsp.lht",
+              "egf-tin-ci-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 83.3333,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000046",
+          "runtimeInSeconds": 0.461,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-senin-ch-_ldsp.lht",
+              "egf-senin-ch-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 60.5206,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000047",
+          "runtimeInSeconds": 2.411,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-go05-c-_ldsp.lht",
+              "egf-go05-c-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 55.4127,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000048",
+          "runtimeInSeconds": 0.143,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-tro-az-_ldsp.lht",
+              "egf-tro-az-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000049",
+          "runtimeInSeconds": 0.158,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d01-xt-_ldsp.lht",
+              "egf-d01-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000050",
+          "runtimeInSeconds": 0.714,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-058a-ta-_ldsp.lht",
+              "egf-058a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.8599,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000051",
+          "runtimeInSeconds": 1.754,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-mtdj-cu-00_ldsp.lht",
+              "egf-mtdj-cu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 27.7651,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000052",
+          "runtimeInSeconds": 0.871,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-r48a-ta-_ldsp.lht",
+              "egf-r48a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 53.6165,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000053",
+          "runtimeInSeconds": 0.231,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-s22a-ta-_ldsp.lht",
+              "egf-s22a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000054",
+          "runtimeInSeconds": 2.314,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-pig2-xc-_ldsp.lht",
+              "egf-pig2-xc-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 57.9516,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000055",
+          "runtimeInSeconds": 0.1,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-t42a-ta-_ldsp.lht",
+              "egf-t42a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000056",
+          "runtimeInSeconds": 0.767,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-kono-iu-00_ldsp.lht",
+              "egf-kono-iu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 91.9166,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000057",
+          "runtimeInSeconds": 0.535,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d03-xt-_ldsp.lht",
+              "egf-d03-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 62.0561,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000058",
+          "runtimeInSeconds": 0.66,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-h41a-ta-_ldsp.lht",
+              "egf-h41a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 69.3939,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000059",
+          "runtimeInSeconds": 0.448,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sm18-xi-_ldsp.lht",
+              "egf-sm18-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.7768,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000060",
+          "runtimeInSeconds": 0.4,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-i41a-ta-_ldsp.lht",
+              "egf-i41a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000061",
+          "runtimeInSeconds": 0.651,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-m54a-ta-_ldsp.lht",
+              "egf-m54a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 68.6636,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000062",
+          "runtimeInSeconds": 1.819,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-tpub-tw-_ldsp.lht",
+              "egf-tpub-tw-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 39.1974,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000063",
+          "runtimeInSeconds": 1.265,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-121a-ta-_ldsp.lht",
+              "egf-121a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 35.7312,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000064",
+          "runtimeInSeconds": 0.581,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-cel-mn-_ldsp.lht",
+              "egf-cel-mn-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000065",
+          "runtimeInSeconds": 0.747,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-uoss-ii-00_ldsp.lht",
+              "egf-uoss-ii-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 56.6265,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000066",
+          "runtimeInSeconds": 0.566,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-bill-iu-00_ldsp.lht",
+              "egf-bill-iu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 64.1343,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000067",
+          "runtimeInSeconds": 0.411,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-y41a-ta-_ldsp.lht",
+              "egf-y41a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 51.0949,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000068",
+          "runtimeInSeconds": 1.838,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-hda-ta-_ldsp.lht",
+              "egf-hda-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 18.7704,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000069",
+          "runtimeInSeconds": 0.623,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-h47a-ta-_ldsp.lht",
+              "egf-h47a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 34.6709,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000070",
+          "runtimeInSeconds": 0.448,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-g42a-ta-_ldsp.lht",
+              "egf-g42a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.7768,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000071",
+          "runtimeInSeconds": 0.367,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d04e-ta-_ldsp.lht",
+              "egf-d04e-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 48.2289,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000072",
+          "runtimeInSeconds": 1.979,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-qrz-nz-10_ldsp.lht",
+              "egf-qrz-nz-10_ldsp.lht"
+            ]
+          },
+          "avgCPU": 66.9025,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000073",
+          "runtimeInSeconds": 1.299,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-mpat-yt-_ldsp.lht",
+              "egf-mpat-yt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100.077,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000074",
+          "runtimeInSeconds": 0.317,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-l29-xt-_ldsp.lht",
+              "egf-l29-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.6845,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000075",
+          "runtimeInSeconds": 0.104,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d08-xt-_ldsp.lht",
+              "egf-d08-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.0385,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000076",
+          "runtimeInSeconds": 0.987,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-fs10-zd-_ldsp.lht",
+              "egf-fs10-zd-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 38.7031,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000077",
+          "runtimeInSeconds": 0.108,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-b946-pb-_ldsp.lht",
+              "egf-b946-pb-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000078",
+          "runtimeInSeconds": 0.199,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-h46a-ta-_ldsp.lht",
+              "egf-h46a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 99.4975,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000079",
+          "runtimeInSeconds": 0.356,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-i45a-ta-_ldsp.lht",
+              "egf-i45a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 42.4157,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000080",
+          "runtimeInSeconds": 0.429,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sm19-xi-_ldsp.lht",
+              "egf-sm19-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000081",
+          "runtimeInSeconds": 0.105,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-b027-pb-_ldsp.lht",
+              "egf-b027-pb-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000082",
+          "runtimeInSeconds": 2.642,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-958a-ta-_ldsp.lht",
+              "egf-958a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 31.4156,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000083",
+          "runtimeInSeconds": 0.101,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-b019-pb-_ldsp.lht",
+              "egf-b019-pb-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000084",
+          "runtimeInSeconds": 0.708,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-x43a-ta-_ldsp.lht",
+              "egf-x43a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 42.0904,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000085",
+          "runtimeInSeconds": 0.39,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-a27-xd-_ldsp.lht",
+              "egf-a27-xd-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 48.2051,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000086",
+          "runtimeInSeconds": 0.651,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-a18-xd-_ldsp.lht",
+              "egf-a18-xd-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 37.6344,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000087",
+          "runtimeInSeconds": 0.103,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-b001-pb-_ldsp.lht",
+              "egf-b001-pb-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000088",
+          "runtimeInSeconds": 0.654,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-j39a-ta-_ldsp.lht",
+              "egf-j39a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 69.1131,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000089",
+          "runtimeInSeconds": 0.125,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-knw-az-_ldsp.lht",
+              "egf-knw-az-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000090",
+          "runtimeInSeconds": 0.667,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sc12-xi-_ldsp.lht",
+              "egf-sc12-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 69.5652,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000091",
+          "runtimeInSeconds": 0.647,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-isa-ci-_ldsp.lht",
+              "egf-isa-ci-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 68.6244,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000092",
+          "runtimeInSeconds": 1.106,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sm34-xi-_ldsp.lht",
+              "egf-sm34-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 20.9765,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000093",
+          "runtimeInSeconds": 0.455,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-sm21-xi-_ldsp.lht",
+              "egf-sm21-xi-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 55.8242,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000094",
+          "runtimeInSeconds": 0.122,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-d27-xt-_ldsp.lht",
+              "egf-d27-xt-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000095",
+          "runtimeInSeconds": 0.898,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-kbs-iu-00_ldsp.lht",
+              "egf-kbs-iu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 77.5056,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000096",
+          "runtimeInSeconds": 0.483,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-p50a-ta-_ldsp.lht",
+              "egf-p50a-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 58.1781,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000097",
+          "runtimeInSeconds": 0.118,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-o02d-ta-_ldsp.lht",
+              "egf-o02d-ta-_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000098",
+          "runtimeInSeconds": 0.326,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-ccm-iu-00_ldsp.lht",
+              "egf-ccm-iu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 37.7301,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000099",
+          "runtimeInSeconds": 0.937,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-ptga-iu-00_ldsp.lht",
+              "egf-ptga-iu-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 78.4418,
+          "priority": 20,
+          "machines": [
+            "compute-7"
+          ]
+        },
+        {
+          "id": "sG1IterDecon_ID0000100",
+          "runtimeInSeconds": 0.184,
+          "command": {
+            "program": "sG1IterDecon",
+            "arguments": [
+              "mshock-biny-us-00_ldsp.lht",
+              "egf-biny-us-00_ldsp.lht"
+            ]
+          },
+          "avgCPU": 100,
+          "priority": 20,
+          "machines": [
+            "compute-5"
+          ]
+        },
+        {
+          "id": "wrapper_siftSTFByMisfit_ID0000101",
+          "runtimeInSeconds": 0.089,
+          "command": {
+            "program": "wrapper_siftSTFByMisfit",
+            "arguments": [
+              "mkva-xv-_ldsp.lht_iter_g1.stf",
+              "246a-ta-_ldsp.lht_iter_g1.stf",
+              "sm17-xi-_ldsp.lht_iter_g1.stf",
+              "bbgh-cu-00_ldsp.lht_iter_g1.stf",
+              "f44a-ta-_ldsp.lht_iter_g1.stf",
+              "d46a-ta-_ldsp.lht_iter_g1.stf",
+              "sn46-xi-_ldsp.lht_iter_g1.stf",
+              "x41a-ta-_ldsp.lht_iter_g1.stf",
+              "x46a-ta-_ldsp.lht_iter_g1.stf",
+              "meck-yt-_ldsp.lht_iter_g1.stf",
+              "sspa-iu-10_ldsp.lht_iter_g1.stf",
+              "lao-us-00_ldsp.lht_iter_g1.stf",
+              "d15-xt-_ldsp.lht_iter_g1.stf",
+              "k02d-ta-_ldsp.lht_iter_g1.stf",
+              "a21-xd-_ldsp.lht_iter_g1.stf",
+              "cngn-nu-_ldsp.lht_iter_g1.stf",
+              "d41-xt-_ldsp.lht_iter_g1.stf",
+              "t49a-ta-_ldsp.lht_iter_g1.stf",
+              "g05d-ta-_ldsp.lht_iter_g1.stf",
+              "ksp-pl-_ldsp.lht_iter_g1.stf",
+              "b082-pb-_ldsp.lht_iter_g1.stf",
+              "d48-xt-_ldsp.lht_iter_g1.stf",
+              "k46a-ta-_ldsp.lht_iter_g1.stf",
+              "m46a-ta-_ldsp.lht_iter_g1.stf",
+              "makz-iu-00_ldsp.lht_iter_g1.stf",
+              "sci2-ci-_ldsp.lht_iter_g1.stf",
+              "ss65-xi-_ldsp.lht_iter_g1.stf",
+              "w47a-ta-_ldsp.lht_iter_g1.stf",
+              "k41a-ta-_ldsp.lht_iter_g1.stf",
+              "255a-ta-_ldsp.lht_iter_g1.stf",
+              "k52a-ta-_ldsp.lht_iter_g1.stf",
+              "mwc-ci-_ldsp.lht_iter_g1.stf",
+              "x53a-ta-_ldsp.lht_iter_g1.stf",
+              "kiri-xv-_ldsp.lht_iter_g1.stf",
+              "p51a-ta-_ldsp.lht_iter_g1.stf",
+              "b088-pb-_ldsp.lht_iter_g1.stf",
+              "sm25-xi-_ldsp.lht_iter_g1.stf",
+              "whit-yt-_ldsp.lht_iter_g1.stf",
+              "dec-ci-_ldsp.lht_iter_g1.stf",
+              "b921-pb-_ldsp.lht_iter_g1.stf",
+              "ulm-cn-_ldsp.lht_iter_g1.stf",
+              "j54a-ta-_ldsp.lht_iter_g1.stf",
+              "a20-xd-_ldsp.lht_iter_g1.stf",
+              "i46a-ta-_ldsp.lht_iter_g1.stf",
+              "tin-ci-_ldsp.lht_iter_g1.stf",
+              "senin-ch-_ldsp.lht_iter_g1.stf",
+              "go05-c-_ldsp.lht_iter_g1.stf",
+              "tro-az-_ldsp.lht_iter_g1.stf",
+              "d01-xt-_ldsp.lht_iter_g1.stf",
+              "058a-ta-_ldsp.lht_iter_g1.stf",
+              "mtdj-cu-00_ldsp.lht_iter_g1.stf",
+              "r48a-ta-_ldsp.lht_iter_g1.stf",
+              "s22a-ta-_ldsp.lht_iter_g1.stf",
+              "pig2-xc-_ldsp.lht_iter_g1.stf",
+              "t42a-ta-_ldsp.lht_iter_g1.stf",
+              "kono-iu-00_ldsp.lht_iter_g1.stf",
+              "d03-xt-_ldsp.lht_iter_g1.stf",
+              "h41a-ta-_ldsp.lht_iter_g1.stf",
+              "sm18-xi-_ldsp.lht_iter_g1.stf",
+              "i41a-ta-_ldsp.lht_iter_g1.stf",
+              "m54a-ta-_ldsp.lht_iter_g1.stf",
+              "tpub-tw-_ldsp.lht_iter_g1.stf",
+              "121a-ta-_ldsp.lht_iter_g1.stf",
+              "cel-mn-_ldsp.lht_iter_g1.stf",
+              "uoss-ii-00_ldsp.lht_iter_g1.stf",
+              "bill-iu-00_ldsp.lht_iter_g1.stf",
+              "y41a-ta-_ldsp.lht_iter_g1.stf",
+              "hda-ta-_ldsp.lht_iter_g1.stf",
+              "h47a-ta-_ldsp.lht_iter_g1.stf",
+              "g42a-ta-_ldsp.lht_iter_g1.stf",
+              "d04e-ta-_ldsp.lht_iter_g1.stf",
+              "qrz-nz-10_ldsp.lht_iter_g1.stf",
+              "mpat-yt-_ldsp.lht_iter_g1.stf",
+              "l29-xt-_ldsp.lht_iter_g1.stf",
+              "d08-xt-_ldsp.lht_iter_g1.stf",
+              "fs10-zd-_ldsp.lht_iter_g1.stf",
+              "b946-pb-_ldsp.lht_iter_g1.stf",
+              "h46a-ta-_ldsp.lht_iter_g1.stf",
+              "i45a-ta-_ldsp.lht_iter_g1.stf",
+              "sm19-xi-_ldsp.lht_iter_g1.stf",
+              "b027-pb-_ldsp.lht_iter_g1.stf",
+              "958a-ta-_ldsp.lht_iter_g1.stf",
+              "b019-pb-_ldsp.lht_iter_g1.stf",
+              "x43a-ta-_ldsp.lht_iter_g1.stf",
+              "a27-xd-_ldsp.lht_iter_g1.stf",
+              "a18-xd-_ldsp.lht_iter_g1.stf",
+              "b001-pb-_ldsp.lht_iter_g1.stf",
+              "j39a-ta-_ldsp.lht_iter_g1.stf",
+              "knw-az-_ldsp.lht_iter_g1.stf",
+              "sc12-xi-_ldsp.lht_iter_g1.stf",
+              "isa-ci-_ldsp.lht_iter_g1.stf",
+              "sm34-xi-_ldsp.lht_iter_g1.stf",
+              "sm21-xi-_ldsp.lht_iter_g1.stf",
+              "d27-xt-_ldsp.lht_iter_g1.stf",
+              "kbs-iu-00_ldsp.lht_iter_g1.stf",
+              "p50a-ta-_ldsp.lht_iter_g1.stf",
+              "o02d-ta-_ldsp.lht_iter_g1.stf",
+              "ccm-iu-00_ldsp.lht_iter_g1.stf",
+              "ptga-iu-00_ldsp.lht_iter_g1.stf",
+              "biny-us-00_ldsp.lht_iter_g1.stf"
+            ]
+          },
+          "avgCPU": 77.5281,
+          "priority": 30,
+          "machines": [
+            "compute-3"
+          ]
+        }
+      ],
+      "machines": [
+        {
+          "nodeName": "compute-5",
+          "system": "linux",
+          "architecture": "x86_64",
+          "release": "4.15.0-96-generic",
+          "cpu": {
+            "vendor": "GenuineIntel",
+            "coreCount": 48,
+            "speedInMHz": 1575
+          },
+          "memoryInBytes": 131795984000
+        },
+        {
+          "nodeName": "compute-7",
+          "system": "linux",
+          "architecture": "x86_64",
+          "release": "4.15.0-96-generic",
+          "cpu": {
+            "vendor": "GenuineIntel",
+            "coreCount": 48,
+            "speedInMHz": 1825
+          },
+          "memoryInBytes": 131795984000
+        },
+        {
+          "nodeName": "compute-3",
+          "system": "linux",
+          "architecture": "x86_64",
+          "release": "4.15.0-96-generic",
+          "cpu": {
+            "vendor": "GenuineIntel",
+            "coreCount": 48,
+            "speedInMHz": 1200
+          },
+          "memoryInBytes": 131795984000
+        }
+      ]
+    }
+  },
+  "runtimeSystem": {
+    "url": "http://pegasus.isi.edu",
+    "version": "4.9.3",
+    "name": "Pegasus"
+  }
+}

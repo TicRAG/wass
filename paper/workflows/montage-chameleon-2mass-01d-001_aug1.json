@@ -1,0 +1,5530 @@
+{
+  "name": "montage-aug1",
+  "description": "Trace generated with WorkflowHub - https://workflowhub.org",
+  "createdAt": "2021-03-23T06:27:33.328018",
+  "schemaVersion": "1.5",
+  "author": {
+    "name": "cc",
+    "email": "support@wfcommons.org"
+  },
+  "workflow": {
+    "specification": {
+      "tasks": [
+        {
+          "name": "mProject_ID0000001_AUG1",
+          "id": "mProject_ID0000001_AUG1",
+          "children": [
+            "mDiffFit_ID0000008_AUG1",
+            "mDiffFit_ID0000009_AUG1",
+            "mDiffFit_ID0000010_AUG1",
+            "mDiffFit_ID0000011_AUG1",
+            "mBackground_ID0000025_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-001021s-j0560033.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001021s-j0560033.fits",
+            "p2mass-atlas-001021s-j0560033_area.fits"
+          ],
+          "parents": [],
+          "flops": 71068823306781.514662164176,
+          "runtime": 15442.193248152839,
+          "memory": 98106178.3265266
+        },
+        {
+          "name": "mProject_ID0000002_AUG1",
+          "id": "mProject_ID0000002_AUG1",
+          "children": [
+            "mDiffFit_ID0000008_AUG1",
+            "mDiffFit_ID0000012_AUG1",
+            "mDiffFit_ID0000013_AUG1",
+            "mDiffFit_ID0000014_AUG1",
+            "mDiffFit_ID0000015_AUG1",
+            "mDiffFit_ID0000016_AUG1",
+            "mBackground_ID0000026_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-980914s-j0820033.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-j0820033_area.fits",
+            "p2mass-atlas-980914s-j0820033.fits"
+          ],
+          "parents": [],
+          "flops": 71446239797945.112372851211,
+          "runtime": 21206.702378063175,
+          "memory": 119466939.29211554
+        },
+        {
+          "name": "mProject_ID0000003_AUG1",
+          "id": "mProject_ID0000003_AUG1",
+          "children": [
+            "mDiffFit_ID0000009_AUG1",
+            "mDiffFit_ID0000012_AUG1",
+            "mDiffFit_ID0000017_AUG1",
+            "mDiffFit_ID0000018_AUG1",
+            "mDiffFit_ID0000019_AUG1",
+            "mDiffFit_ID0000020_AUG1",
+            "mBackground_ID0000027_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-980914s-j0820044.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-j0820044.fits",
+            "p2mass-atlas-980914s-j0820044_area.fits"
+          ],
+          "parents": [],
+          "flops": 67426814500831.157462117397,
+          "runtime": 21933.140793587811,
+          "memory": 93986414.03102782
+        },
+        {
+          "name": "mProject_ID0000004_AUG1",
+          "id": "mProject_ID0000004_AUG1",
+          "children": [
+            "mDiffFit_ID0000013_AUG1",
+            "mDiffFit_ID0000017_AUG1",
+            "mDiffFit_ID0000021_AUG1",
+            "mBackground_ID0000028_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-001020s-j0870233.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001020s-j0870233_area.fits",
+            "p2mass-atlas-001020s-j0870233.fits"
+          ],
+          "parents": [],
+          "flops": 63124695864013.978698190598,
+          "runtime": 21329.413499383097,
+          "memory": 121432136.99365485
+        },
+        {
+          "name": "mProject_ID0000005_AUG1",
+          "id": "mProject_ID0000005_AUG1",
+          "children": [
+            "mDiffFit_ID0000014_AUG1",
+            "mDiffFit_ID0000018_AUG1",
+            "mDiffFit_ID0000021_AUG1",
+            "mBackground_ID0000029_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-j0810233.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-j0810233.fits",
+            "p2mass-atlas-980914s-j0810233_area.fits"
+          ],
+          "parents": [],
+          "flops": 74282604455964.485934708475,
+          "runtime": 22652.545209888781,
+          "memory": 107643800.78123978
+        },
+        {
+          "name": "mProject_ID0000006_AUG1",
+          "id": "mProject_ID0000006_AUG1",
+          "children": [
+            "mDiffFit_ID0000010_AUG1",
+            "mDiffFit_ID0000015_AUG1",
+            "mDiffFit_ID0000019_AUG1",
+            "mDiffFit_ID0000022_AUG1",
+            "mBackground_ID0000030_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-001021s-j0560044.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001021s-j0560044.fits",
+            "p2mass-atlas-001021s-j0560044_area.fits"
+          ],
+          "parents": [],
+          "flops": 78369997261709.816866670853,
+          "runtime": 17712.711818614013,
+          "memory": 120375203.60122924
+        },
+        {
+          "name": "mProject_ID0000007_AUG1",
+          "id": "mProject_ID0000007_AUG1",
+          "children": [
+            "mDiffFit_ID0000011_AUG1",
+            "mDiffFit_ID0000016_AUG1",
+            "mDiffFit_ID0000020_AUG1",
+            "mDiffFit_ID0000022_AUG1",
+            "mBackground_ID0000031_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-980914s-j0830233.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-j0830233_area.fits",
+            "p2mass-atlas-980914s-j0830233.fits"
+          ],
+          "parents": [],
+          "flops": 53291914231625.460961418422,
+          "runtime": 20396.745266169566,
+          "memory": 110243974.85371983
+        },
+        {
+          "name": "mDiffFit_ID0000008_AUG1",
+          "id": "mDiffFit_ID0000008_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560033.fits",
+            "p2mass-atlas-001021s-j0560033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0820033.fits",
+            "p2mass-atlas-980914s-j0820033_area.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000001.000002.txt"
+          ],
+          "parents": [
+            "mProject_ID0000001_AUG1",
+            "mProject_ID0000002_AUG1"
+          ],
+          "flops": 18734297836.677715057064,
+          "runtime": 227.782443497028,
+          "memory": 119983749.96181813
+        },
+        {
+          "name": "mDiffFit_ID0000009_AUG1",
+          "id": "mDiffFit_ID0000009_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560033.fits",
+            "p2mass-atlas-001021s-j0560033_area.fits",
+            "p2mass-atlas-980914s-j0820044.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0820044_area.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000001.000003.txt"
+          ],
+          "parents": [
+            "mProject_ID0000001_AUG1",
+            "mProject_ID0000003_AUG1"
+          ],
+          "flops": 21385738506.185834688187,
+          "runtime": 68.228624110037,
+          "memory": 112295667.3935356
+        },
+        {
+          "name": "mDiffFit_ID0000010_AUG1",
+          "id": "mDiffFit_ID0000010_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560033.fits",
+            "p2mass-atlas-001021s-j0560033_area.fits",
+            "p2mass-atlas-001021s-j0560044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-j0560044.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000001.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000001_AUG1",
+            "mProject_ID0000006_AUG1"
+          ],
+          "flops": 12871419728.778373997496,
+          "runtime": 82.276469714495,
+          "memory": 132039196.12958741
+        },
+        {
+          "name": "mDiffFit_ID0000011_AUG1",
+          "id": "mDiffFit_ID0000011_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560033.fits",
+            "p2mass-atlas-001021s-j0560033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0830233_area.fits",
+            "p2mass-atlas-980914s-j0830233.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000001.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000001_AUG1",
+            "mProject_ID0000007_AUG1"
+          ],
+          "flops": 22212407357.66653497245,
+          "runtime": 240.441304710804,
+          "memory": 130199520.4533433
+        },
+        {
+          "name": "mDiffFit_ID0000012_AUG1",
+          "id": "mDiffFit_ID0000012_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-j0820044.fits",
+            "p2mass-atlas-980914s-j0820044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0820033.fits",
+            "p2mass-atlas-980914s-j0820033_area.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000002.000003.txt"
+          ],
+          "parents": [
+            "mProject_ID0000002_AUG1",
+            "mProject_ID0000003_AUG1"
+          ],
+          "flops": 16520387151.279795864035,
+          "runtime": 101.918345225552,
+          "memory": 129023797.59131375
+        },
+        {
+          "name": "mDiffFit_ID0000013_AUG1",
+          "id": "mDiffFit_ID0000013_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0820033.fits",
+            "p2mass-atlas-980914s-j0820033_area.fits",
+            "p2mass-atlas-001020s-j0870233_area.fits",
+            "p2mass-atlas-001020s-j0870233.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000002.000004.txt"
+          ],
+          "parents": [
+            "mProject_ID0000002_AUG1",
+            "mProject_ID0000004_AUG1"
+          ],
+          "flops": 25071169338.034720677767,
+          "runtime": 97.099641330982,
+          "memory": 122834709.38039868
+        },
+        {
+          "name": "mDiffFit_ID0000014_AUG1",
+          "id": "mDiffFit_ID0000014_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0820033.fits",
+            "p2mass-atlas-980914s-j0820033_area.fits",
+            "p2mass-atlas-980914s-j0810233.fits",
+            "p2mass-atlas-980914s-j0810233_area.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000002.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000002_AUG1",
+            "mProject_ID0000005_AUG1"
+          ],
+          "flops": 21876081055.616838625703,
+          "runtime": 61.687510575559,
+          "memory": 126598674.25833607
+        },
+        {
+          "name": "mDiffFit_ID0000015_AUG1",
+          "id": "mDiffFit_ID0000015_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0820033.fits",
+            "p2mass-atlas-980914s-j0820033_area.fits",
+            "p2mass-atlas-001021s-j0560044.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000002.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000002_AUG1",
+            "mProject_ID0000006_AUG1"
+          ],
+          "flops": 18872351607.736555356045,
+          "runtime": 109.488140368882,
+          "memory": 117576629.75668058
+        },
+        {
+          "name": "mDiffFit_ID0000016_AUG1",
+          "id": "mDiffFit_ID0000016_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0820033.fits",
+            "p2mass-atlas-980914s-j0830233_area.fits",
+            "p2mass-atlas-980914s-j0820033_area.fits",
+            "p2mass-atlas-980914s-j0830233.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000002.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000002_AUG1",
+            "mProject_ID0000007_AUG1"
+          ],
+          "flops": 17177451111.869186636291,
+          "runtime": 103.575270490185,
+          "memory": 128767487.8126138
+        },
+        {
+          "name": "mDiffFit_ID0000017_AUG1",
+          "id": "mDiffFit_ID0000017_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-j0820044.fits",
+            "p2mass-atlas-980914s-j0820044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001020s-j0870233_area.fits",
+            "p2mass-atlas-001020s-j0870233.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000003.000004.txt"
+          ],
+          "parents": [
+            "mProject_ID0000003_AUG1",
+            "mProject_ID0000004_AUG1"
+          ],
+          "flops": 15974539980.28924546468,
+          "runtime": 155.640417241916,
+          "memory": 119780589.22956553
+        },
+        {
+          "name": "mDiffFit_ID0000018_AUG1",
+          "id": "mDiffFit_ID0000018_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-j0820044.fits",
+            "p2mass-atlas-980914s-j0820044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0810233.fits",
+            "p2mass-atlas-980914s-j0810233_area.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000003.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000003_AUG1",
+            "mProject_ID0000005_AUG1"
+          ],
+          "flops": 17375148386.767805653989,
+          "runtime": 117.643621397897,
+          "memory": 120237786.39810613
+        },
+        {
+          "name": "mDiffFit_ID0000019_AUG1",
+          "id": "mDiffFit_ID0000019_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-j0820044.fits",
+            "p2mass-atlas-980914s-j0820044_area.fits",
+            "p2mass-atlas-001021s-j0560044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-j0560044.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000003.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000003_AUG1",
+            "mProject_ID0000006_AUG1"
+          ],
+          "flops": 21146930291.563314360861,
+          "runtime": 224.683082246448,
+          "memory": 103058787.75252953
+        },
+        {
+          "name": "mDiffFit_ID0000020_AUG1",
+          "id": "mDiffFit_ID0000020_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-j0820044.fits",
+            "p2mass-atlas-980914s-j0820044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0830233_area.fits",
+            "p2mass-atlas-980914s-j0830233.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000003.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000003_AUG1",
+            "mProject_ID0000007_AUG1"
+          ],
+          "flops": 23487955985.999162235063,
+          "runtime": 139.564211051438,
+          "memory": 132524887.88646095
+        },
+        {
+          "name": "mDiffFit_ID0000021_AUG1",
+          "id": "mDiffFit_ID0000021_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0810233.fits",
+            "p2mass-atlas-001020s-j0870233_area.fits",
+            "p2mass-atlas-001020s-j0870233.fits",
+            "p2mass-atlas-980914s-j0810233_area.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000004.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000004_AUG1",
+            "mProject_ID0000005_AUG1"
+          ],
+          "flops": 15884898166.27378821596,
+          "runtime": 679.828309912894,
+          "memory": 132881676.16997755
+        },
+        {
+          "name": "mDiffFit_ID0000022_AUG1",
+          "id": "mDiffFit_ID0000022_AUG1",
+          "children": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560044_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-j0830233_area.fits",
+            "p2mass-atlas-980914s-j0830233.fits",
+            "p2mass-atlas-001021s-j0560044.fits"
+          ],
+          "outputFiles": [
+            "1-fit.000006.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000006_AUG1",
+            "mProject_ID0000007_AUG1"
+          ],
+          "flops": 16321741315.416028534072,
+          "runtime": 1173.945828492274,
+          "memory": 103543360.88134341
+        },
+        {
+          "name": "mConcatFit_ID0000023_AUG1",
+          "id": "mConcatFit_ID0000023_AUG1",
+          "children": [
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "inputFiles": [
+            "1-fit.000002.000005.txt",
+            "1-fit.000003.000005.txt",
+            "1-fit.000003.000007.txt",
+            "1-fit.000002.000007.txt",
+            "1-fit.000001.000002.txt",
+            "1-fit.000004.000005.txt",
+            "1-fit.000002.000003.txt",
+            "1-fit.000003.000004.txt",
+            "1-fit.000001.000006.txt",
+            "1-fit.000002.000004.txt",
+            "1-fit.000002.000006.txt",
+            "1-fit.000001.000003.txt",
+            "1-fit.000001.000007.txt",
+            "1-fit.000003.000006.txt",
+            "1-stat.tbl",
+            "1-fit.000006.000007.txt"
+          ],
+          "outputFiles": [
+            "1-fits.tbl"
+          ],
+          "parents": [
+            "mDiffFit_ID0000008_AUG1",
+            "mDiffFit_ID0000009_AUG1",
+            "mDiffFit_ID0000010_AUG1",
+            "mDiffFit_ID0000011_AUG1",
+            "mDiffFit_ID0000012_AUG1",
+            "mDiffFit_ID0000013_AUG1",
+            "mDiffFit_ID0000014_AUG1",
+            "mDiffFit_ID0000015_AUG1",
+            "mDiffFit_ID0000016_AUG1",
+            "mDiffFit_ID0000017_AUG1",
+            "mDiffFit_ID0000018_AUG1",
+            "mDiffFit_ID0000019_AUG1",
+            "mDiffFit_ID0000020_AUG1",
+            "mDiffFit_ID0000021_AUG1",
+            "mDiffFit_ID0000022_AUG1"
+          ],
+          "flops": 807606778735.150386122261,
+          "runtime": 184.928899706561,
+          "memory": 89648120.74336784
+        },
+        {
+          "name": "mBgModel_ID0000024_AUG1",
+          "id": "mBgModel_ID0000024_AUG1",
+          "children": [
+            "mBackground_ID0000025_AUG1",
+            "mBackground_ID0000026_AUG1",
+            "mBackground_ID0000027_AUG1",
+            "mBackground_ID0000028_AUG1",
+            "mBackground_ID0000029_AUG1",
+            "mBackground_ID0000030_AUG1",
+            "mBackground_ID0000031_AUG1"
+          ],
+          "inputFiles": [
+            "1-images.tbl",
+            "1-fits.tbl"
+          ],
+          "outputFiles": [
+            "1-corrections.tbl"
+          ],
+          "parents": [
+            "mConcatFit_ID0000023_AUG1"
+          ],
+          "flops": 1963200467435.514744221798,
+          "runtime": 953.038510590764,
+          "memory": 101071048.40974273
+        },
+        {
+          "name": "mBackground_ID0000025_AUG1",
+          "id": "mBackground_ID0000025_AUG1",
+          "children": [
+            "mImgtbl_ID0000032_AUG1",
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560033.fits",
+            "p2mass-atlas-001021s-j0560033_area.fits",
+            "1-projected.tbl",
+            "1-corrections.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001021s-j0560033.fits",
+            "c2mass-atlas-001021s-j0560033_area.fits"
+          ],
+          "parents": [
+            "mProject_ID0000001_AUG1",
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "flops": 938304583948.423216501265,
+          "runtime": 606.471403631404,
+          "memory": 99203843.77311042
+        },
+        {
+          "name": "mBackground_ID0000026_AUG1",
+          "id": "mBackground_ID0000026_AUG1",
+          "children": [
+            "mImgtbl_ID0000032_AUG1",
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-j0820033.fits",
+            "1-projected.tbl",
+            "p2mass-atlas-980914s-j0820033_area.fits",
+            "1-corrections.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-j0820033_area.fits",
+            "c2mass-atlas-980914s-j0820033.fits"
+          ],
+          "parents": [
+            "mProject_ID0000002_AUG1",
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "flops": 1638570489246.263292322109,
+          "runtime": 541.911553182751,
+          "memory": 103434000.63664278
+        },
+        {
+          "name": "mBackground_ID0000027_AUG1",
+          "id": "mBackground_ID0000027_AUG1",
+          "children": [
+            "mImgtbl_ID0000032_AUG1",
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-j0820044.fits",
+            "p2mass-atlas-980914s-j0820044_area.fits",
+            "1-projected.tbl",
+            "1-corrections.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-j0820044_area.fits",
+            "c2mass-atlas-980914s-j0820044.fits"
+          ],
+          "parents": [
+            "mProject_ID0000003_AUG1",
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "flops": 1616107529106.593884706127,
+          "runtime": 558.155405935867,
+          "memory": 130733084.04344285
+        },
+        {
+          "name": "mBackground_ID0000028_AUG1",
+          "id": "mBackground_ID0000028_AUG1",
+          "children": [
+            "mImgtbl_ID0000032_AUG1",
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "1-projected.tbl",
+            "p2mass-atlas-001020s-j0870233_area.fits",
+            "1-corrections.tbl",
+            "p2mass-atlas-001020s-j0870233.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001020s-j0870233_area.fits",
+            "c2mass-atlas-001020s-j0870233.fits"
+          ],
+          "parents": [
+            "mProject_ID0000004_AUG1",
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "flops": 1155216061661.226190292515,
+          "runtime": 634.1120225625,
+          "memory": 124170759.8515457
+        },
+        {
+          "name": "mBackground_ID0000029_AUG1",
+          "id": "mBackground_ID0000029_AUG1",
+          "children": [
+            "mImgtbl_ID0000032_AUG1",
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "1-projected.tbl",
+            "p2mass-atlas-980914s-j0810233.fits",
+            "1-corrections.tbl",
+            "p2mass-atlas-980914s-j0810233_area.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-j0810233_area.fits",
+            "c2mass-atlas-980914s-j0810233.fits"
+          ],
+          "parents": [
+            "mProject_ID0000005_AUG1",
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "flops": 1391552683089.772276590724,
+          "runtime": 414.064401018648,
+          "memory": 123672079.21327266
+        },
+        {
+          "name": "mBackground_ID0000030_AUG1",
+          "id": "mBackground_ID0000030_AUG1",
+          "children": [
+            "mImgtbl_ID0000032_AUG1",
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-j0560044_area.fits",
+            "1-projected.tbl",
+            "p2mass-atlas-001021s-j0560044.fits",
+            "1-corrections.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001021s-j0560044_area.fits",
+            "c2mass-atlas-001021s-j0560044.fits"
+          ],
+          "parents": [
+            "mProject_ID0000006_AUG1",
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "flops": 1447831094022.863026846146,
+          "runtime": 490.17923603894,
+          "memory": 112571220.98349904
+        },
+        {
+          "name": "mBackground_ID0000031_AUG1",
+          "id": "mBackground_ID0000031_AUG1",
+          "children": [
+            "mImgtbl_ID0000032_AUG1",
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "1-projected.tbl",
+            "p2mass-atlas-980914s-j0830233_area.fits",
+            "p2mass-atlas-980914s-j0830233.fits",
+            "1-corrections.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-j0830233_area.fits",
+            "c2mass-atlas-980914s-j0830233.fits"
+          ],
+          "parents": [
+            "mProject_ID0000007_AUG1",
+            "mBgModel_ID0000024_AUG1"
+          ],
+          "flops": 945579944040.437010359324,
+          "runtime": 525.581137044863,
+          "memory": 106325283.85619581
+        },
+        {
+          "name": "mImgtbl_ID0000032_AUG1",
+          "id": "mImgtbl_ID0000032_AUG1",
+          "children": [
+            "mAdd_ID0000033_AUG1"
+          ],
+          "inputFiles": [
+            "c2mass-atlas-980914s-j0830233.fits",
+            "c2mass-atlas-980914s-j0820044.fits",
+            "c2mass-atlas-001021s-j0560044.fits",
+            "c2mass-atlas-980914s-j0820033.fits",
+            "c2mass-atlas-980914s-j0810233.fits",
+            "c2mass-atlas-001021s-j0560033.fits",
+            "c2mass-atlas-001020s-j0870233.fits",
+            "1-corrected.tbl"
+          ],
+          "outputFiles": [
+            "1-updated-corrected.tbl"
+          ],
+          "parents": [
+            "mBackground_ID0000025_AUG1",
+            "mBackground_ID0000026_AUG1",
+            "mBackground_ID0000027_AUG1",
+            "mBackground_ID0000028_AUG1",
+            "mBackground_ID0000029_AUG1",
+            "mBackground_ID0000030_AUG1",
+            "mBackground_ID0000031_AUG1"
+          ],
+          "flops": 722334583619.034526662006,
+          "runtime": 317.301354751017,
+          "memory": 136188774.1778019
+        },
+        {
+          "name": "mAdd_ID0000033_AUG1",
+          "id": "mAdd_ID0000033_AUG1",
+          "children": [
+            "mViewer_ID0000034_AUG1",
+            "mViewer_ID0000103_AUG1"
+          ],
+          "inputFiles": [
+            "c2mass-atlas-980914s-j0820044_area.fits",
+            "c2mass-atlas-980914s-j0830233_area.fits",
+            "c2mass-atlas-001021s-j0560033_area.fits",
+            "c2mass-atlas-980914s-j0830233.fits",
+            "c2mass-atlas-980914s-j0820044.fits",
+            "c2mass-atlas-001021s-j0560044_area.fits",
+            "c2mass-atlas-980914s-j0820033_area.fits",
+            "c2mass-atlas-001021s-j0560044.fits",
+            "c2mass-atlas-001020s-j0870233_area.fits",
+            "c2mass-atlas-980914s-j0810233_area.fits",
+            "c2mass-atlas-980914s-j0820033.fits",
+            "region.hdr",
+            "c2mass-atlas-980914s-j0810233.fits",
+            "c2mass-atlas-001021s-j0560033.fits",
+            "1-updated-corrected.tbl",
+            "c2mass-atlas-001020s-j0870233.fits"
+          ],
+          "outputFiles": [
+            "1-mosaic.fits",
+            "1-mosaic_area.fits"
+          ],
+          "parents": [
+            "mBackground_ID0000025_AUG1",
+            "mBackground_ID0000026_AUG1",
+            "mBackground_ID0000027_AUG1",
+            "mBackground_ID0000028_AUG1",
+            "mBackground_ID0000029_AUG1",
+            "mBackground_ID0000030_AUG1",
+            "mBackground_ID0000031_AUG1",
+            "mImgtbl_ID0000032_AUG1"
+          ],
+          "flops": 1197315578986.813704324519,
+          "runtime": 468.865184075656,
+          "memory": 181280517.87115133
+        },
+        {
+          "name": "mViewer_ID0000034_AUG1",
+          "id": "mViewer_ID0000034_AUG1",
+          "children": [],
+          "inputFiles": [
+            "1-mosaic.fits"
+          ],
+          "outputFiles": [
+            "1-mosaic.png"
+          ],
+          "parents": [
+            "mAdd_ID0000033_AUG1"
+          ],
+          "flops": 2549841927985.009097971438,
+          "runtime": 1147.836511982388,
+          "memory": 104918470.18122646
+        },
+        {
+          "name": "mProject_ID0000035_AUG1",
+          "id": "mProject_ID0000035_AUG1",
+          "children": [
+            "mDiffFit_ID0000042_AUG1",
+            "mDiffFit_ID0000043_AUG1",
+            "mDiffFit_ID0000044_AUG1",
+            "mDiffFit_ID0000045_AUG1",
+            "mBackground_ID0000059_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-001021s-h0560033.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001021s-h0560033.fits",
+            "p2mass-atlas-001021s-h0560033_area.fits"
+          ],
+          "parents": [],
+          "flops": 53771658039599.918701033681,
+          "runtime": 17149.133824691533,
+          "memory": 120570066.03703843
+        },
+        {
+          "name": "mProject_ID0000036_AUG1",
+          "id": "mProject_ID0000036_AUG1",
+          "children": [
+            "mDiffFit_ID0000046_AUG1",
+            "mDiffFit_ID0000047_AUG1",
+            "mDiffFit_ID0000048_AUG1",
+            "mBackground_ID0000060_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-001020s-h0870233.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001020s-h0870233.fits",
+            "p2mass-atlas-001020s-h0870233_area.fits"
+          ],
+          "parents": [],
+          "flops": 83246526496826.644304460053,
+          "runtime": 25090.294669241871,
+          "memory": 115378049.83509564
+        },
+        {
+          "name": "mProject_ID0000037_AUG1",
+          "id": "mProject_ID0000037_AUG1",
+          "children": [
+            "mDiffFit_ID0000042_AUG1",
+            "mDiffFit_ID0000046_AUG1",
+            "mDiffFit_ID0000049_AUG1",
+            "mDiffFit_ID0000050_AUG1",
+            "mDiffFit_ID0000051_AUG1",
+            "mDiffFit_ID0000052_AUG1",
+            "mBackground_ID0000061_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-h0820044.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-h0820044.fits",
+            "p2mass-atlas-980914s-h0820044_area.fits"
+          ],
+          "parents": [],
+          "flops": 57705021573227.855023626994,
+          "runtime": 29718.911796506901,
+          "memory": 99499693.01621066
+        },
+        {
+          "name": "mProject_ID0000038_AUG1",
+          "id": "mProject_ID0000038_AUG1",
+          "children": [
+            "mDiffFit_ID0000047_AUG1",
+            "mDiffFit_ID0000049_AUG1",
+            "mDiffFit_ID0000053_AUG1",
+            "mBackground_ID0000062_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-h0810233.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-h0810233_area.fits",
+            "p2mass-atlas-980914s-h0810233.fits"
+          ],
+          "parents": [],
+          "flops": 59436184793601.946573178704,
+          "runtime": 17405.53963986461,
+          "memory": 125915720.56964797
+        },
+        {
+          "name": "mProject_ID0000039_AUG1",
+          "id": "mProject_ID0000039_AUG1",
+          "children": [
+            "mDiffFit_ID0000043_AUG1",
+            "mDiffFit_ID0000050_AUG1",
+            "mDiffFit_ID0000054_AUG1",
+            "mDiffFit_ID0000055_AUG1",
+            "mBackground_ID0000063_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-h0830233.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-h0830233.fits",
+            "p2mass-atlas-980914s-h0830233_area.fits"
+          ],
+          "parents": [],
+          "flops": 65937419212759.07125907197,
+          "runtime": 18825.688769887094,
+          "memory": 95335095.35690176
+        },
+        {
+          "name": "mProject_ID0000040_AUG1",
+          "id": "mProject_ID0000040_AUG1",
+          "children": [
+            "mDiffFit_ID0000044_AUG1",
+            "mDiffFit_ID0000051_AUG1",
+            "mDiffFit_ID0000054_AUG1",
+            "mDiffFit_ID0000056_AUG1",
+            "mBackground_ID0000064_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-001021s-h0560044.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001021s-h0560044.fits",
+            "p2mass-atlas-001021s-h0560044_area.fits"
+          ],
+          "parents": [],
+          "flops": 67129263936365.143302411114,
+          "runtime": 15719.349058817862,
+          "memory": 113520286.37777366
+        },
+        {
+          "name": "mProject_ID0000041_AUG1",
+          "id": "mProject_ID0000041_AUG1",
+          "children": [
+            "mDiffFit_ID0000045_AUG1",
+            "mDiffFit_ID0000048_AUG1",
+            "mDiffFit_ID0000052_AUG1",
+            "mDiffFit_ID0000053_AUG1",
+            "mDiffFit_ID0000055_AUG1",
+            "mDiffFit_ID0000056_AUG1",
+            "mBackground_ID0000065_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-h0820033.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "parents": [],
+          "flops": 80472042761833.557342746276,
+          "runtime": 22457.890671824525,
+          "memory": 121676418.44882774
+        },
+        {
+          "name": "mDiffFit_ID0000042_AUG1",
+          "id": "mDiffFit_ID0000042_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0820044.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-h0560033.fits",
+            "p2mass-atlas-980914s-h0820044_area.fits",
+            "p2mass-atlas-001021s-h0560033_area.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000001.000003.txt"
+          ],
+          "parents": [
+            "mProject_ID0000035_AUG1",
+            "mProject_ID0000037_AUG1"
+          ],
+          "flops": 21424645134.256271316951,
+          "runtime": 88.077327019402,
+          "memory": 108359867.66652013
+        },
+        {
+          "name": "mDiffFit_ID0000043_AUG1",
+          "id": "mDiffFit_ID0000043_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0830233.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-h0560033.fits",
+            "p2mass-atlas-980914s-h0830233_area.fits",
+            "p2mass-atlas-001021s-h0560033_area.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000001.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000035_AUG1",
+            "mProject_ID0000039_AUG1"
+          ],
+          "flops": 23334597458.515371151907,
+          "runtime": 235.790340378778,
+          "memory": 104550004.31671569
+        },
+        {
+          "name": "mDiffFit_ID0000044_AUG1",
+          "id": "mDiffFit_ID0000044_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-h0560033.fits",
+            "p2mass-atlas-001021s-h0560044.fits",
+            "p2mass-atlas-001021s-h0560033_area.fits",
+            "p2mass-atlas-001021s-h0560044_area.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000001.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000035_AUG1",
+            "mProject_ID0000040_AUG1"
+          ],
+          "flops": 22664717223.797243692294,
+          "runtime": 67.902769128876,
+          "memory": 103497041.27952948
+        },
+        {
+          "name": "mDiffFit_ID0000045_AUG1",
+          "id": "mDiffFit_ID0000045_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-h0560033.fits",
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "p2mass-atlas-001021s-h0560033_area.fits",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000001.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000035_AUG1",
+            "mProject_ID0000041_AUG1"
+          ],
+          "flops": 17530101427.538745743856,
+          "runtime": 198.421264149931,
+          "memory": 114014531.63198896
+        },
+        {
+          "name": "mDiffFit_ID0000046_AUG1",
+          "id": "mDiffFit_ID0000046_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0820044.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001020s-h0870233_area.fits",
+            "p2mass-atlas-001020s-h0870233.fits",
+            "p2mass-atlas-980914s-h0820044_area.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000002.000003.txt"
+          ],
+          "parents": [
+            "mProject_ID0000036_AUG1",
+            "mProject_ID0000037_AUG1"
+          ],
+          "flops": 19334842210.851799159528,
+          "runtime": 91.523733334234,
+          "memory": 110630380.16392843
+        },
+        {
+          "name": "mDiffFit_ID0000047_AUG1",
+          "id": "mDiffFit_ID0000047_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0810233_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001020s-h0870233_area.fits",
+            "p2mass-atlas-001020s-h0870233.fits",
+            "p2mass-atlas-980914s-h0810233.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000002.000004.txt"
+          ],
+          "parents": [
+            "mProject_ID0000036_AUG1",
+            "mProject_ID0000038_AUG1"
+          ],
+          "flops": 16838303301.046210602343,
+          "runtime": 505.324558305893,
+          "memory": 119282330.2533126
+        },
+        {
+          "name": "mDiffFit_ID0000048_AUG1",
+          "id": "mDiffFit_ID0000048_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "p2mass-atlas-001020s-h0870233_area.fits",
+            "p2mass-atlas-001020s-h0870233.fits",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000002.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000036_AUG1",
+            "mProject_ID0000041_AUG1"
+          ],
+          "flops": 17516333795.189225335864,
+          "runtime": 97.034423511761,
+          "memory": 100674428.76892817
+        },
+        {
+          "name": "mDiffFit_ID0000049_AUG1",
+          "id": "mDiffFit_ID0000049_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0820044.fits",
+            "p2mass-atlas-980914s-h0810233_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0820044_area.fits",
+            "p2mass-atlas-980914s-h0810233.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000003.000004.txt"
+          ],
+          "parents": [
+            "mProject_ID0000037_AUG1",
+            "mProject_ID0000038_AUG1"
+          ],
+          "flops": 22665600058.673758675085,
+          "runtime": 121.693365205848,
+          "memory": 108702398.71153964
+        },
+        {
+          "name": "mDiffFit_ID0000050_AUG1",
+          "id": "mDiffFit_ID0000050_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0830233.fits",
+            "p2mass-atlas-980914s-h0820044.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0830233_area.fits",
+            "p2mass-atlas-980914s-h0820044_area.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000003.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000037_AUG1",
+            "mProject_ID0000039_AUG1"
+          ],
+          "flops": 12973130389.8544103428,
+          "runtime": 210.078143440823,
+          "memory": 123750354.08561346
+        },
+        {
+          "name": "mDiffFit_ID0000051_AUG1",
+          "id": "mDiffFit_ID0000051_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0820044.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-h0560044.fits",
+            "p2mass-atlas-980914s-h0820044_area.fits",
+            "p2mass-atlas-001021s-h0560044_area.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000003.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000037_AUG1",
+            "mProject_ID0000040_AUG1"
+          ],
+          "flops": 17759489614.871038659591,
+          "runtime": 152.633163247842,
+          "memory": 124669596.22752836
+        },
+        {
+          "name": "mDiffFit_ID0000052_AUG1",
+          "id": "mDiffFit_ID0000052_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0820044.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "p2mass-atlas-980914s-h0820044_area.fits",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000003.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000037_AUG1",
+            "mProject_ID0000041_AUG1"
+          ],
+          "flops": 17646356091.367255654352,
+          "runtime": 108.441418047326,
+          "memory": 109149820.97158018
+        },
+        {
+          "name": "mDiffFit_ID0000053_AUG1",
+          "id": "mDiffFit_ID0000053_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0810233_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "p2mass-atlas-980914s-h0810233.fits",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000004.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000038_AUG1",
+            "mProject_ID0000041_AUG1"
+          ],
+          "flops": 14832148130.006365846762,
+          "runtime": 101.761889759278,
+          "memory": 115968548.47759403
+        },
+        {
+          "name": "mDiffFit_ID0000054_AUG1",
+          "id": "mDiffFit_ID0000054_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0830233.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0830233_area.fits",
+            "p2mass-atlas-001021s-h0560044.fits",
+            "p2mass-atlas-001021s-h0560044_area.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000005.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000039_AUG1",
+            "mProject_ID0000040_AUG1"
+          ],
+          "flops": 29830532301.566149887414,
+          "runtime": 480.743778824584,
+          "memory": 125460820.25026709
+        },
+        {
+          "name": "mDiffFit_ID0000055_AUG1",
+          "id": "mDiffFit_ID0000055_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0830233.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0830233_area.fits",
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000005.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000039_AUG1",
+            "mProject_ID0000041_AUG1"
+          ],
+          "flops": 24170307993.091099801905,
+          "runtime": 95.110747827945,
+          "memory": 120486408.57770757
+        },
+        {
+          "name": "mDiffFit_ID0000056_AUG1",
+          "id": "mDiffFit_ID0000056_AUG1",
+          "children": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "p2mass-atlas-001021s-h0560044.fits",
+            "p2mass-atlas-001021s-h0560044_area.fits",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "2-fit.000006.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000040_AUG1",
+            "mProject_ID0000041_AUG1"
+          ],
+          "flops": 20797110318.229786723818,
+          "runtime": 80.164954563615,
+          "memory": 119263196.18136685
+        },
+        {
+          "name": "mConcatFit_ID0000057_AUG1",
+          "id": "mConcatFit_ID0000057_AUG1",
+          "children": [
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "inputFiles": [
+            "2-fit.000003.000005.txt",
+            "2-fit.000004.000007.txt",
+            "2-fit.000002.000007.txt",
+            "2-fit.000006.000007.txt",
+            "2-fit.000003.000007.txt",
+            "2-fit.000001.000003.txt",
+            "2-fit.000003.000004.txt",
+            "2-fit.000001.000006.txt",
+            "2-stat.tbl",
+            "2-fit.000002.000004.txt",
+            "2-fit.000001.000007.txt",
+            "2-fit.000001.000005.txt",
+            "2-fit.000005.000006.txt",
+            "2-fit.000005.000007.txt",
+            "2-fit.000003.000006.txt",
+            "2-fit.000002.000003.txt"
+          ],
+          "outputFiles": [
+            "2-fits.tbl"
+          ],
+          "parents": [
+            "mDiffFit_ID0000042_AUG1",
+            "mDiffFit_ID0000043_AUG1",
+            "mDiffFit_ID0000044_AUG1",
+            "mDiffFit_ID0000045_AUG1",
+            "mDiffFit_ID0000046_AUG1",
+            "mDiffFit_ID0000047_AUG1",
+            "mDiffFit_ID0000048_AUG1",
+            "mDiffFit_ID0000049_AUG1",
+            "mDiffFit_ID0000050_AUG1",
+            "mDiffFit_ID0000051_AUG1",
+            "mDiffFit_ID0000052_AUG1",
+            "mDiffFit_ID0000053_AUG1",
+            "mDiffFit_ID0000054_AUG1",
+            "mDiffFit_ID0000055_AUG1",
+            "mDiffFit_ID0000056_AUG1"
+          ],
+          "flops": 896789190044.190987639692,
+          "runtime": 201.49240308888,
+          "memory": 104205909.98624095
+        },
+        {
+          "name": "mBgModel_ID0000058_AUG1",
+          "id": "mBgModel_ID0000058_AUG1",
+          "children": [
+            "mBackground_ID0000059_AUG1",
+            "mBackground_ID0000060_AUG1",
+            "mBackground_ID0000061_AUG1",
+            "mBackground_ID0000062_AUG1",
+            "mBackground_ID0000063_AUG1",
+            "mBackground_ID0000064_AUG1",
+            "mBackground_ID0000065_AUG1"
+          ],
+          "inputFiles": [
+            "2-fits.tbl",
+            "2-images.tbl"
+          ],
+          "outputFiles": [
+            "2-corrections.tbl"
+          ],
+          "parents": [
+            "mConcatFit_ID0000057_AUG1"
+          ],
+          "flops": 1797371045371.121170071856,
+          "runtime": 670.571228186754,
+          "memory": 85757684.7406583
+        },
+        {
+          "name": "mBackground_ID0000059_AUG1",
+          "id": "mBackground_ID0000059_AUG1",
+          "children": [
+            "mImgtbl_ID0000066_AUG1",
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-h0560033.fits",
+            "2-projected.tbl",
+            "2-corrections.tbl",
+            "p2mass-atlas-001021s-h0560033_area.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001021s-h0560033.fits",
+            "c2mass-atlas-001021s-h0560033_area.fits"
+          ],
+          "parents": [
+            "mProject_ID0000035_AUG1",
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "flops": 1404018820117.122932351112,
+          "runtime": 389.849450196115,
+          "memory": 123627401.78068037
+        },
+        {
+          "name": "mBackground_ID0000060_AUG1",
+          "id": "mBackground_ID0000060_AUG1",
+          "children": [
+            "mImgtbl_ID0000066_AUG1",
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "2-projected.tbl",
+            "p2mass-atlas-001020s-h0870233.fits",
+            "p2mass-atlas-001020s-h0870233_area.fits",
+            "2-corrections.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001020s-h0870233_area.fits",
+            "c2mass-atlas-001020s-h0870233.fits"
+          ],
+          "parents": [
+            "mProject_ID0000036_AUG1",
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "flops": 1440519789670.866268285601,
+          "runtime": 493.16014254251,
+          "memory": 107241281.8268131
+        },
+        {
+          "name": "mBackground_ID0000061_AUG1",
+          "id": "mBackground_ID0000061_AUG1",
+          "children": [
+            "mImgtbl_ID0000066_AUG1",
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0820044.fits",
+            "2-projected.tbl",
+            "2-corrections.tbl",
+            "p2mass-atlas-980914s-h0820044_area.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-h0820044_area.fits",
+            "c2mass-atlas-980914s-h0820044.fits"
+          ],
+          "parents": [
+            "mProject_ID0000037_AUG1",
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "flops": 1292063833794.800779028704,
+          "runtime": 521.16675631744,
+          "memory": 124690804.8743892
+        },
+        {
+          "name": "mBackground_ID0000062_AUG1",
+          "id": "mBackground_ID0000062_AUG1",
+          "children": [
+            "mImgtbl_ID0000066_AUG1",
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0810233_area.fits",
+            "2-projected.tbl",
+            "2-corrections.tbl",
+            "p2mass-atlas-980914s-h0810233.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-h0810233.fits",
+            "c2mass-atlas-980914s-h0810233_area.fits"
+          ],
+          "parents": [
+            "mProject_ID0000038_AUG1",
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "flops": 1071461946296.429824282653,
+          "runtime": 414.54223820184,
+          "memory": 116152367.21141404
+        },
+        {
+          "name": "mBackground_ID0000063_AUG1",
+          "id": "mBackground_ID0000063_AUG1",
+          "children": [
+            "mImgtbl_ID0000066_AUG1",
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0830233.fits",
+            "p2mass-atlas-980914s-h0830233_area.fits",
+            "2-projected.tbl",
+            "2-corrections.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-h0830233_area.fits",
+            "c2mass-atlas-980914s-h0830233.fits"
+          ],
+          "parents": [
+            "mProject_ID0000039_AUG1",
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "flops": 1137217879794.438804894624,
+          "runtime": 407.754223764193,
+          "memory": 111106041.65934096
+        },
+        {
+          "name": "mBackground_ID0000064_AUG1",
+          "id": "mBackground_ID0000064_AUG1",
+          "children": [
+            "mImgtbl_ID0000066_AUG1",
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001021s-h0560044.fits",
+            "2-projected.tbl",
+            "2-corrections.tbl",
+            "p2mass-atlas-001021s-h0560044_area.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001021s-h0560044_area.fits",
+            "c2mass-atlas-001021s-h0560044.fits"
+          ],
+          "parents": [
+            "mProject_ID0000040_AUG1",
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "flops": 1154336183075.187120790583,
+          "runtime": 416.065354372168,
+          "memory": 104021137.94531718
+        },
+        {
+          "name": "mBackground_ID0000065_AUG1",
+          "id": "mBackground_ID0000065_AUG1",
+          "children": [
+            "mImgtbl_ID0000066_AUG1",
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-h0820033_area.fits",
+            "2-projected.tbl",
+            "2-corrections.tbl",
+            "p2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-h0820033_area.fits",
+            "c2mass-atlas-980914s-h0820033.fits"
+          ],
+          "parents": [
+            "mProject_ID0000041_AUG1",
+            "mBgModel_ID0000058_AUG1"
+          ],
+          "flops": 1141313903612.058495978715,
+          "runtime": 1432.120967681337,
+          "memory": 111911279.78034152
+        },
+        {
+          "name": "mImgtbl_ID0000066_AUG1",
+          "id": "mImgtbl_ID0000066_AUG1",
+          "children": [
+            "mAdd_ID0000067_AUG1"
+          ],
+          "inputFiles": [
+            "c2mass-atlas-001021s-h0560033.fits",
+            "2-corrected.tbl",
+            "c2mass-atlas-980914s-h0810233.fits",
+            "c2mass-atlas-980914s-h0830233.fits",
+            "c2mass-atlas-001020s-h0870233.fits",
+            "c2mass-atlas-980914s-h0820044.fits",
+            "c2mass-atlas-001021s-h0560044.fits",
+            "c2mass-atlas-980914s-h0820033.fits"
+          ],
+          "outputFiles": [
+            "2-updated-corrected.tbl"
+          ],
+          "parents": [
+            "mBackground_ID0000059_AUG1",
+            "mBackground_ID0000060_AUG1",
+            "mBackground_ID0000061_AUG1",
+            "mBackground_ID0000062_AUG1",
+            "mBackground_ID0000063_AUG1",
+            "mBackground_ID0000064_AUG1",
+            "mBackground_ID0000065_AUG1"
+          ],
+          "flops": 815554408059.488027336354,
+          "runtime": 286.245491403093,
+          "memory": 127086900.58516383
+        },
+        {
+          "name": "mAdd_ID0000067_AUG1",
+          "id": "mAdd_ID0000067_AUG1",
+          "children": [
+            "mViewer_ID0000068_AUG1",
+            "mViewer_ID0000103_AUG1"
+          ],
+          "inputFiles": [
+            "c2mass-atlas-001021s-h0560044_area.fits",
+            "c2mass-atlas-980914s-h0820033_area.fits",
+            "c2mass-atlas-001020s-h0870233_area.fits",
+            "c2mass-atlas-001021s-h0560033.fits",
+            "c2mass-atlas-001021s-h0560044.fits",
+            "c2mass-atlas-980914s-h0820044_area.fits",
+            "c2mass-atlas-980914s-h0810233.fits",
+            "c2mass-atlas-980914s-h0810233_area.fits",
+            "c2mass-atlas-980914s-h0830233_area.fits",
+            "c2mass-atlas-980914s-h0830233.fits",
+            "c2mass-atlas-001020s-h0870233.fits",
+            "c2mass-atlas-980914s-h0820044.fits",
+            "c2mass-atlas-001021s-h0560033_area.fits",
+            "region.hdr",
+            "c2mass-atlas-980914s-h0820033.fits",
+            "2-updated-corrected.tbl"
+          ],
+          "outputFiles": [
+            "2-mosaic_area.fits",
+            "2-mosaic.fits"
+          ],
+          "parents": [
+            "mBackground_ID0000059_AUG1",
+            "mBackground_ID0000060_AUG1",
+            "mBackground_ID0000061_AUG1",
+            "mBackground_ID0000062_AUG1",
+            "mBackground_ID0000063_AUG1",
+            "mBackground_ID0000064_AUG1",
+            "mBackground_ID0000065_AUG1",
+            "mImgtbl_ID0000066_AUG1"
+          ],
+          "flops": 1765153708673.538096598988,
+          "runtime": 535.731221903076,
+          "memory": 162917815.2415733
+        },
+        {
+          "name": "mViewer_ID0000068_AUG1",
+          "id": "mViewer_ID0000068_AUG1",
+          "children": [],
+          "inputFiles": [
+            "2-mosaic.fits"
+          ],
+          "outputFiles": [
+            "2-mosaic.png"
+          ],
+          "parents": [
+            "mAdd_ID0000067_AUG1"
+          ],
+          "flops": 2159670582355.904222878154,
+          "runtime": 742.893075814906,
+          "memory": 126056479.42534268
+        },
+        {
+          "name": "mProject_ID0000069_AUG1",
+          "id": "mProject_ID0000069_AUG1",
+          "children": [
+            "mDiffFit_ID0000076_AUG1",
+            "mDiffFit_ID0000077_AUG1",
+            "mDiffFit_ID0000078_AUG1",
+            "mBackground_ID0000093_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-k0810233.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-k0810233_area.fits",
+            "p2mass-atlas-980914s-k0810233.fits"
+          ],
+          "parents": [],
+          "flops": 68230284074287.528850696233,
+          "runtime": 18221.735965471475,
+          "memory": 110645215.65975279
+        },
+        {
+          "name": "mProject_ID0000070_AUG1",
+          "id": "mProject_ID0000070_AUG1",
+          "children": [
+            "mDiffFit_ID0000076_AUG1",
+            "mDiffFit_ID0000079_AUG1",
+            "mDiffFit_ID0000080_AUG1",
+            "mBackground_ID0000094_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-001020s-k0870233.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001020s-k0870233.fits",
+            "p2mass-atlas-001020s-k0870233_area.fits"
+          ],
+          "parents": [],
+          "flops": 55709385431204.999163889194,
+          "runtime": 15930.152166650084,
+          "memory": 122382380.21763816
+        },
+        {
+          "name": "mProject_ID0000071_AUG1",
+          "id": "mProject_ID0000071_AUG1",
+          "children": [
+            "mDiffFit_ID0000081_AUG1",
+            "mDiffFit_ID0000082_AUG1",
+            "mDiffFit_ID0000083_AUG1",
+            "mDiffFit_ID0000084_AUG1",
+            "mBackground_ID0000095_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-980914s-k0830233.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-k0830233_area.fits",
+            "p2mass-atlas-980914s-k0830233.fits"
+          ],
+          "parents": [],
+          "flops": 56498084431690.751739081896,
+          "runtime": 26063.140781714993,
+          "memory": 99168759.67955184
+        },
+        {
+          "name": "mProject_ID0000072_AUG1",
+          "id": "mProject_ID0000072_AUG1",
+          "children": [
+            "mDiffFit_ID0000081_AUG1",
+            "mDiffFit_ID0000085_AUG1",
+            "mDiffFit_ID0000086_AUG1",
+            "mDiffFit_ID0000087_AUG1",
+            "mBackground_ID0000096_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-001021s-k0560033.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001021s-k0560033.fits",
+            "p2mass-atlas-001021s-k0560033_area.fits"
+          ],
+          "parents": [],
+          "flops": 69383806578497.285851393235,
+          "runtime": 28126.922662647454,
+          "memory": 116883199.80177377
+        },
+        {
+          "name": "mProject_ID0000073_AUG1",
+          "id": "mProject_ID0000073_AUG1",
+          "children": [
+            "mDiffFit_ID0000077_AUG1",
+            "mDiffFit_ID0000079_AUG1",
+            "mDiffFit_ID0000082_AUG1",
+            "mDiffFit_ID0000085_AUG1",
+            "mDiffFit_ID0000088_AUG1",
+            "mDiffFit_ID0000089_AUG1",
+            "mBackground_ID0000097_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-k0820044.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-k0820044.fits",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "parents": [],
+          "flops": 56845431819030.613233401482,
+          "runtime": 26487.889682985373,
+          "memory": 109742242.5192384
+        },
+        {
+          "name": "mProject_ID0000074_AUG1",
+          "id": "mProject_ID0000074_AUG1",
+          "children": [
+            "mDiffFit_ID0000083_AUG1",
+            "mDiffFit_ID0000086_AUG1",
+            "mDiffFit_ID0000088_AUG1",
+            "mDiffFit_ID0000090_AUG1",
+            "mBackground_ID0000098_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "2mass-atlas-001021s-k0560044.fits"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-001021s-k0560044_area.fits",
+            "p2mass-atlas-001021s-k0560044.fits"
+          ],
+          "parents": [],
+          "flops": 58691155539967.170207796979,
+          "runtime": 29381.948008850535,
+          "memory": 101681486.8100004
+        },
+        {
+          "name": "mProject_ID0000075_AUG1",
+          "id": "mProject_ID0000075_AUG1",
+          "children": [
+            "mDiffFit_ID0000078_AUG1",
+            "mDiffFit_ID0000080_AUG1",
+            "mDiffFit_ID0000084_AUG1",
+            "mDiffFit_ID0000087_AUG1",
+            "mDiffFit_ID0000089_AUG1",
+            "mDiffFit_ID0000090_AUG1",
+            "mBackground_ID0000099_AUG1"
+          ],
+          "inputFiles": [
+            "2mass-atlas-980914s-k0820033.fits",
+            "region-oversized.hdr"
+          ],
+          "outputFiles": [
+            "p2mass-atlas-980914s-k0820033.fits",
+            "p2mass-atlas-980914s-k0820033_area.fits"
+          ],
+          "parents": [],
+          "flops": 74412169141972.395105775582,
+          "runtime": 26500.382810619278,
+          "memory": 110258165.3781811
+        },
+        {
+          "name": "mDiffFit_ID0000076_AUG1",
+          "id": "mDiffFit_ID0000076_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001020s-k0870233.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001020s-k0870233_area.fits",
+            "p2mass-atlas-980914s-k0810233_area.fits",
+            "p2mass-atlas-980914s-k0810233.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000001.000002.txt"
+          ],
+          "parents": [
+            "mProject_ID0000069_AUG1",
+            "mProject_ID0000070_AUG1"
+          ],
+          "flops": 24044701976.135950538746,
+          "runtime": 834.564401400573,
+          "memory": 109847729.05980946
+        },
+        {
+          "name": "mDiffFit_ID0000077_AUG1",
+          "id": "mDiffFit_ID0000077_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0820044.fits",
+            "p2mass-atlas-980914s-k0810233_area.fits",
+            "p2mass-atlas-980914s-k0810233.fits",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000001.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000069_AUG1",
+            "mProject_ID0000073_AUG1"
+          ],
+          "flops": 18084384916.287687070057,
+          "runtime": 152.194658949584,
+          "memory": 104469710.81070836
+        },
+        {
+          "name": "mDiffFit_ID0000078_AUG1",
+          "id": "mDiffFit_ID0000078_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-k0820033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0810233_area.fits",
+            "p2mass-atlas-980914s-k0810233.fits",
+            "p2mass-atlas-980914s-k0820033.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000001.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000069_AUG1",
+            "mProject_ID0000075_AUG1"
+          ],
+          "flops": 19509787951.32119361412,
+          "runtime": 103.131941404084,
+          "memory": 112231690.8315088
+        },
+        {
+          "name": "mDiffFit_ID0000079_AUG1",
+          "id": "mDiffFit_ID0000079_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001020s-k0870233.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0820044.fits",
+            "p2mass-atlas-001020s-k0870233_area.fits",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000002.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000070_AUG1",
+            "mProject_ID0000073_AUG1"
+          ],
+          "flops": 20190113226.593997504162,
+          "runtime": 141.437747618448,
+          "memory": 115527609.38830748
+        },
+        {
+          "name": "mDiffFit_ID0000080_AUG1",
+          "id": "mDiffFit_ID0000080_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001020s-k0870233.fits",
+            "p2mass-atlas-980914s-k0820033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001020s-k0870233_area.fits",
+            "p2mass-atlas-980914s-k0820033.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000002.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000070_AUG1",
+            "mProject_ID0000075_AUG1"
+          ],
+          "flops": 19867896560.450715541526,
+          "runtime": 90.283169430878,
+          "memory": 122680289.34013438
+        },
+        {
+          "name": "mDiffFit_ID0000081_AUG1",
+          "id": "mDiffFit_ID0000081_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-k0560033_area.fits",
+            "p2mass-atlas-980914s-k0830233.fits",
+            "p2mass-atlas-980914s-k0830233_area.fits",
+            "p2mass-atlas-001021s-k0560033.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000003.000004.txt"
+          ],
+          "parents": [
+            "mProject_ID0000071_AUG1",
+            "mProject_ID0000072_AUG1"
+          ],
+          "flops": 23891857012.995154587924,
+          "runtime": 258.862855467083,
+          "memory": 109126250.51547034
+        },
+        {
+          "name": "mDiffFit_ID0000082_AUG1",
+          "id": "mDiffFit_ID0000082_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0820044.fits",
+            "p2mass-atlas-980914s-k0830233.fits",
+            "p2mass-atlas-980914s-k0830233_area.fits",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000003.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000071_AUG1",
+            "mProject_ID0000073_AUG1"
+          ],
+          "flops": 17577202581.028484268039,
+          "runtime": 152.513016402637,
+          "memory": 123525939.52167177
+        },
+        {
+          "name": "mDiffFit_ID0000083_AUG1",
+          "id": "mDiffFit_ID0000083_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-k0560044_area.fits",
+            "p2mass-atlas-980914s-k0830233.fits",
+            "p2mass-atlas-980914s-k0830233_area.fits",
+            "p2mass-atlas-001021s-k0560044.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000003.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000071_AUG1",
+            "mProject_ID0000074_AUG1"
+          ],
+          "flops": 25275666420.081638037871,
+          "runtime": 586.058791330915,
+          "memory": 115848418.01664346
+        },
+        {
+          "name": "mDiffFit_ID0000084_AUG1",
+          "id": "mDiffFit_ID0000084_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-k0820033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0830233.fits",
+            "p2mass-atlas-980914s-k0830233_area.fits",
+            "p2mass-atlas-980914s-k0820033.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000003.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000071_AUG1",
+            "mProject_ID0000075_AUG1"
+          ],
+          "flops": 19155149556.439644699046,
+          "runtime": 119.125062088692,
+          "memory": 101959489.92177826
+        },
+        {
+          "name": "mDiffFit_ID0000085_AUG1",
+          "id": "mDiffFit_ID0000085_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0820044.fits",
+            "p2mass-atlas-001021s-k0560033_area.fits",
+            "p2mass-atlas-001021s-k0560033.fits",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000004.000005.txt"
+          ],
+          "parents": [
+            "mProject_ID0000072_AUG1",
+            "mProject_ID0000073_AUG1"
+          ],
+          "flops": 15900660801.673345684457,
+          "runtime": 64.731316288815,
+          "memory": 130245760.30323373
+        },
+        {
+          "name": "mDiffFit_ID0000086_AUG1",
+          "id": "mDiffFit_ID0000086_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-k0560033_area.fits",
+            "p2mass-atlas-001021s-k0560044_area.fits",
+            "p2mass-atlas-001021s-k0560033.fits",
+            "p2mass-atlas-001021s-k0560044.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000004.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000072_AUG1",
+            "mProject_ID0000074_AUG1"
+          ],
+          "flops": 17366868081.786883558586,
+          "runtime": 122.426263468802,
+          "memory": 121064944.11422154
+        },
+        {
+          "name": "mDiffFit_ID0000087_AUG1",
+          "id": "mDiffFit_ID0000087_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-k0820033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-k0560033_area.fits",
+            "p2mass-atlas-001021s-k0560033.fits",
+            "p2mass-atlas-980914s-k0820033.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000004.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000072_AUG1",
+            "mProject_ID0000075_AUG1"
+          ],
+          "flops": 24270693516.340976240444,
+          "runtime": 261.750792583909,
+          "memory": 113574866.48710431
+        },
+        {
+          "name": "mDiffFit_ID0000088_AUG1",
+          "id": "mDiffFit_ID0000088_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0820044.fits",
+            "p2mass-atlas-001021s-k0560044_area.fits",
+            "p2mass-atlas-001021s-k0560044.fits",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000005.000006.txt"
+          ],
+          "parents": [
+            "mProject_ID0000073_AUG1",
+            "mProject_ID0000074_AUG1"
+          ],
+          "flops": 21999270920.670954940277,
+          "runtime": 138.934582144904,
+          "memory": 101996687.63250221
+        },
+        {
+          "name": "mDiffFit_ID0000089_AUG1",
+          "id": "mDiffFit_ID0000089_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-k0820033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-980914s-k0820044.fits",
+            "p2mass-atlas-980914s-k0820033.fits",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000005.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000073_AUG1",
+            "mProject_ID0000075_AUG1"
+          ],
+          "flops": 25025322151.56702553858,
+          "runtime": 127.729797135824,
+          "memory": 120553246.57169108
+        },
+        {
+          "name": "mDiffFit_ID0000090_AUG1",
+          "id": "mDiffFit_ID0000090_AUG1",
+          "children": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-k0820033_area.fits",
+            "region-oversized.hdr",
+            "p2mass-atlas-001021s-k0560044_area.fits",
+            "p2mass-atlas-980914s-k0820033.fits",
+            "p2mass-atlas-001021s-k0560044.fits"
+          ],
+          "outputFiles": [
+            "3-fit.000006.000007.txt"
+          ],
+          "parents": [
+            "mProject_ID0000074_AUG1",
+            "mProject_ID0000075_AUG1"
+          ],
+          "flops": 23441525918.212656490065,
+          "runtime": 60.994896458281,
+          "memory": 100456935.1924408
+        },
+        {
+          "name": "mConcatFit_ID0000091_AUG1",
+          "id": "mConcatFit_ID0000091_AUG1",
+          "children": [
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "inputFiles": [
+            "3-fit.000003.000006.txt",
+            "3-fit.000004.000006.txt",
+            "3-stat.tbl",
+            "3-fit.000001.000005.txt",
+            "3-fit.000003.000007.txt",
+            "3-fit.000005.000007.txt",
+            "3-fit.000002.000007.txt",
+            "3-fit.000006.000007.txt",
+            "3-fit.000001.000002.txt",
+            "3-fit.000002.000005.txt",
+            "3-fit.000003.000004.txt",
+            "3-fit.000004.000007.txt",
+            "3-fit.000003.000005.txt",
+            "3-fit.000005.000006.txt",
+            "3-fit.000004.000005.txt",
+            "3-fit.000001.000007.txt"
+          ],
+          "outputFiles": [
+            "3-fits.tbl"
+          ],
+          "parents": [
+            "mDiffFit_ID0000076_AUG1",
+            "mDiffFit_ID0000077_AUG1",
+            "mDiffFit_ID0000078_AUG1",
+            "mDiffFit_ID0000079_AUG1",
+            "mDiffFit_ID0000080_AUG1",
+            "mDiffFit_ID0000081_AUG1",
+            "mDiffFit_ID0000082_AUG1",
+            "mDiffFit_ID0000083_AUG1",
+            "mDiffFit_ID0000084_AUG1",
+            "mDiffFit_ID0000085_AUG1",
+            "mDiffFit_ID0000086_AUG1",
+            "mDiffFit_ID0000087_AUG1",
+            "mDiffFit_ID0000088_AUG1",
+            "mDiffFit_ID0000089_AUG1",
+            "mDiffFit_ID0000090_AUG1"
+          ],
+          "flops": 710250628509.685060692962,
+          "runtime": 197.951991768727,
+          "memory": 87191399.86146848
+        },
+        {
+          "name": "mBgModel_ID0000092_AUG1",
+          "id": "mBgModel_ID0000092_AUG1",
+          "children": [
+            "mBackground_ID0000093_AUG1",
+            "mBackground_ID0000094_AUG1",
+            "mBackground_ID0000095_AUG1",
+            "mBackground_ID0000096_AUG1",
+            "mBackground_ID0000097_AUG1",
+            "mBackground_ID0000098_AUG1",
+            "mBackground_ID0000099_AUG1"
+          ],
+          "inputFiles": [
+            "3-images.tbl",
+            "3-fits.tbl"
+          ],
+          "outputFiles": [
+            "3-corrections.tbl"
+          ],
+          "parents": [
+            "mConcatFit_ID0000091_AUG1"
+          ],
+          "flops": 3414373672702.539432009283,
+          "runtime": 1271.155446286028,
+          "memory": 109260687.08867241
+        },
+        {
+          "name": "mBackground_ID0000093_AUG1",
+          "id": "mBackground_ID0000093_AUG1",
+          "children": [
+            "mImgtbl_ID0000100_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "3-corrections.tbl",
+            "p2mass-atlas-980914s-k0810233_area.fits",
+            "p2mass-atlas-980914s-k0810233.fits",
+            "3-projected.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-k0810233_area.fits",
+            "c2mass-atlas-980914s-k0810233.fits"
+          ],
+          "parents": [
+            "mProject_ID0000069_AUG1",
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "flops": 1080535163398.28972512747,
+          "runtime": 452.13845007364,
+          "memory": 108815947.59936503
+        },
+        {
+          "name": "mBackground_ID0000094_AUG1",
+          "id": "mBackground_ID0000094_AUG1",
+          "children": [
+            "mImgtbl_ID0000100_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-001020s-k0870233.fits",
+            "3-corrections.tbl",
+            "p2mass-atlas-001020s-k0870233_area.fits",
+            "3-projected.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001020s-k0870233_area.fits",
+            "c2mass-atlas-001020s-k0870233.fits"
+          ],
+          "parents": [
+            "mProject_ID0000070_AUG1",
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "flops": 1412051329878.312398258717,
+          "runtime": 764.118707023403,
+          "memory": 120913892.22996838
+        },
+        {
+          "name": "mBackground_ID0000095_AUG1",
+          "id": "mBackground_ID0000095_AUG1",
+          "children": [
+            "mImgtbl_ID0000100_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "3-corrections.tbl",
+            "p2mass-atlas-980914s-k0830233.fits",
+            "p2mass-atlas-980914s-k0830233_area.fits",
+            "3-projected.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-k0830233.fits",
+            "c2mass-atlas-980914s-k0830233_area.fits"
+          ],
+          "parents": [
+            "mProject_ID0000071_AUG1",
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "flops": 1426747691191.102117303944,
+          "runtime": 653.961220835092,
+          "memory": 113438144.59578148
+        },
+        {
+          "name": "mBackground_ID0000096_AUG1",
+          "id": "mBackground_ID0000096_AUG1",
+          "children": [
+            "mImgtbl_ID0000100_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "3-corrections.tbl",
+            "p2mass-atlas-001021s-k0560033_area.fits",
+            "p2mass-atlas-001021s-k0560033.fits",
+            "3-projected.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001021s-k0560033_area.fits",
+            "c2mass-atlas-001021s-k0560033.fits"
+          ],
+          "parents": [
+            "mProject_ID0000072_AUG1",
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "flops": 1380280917981.465495892005,
+          "runtime": 529.756098778659,
+          "memory": 122295682.2585591
+        },
+        {
+          "name": "mBackground_ID0000097_AUG1",
+          "id": "mBackground_ID0000097_AUG1",
+          "children": [
+            "mImgtbl_ID0000100_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-k0820044.fits",
+            "3-corrections.tbl",
+            "3-projected.tbl",
+            "p2mass-atlas-980914s-k0820044_area.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-k0820044_area.fits",
+            "c2mass-atlas-980914s-k0820044.fits"
+          ],
+          "parents": [
+            "mProject_ID0000073_AUG1",
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "flops": 1275484614339.502793695751,
+          "runtime": 430.987276454213,
+          "memory": 106219547.680326
+        },
+        {
+          "name": "mBackground_ID0000098_AUG1",
+          "id": "mBackground_ID0000098_AUG1",
+          "children": [
+            "mImgtbl_ID0000100_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "3-corrections.tbl",
+            "p2mass-atlas-001021s-k0560044_area.fits",
+            "3-projected.tbl",
+            "p2mass-atlas-001021s-k0560044.fits"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-001021s-k0560044.fits",
+            "c2mass-atlas-001021s-k0560044_area.fits"
+          ],
+          "parents": [
+            "mProject_ID0000074_AUG1",
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "flops": 1379950490361.73037033691,
+          "runtime": 375.288553621934,
+          "memory": 116043881.89388038
+        },
+        {
+          "name": "mBackground_ID0000099_AUG1",
+          "id": "mBackground_ID0000099_AUG1",
+          "children": [
+            "mImgtbl_ID0000100_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "p2mass-atlas-980914s-k0820033_area.fits",
+            "3-corrections.tbl",
+            "p2mass-atlas-980914s-k0820033.fits",
+            "3-projected.tbl"
+          ],
+          "outputFiles": [
+            "c2mass-atlas-980914s-k0820033.fits",
+            "c2mass-atlas-980914s-k0820033_area.fits"
+          ],
+          "parents": [
+            "mProject_ID0000075_AUG1",
+            "mBgModel_ID0000092_AUG1"
+          ],
+          "flops": 1340478830350.329972614474,
+          "runtime": 272.15817985915,
+          "memory": 104492253.36237925
+        },
+        {
+          "name": "mImgtbl_ID0000100_AUG1",
+          "id": "mImgtbl_ID0000100_AUG1",
+          "children": [
+            "mAdd_ID0000101_AUG1"
+          ],
+          "inputFiles": [
+            "c2mass-atlas-980914s-k0830233.fits",
+            "c2mass-atlas-980914s-k0820033.fits",
+            "c2mass-atlas-980914s-k0810233.fits",
+            "c2mass-atlas-980914s-k0820044.fits",
+            "3-corrected.tbl",
+            "c2mass-atlas-001021s-k0560044.fits",
+            "c2mass-atlas-001021s-k0560033.fits",
+            "c2mass-atlas-001020s-k0870233.fits"
+          ],
+          "outputFiles": [
+            "3-updated-corrected.tbl"
+          ],
+          "parents": [
+            "mBackground_ID0000093_AUG1",
+            "mBackground_ID0000094_AUG1",
+            "mBackground_ID0000095_AUG1",
+            "mBackground_ID0000096_AUG1",
+            "mBackground_ID0000097_AUG1",
+            "mBackground_ID0000098_AUG1",
+            "mBackground_ID0000099_AUG1"
+          ],
+          "flops": 758303364991.43996221967,
+          "runtime": 173.094951700898,
+          "memory": 139364829.2210268
+        },
+        {
+          "name": "mAdd_ID0000101_AUG1",
+          "id": "mAdd_ID0000101_AUG1",
+          "children": [
+            "mViewer_ID0000102_AUG1",
+            "mViewer_ID0000103_AUG1"
+          ],
+          "inputFiles": [
+            "c2mass-atlas-980914s-k0830233.fits",
+            "c2mass-atlas-001021s-k0560033_area.fits",
+            "c2mass-atlas-001020s-k0870233.fits",
+            "c2mass-atlas-980914s-k0830233_area.fits",
+            "c2mass-atlas-980914s-k0820044_area.fits",
+            "c2mass-atlas-980914s-k0810233_area.fits",
+            "c2mass-atlas-980914s-k0820033.fits",
+            "c2mass-atlas-980914s-k0810233.fits",
+            "c2mass-atlas-001020s-k0870233_area.fits",
+            "c2mass-atlas-980914s-k0820044.fits",
+            "3-updated-corrected.tbl",
+            "c2mass-atlas-001021s-k0560044.fits",
+            "c2mass-atlas-001021s-k0560044_area.fits",
+            "c2mass-atlas-980914s-k0820033_area.fits",
+            "c2mass-atlas-001021s-k0560033.fits",
+            "region.hdr"
+          ],
+          "outputFiles": [
+            "3-mosaic.fits",
+            "3-mosaic_area.fits"
+          ],
+          "parents": [
+            "mBackground_ID0000093_AUG1",
+            "mBackground_ID0000094_AUG1",
+            "mBackground_ID0000095_AUG1",
+            "mBackground_ID0000096_AUG1",
+            "mBackground_ID0000097_AUG1",
+            "mBackground_ID0000098_AUG1",
+            "mBackground_ID0000099_AUG1",
+            "mImgtbl_ID0000100_AUG1"
+          ],
+          "flops": 1346119492938.372500756598,
+          "runtime": 350.444290205021,
+          "memory": 174595414.56306902
+        },
+        {
+          "name": "mViewer_ID0000102_AUG1",
+          "id": "mViewer_ID0000102_AUG1",
+          "children": [],
+          "inputFiles": [
+            "3-mosaic.fits"
+          ],
+          "outputFiles": [
+            "3-mosaic.png"
+          ],
+          "parents": [
+            "mAdd_ID0000101_AUG1"
+          ],
+          "flops": 2545265524116.912324421388,
+          "runtime": 625.723368559142,
+          "memory": 101593799.93411386
+        },
+        {
+          "name": "mViewer_ID0000103_AUG1",
+          "id": "mViewer_ID0000103_AUG1",
+          "children": [],
+          "inputFiles": [
+            "3-mosaic.fits",
+            "2-mosaic.fits",
+            "1-mosaic.fits"
+          ],
+          "outputFiles": [
+            "mosaic-color.png"
+          ],
+          "parents": [
+            "mAdd_ID0000033_AUG1",
+            "mAdd_ID0000067_AUG1",
+            "mAdd_ID0000101_AUG1"
+          ],
+          "flops": 5811939877853.454618474183,
+          "runtime": 2133.407903316813,
+          "memory": 130526630.82938786
+        }
+      ],
+      "files": [
+        {
+          "id": "p2mass-atlas-001021s-j0560033.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "p2mass-atlas-001021s-j0560033_area.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "2mass-atlas-001021s-j0560033.fits",
+          "sizeInBytes": 1538769
+        },
+        {
+          "id": "region-oversized.hdr",
+          "sizeInBytes": 277
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0820033_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-980914s-j0820033.fits",
+          "sizeInBytes": 1532584
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0820033.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0820044.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0820044_area.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "2mass-atlas-980914s-j0820044.fits",
+          "sizeInBytes": 1529220
+        },
+        {
+          "id": "p2mass-atlas-001020s-j0870233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-001020s-j0870233.fits",
+          "sizeInBytes": 1541940
+        },
+        {
+          "id": "p2mass-atlas-001020s-j0870233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-980914s-j0810233.fits",
+          "sizeInBytes": 1532754
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0810233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0810233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-001021s-j0560044.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-001021s-j0560044.fits",
+          "sizeInBytes": 1541620
+        },
+        {
+          "id": "p2mass-atlas-001021s-j0560044_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0830233_area.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "p2mass-atlas-980914s-j0830233.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "2mass-atlas-980914s-j0830233.fits",
+          "sizeInBytes": 1533954
+        },
+        {
+          "id": "1-fit.000001.000002.txt",
+          "sizeInBytes": 264
+        },
+        {
+          "id": "1-fit.000001.000003.txt",
+          "sizeInBytes": 259
+        },
+        {
+          "id": "1-fit.000001.000006.txt",
+          "sizeInBytes": 267
+        },
+        {
+          "id": "1-fit.000001.000007.txt",
+          "sizeInBytes": 268
+        },
+        {
+          "id": "1-fit.000002.000003.txt",
+          "sizeInBytes": 266
+        },
+        {
+          "id": "1-fit.000002.000004.txt",
+          "sizeInBytes": 261
+        },
+        {
+          "id": "1-fit.000002.000005.txt",
+          "sizeInBytes": 261
+        },
+        {
+          "id": "1-fit.000002.000006.txt",
+          "sizeInBytes": 263
+        },
+        {
+          "id": "1-fit.000002.000007.txt",
+          "sizeInBytes": 264
+        },
+        {
+          "id": "1-fit.000003.000004.txt",
+          "sizeInBytes": 259
+        },
+        {
+          "id": "1-fit.000003.000005.txt",
+          "sizeInBytes": 261
+        },
+        {
+          "id": "1-fit.000003.000006.txt",
+          "sizeInBytes": 267
+        },
+        {
+          "id": "1-fit.000003.000007.txt",
+          "sizeInBytes": 268
+        },
+        {
+          "id": "1-fit.000004.000005.txt",
+          "sizeInBytes": 264
+        },
+        {
+          "id": "1-fit.000006.000007.txt",
+          "sizeInBytes": 265
+        },
+        {
+          "id": "1-fits.tbl",
+          "sizeInBytes": 1041
+        },
+        {
+          "id": "1-stat.tbl",
+          "sizeInBytes": 22880
+        },
+        {
+          "id": "1-corrections.tbl",
+          "sizeInBytes": 331
+        },
+        {
+          "id": "1-images.tbl",
+          "sizeInBytes": 13852
+        },
+        {
+          "id": "1-projected.tbl",
+          "sizeInBytes": 6064
+        },
+        {
+          "id": "c2mass-atlas-001021s-j0560033.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "c2mass-atlas-001021s-j0560033_area.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0820033_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0820033.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0820044_area.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0820044.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "c2mass-atlas-001020s-j0870233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-001020s-j0870233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0810233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0810233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-001021s-j0560044_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-001021s-j0560044.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0830233_area.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "c2mass-atlas-980914s-j0830233.fits",
+          "sizeInBytes": 4150080
+        },
+        {
+          "id": "1-updated-corrected.tbl",
+          "sizeInBytes": 3944
+        },
+        {
+          "id": "1-corrected.tbl",
+          "sizeInBytes": 6064
+        },
+        {
+          "id": "1-mosaic.fits",
+          "sizeInBytes": 9334080
+        },
+        {
+          "id": "1-mosaic_area.fits",
+          "sizeInBytes": 9334080
+        },
+        {
+          "id": "region.hdr",
+          "sizeInBytes": 275
+        },
+        {
+          "id": "1-mosaic.png",
+          "sizeInBytes": 631931
+        },
+        {
+          "id": "2mass-atlas-001021s-h0560033.fits",
+          "sizeInBytes": 1470071
+        },
+        {
+          "id": "p2mass-atlas-001021s-h0560033.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-001021s-h0560033_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-001020s-h0870233.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-001020s-h0870233_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "2mass-atlas-001020s-h0870233.fits",
+          "sizeInBytes": 1472485
+        },
+        {
+          "id": "2mass-atlas-980914s-h0820044.fits",
+          "sizeInBytes": 1464705
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0820044.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0820044_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "2mass-atlas-980914s-h0810233.fits",
+          "sizeInBytes": 1472350
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0810233_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0810233.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0830233.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0830233_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "2mass-atlas-980914s-h0830233.fits",
+          "sizeInBytes": 1469018
+        },
+        {
+          "id": "2mass-atlas-001021s-h0560044.fits",
+          "sizeInBytes": 1472476
+        },
+        {
+          "id": "p2mass-atlas-001021s-h0560044.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-001021s-h0560044_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "2mass-atlas-980914s-h0820033.fits",
+          "sizeInBytes": 1469047
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0820033_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "p2mass-atlas-980914s-h0820033.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "2-fit.000001.000003.txt",
+          "sizeInBytes": 258
+        },
+        {
+          "id": "2-fit.000001.000005.txt",
+          "sizeInBytes": 267
+        },
+        {
+          "id": "2-fit.000001.000006.txt",
+          "sizeInBytes": 266
+        },
+        {
+          "id": "2-fit.000001.000007.txt",
+          "sizeInBytes": 263
+        },
+        {
+          "id": "2-fit.000002.000003.txt",
+          "sizeInBytes": 262
+        },
+        {
+          "id": "2-fit.000002.000004.txt",
+          "sizeInBytes": 263
+        },
+        {
+          "id": "2-fit.000002.000007.txt",
+          "sizeInBytes": 261
+        },
+        {
+          "id": "2-fit.000003.000004.txt",
+          "sizeInBytes": 261
+        },
+        {
+          "id": "2-fit.000003.000005.txt",
+          "sizeInBytes": 264
+        },
+        {
+          "id": "2-fit.000003.000006.txt",
+          "sizeInBytes": 265
+        },
+        {
+          "id": "2-fit.000003.000007.txt",
+          "sizeInBytes": 265
+        },
+        {
+          "id": "2-fit.000004.000007.txt",
+          "sizeInBytes": 262
+        },
+        {
+          "id": "2-fit.000005.000006.txt",
+          "sizeInBytes": 265
+        },
+        {
+          "id": "2-fit.000005.000007.txt",
+          "sizeInBytes": 265
+        },
+        {
+          "id": "2-fit.000006.000007.txt",
+          "sizeInBytes": 260
+        },
+        {
+          "id": "2-stat.tbl",
+          "sizeInBytes": 22880
+        },
+        {
+          "id": "2-fits.tbl",
+          "sizeInBytes": 1041
+        },
+        {
+          "id": "2-corrections.tbl",
+          "sizeInBytes": 386
+        },
+        {
+          "id": "2-images.tbl",
+          "sizeInBytes": 13852
+        },
+        {
+          "id": "c2mass-atlas-001021s-h0560033.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "2-projected.tbl",
+          "sizeInBytes": 6064
+        },
+        {
+          "id": "c2mass-atlas-001021s-h0560033_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-001020s-h0870233_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-001020s-h0870233.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0820044_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0820044.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0810233.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0810233_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0830233_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0830233.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-001021s-h0560044_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-001021s-h0560044.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0820033_area.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "c2mass-atlas-980914s-h0820033.fits",
+          "sizeInBytes": 4158720
+        },
+        {
+          "id": "2-corrected.tbl",
+          "sizeInBytes": 6064
+        },
+        {
+          "id": "2-updated-corrected.tbl",
+          "sizeInBytes": 3944
+        },
+        {
+          "id": "2-mosaic_area.fits",
+          "sizeInBytes": 9334080
+        },
+        {
+          "id": "2-mosaic.fits",
+          "sizeInBytes": 9334080
+        },
+        {
+          "id": "2-mosaic.png",
+          "sizeInBytes": 427967
+        },
+        {
+          "id": "2mass-atlas-980914s-k0810233.fits",
+          "sizeInBytes": 1468091
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0810233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0810233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-001020s-k0870233.fits",
+          "sizeInBytes": 1417782
+        },
+        {
+          "id": "p2mass-atlas-001020s-k0870233.fits",
+          "sizeInBytes": 4132800
+        },
+        {
+          "id": "p2mass-atlas-001020s-k0870233_area.fits",
+          "sizeInBytes": 4132800
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0830233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0830233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-980914s-k0830233.fits",
+          "sizeInBytes": 1468954
+        },
+        {
+          "id": "p2mass-atlas-001021s-k0560033.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-001021s-k0560033.fits",
+          "sizeInBytes": 1475337
+        },
+        {
+          "id": "p2mass-atlas-001021s-k0560033_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-980914s-k0820044.fits",
+          "sizeInBytes": 1465354
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0820044.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0820044_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-001021s-k0560044_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-001021s-k0560044.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "2mass-atlas-001021s-k0560044.fits",
+          "sizeInBytes": 1475774
+        },
+        {
+          "id": "2mass-atlas-980914s-k0820033.fits",
+          "sizeInBytes": 1468069
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0820033.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "p2mass-atlas-980914s-k0820033_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "3-fit.000001.000002.txt",
+          "sizeInBytes": 263
+        },
+        {
+          "id": "3-fit.000001.000005.txt",
+          "sizeInBytes": 263
+        },
+        {
+          "id": "3-fit.000001.000007.txt",
+          "sizeInBytes": 261
+        },
+        {
+          "id": "3-fit.000002.000005.txt",
+          "sizeInBytes": 262
+        },
+        {
+          "id": "3-fit.000002.000007.txt",
+          "sizeInBytes": 260
+        },
+        {
+          "id": "3-fit.000003.000004.txt",
+          "sizeInBytes": 268
+        },
+        {
+          "id": "3-fit.000003.000005.txt",
+          "sizeInBytes": 266
+        },
+        {
+          "id": "3-fit.000003.000006.txt",
+          "sizeInBytes": 267
+        },
+        {
+          "id": "3-fit.000003.000007.txt",
+          "sizeInBytes": 264
+        },
+        {
+          "id": "3-fit.000004.000005.txt",
+          "sizeInBytes": 260
+        },
+        {
+          "id": "3-fit.000004.000006.txt",
+          "sizeInBytes": 262
+        },
+        {
+          "id": "3-fit.000004.000007.txt",
+          "sizeInBytes": 262
+        },
+        {
+          "id": "3-fit.000005.000006.txt",
+          "sizeInBytes": 265
+        },
+        {
+          "id": "3-fit.000005.000007.txt",
+          "sizeInBytes": 268
+        },
+        {
+          "id": "3-fit.000006.000007.txt",
+          "sizeInBytes": 264
+        },
+        {
+          "id": "3-stat.tbl",
+          "sizeInBytes": 22880
+        },
+        {
+          "id": "3-fits.tbl",
+          "sizeInBytes": 1457
+        },
+        {
+          "id": "3-corrections.tbl",
+          "sizeInBytes": 386
+        },
+        {
+          "id": "3-images.tbl",
+          "sizeInBytes": 13852
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0810233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0810233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "3-projected.tbl",
+          "sizeInBytes": 6064
+        },
+        {
+          "id": "c2mass-atlas-001020s-k0870233_area.fits",
+          "sizeInBytes": 4132800
+        },
+        {
+          "id": "c2mass-atlas-001020s-k0870233.fits",
+          "sizeInBytes": 4132800
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0830233.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0830233_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-001021s-k0560033_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-001021s-k0560033.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0820044_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0820044.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-001021s-k0560044.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-001021s-k0560044_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0820033.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "c2mass-atlas-980914s-k0820033_area.fits",
+          "sizeInBytes": 4141440
+        },
+        {
+          "id": "3-updated-corrected.tbl",
+          "sizeInBytes": 3944
+        },
+        {
+          "id": "3-corrected.tbl",
+          "sizeInBytes": 6064
+        },
+        {
+          "id": "3-mosaic.fits",
+          "sizeInBytes": 9334080
+        },
+        {
+          "id": "3-mosaic_area.fits",
+          "sizeInBytes": 9334080
+        },
+        {
+          "id": "3-mosaic.png",
+          "sizeInBytes": 446353
+        },
+        {
+          "id": "mosaic-color.png",
+          "sizeInBytes": 1575622
+        }
+      ]
+    },
+    "execution": {
+      "makespanInSeconds": 1362,
+      "executedAt": "03-23-21T05:57:15Z",
+      "tasks": [
+        {
+          "id": "mProject_ID0000001_AUG1",
+          "runtimeInSeconds": 25971.633624215026,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001021s-j0560033.fits",
+              "p2mass-atlas-001021s-j0560033.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 99.9236,
+          "memoryInBytes": 14692000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000002_AUG1",
+          "runtimeInSeconds": 36427.92511460888,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-j0820033.fits",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 14756000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000003_AUG1",
+          "runtimeInSeconds": 23123.623828116837,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-j0820044.fits",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 98.5967,
+          "memoryInBytes": 14680000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000004_AUG1",
+          "runtimeInSeconds": 28622.924534247228,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001020s-j0870233.fits",
+              "p2mass-atlas-001020s-j0870233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 14584000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000005_AUG1",
+          "runtimeInSeconds": 24325.336626495487,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-j0810233.fits",
+              "p2mass-atlas-980914s-j0810233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 98.5811,
+          "memoryInBytes": 14720000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000006_AUG1",
+          "runtimeInSeconds": 23960.924745695782,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001021s-j0560044.fits",
+              "p2mass-atlas-001021s-j0560044.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 99.9938,
+          "memoryInBytes": 14780000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000007_AUG1",
+          "runtimeInSeconds": 22578.858213607355,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-j0830233.fits",
+              "p2mass-atlas-980914s-j0830233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 99.926,
+          "memoryInBytes": 14684000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000008_AUG1",
+          "runtimeInSeconds": 335.671585654075,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000001.000002.txt",
+              "p2mass-atlas-001021s-j0560033.fits",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "1-diff.000001.000002.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 2.381,
+          "memoryInBytes": 2804000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000009_AUG1",
+          "runtimeInSeconds": 73.240949837856,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000001.000003.txt",
+              "p2mass-atlas-001021s-j0560033.fits",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "1-diff.000001.000003.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 10,
+          "memoryInBytes": 2896000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000010_AUG1",
+          "runtimeInSeconds": 125.706162799187,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000001.000006.txt",
+              "p2mass-atlas-001021s-j0560033.fits",
+              "p2mass-atlas-001021s-j0560044.fits",
+              "1-diff.000001.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 4.8193,
+          "memoryInBytes": 2824000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000011_AUG1",
+          "runtimeInSeconds": 277.9801921441,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000001.000007.txt",
+              "p2mass-atlas-001021s-j0560033.fits",
+              "p2mass-atlas-980914s-j0830233.fits",
+              "1-diff.000001.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 4.0816,
+          "memoryInBytes": 2916000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000012_AUG1",
+          "runtimeInSeconds": 161.58920473375,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000002.000003.txt",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "1-diff.000002.000003.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 6.7568,
+          "memoryInBytes": 2856000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000013_AUG1",
+          "runtimeInSeconds": 110.089553564853,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000002.000004.txt",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "p2mass-atlas-001020s-j0870233.fits",
+              "1-diff.000002.000004.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.3529,
+          "memoryInBytes": 2864000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000014_AUG1",
+          "runtimeInSeconds": 129.383486948534,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000002.000005.txt",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "p2mass-atlas-980914s-j0810233.fits",
+              "1-diff.000002.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 8.3333,
+          "memoryInBytes": 2812000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000015_AUG1",
+          "runtimeInSeconds": 132.568184948217,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000002.000006.txt",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "p2mass-atlas-001021s-j0560044.fits",
+              "1-diff.000002.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.6923,
+          "memoryInBytes": 2816000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000016_AUG1",
+          "runtimeInSeconds": 168.14600223268,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000002.000007.txt",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "p2mass-atlas-980914s-j0830233.fits",
+              "1-diff.000002.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.3529,
+          "memoryInBytes": 2816000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000017_AUG1",
+          "runtimeInSeconds": 229.101953636979,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000003.000004.txt",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "p2mass-atlas-001020s-j0870233.fits",
+              "1-diff.000003.000004.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 5.102,
+          "memoryInBytes": 2868000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000018_AUG1",
+          "runtimeInSeconds": 239.895984624372,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000003.000005.txt",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "p2mass-atlas-980914s-j0810233.fits",
+              "1-diff.000003.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 5.3191,
+          "memoryInBytes": 2900000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000019_AUG1",
+          "runtimeInSeconds": 232.46747875415,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000003.000006.txt",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "p2mass-atlas-001021s-j0560044.fits",
+              "1-diff.000003.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 3.876,
+          "memoryInBytes": 2804000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000020_AUG1",
+          "runtimeInSeconds": 249.928229191417,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000003.000007.txt",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "p2mass-atlas-980914s-j0830233.fits",
+              "1-diff.000003.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 4.8544,
+          "memoryInBytes": 2816000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000021_AUG1",
+          "runtimeInSeconds": 779.217198612848,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000004.000005.txt",
+              "p2mass-atlas-001020s-j0870233.fits",
+              "p2mass-atlas-980914s-j0810233.fits",
+              "1-diff.000004.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 1.1287,
+          "memoryInBytes": 2912000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000022_AUG1",
+          "runtimeInSeconds": 1395.359579479757,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "1-fit.000006.000007.txt",
+              "p2mass-atlas-001021s-j0560044.fits",
+              "p2mass-atlas-980914s-j0830233.fits",
+              "1-diff.000006.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 0.6143,
+          "memoryInBytes": 2852000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mConcatFit_ID0000023_AUG1",
+          "runtimeInSeconds": 340.789482965221,
+          "command": {
+            "program": "mConcatFit",
+            "arguments": [
+              "1-stat.tbl",
+              "1-fits.tbl",
+              "."
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 70764000,
+          "priority": 40,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBgModel_ID0000024_AUG1",
+          "runtimeInSeconds": 832.839387078153,
+          "command": {
+            "program": "mBgModel",
+            "arguments": [
+              "-i",
+              "100000",
+              "1-images.tbl",
+              "1-fits.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 137064000,
+          "priority": 50,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000025_AUG1",
+          "runtimeInSeconds": 1032.496508439464,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001021s-j0560033.fits",
+              "c2mass-atlas-001021s-j0560033.fits",
+              "1-projected.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 64.0693,
+          "memoryInBytes": 68988000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000026_AUG1",
+          "runtimeInSeconds": 476.446556538231,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-j0820033.fits",
+              "c2mass-atlas-980914s-j0820033.fits",
+              "1-projected.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 69036000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000027_AUG1",
+          "runtimeInSeconds": 757.443141387158,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-j0820044.fits",
+              "c2mass-atlas-980914s-j0820044.fits",
+              "1-projected.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 87.5,
+          "memoryInBytes": 68992000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000028_AUG1",
+          "runtimeInSeconds": 549.267498674065,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001020s-j0870233.fits",
+              "c2mass-atlas-001020s-j0870233.fits",
+              "1-projected.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 80.4749,
+          "memoryInBytes": 68992000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000029_AUG1",
+          "runtimeInSeconds": 574.861262245355,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-j0810233.fits",
+              "c2mass-atlas-980914s-j0810233.fits",
+              "1-projected.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 90.8197,
+          "memoryInBytes": 69004000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000030_AUG1",
+          "runtimeInSeconds": 501.850283242818,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001021s-j0560044.fits",
+              "c2mass-atlas-001021s-j0560044.fits",
+              "1-projected.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 99.6656,
+          "memoryInBytes": 68964000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000031_AUG1",
+          "runtimeInSeconds": 856.580657549187,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-j0830233.fits",
+              "c2mass-atlas-980914s-j0830233.fits",
+              "1-projected.tbl",
+              "1-corrections.tbl"
+            ]
+          },
+          "avgCPU": 83.965,
+          "memoryInBytes": 68984000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mImgtbl_ID0000032_AUG1",
+          "runtimeInSeconds": 320.520652589376,
+          "command": {
+            "program": "mImgtbl",
+            "arguments": [
+              ".",
+              "-t",
+              "1-corrected.tbl",
+              "1-updated-corrected.tbl"
+            ]
+          },
+          "avgCPU": 99.4595,
+          "memoryInBytes": 71148000,
+          "priority": 70,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mAdd_ID0000033_AUG1",
+          "runtimeInSeconds": 594.365922087472,
+          "command": {
+            "program": "mAdd",
+            "arguments": [
+              "-e",
+              "1-updated-corrected.tbl",
+              "region.hdr",
+              "1-mosaic.fits"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 69952000,
+          "priority": 80,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mViewer_ID0000034_AUG1",
+          "runtimeInSeconds": 1179.753279063511,
+          "command": {
+            "program": "mViewer",
+            "arguments": [
+              "-ct",
+              "1",
+              "-gray",
+              "1-mosaic.fits",
+              "-1s",
+              "max",
+              "gaussian",
+              "-png",
+              "1-mosaic.png"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 31172000,
+          "priority": 90,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000035_AUG1",
+          "runtimeInSeconds": 23748.937936893305,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001021s-h0560033.fits",
+              "p2mass-atlas-001021s-h0560033.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 14784000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000036_AUG1",
+          "runtimeInSeconds": 35177.494267344277,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001020s-h0870233.fits",
+              "p2mass-atlas-001020s-h0870233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 99.7383,
+          "memoryInBytes": 14544000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000037_AUG1",
+          "runtimeInSeconds": 29791.564307110952,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-h0820044.fits",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 94.8268,
+          "memoryInBytes": 14584000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000038_AUG1",
+          "runtimeInSeconds": 26235.594998051765,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-h0810233.fits",
+              "p2mass-atlas-980914s-h0810233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 99.2029,
+          "memoryInBytes": 14652000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000039_AUG1",
+          "runtimeInSeconds": 29020.350108047888,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-h0830233.fits",
+              "p2mass-atlas-980914s-h0830233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 98.469,
+          "memoryInBytes": 14672000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000040_AUG1",
+          "runtimeInSeconds": 29015.640253447467,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001021s-h0560044.fits",
+              "p2mass-atlas-001021s-h0560044.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 98.6003,
+          "memoryInBytes": 14716000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000041_AUG1",
+          "runtimeInSeconds": 38053.193780138783,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-h0820033.fits",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 98.4894,
+          "memoryInBytes": 14716000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000042_AUG1",
+          "runtimeInSeconds": 83.410999114127,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000001.000003.txt",
+              "p2mass-atlas-001021s-h0560033.fits",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "2-diff.000001.000003.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 9.8039,
+          "memoryInBytes": 2916000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000043_AUG1",
+          "runtimeInSeconds": 340.315743028712,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000001.000005.txt",
+              "p2mass-atlas-001021s-h0560033.fits",
+              "p2mass-atlas-980914s-h0830233.fits",
+              "2-diff.000001.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 2.2422,
+          "memoryInBytes": 2820000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000044_AUG1",
+          "runtimeInSeconds": 125.70948440678,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000001.000006.txt",
+              "p2mass-atlas-001021s-h0560033.fits",
+              "p2mass-atlas-001021s-h0560044.fits",
+              "2-diff.000001.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.0423,
+          "memoryInBytes": 2816000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000045_AUG1",
+          "runtimeInSeconds": 279.281952864515,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000001.000007.txt",
+              "p2mass-atlas-001021s-h0560033.fits",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "2-diff.000001.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 3.6765,
+          "memoryInBytes": 2904000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000046_AUG1",
+          "runtimeInSeconds": 162.793550812993,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000002.000003.txt",
+              "p2mass-atlas-001020s-h0870233.fits",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "2-diff.000002.000003.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 5.2632,
+          "memoryInBytes": 2912000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000047_AUG1",
+          "runtimeInSeconds": 655.008484463388,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000002.000004.txt",
+              "p2mass-atlas-001020s-h0870233.fits",
+              "p2mass-atlas-980914s-h0810233.fits",
+              "2-diff.000002.000004.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 1.1521,
+          "memoryInBytes": 2868000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000048_AUG1",
+          "runtimeInSeconds": 115.336465226029,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000002.000007.txt",
+              "p2mass-atlas-001020s-h0870233.fits",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "2-diff.000002.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.8125,
+          "memoryInBytes": 2864000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000049_AUG1",
+          "runtimeInSeconds": 261.631098792388,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000003.000004.txt",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "p2mass-atlas-980914s-h0810233.fits",
+              "2-diff.000003.000004.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 4.8077,
+          "memoryInBytes": 2916000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000050_AUG1",
+          "runtimeInSeconds": 346.3375903159,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000003.000005.txt",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "p2mass-atlas-980914s-h0830233.fits",
+              "2-diff.000003.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 2.8169,
+          "memoryInBytes": 2816000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000051_AUG1",
+          "runtimeInSeconds": 272.467558107888,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000003.000006.txt",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "p2mass-atlas-001021s-h0560044.fits",
+              "2-diff.000003.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 3.4965,
+          "memoryInBytes": 2812000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000052_AUG1",
+          "runtimeInSeconds": 153.217485651,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000003.000007.txt",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "2-diff.000003.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 4.9383,
+          "memoryInBytes": 2804000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000053_AUG1",
+          "runtimeInSeconds": 107.766280169196,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000004.000007.txt",
+              "p2mass-atlas-980914s-h0810233.fits",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "2-diff.000004.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 5.8824,
+          "memoryInBytes": 2912000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000054_AUG1",
+          "runtimeInSeconds": 795.390512953389,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000005.000006.txt",
+              "p2mass-atlas-980914s-h0830233.fits",
+              "p2mass-atlas-001021s-h0560044.fits",
+              "2-diff.000005.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 1.6393,
+          "memoryInBytes": 2912000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000055_AUG1",
+          "runtimeInSeconds": 151.817704135412,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000005.000007.txt",
+              "p2mass-atlas-980914s-h0830233.fits",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "2-diff.000005.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.3529,
+          "memoryInBytes": 2808000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000056_AUG1",
+          "runtimeInSeconds": 87.633622451219,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "2-fit.000006.000007.txt",
+              "p2mass-atlas-001021s-h0560044.fits",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "2-diff.000006.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 9.6154,
+          "memoryInBytes": 2820000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mConcatFit_ID0000057_AUG1",
+          "runtimeInSeconds": 379.425554729351,
+          "command": {
+            "program": "mConcatFit",
+            "arguments": [
+              "2-stat.tbl",
+              "2-fits.tbl",
+              "."
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 70856000,
+          "priority": 40,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBgModel_ID0000058_AUG1",
+          "runtimeInSeconds": 621.104396091164,
+          "command": {
+            "program": "mBgModel",
+            "arguments": [
+              "-i",
+              "100000",
+              "2-images.tbl",
+              "2-fits.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 136988000,
+          "priority": 50,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000059_AUG1",
+          "runtimeInSeconds": 656.951871905003,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001021s-h0560033.fits",
+              "c2mass-atlas-001021s-h0560033.fits",
+              "2-projected.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 76.2667,
+          "memoryInBytes": 69016000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000060_AUG1",
+          "runtimeInSeconds": 502.548588473086,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001020s-h0870233.fits",
+              "c2mass-atlas-001020s-h0870233.fits",
+              "2-projected.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 69008000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000061_AUG1",
+          "runtimeInSeconds": 689.577041253462,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-h0820044.fits",
+              "c2mass-atlas-980914s-h0820044.fits",
+              "2-projected.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 69008000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000062_AUG1",
+          "runtimeInSeconds": 637.45963580732,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-h0810233.fits",
+              "c2mass-atlas-980914s-h0810233.fits",
+              "2-projected.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 98.0132,
+          "memoryInBytes": 68984000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000063_AUG1",
+          "runtimeInSeconds": 609.098521331299,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-h0830233.fits",
+              "c2mass-atlas-980914s-h0830233.fits",
+              "2-projected.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 68996000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000064_AUG1",
+          "runtimeInSeconds": 601.371406142539,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001021s-h0560044.fits",
+              "c2mass-atlas-001021s-h0560044.fits",
+              "2-projected.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 68948000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000065_AUG1",
+          "runtimeInSeconds": 1810.720299399031,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-h0820033.fits",
+              "c2mass-atlas-980914s-h0820033.fits",
+              "2-projected.tbl",
+              "2-corrections.tbl"
+            ]
+          },
+          "avgCPU": 33.4456,
+          "memoryInBytes": 69020000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mImgtbl_ID0000066_AUG1",
+          "runtimeInSeconds": 350.872773432962,
+          "command": {
+            "program": "mImgtbl",
+            "arguments": [
+              ".",
+              "-t",
+              "2-corrected.tbl",
+              "2-updated-corrected.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 71144000,
+          "priority": 70,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mAdd_ID0000067_AUG1",
+          "runtimeInSeconds": 749.514316809305,
+          "command": {
+            "program": "mAdd",
+            "arguments": [
+              "-e",
+              "2-updated-corrected.tbl",
+              "region.hdr",
+              "2-mosaic.fits"
+            ]
+          },
+          "avgCPU": 83.8202,
+          "memoryInBytes": 70036000,
+          "priority": 80,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mViewer_ID0000068_AUG1",
+          "runtimeInSeconds": 1320.388632702552,
+          "command": {
+            "program": "mViewer",
+            "arguments": [
+              "-ct",
+              "1",
+              "-gray",
+              "2-mosaic.fits",
+              "-1s",
+              "max",
+              "gaussian",
+              "-png",
+              "2-mosaic.png"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 30332000,
+          "priority": 90,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000069_AUG1",
+          "runtimeInSeconds": 36886.851891611603,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-k0810233.fits",
+              "p2mass-atlas-980914s-k0810233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 99.5405,
+          "memoryInBytes": 14684000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000070_AUG1",
+          "runtimeInSeconds": 29523.527110297955,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001020s-k0870233.fits",
+              "p2mass-atlas-001020s-k0870233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 14660000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000071_AUG1",
+          "runtimeInSeconds": 30332.019041548014,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-k0830233.fits",
+              "p2mass-atlas-980914s-k0830233.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 97.8709,
+          "memoryInBytes": 14688000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000072_AUG1",
+          "runtimeInSeconds": 40551.624969477858,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001021s-k0560033.fits",
+              "p2mass-atlas-001021s-k0560033.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 98.3644,
+          "memoryInBytes": 14544000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000073_AUG1",
+          "runtimeInSeconds": 21990.144993585031,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-k0820044.fits",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 99.9936,
+          "memoryInBytes": 14752000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000074_AUG1",
+          "runtimeInSeconds": 39577.851599180384,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-001021s-k0560044.fits",
+              "p2mass-atlas-001021s-k0560044.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 97.5056,
+          "memoryInBytes": 14644000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mProject_ID0000075_AUG1",
+          "runtimeInSeconds": 25057.34371518063,
+          "command": {
+            "program": "mProject",
+            "arguments": [
+              "-X",
+              "2mass-atlas-980914s-k0820033.fits",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 97.1825,
+          "memoryInBytes": 14532000,
+          "priority": 20,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000076_AUG1",
+          "runtimeInSeconds": 1262.774665661709,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000001.000002.txt",
+              "p2mass-atlas-980914s-k0810233.fits",
+              "p2mass-atlas-001020s-k0870233.fits",
+              "3-diff.000001.000002.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 0.6353,
+          "memoryInBytes": 2912000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000077_AUG1",
+          "runtimeInSeconds": 173.946532036821,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000001.000005.txt",
+              "p2mass-atlas-980914s-k0810233.fits",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "3-diff.000001.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 5.1546,
+          "memoryInBytes": 2816000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000078_AUG1",
+          "runtimeInSeconds": 143.97886429512,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000001.000007.txt",
+              "p2mass-atlas-980914s-k0810233.fits",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "3-diff.000001.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.3529,
+          "memoryInBytes": 2824000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000079_AUG1",
+          "runtimeInSeconds": 189.866129462252,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000002.000005.txt",
+              "p2mass-atlas-001020s-k0870233.fits",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "3-diff.000002.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 4.6296,
+          "memoryInBytes": 2864000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000080_AUG1",
+          "runtimeInSeconds": 121.496755486282,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000002.000007.txt",
+              "p2mass-atlas-001020s-k0870233.fits",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "3-diff.000002.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 9.8361,
+          "memoryInBytes": 2856000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000081_AUG1",
+          "runtimeInSeconds": 381.288142602917,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000003.000004.txt",
+              "p2mass-atlas-980914s-k0830233.fits",
+              "p2mass-atlas-001021s-k0560033.fits",
+              "3-diff.000003.000004.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 2.6042,
+          "memoryInBytes": 2884000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000082_AUG1",
+          "runtimeInSeconds": 251.698063368469,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000003.000005.txt",
+              "p2mass-atlas-980914s-k0830233.fits",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "3-diff.000003.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 4.902,
+          "memoryInBytes": 2856000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000083_AUG1",
+          "runtimeInSeconds": 803.164070605566,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000003.000006.txt",
+              "p2mass-atlas-980914s-k0830233.fits",
+              "p2mass-atlas-001021s-k0560044.fits",
+              "3-diff.000003.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 1.5424,
+          "memoryInBytes": 2856000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000084_AUG1",
+          "runtimeInSeconds": 117.253573080151,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000003.000007.txt",
+              "p2mass-atlas-980914s-k0830233.fits",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "3-diff.000003.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 7.2464,
+          "memoryInBytes": 2888000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000085_AUG1",
+          "runtimeInSeconds": 112.794393893853,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000004.000005.txt",
+              "p2mass-atlas-001021s-k0560033.fits",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "3-diff.000004.000005.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 9.434,
+          "memoryInBytes": 2804000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000086_AUG1",
+          "runtimeInSeconds": 152.797801367429,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000004.000006.txt",
+              "p2mass-atlas-001021s-k0560033.fits",
+              "p2mass-atlas-001021s-k0560044.fits",
+              "3-diff.000004.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 6.6667,
+          "memoryInBytes": 2908000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000087_AUG1",
+          "runtimeInSeconds": 406.742617938705,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000004.000007.txt",
+              "p2mass-atlas-001021s-k0560033.fits",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "3-diff.000004.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 2.1368,
+          "memoryInBytes": 2812000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000088_AUG1",
+          "runtimeInSeconds": 310.832642817074,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000005.000006.txt",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "p2mass-atlas-001021s-k0560044.fits",
+              "3-diff.000005.000006.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 3.5971,
+          "memoryInBytes": 2820000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000089_AUG1",
+          "runtimeInSeconds": 105.664255054504,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000005.000007.txt",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "3-diff.000005.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 6.5789,
+          "memoryInBytes": 2864000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mDiffFit_ID0000090_AUG1",
+          "runtimeInSeconds": 134.937083626617,
+          "command": {
+            "program": "mDiffFit",
+            "arguments": [
+              "-d",
+              "-s",
+              "3-fit.000006.000007.txt",
+              "p2mass-atlas-001021s-k0560044.fits",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "3-diff.000006.000007.fits",
+              "region-oversized.hdr"
+            ]
+          },
+          "avgCPU": 9.434,
+          "memoryInBytes": 2868000,
+          "priority": 30,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mConcatFit_ID0000091_AUG1",
+          "runtimeInSeconds": 458.41857567113,
+          "command": {
+            "program": "mConcatFit",
+            "arguments": [
+              "3-stat.tbl",
+              "3-fits.tbl",
+              "."
+            ]
+          },
+          "avgCPU": 100.5263,
+          "memoryInBytes": 70824000,
+          "priority": 40,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBgModel_ID0000092_AUG1",
+          "runtimeInSeconds": 1108.790109843124,
+          "command": {
+            "program": "mBgModel",
+            "arguments": [
+              "-i",
+              "100000",
+              "3-images.tbl",
+              "3-fits.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 136988000,
+          "priority": 50,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000093_AUG1",
+          "runtimeInSeconds": 675.085494608861,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-k0810233.fits",
+              "c2mass-atlas-980914s-k0810233.fits",
+              "3-projected.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 69008000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000094_AUG1",
+          "runtimeInSeconds": 809.836745493869,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001020s-k0870233.fits",
+              "c2mass-atlas-001020s-k0870233.fits",
+              "3-projected.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 56.6288,
+          "memoryInBytes": 68928000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000095_AUG1",
+          "runtimeInSeconds": 1374.974125328806,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-k0830233.fits",
+              "c2mass-atlas-980914s-k0830233.fits",
+              "3-projected.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 55.8442,
+          "memoryInBytes": 68992000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000096_AUG1",
+          "runtimeInSeconds": 693.09886168394,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001021s-k0560033.fits",
+              "c2mass-atlas-001021s-k0560033.fits",
+              "3-projected.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 78.7293,
+          "memoryInBytes": 68984000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000097_AUG1",
+          "runtimeInSeconds": 734.995025444369,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-k0820044.fits",
+              "c2mass-atlas-980914s-k0820044.fits",
+              "3-projected.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 91.0769,
+          "memoryInBytes": 68932000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000098_AUG1",
+          "runtimeInSeconds": 482.759197843513,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-001021s-k0560044.fits",
+              "c2mass-atlas-001021s-k0560044.fits",
+              "3-projected.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 68988000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mBackground_ID0000099_AUG1",
+          "runtimeInSeconds": 607.269578122373,
+          "command": {
+            "program": "mBackground",
+            "arguments": [
+              "-t",
+              "p2mass-atlas-980914s-k0820033.fits",
+              "c2mass-atlas-980914s-k0820033.fits",
+              "3-projected.tbl",
+              "3-corrections.tbl"
+            ]
+          },
+          "avgCPU": 99.6454,
+          "memoryInBytes": 68988000,
+          "priority": 60,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mImgtbl_ID0000100_AUG1",
+          "runtimeInSeconds": 250.216045905052,
+          "command": {
+            "program": "mImgtbl",
+            "arguments": [
+              ".",
+              "-t",
+              "3-corrected.tbl",
+              "3-updated-corrected.tbl"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 71180000,
+          "priority": 70,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mAdd_ID0000101_AUG1",
+          "runtimeInSeconds": 781.046298514309,
+          "command": {
+            "program": "mAdd",
+            "arguments": [
+              "-e",
+              "3-updated-corrected.tbl",
+              "region.hdr",
+              "3-mosaic.fits"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 70044000,
+          "priority": 80,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mViewer_ID0000102_AUG1",
+          "runtimeInSeconds": 1008.142537357468,
+          "command": {
+            "program": "mViewer",
+            "arguments": [
+              "-ct",
+              "1",
+              "-gray",
+              "3-mosaic.fits",
+              "-1s",
+              "max",
+              "gaussian",
+              "-png",
+              "3-mosaic.png"
+            ]
+          },
+          "avgCPU": 97.479,
+          "memoryInBytes": 31056000,
+          "priority": 90,
+          "machines": [
+            "mem"
+          ]
+        },
+        {
+          "id": "mViewer_ID0000103_AUG1",
+          "runtimeInSeconds": 2229.195700825292,
+          "command": {
+            "program": "mViewer",
+            "arguments": [
+              "-red",
+              "1-mosaic.fits",
+              "-0.5s",
+              "max",
+              "gaussian-log",
+              "-green",
+              "2-mosaic.fits",
+              "-0.5s",
+              "max",
+              "gaussian-log",
+              "-blue",
+              "3-mosaic.fits",
+              "-0.5s",
+              "max",
+              "gaussian-log",
+              "-png",
+              "mosaic-color.png"
+            ]
+          },
+          "avgCPU": 100,
+          "memoryInBytes": 37940000,
+          "priority": 90,
+          "machines": [
+            "mem"
+          ]
+        }
+      ],
+      "machines": [
+        {
+          "nodeName": "mem",
+          "system": "linux",
+          "architecture": "x86_64",
+          "release": "4.15.0-134-generic",
+          "cpu": {
+            "vendor": "GenuineIntel",
+            "coreCount": 48,
+            "speedInMHz": 3033
+          },
+          "memoryInBytes": 131795956000
+        }
+      ]
+    }
+  },
+  "runtimeSystem": {
+    "name": "Pegasus",
+    "version": "5.0",
+    "url": "https://pegasus.isi.edu"
+  },
+  "workflow_name": "montage-aug1"
+}
