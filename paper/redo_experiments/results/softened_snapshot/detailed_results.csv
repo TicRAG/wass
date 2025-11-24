@@ -1,0 +1,10 @@
+scheduler,workflow,makespan,status,task_count,seed
+WASS-RAG (Full),synthetic_workflow_001.json,3075.3402833660043,success,40,0
+WASS-RAG (Full),seismology-chameleon-100p-001.json,1098.940333461578,success,101,0
+WASS-RAG (Full),montage-chameleon-2mass-01d-001_aug1.json,533.45077195207,success,103,0
+HEFT,synthetic_workflow_001.json,3075.3252023260147,success,40,0
+HEFT,seismology-chameleon-100p-001.json,1106.3868623066362,success,101,0
+HEFT,montage-chameleon-2mass-01d-001_aug1.json,3442.920259331021,success,103,0
+MIN-MIN,synthetic_workflow_001.json,4840.755519642595,success,40,0
+MIN-MIN,seismology-chameleon-100p-001.json,1319.173564218478,success,101,0
+MIN-MIN,montage-chameleon-2mass-01d-001_aug1.json,1618.8509631468114,success,103,0
