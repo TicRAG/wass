@@ -1,0 +1,201 @@
+{
+  "total_entries": 101,
+  "unique_workflows": [
+    "seismology-chameleon-100p-001.json"
+  ],
+  "episodes": [],
+  "hosts": [
+    "cpu_host_ultra"
+  ],
+  "reward_stats": {
+    "mean": 0.009260129233988201,
+    "min": -0.01636393827199936,
+    "max": 0.016958738416433333
+  },
+  "top_events": {
+    "top_positive": [
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000081",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.00091875
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000013",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.003082222830555555
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000008",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0019687496849999995
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000006",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.00386749820625
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000029",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0028895829075
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000030",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.003163323681111111
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000100",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.00161
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000055",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.000875
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000052",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0047348582215277785
+      },
+      {
+        "shaped_reward": 0.016958738416433333,
+        "potential_delta": -0.020931340754032135,
+        "task_name": "sG1IterDecon_ID0000098",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0012470846108333332
+      }
+    ],
+    "top_negative": [
+      {
+        "shaped_reward": -0.01636393827199936,
+        "potential_delta": 0.020931318402290344,
+        "task_name": "sG1IterDecon_ID0000097",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.001196388888888889
+      },
+      {
+        "shaped_reward": -0.01636393827199936,
+        "potential_delta": 0.020931318402290344,
+        "task_name": "sG1IterDecon_ID0000020",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.007452086456111111
+      },
+      {
+        "shaped_reward": -0.007925976008176806,
+        "potential_delta": 0.010330863296985626,
+        "task_name": "sG1IterDecon_ID0000092",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0020300007875000002
+      },
+      {
+        "shaped_reward": -0.007925976008176806,
+        "potential_delta": 0.010330863296985626,
+        "task_name": "sG1IterDecon_ID0000036",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0011456943633333333
+      },
+      {
+        "shaped_reward": -0.007925976008176806,
+        "potential_delta": 0.010330863296985626,
+        "task_name": "sG1IterDecon_ID0000088",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0039549971475
+      },
+      {
+        "shaped_reward": -0.007925964146852494,
+        "potential_delta": 0.010330848395824432,
+        "task_name": "sG1IterDecon_ID0000090",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.004059998985
+      },
+      {
+        "shaped_reward": -0.007925964146852494,
+        "potential_delta": 0.010330848395824432,
+        "task_name": "sG1IterDecon_ID0000086",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.00214374951
+      },
+      {
+        "shaped_reward": -0.007925964146852494,
+        "potential_delta": 0.010330848395824432,
+        "task_name": "sG1IterDecon_ID0000037",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0044611088805555565
+      },
+      {
+        "shaped_reward": -0.007925964146852494,
+        "potential_delta": 0.010330848395824432,
+        "task_name": "sG1IterDecon_ID0000023",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.002950421624583334
+      },
+      {
+        "shaped_reward": -0.007925964146852494,
+        "potential_delta": 0.010330848395824432,
+        "task_name": "sG1IterDecon_ID0000062",
+        "workflow_file": "seismology-chameleon-100p-001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.006238756177500001
+      }
+    ]
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "total_entries": 40,
+  "unique_workflows": [
+    "synthetic_workflow_001.json"
+  ],
+  "episodes": [],
+  "hosts": [
+    "cpu_host_ultra"
+  ],
+  "reward_stats": {
+    "mean": 0.005117799785733233,
+    "min": -0.12358894443511961,
+    "max": 0.23447995841503144
+  },
+  "top_events": {
+    "top_positive": [
+      {
+        "shaped_reward": 0.23447995841503144,
+        "potential_delta": -0.2917133867740631,
+        "task_name": "L01_T001",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 22.32810252389978
+      },
+      {
+        "shaped_reward": 0.23447640001773837,
+        "potential_delta": -0.29170891642570496,
+        "task_name": "L01_T000",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 22.328564929314314
+      },
+      {
+        "shaped_reward": 0.23442772114276889,
+        "potential_delta": -0.2916477620601654,
+        "task_name": "L01_T004",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 22.328757412744384
+      },
+      {
+        "shaped_reward": 0.0026515374183654575,
+        "potential_delta": -0.00047212839126586914,
+        "task_name": "L01_T003_DECOY_005",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 196.0999178383554
+      },
+      {
+        "shaped_reward": 0.002586110353469895,
+        "potential_delta": -0.00038993358612060547,
+        "task_name": "L01_T003_DECOY_004",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 196.0999178383554
+      },
+      {
+        "shaped_reward": 0.0025405011177062954,
+        "potential_delta": -0.00033360719680786133,
+        "task_name": "L03_T000",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 418.4769478688791
+      },
+      {
+        "shaped_reward": 0.0025322456359863745,
+        "potential_delta": -0.00032323598861694336,
+        "task_name": "L02_T000_DECOY_008",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 418.4312708021643
+      },
+      {
+        "shaped_reward": 0.002518073797225995,
+        "potential_delta": -0.0003044605255126953,
+        "task_name": "L01_T003_DECOY_006",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 196.0999178383554
+      },
+      {
+        "shaped_reward": 0.002501738309860269,
+        "potential_delta": -0.0002849102020263672,
+        "task_name": "L02_T000_DECOY_007",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 418.4312708021643
+      },
+      {
+        "shaped_reward": 0.0024971361160278428,
+        "potential_delta": -0.0002791285514831543,
+        "task_name": "L02_T000_DECOY_009",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 418.4312708021643
+      }
+    ],
+    "top_negative": [
+      {
+        "shaped_reward": -0.12358894443511961,
+        "potential_delta": 0.15733012557029724,
+        "task_name": "L04_T005",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 212.3837013772774
+      },
+      {
+        "shaped_reward": -0.12358780574798588,
+        "potential_delta": 0.15732869505882263,
+        "task_name": "L04_T003",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 212.3833573314562
+      },
+      {
+        "shaped_reward": -0.12358642983436585,
+        "potential_delta": 0.15732696652412415,
+        "task_name": "L04_T004",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 212.38329216516973
+      },
+      {
+        "shaped_reward": -0.10567394864559172,
+        "potential_delta": 0.1341497302055359,
+        "task_name": "L03_T001",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 122.14326247351285
+      },
+      {
+        "shaped_reward": -0.06127806520462036,
+        "potential_delta": 0.07944270968437195,
+        "task_name": "L00_T001",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.003613649793614285
+      },
+      {
+        "shaped_reward": -0.03183360862731934,
+        "potential_delta": 0.04245218634605408,
+        "task_name": "L00_T000",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.00013934330506574453
+      },
+      {
+        "shaped_reward": 0.0011117161512375073,
+        "potential_delta": -3.0994415283203125e-06,
+        "task_name": "L02_T002",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 108.39042019790868
+      },
+      {
+        "shaped_reward": 0.0019108333587646521,
+        "potential_delta": 5.9604644775390625e-05,
+        "task_name": "L01_T002",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 9.805589123790694
+      },
+      {
+        "shaped_reward": 0.0019577579498291087,
+        "potential_delta": 9.5367431640625e-07,
+        "task_name": "L02_T001",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 16.901756971596857
+      },
+      {
+        "shaped_reward": 0.0019688882827758824,
+        "potential_delta": -1.3262033462524414e-05,
+        "task_name": "L00_T002",
+        "workflow_file": "synthetic_workflow_001.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 0.0003058393889316041
+      }
+    ]
+  }
+}

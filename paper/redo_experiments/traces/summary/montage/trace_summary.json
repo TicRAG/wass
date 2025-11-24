@@ -1,0 +1,201 @@
+{
+  "total_entries": 103,
+  "unique_workflows": [
+    "montage-chameleon-2mass-01d-001_aug1.json"
+  ],
+  "episodes": [],
+  "hosts": [
+    "cpu_host_ultra"
+  ],
+  "reward_stats": {
+    "mean": -0.002840366054796474,
+    "min": -0.6848000011444092,
+    "max": 0.46109447777271273
+  },
+  "top_events": {
+    "top_positive": [
+      {
+        "shaped_reward": 0.46109447777271273,
+        "potential_delta": -0.5745042860507965,
+        "task_name": "mDiffFit_ID0000020_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 384.7122838955764
+      },
+      {
+        "shaped_reward": 0.3036997779011727,
+        "potential_delta": -0.3792130798101425,
+        "task_name": "mDiffFit_ID0000047_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 591.6560253648282
+      },
+      {
+        "shaped_reward": 0.25956175240874296,
+        "potential_delta": -0.3239044323563576,
+        "task_name": "mDiffFit_ID0000009_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 437.75394024853523
+      },
+      {
+        "shaped_reward": 0.25956175240874296,
+        "potential_delta": -0.3239044323563576,
+        "task_name": "mDiffFit_ID0000011_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 437.8217100140135
+      },
+      {
+        "shaped_reward": 0.24305055046081547,
+        "potential_delta": -0.30326148867607117,
+        "task_name": "mDiffFit_ID0000052_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 631.9768388717299
+      },
+      {
+        "shaped_reward": 0.23829127597808838,
+        "potential_delta": -0.2970415949821472,
+        "task_name": "mDiffFit_ID0000046_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 591.6732426513028
+      },
+      {
+        "shaped_reward": 0.23638402360677724,
+        "potential_delta": -0.2948864549398422,
+        "task_name": "mDiffFit_ID0000053_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 631.9561623137474
+      },
+      {
+        "shaped_reward": 0.23504632124304772,
+        "potential_delta": -0.2932059243321419,
+        "task_name": "mDiffFit_ID0000056_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 631.9913296061617
+      },
+      {
+        "shaped_reward": 0.22636634051799776,
+        "potential_delta": -0.2823014259338379,
+        "task_name": "mDiffFit_ID0000055_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 632.0374426748479
+      },
+      {
+        "shaped_reward": 0.21458591067790989,
+        "potential_delta": -0.26771000027656555,
+        "task_name": "mProject_ID0000038_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 438.54603753493063
+      }
+    ],
+    "top_negative": [
+      {
+        "shaped_reward": -0.6848000011444092,
+        "potential_delta": 0.8610000014305115,
+        "task_name": "mBackground_ID0000098_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 707.7709891322046
+      },
+      {
+        "shaped_reward": -0.5085654482841492,
+        "potential_delta": 0.6397279500961304,
+        "task_name": "mDiffFit_ID0000013_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 614.2894695862713
+      },
+      {
+        "shaped_reward": -0.4562740576267243,
+        "potential_delta": 0.5750789046287537,
+        "task_name": "mProject_ID0000003_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 384.1653407516863
+      },
+      {
+        "shaped_reward": -0.44159752011299136,
+        "potential_delta": 0.5553338080644608,
+        "task_name": "mBackground_ID0000028_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 642.4532497337769
+      },
+      {
+        "shaped_reward": -0.36929007339477543,
+        "potential_delta": 0.46483445167541504,
+        "task_name": "mDiffFit_ID0000054_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 482.62921265678824
+      },
+      {
+        "shaped_reward": -0.3191413018703461,
+        "potential_delta": 0.4028015732765198,
+        "task_name": "mProject_ID0000039_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 481.5064180320084
+      },
+      {
+        "shaped_reward": -0.29312045288085936,
+        "potential_delta": 0.3703523278236389,
+        "task_name": "mDiffFit_ID0000019_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 404.21112531707126
+      },
+      {
+        "shaped_reward": -0.25734437394142157,
+        "potential_delta": 0.325297087430954,
+        "task_name": "mDiffFit_ID0000089_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 410.77595737166143
+      },
+      {
+        "shaped_reward": -0.23025123834609984,
+        "potential_delta": 0.29172998666763306,
+        "task_name": "mDiffFit_ID0000079_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 497.94959434677395
+      },
+      {
+        "shaped_reward": -0.22775310111045838,
+        "potential_delta": 0.2885916233062744,
+        "task_name": "mDiffFit_ID0000080_AUG1",
+        "workflow_file": "montage-chameleon-2mass-01d-001_aug1.json",
+        "decision_host": "cpu_host_ultra",
+        "episode": null,
+        "agent_eft": 498.00284877239403
+      }
+    ]
+  }
+}
