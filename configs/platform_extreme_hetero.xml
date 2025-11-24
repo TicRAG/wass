@@ -10,55 +10,55 @@
       </disk>
     </host>
 
-    <!-- Ultra node still leading but less dominant to soften heterogeneity -->
-    <host id="cpu_host_ultra" speed="260Gf" core="32">
+    <!-- Ultra-fast node providing strong baseline for HEFT -->
+    <host id="cpu_host_ultra" speed="180Gf" core="32">
       <prop id="ram" value="256GB"/>
-      <disk id="local_disk" read_bw="200MBps" write_bw="200MBps">
+      <disk id="local_disk" read_bw="170MBps" write_bw="170MBps">
         <prop id="size" value="600GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
 
     <!-- Fast but less capable host -->
-    <host id="cpu_host_fast" speed="210Gf" core="24">
+    <host id="cpu_host_fast" speed="185Gf" core="24">
       <prop id="ram" value="192GB"/>
-      <disk id="local_disk" read_bw="260MBps" write_bw="260MBps">
+      <disk id="local_disk" read_bw="205MBps" write_bw="205MBps">
         <prop id="size" value="480GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
 
     <!-- Balanced host representing mid-tier capacity -->
-    <host id="cpu_host_balanced" speed="150Gf" core="16">
+    <host id="cpu_host_balanced" speed="165Gf" core="16">
       <prop id="ram" value="128GB"/>
-      <disk id="local_disk" read_bw="200MBps" write_bw="200MBps">
+      <disk id="local_disk" read_bw="185MBps" write_bw="185MBps">
         <prop id="size" value="320GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
 
     <!-- Slow host sharing a congested network path -->
-    <host id="cpu_host_slow" speed="90Gf" core="12">
+    <host id="cpu_host_slow" speed="135Gf" core="12">
       <prop id="ram" value="64GB"/>
-      <disk id="local_disk" read_bw="160MBps" write_bw="160MBps">
+      <disk id="local_disk" read_bw="170MBps" write_bw="170MBps">
         <prop id="size" value="200GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
 
     <!-- Bottleneck host combining low compute and disk throughput -->
-    <host id="cpu_host_bottleneck" speed="60Gf" core="8">
+    <host id="cpu_host_bottleneck" speed="110Gf" core="8">
       <prop id="ram" value="48GB"/>
-      <disk id="local_disk" read_bw="120MBps" write_bw="120MBps">
+      <disk id="local_disk" read_bw="160MBps" write_bw="160MBps">
         <prop id="size" value="160GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
     </host>
 
     <!-- Extremely weak edge node -->
-    <host id="cpu_host_micro" speed="35Gf" core="4">
+    <host id="cpu_host_micro" speed="60Gf" core="4">
       <prop id="ram" value="24GB"/>
-      <disk id="local_disk" read_bw="100MBps" write_bw="100MBps">
+      <disk id="local_disk" read_bw="130MBps" write_bw="130MBps">
         <prop id="size" value="120GB"/>
         <prop id="mount" value="/scratch"/>
       </disk>
@@ -66,8 +66,8 @@
 
     <!-- Network topology with shared bottlenecks -->
     <link id="backbone_fast" bandwidth="220MBps" latency="0.5ms"/>
-    <link id="backbone_regular" bandwidth="80MBps" latency="2ms"/>
-    <link id="bottleneck_link" bandwidth="120MBps" latency="8ms"/>
+    <link id="backbone_regular" bandwidth="150MBps" latency="2ms"/>
+    <link id="bottleneck_link" bandwidth="92MBps" latency="8ms"/>
 
     <!-- Controller/storage to compute routes -->
     <route src="ControllerHost" dst="cpu_host_ultra"><link_ctn id="backbone_fast"/></route>

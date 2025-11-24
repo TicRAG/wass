@@ -1,10 +1,13 @@
 scheduler,workflow,makespan,status,task_count,seed
-WASS-RAG (Full),synthetic_workflow_001.json,3075.3402833660043,success,40,0
-WASS-RAG (Full),seismology-chameleon-100p-001.json,1098.940333461578,success,101,0
-WASS-RAG (Full),montage-chameleon-2mass-01d-001_aug1.json,533.45077195207,success,103,0
-HEFT,synthetic_workflow_001.json,3075.3252023260147,success,40,0
-HEFT,seismology-chameleon-100p-001.json,1106.3868623066362,success,101,0
-HEFT,montage-chameleon-2mass-01d-001_aug1.json,3442.920259331021,success,103,0
-MIN-MIN,synthetic_workflow_001.json,4840.755519642595,success,40,0
-MIN-MIN,seismology-chameleon-100p-001.json,1319.173564218478,success,101,0
-MIN-MIN,montage-chameleon-2mass-01d-001_aug1.json,1618.8509631468114,success,103,0
+WASS-RAG (Full),synthetic_workflow_001.json,3075.3409618731175,success,40,0
+WASS-RAG (Full),seismology-chameleon-100p-001.json,1098.940475000058,success,101,0
+WASS-RAG (Full),montage-chameleon-2mass-01d-001_aug1.json,769.3223273159523,success,103,0
+WASS-DRL (Vanilla),synthetic_workflow_001.json,3075.3409618731175,success,40,0
+WASS-DRL (Vanilla),seismology-chameleon-100p-001.json,1098.9404625676239,success,101,0
+WASS-DRL (Vanilla),montage-chameleon-2mass-01d-001_aug1.json,748.6038798853409,success,103,0
+HEFT,synthetic_workflow_001.json,3075.3240875274582,success,40,0
+HEFT,seismology-chameleon-100p-001.json,1162.3195688114554,success,101,0
+HEFT,montage-chameleon-2mass-01d-001_aug1.json,2050.3397449690456,success,103,0
+MIN-MIN,synthetic_workflow_001.json,3079.2173271989705,success,40,0
+MIN-MIN,seismology-chameleon-100p-001.json,1176.7923838200236,success,101,0
+MIN-MIN,montage-chameleon-2mass-01d-001_aug1.json,1617.2182173161966,success,103,0

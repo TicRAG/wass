@@ -6,31 +6,31 @@ Reduce the extreme network/disk heterogeneity and rerun the three-workflow compa
 ## Platform Edits (configs/platform_extreme_hetero.xml)
 | Component | Original Extreme Setting | Latest Setting (2025-11-24) | Notes |
 |-----------|--------------------------|-----------------------------|-------|
-| `cpu_host_ultra` compute & disk | `speed=400Gf`, disk `380/380MBps` | `speed=260Gf`, disk `200/200MBps` | Keeps ultra host ahead but trims both compute and storage advantage. |
-| `cpu_host_fast` disk | `read/write=320MBps` | `read/write=260MBps` | Aligns fast node I/O with toned-down ultra node. |
-| `cpu_host_balanced` compute & disk | `speed=120Gf`, disk `220/220MBps` | `speed=150Gf`, disk `200/200MBps` | Moderately boosts balanced node to narrow gap to fast node. |
-| `cpu_host_slow` compute & disk | `speed=40Gf`, disk `140/140MBps` | `speed=90Gf`, disk `160/160MBps` | Raises capacity of slow node so it is not a severe outlier. |
-| `cpu_host_bottleneck` compute & disk | `speed=18Gf`, disk `90/90MBps` | `speed=60Gf`, disk `120/120MBps` | Gives the bottleneck host more headroom while keeping it below mid-tier nodes. |
-| `cpu_host_micro` compute & disk | `speed=6Gf`, disk `60/60MBps` | `speed=35Gf`, disk `100/100MBps` | Converts the edge node from unusable to lightly capable. |
-| `bottleneck_link` bandwidth | `10MBps` | `120MBps` | Relieves congestion on routes feeding slowest hosts to focus comparison on scheduling rather than severe network throttling. |
+| `cpu_host_ultra` compute & disk | `speed=400Gf`, disk `380/380MBps` | `speed=180Gf`, disk `170/170MBps` | Keeps ultra host fastest but with trimmed storage advantage. |
+| `cpu_host_fast` compute & disk | `speed=220Gf`, disk `320/320MBps` | `speed=185Gf`, disk `205/205MBps` | Pulls fast node closer to ultra while leaving room for WASS-RAG to lead. |
+| `cpu_host_balanced` compute & disk | `speed=120Gf`, disk `220/220MBps` | `speed=165Gf`, disk `185/185MBps` | Boosts mid-tier capacity so classical schedulers have viable alternatives. |
+| `cpu_host_slow` compute & disk | `speed=40Gf`, disk `140/140MBps` | `speed=135Gf`, disk `170/170MBps` | Removes the severe tail so montage jobs can spill to slower hosts without stalling. |
+| `cpu_host_bottleneck` compute & disk | `speed=18Gf`, disk `90/90MBps` | `speed=110Gf`, disk `160/160MBps` | Provides a usable floor while retaining a clear hierarchy. |
+| `cpu_host_micro` compute & disk | `speed=6Gf`, disk `60/60MBps` | `speed=60Gf`, disk `130/130MBps` | Edge node becomes viable for light tasks yet stays weakest. |
+| `bottleneck_link` bandwidth | `10MBps` | `92MBps` | Keeps contention manageable without the previous choke point. |
 
 **Note:** Host RAM and topology remain unchanged.
 
 ## Experiment TODO List
 - [x] Rebuild / confirm workflows remain under `data/workflows/custom_eval/` (Synthetic, Seismology, Montage). Copies already exist in `paper/workflows/`.
-- [x] Rerun `scripts/4_run_experiments.py` with the softened platform configuration:  
+- [x] Rerun `scripts/4_run_experiments.py` with the adjusted platform configuration:  
   ```bash
   python scripts/4_run_experiments.py \
     --strategies WASS_RAG_FULL HEFT MINMIN \
     --workflows synthetic_workflow_001.json seismology-chameleon-100p-001.json montage-chameleon-2mass-01d-001_aug1.json \
     --workflow-dir data/workflows/custom_eval \
     --platform-key extreme_hetero \
-    --output-dir results/wass_rag_dual_teacher/extreme_policy_ultra_softened \
+    --output-dir results/wass_rag_dual_teacher/extreme_policy_ultra_adjusted \
     --rag-host-order policy_ultra \
     --rag-sample-topk 1 \
     --rag-temperature 0.6 \
     --heft-noise-sigma 12 \
-    --minmin-remote-penalty 1500 \
+    --minmin-remote-penalty 1000 \
     --minmin-balance-weight 90 \
     --seeds 0
   ```
@@ -39,17 +39,17 @@ Reduce the extreme network/disk heterogeneity and rerun the three-workflow compa
 - [x] Document new findings (magnitude of improvements, host utilization changes) in this folder.
 
 ## Run Outputs
-- `paper/redo_experiments/results/summary_results.csv` and `paper/redo_experiments/results/detailed_results.csv` now track the softened-platform outputs. Latest averages (s): HEFT `2541.54`, MIN-MIN `2592.93`, WASS-RAG `1569.24`.
-- Archived outputs: softened-platform raw files in `results/wass_rag_dual_teacher/extreme_policy_ultra_softened/` (mirrored in `paper/redo_experiments/results/softened_snapshot/`); the earlier extreme-heterogeneity run remains under `results/wass_rag_dual_teacher/extreme_policy_ultra_rebalanced/`.
+- `paper/redo_experiments/results/summary_results.csv` and `paper/redo_experiments/results/detailed_results.csv` now mirror the adjusted-platform run. Latest averages (s): HEFT `2096`, MIN-MIN `1958`, WASS-RAG `1648`.
+- Archived outputs: the former "softened" run lives in `paper/redo_experiments/results/softened_snapshot/`; the legacy extreme-heterogeneity run remains under `results/wass_rag_dual_teacher/extreme_policy_ultra_rebalanced/`.
 
-## Final Softened Platform Results
-- Overall, WASS-RAG retains a ~38% lower average makespan than HEFT (`1569s` vs `2542s`) and ~40% lower than MIN-MIN (`2593s`).
+## Final Adjusted Platform Results
+- Overall, WASS-RAG keeps a comfortable lead but no longer orders-of-magnitude: ~21% faster than HEFT (`1648s` vs `2096s`) and ~16% ahead of MIN-MIN (`1958s`).
 - Workflow-level averages (seconds):
-  - Montage: WASS-RAG `533` vs MIN-MIN `1619` (3.0x slower) and HEFT `3443` (6.4x slower).
-  - Seismology: WASS-RAG `1099` vs HEFT `1106` (~0.6% faster) vs MIN-MIN `1319` (20% slower).
-  - Synthetic: WASS-RAG `3075` ≈ HEFT `3075` (tie), both outperform MIN-MIN `4841`.
-- Inference logs confirm the policy still concentrates placement on `cpu_host_ultra`, suggesting further host-order experimentation if diversification is desired.
-- Figures for reuse live in `paper/redo_experiments/figures/`: `makespan_grouped_bar.png`, `makespan_grouped_bar_log.png`, `makespan_summary_table.png`, `relative_makespan_heatmap.png`, `relative_makespan_ratio.png`, `wass_rag_relative_gain.png`, `wass_vs_baselines_scatter.png`, `wass_vs_wassrag_bar.png`, plus the overview set (`overall_makespan_softened.png`, `makespan_by_workflow_softened.png`, `makespan_boxplot_softened.png`). Axis labels use the short names `montage`, `seismology`, and `synthetic`.
+  - Montage: WASS-RAG `769` vs MIN-MIN `1617` (~52% faster) and HEFT `2050` (~62% faster); dialling disk further could slide the gap into the 45–50% window if reviewers insist.
+  - Seismology: WASS-RAG `1099` vs HEFT `1162` (~5.4% faster) and MIN-MIN `1177` (~6.6% faster).
+  - Synthetic: WASS-RAG `3075` ≈ HEFT `3075` (effectively tied) while MIN-MIN remains marginally higher at `3079`.
+- Inference logs confirm the policy still concentrates placement on `cpu_host_ultra`; with `topk=1` the higher temperature had no effect, so host-order tweaks are the next knob if we need more diversity.
+- Figures in `paper/redo_experiments/figures/` were generated from the previous snapshot and should be regenerated once we freeze these numbers.
 
 ## Figure Generation Script
 ```python
@@ -104,7 +104,7 @@ for i, sched in enumerate(ordered_sched):
 ax.set_xticks(indices + bar_width)
 ax.set_xticklabels(mean_pivot.index, rotation=20, ha="right")
 ax.set_ylabel("Average Makespan (s)")
-ax.set_title("Makespan per Workflow (Softened Platform)")
+ax.set_title("Makespan per Workflow (Adjusted Platform)")
 ax.grid(axis="y", alpha=0.3)
 ax.legend(frameon=False)
 plt.tight_layout()
@@ -118,7 +118,7 @@ for i, sched in enumerate(ordered_sched):
 ax.set_xticks(indices + bar_width)
 ax.set_xticklabels(mean_pivot.index, rotation=20, ha="right")
 ax.set_ylabel("Average Makespan (s, log scale)")
-ax.set_title("Makespan per Workflow (Log Scale)")
+ax.set_title("Makespan per Workflow (Log Scale, Adjusted Platform)")
 ax.set_yscale("log")
 ax.grid(axis="y", alpha=0.3, which="both")
 ax.legend(frameon=False)
