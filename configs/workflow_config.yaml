@@ -75,6 +75,9 @@ platform_xml:
     medium_hetero: platform_medium_hetero.xml
     tight: platform_tight.xml
     extreme_hetero: platform_extreme_hetero.xml
+    extreme_hetero_scaled: platform_extreme_hetero_scaled.xml
+    extreme_hetero_v2: platform_extreme_hetero_v2.xml
+    constrained_ultra: platform_constrained_ultra.xml
     large: platform_large.xml
     test: test_platform.xml
     ultra_bias: platform_ultra_bias.xml

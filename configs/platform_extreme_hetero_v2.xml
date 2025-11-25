@@ -1,0 +1,94 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "https://simgrid.org/simgrid.dtd">
+<platform version="4.1">
+  <zone id="main" routing="Full">
+    <host id="ControllerHost" speed="1Gf" core="1"/>
+    <host id="StorageHost" speed="1Gf" core="1">
+      <disk id="storage_disk" read_bw="120MBps" write_bw="120MBps">
+        <prop id="size" value="1000GB"/>
+        <prop id="mount" value="/storage"/>
+      </disk>
+    </host>
+
+    <!-- V2: Massive Heterogeneity (1000x gap) -->
+    
+    <!-- The Beast -->
+    <host id="cpu_host_ultra" speed="1000Gf" core="64">
+      <prop id="ram" value="512GB"/>
+      <disk id="local_disk" read_bw="1000MBps" write_bw="1000MBps">
+        <prop id="size" value="2000GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <!-- The Good -->
+    <host id="cpu_host_fast" speed="100Gf" core="16">
+      <prop id="ram" value="64GB"/>
+      <disk id="local_disk" read_bw="200MBps" write_bw="200MBps">
+        <prop id="size" value="500GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <!-- The Average -->
+    <host id="cpu_host_medium" speed="50Gf" core="8">
+      <prop id="ram" value="32GB"/>
+      <disk id="local_disk" read_bw="100MBps" write_bw="100MBps">
+        <prop id="size" value="250GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <!-- The Bad -->
+    <host id="cpu_host_slow" speed="10Gf" core="4">
+      <prop id="ram" value="16GB"/>
+      <disk id="local_disk" read_bw="50MBps" write_bw="50MBps">
+        <prop id="size" value="100GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <!-- The Bottleneck -->
+    <host id="cpu_host_bottleneck" speed="5Gf" core="2">
+      <prop id="ram" value="8GB"/>
+      <disk id="local_disk" read_bw="25MBps" write_bw="25MBps">
+        <prop id="size" value="75GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <!-- The Ugly -->
+    <host id="cpu_host_micro" speed="1Gf" core="1">
+      <prop id="ram" value="4GB"/>
+      <disk id="local_disk" read_bw="10MBps" write_bw="10MBps">
+        <prop id="size" value="50GB"/>
+        <prop id="mount" value="/scratch"/>
+      </disk>
+    </host>
+
+    <link id="backbone_ultra" bandwidth="1000MBps" latency="0.1ms"/>
+    <link id="backbone_fast" bandwidth="200MBps" latency="1ms"/>
+    <link id="backbone_slow" bandwidth="50MBps" latency="5ms"/>
+    <link id="backbone_micro" bandwidth="10MBps" latency="20ms"/>
+
+    <!-- Routes -->
+    <route src="ControllerHost" dst="cpu_host_ultra"><link_ctn id="backbone_ultra"/></route>
+    <route src="StorageHost" dst="cpu_host_ultra"><link_ctn id="backbone_ultra"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_fast"><link_ctn id="backbone_fast"/></route>
+    <route src="StorageHost" dst="cpu_host_fast"><link_ctn id="backbone_fast"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_medium"><link_ctn id="backbone_fast"/></route>
+    <route src="StorageHost" dst="cpu_host_medium"><link_ctn id="backbone_fast"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_slow"><link_ctn id="backbone_slow"/></route>
+    <route src="StorageHost" dst="cpu_host_slow"><link_ctn id="backbone_slow"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_bottleneck"><link_ctn id="backbone_micro"/></route>
+    <route src="StorageHost" dst="cpu_host_bottleneck"><link_ctn id="backbone_micro"/></route>
+
+    <route src="ControllerHost" dst="cpu_host_micro"><link_ctn id="backbone_micro"/></route>
+    <route src="StorageHost" dst="cpu_host_micro"><link_ctn id="backbone_micro"/></route>
+
+  </zone>
+</platform>
